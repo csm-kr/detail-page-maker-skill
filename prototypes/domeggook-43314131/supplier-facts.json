@@ -1,0 +1,473 @@
+{
+  "schema_version": "0.1-prototype",
+  "source": {
+    "provider": "domeggook",
+    "product_id": "43314131",
+    "requested_url": "https://domeggook.com/43314131?from=popular100",
+    "final_url": "https://domeggook.com/43314131?from=popular100",
+    "captured_at": "2026-07-24T11:51:40.534793+00:00",
+    "bundle_path": ".artifacts/dmk-extractor-43314131",
+    "manifest_sha256": "942fb77ded36b76f6f94839a66165336006ef19d6155de5df91284b3f33edd50",
+    "validation": "valid",
+    "provenance_status": "needs-contract-upgrade"
+  },
+  "product_identity": {
+    "product_name": "줄리앤커터 만능채칼 필러 슬라이서 양면 당근 감자 양배추 채썰기",
+    "sku_identity_status": "supplier-source-stated",
+    "publication_gate": "user-approval-required"
+  },
+  "supplier_photo_inventory": [
+    {
+      "asset_id": "supplier-thumbnail-001",
+      "path": "thumbnail/thumbnail.png",
+      "sha256": "e233564a3d0e9bbc9b072eb9581245a8d33858125e7d97c31ca4be43c607dc55",
+      "role": "identity-primary",
+      "visible_facts": [
+        "제품 전체 실루엣",
+        "손에 쥔 상대 크기",
+        "양쪽 커터 구조"
+      ],
+      "allowed_uses": [
+        "supplier-evidence",
+        "identity-comparison"
+      ],
+      "ssot_eligibility": "needs-background-removal-and-human-approval",
+      "note": "손과 배경이 포함되어 있어 그대로 컷아웃 SSOT로 승격하지 않는다."
+    },
+    {
+      "asset_id": "supplier-detail-001",
+      "path": "detail/gif-frames/detail-01/frame-0001.png",
+      "sha256": "a070acd25eff878355257a27c750c2a9dd76481ca56f695ca6ed741b85a8876d",
+      "role": "identity-primary",
+      "visible_facts": [
+        "제품 전체 형태"
+      ],
+      "allowed_uses": [
+        "supplier-evidence",
+        "identity-comparison"
+      ],
+      "ssot_eligibility": "needs-provenance-and-human-approval"
+    },
+    {
+      "asset_id": "supplier-detail-002",
+      "path": "detail/gif-frames/detail-02/frame-0001.png",
+      "sha256": "faf971ab895c979a079d0a307350578326e5fc11aad5c555c76101ca6b03cd59",
+      "role": "demonstration",
+      "visible_facts": [
+        "껍질 제거와 얇게 썰기",
+        "채썰기"
+      ],
+      "allowed_uses": [
+        "supplier-evidence",
+        "planning-reference"
+      ],
+      "ssot_eligibility": "not-an-identity-master"
+    },
+    {
+      "asset_id": "supplier-detail-003",
+      "path": "detail/gif-frames/detail-03/frame-0001.png",
+      "sha256": "7c79ff7c64743a40278e657ad1f8f3f2565860b27ab82fc11f36cda8cdfdaefc",
+      "role": "identity-detail",
+      "visible_facts": [
+        "양면 커터 구조"
+      ],
+      "allowed_uses": [
+        "supplier-evidence",
+        "identity-comparison",
+        "planning-reference"
+      ],
+      "ssot_eligibility": "needs-provenance-and-human-approval"
+    },
+    {
+      "asset_id": "supplier-detail-004",
+      "path": "detail/gif-frames/detail-04/frame-0001.png",
+      "sha256": "0cf70bb2ecd1ae737e5cdc75c9cf3431384cd719506b7d50a0e49ba6329570c3",
+      "role": "identity-detail",
+      "visible_facts": [
+        "고리",
+        "측면 돌출 구조"
+      ],
+      "allowed_uses": [
+        "supplier-evidence",
+        "identity-comparison",
+        "planning-reference"
+      ],
+      "ssot_eligibility": "needs-provenance-and-human-approval"
+    },
+    {
+      "asset_id": "supplier-detail-007",
+      "path": "detail/assets/detail-07.png",
+      "sha256": "410534aec19ffd32096195585b5b2e9e870e8aa8b5c74b0c0325372e129cd07c",
+      "role": "geometry",
+      "visible_facts": [
+        "제품 치수",
+        "재질",
+        "원산지",
+        "수입원"
+      ],
+      "allowed_uses": [
+        "supplier-evidence",
+        "fact-transcription"
+      ],
+      "ssot_eligibility": "not-an-identity-master"
+    },
+    {
+      "asset_id": "supplier-detail-008",
+      "path": "detail/assets/detail-08.png",
+      "sha256": "1fc2577cf747fd2a0564b7546adfbf579f37cd488e7ae1198c5d4b664960f738",
+      "role": "exclude",
+      "visible_facts": [
+        "공급처 A/S 안내"
+      ],
+      "allowed_uses": [
+        "supplier-evidence",
+        "purchase-information"
+      ],
+      "ssot_eligibility": "excluded-from-product-ssot"
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "supplier-fact-001",
+      "category": "product-identity",
+      "raw_label": "상품명",
+      "raw_value": "줄리앤커터 만능채칼 필러 슬라이서 양면 당근 감자 양배추 채썰기",
+      "normalized_value": "다용도 미니 채칼",
+      "unit": null,
+      "source_path": "page.json",
+      "source_locator": {
+        "kind": "json-pointer",
+        "pointer": "/product_name"
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-002",
+      "category": "function",
+      "raw_label": "껍질제거/얇게 썰기 커터",
+      "raw_value": "껍질 제거 및 얇게 썰기",
+      "normalized_value": [
+        "peeling",
+        "thin-slicing"
+      ],
+      "unit": null,
+      "source_path": "detail/gif-frames/detail-02/frame-0001.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 2,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-003",
+      "category": "function",
+      "raw_label": "채썰기 커터",
+      "raw_value": "채썰기",
+      "normalized_value": "julienne-cutting",
+      "unit": null,
+      "source_path": "detail/gif-frames/detail-02/frame-0001.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 2,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-004",
+      "category": "structure",
+      "raw_label": "양면 커터",
+      "raw_value": "서로 다른 기능의 양면 커터",
+      "normalized_value": "dual-blade",
+      "unit": null,
+      "source_path": "detail/gif-frames/detail-03/frame-0001.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 3,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-005",
+      "category": "structure",
+      "raw_label": "고리",
+      "raw_value": "손잡이 끝 고리",
+      "normalized_value": "hanging-loop",
+      "unit": null,
+      "source_path": "detail/gif-frames/detail-04/frame-0001.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 4,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-006",
+      "category": "material",
+      "raw_label": "재질",
+      "raw_value": "스테인레스 430",
+      "normalized_value": "stainless-steel-430",
+      "unit": null,
+      "source_path": "detail/assets/detail-07.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 7,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-007",
+      "category": "physical-spec",
+      "raw_label": "가로",
+      "raw_value": "7.2cm",
+      "normalized_value": 7.2,
+      "unit": "cm",
+      "source_path": "detail/assets/detail-07.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 7,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-008",
+      "category": "physical-spec",
+      "raw_label": "헤드 높이",
+      "raw_value": "5.3cm",
+      "normalized_value": 5.3,
+      "unit": "cm",
+      "source_path": "detail/assets/detail-07.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 7,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-009",
+      "category": "physical-spec",
+      "raw_label": "손잡이 길이",
+      "raw_value": "10.05cm",
+      "normalized_value": 10.05,
+      "unit": "cm",
+      "source_path": "detail/assets/detail-07.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 7,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-010",
+      "category": "physical-spec",
+      "raw_label": "고리",
+      "raw_value": "2cm",
+      "normalized_value": 2,
+      "unit": "cm",
+      "source_path": "detail/assets/detail-07.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 7,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-011",
+      "category": "origin",
+      "raw_label": "원산지",
+      "raw_value": "PRODUCT OF CHINA",
+      "normalized_value": "CN",
+      "unit": null,
+      "source_path": "detail/assets/detail-07.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 7,
+        "region": null
+      },
+      "status": "source-stated",
+      "publication_status": "inferred",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": false,
+      "publication_gate": "user-approval-required"
+    },
+    {
+      "fact_id": "supplier-fact-012",
+      "category": "supplier-claim",
+      "raw_label": "공급처 소구 문구",
+      "raw_value": "녹슬지 않아 위생적",
+      "normalized_value": null,
+      "unit": null,
+      "source_path": "detail/detail-page.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "region": null
+      },
+      "status": "needs-verification",
+      "publication_status": "unknown",
+      "allowed_use": "planning-only",
+      "publishable": false,
+      "publication_gate": "supporting-test-or-user-evidence-required"
+    }
+  ],
+  "appeal_candidates": [
+    {
+      "appeal_id": "appeal-001",
+      "label": "하나로 두 가지 손질",
+      "supporting_fact_ids": [
+        "supplier-fact-002",
+        "supplier-fact-003",
+        "supplier-fact-004"
+      ],
+      "status": "planning-candidate",
+      "publishable": false,
+      "required_approval": "fact-and-copy-review"
+    },
+    {
+      "appeal_id": "appeal-002",
+      "label": "작게 보관하는 주방 도구",
+      "supporting_fact_ids": [
+        "supplier-fact-005",
+        "supplier-fact-007",
+        "supplier-fact-008",
+        "supplier-fact-009",
+        "supplier-fact-010"
+      ],
+      "status": "planning-candidate",
+      "publishable": false,
+      "required_approval": "fact-and-copy-review"
+    },
+    {
+      "appeal_id": "appeal-003",
+      "label": "스테인레스 430 재질",
+      "supporting_fact_ids": [
+        "supplier-fact-006"
+      ],
+      "status": "planning-candidate",
+      "publishable": false,
+      "prohibited_extension": "녹 방지·위생·내구 성능으로 확대하지 않음",
+      "required_approval": "fact-and-copy-review"
+    }
+  ],
+  "planning_brief": {
+    "product_question": "작은 도구 하나로 껍질 제거, 얇게 썰기와 채썰기를 어떻게 나눠 수행하는가?",
+    "recommended_story": [
+      "제품과 두 기능을 첫 화면에서 식별",
+      "껍질 제거·얇게 썰기와 채썰기의 사용 면을 시각적으로 구분",
+      "양면 커터 구조를 근접 이미지로 설명",
+      "치수와 고리 구조로 크기·보관 정보를 확인",
+      "재질·원산지·구매 정보를 사실표로 마무리"
+    ],
+    "motion_candidates": [
+      {
+        "question": "제품을 뒤집으면 어떤 기능으로 바뀌는가?",
+        "method": "승인된 동일 제품 컷아웃을 회전시키고 두 커터 면을 각각 표시",
+        "evidence_fact_ids": [
+          "supplier-fact-002",
+          "supplier-fact-003",
+          "supplier-fact-004"
+        ],
+        "status": "blocked-until-cutout-ssot"
+      }
+    ],
+    "do_not_claim": [
+      "녹이 슬지 않는다",
+      "위생 성능이 보장된다",
+      "특정 식재료를 일정한 두께로 자른다",
+      "사용자 사진이나 실측 없이 제품의 보이지 않는 면을 확정한다"
+    ]
+  },
+  "review_summary": {
+    "visible_review_count": 4,
+    "captured_review_count": 4,
+    "complete": true,
+    "average_rating": 5.0,
+    "contentful_review_count": 1,
+    "usable_product_fact_count": 0,
+    "note": "공개 후기는 반응 참고용이며 규격·성능 사실 근거로 사용하지 않는다."
+  },
+  "missing_or_blocked": [
+    {
+      "field": "price",
+      "status": "missing-from-portable-bundle",
+      "effect": "운영 정보와 가격 기획 차단"
+    },
+    {
+      "field": "minimum-order-quantity",
+      "status": "missing-from-portable-bundle",
+      "effect": "판매 구성 확정 차단"
+    },
+    {
+      "field": "options",
+      "status": "missing-from-portable-bundle",
+      "effect": "옵션·구성 안내 차단"
+    },
+    {
+      "field": "cleaning-and-care",
+      "status": "unknown",
+      "effect": "세척·관리 카피 차단"
+    },
+    {
+      "field": "certification-or-test-evidence",
+      "status": "unknown",
+      "effect": "성능·위생·내구 주장 차단"
+    },
+    {
+      "field": "detail-root-provenance",
+      "status": "not-persisted-by-current-extractor",
+      "effect": "상세 자산 자동 SSOT 승격 차단"
+    },
+    {
+      "field": "gif-classification",
+      "status": "incorrect-summary",
+      "effect": "GIF 원본 6개가 모두 1프레임 정지 GIF이므로 동적 자산으로 취급 금지"
+    }
+  ]
+}

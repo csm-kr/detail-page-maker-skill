@@ -23,6 +23,15 @@
 
 최초 실행에서는 다른 자료를 요구하지 않는다. 기존 `dmk-extractor`로 도매꾹 URL을 열어 상품명, 대표·상세 이미지, 상세 내부 GIF, 최근 6개월 공개 후기와 검증 원장을 portable bundle로 저장한다. 새 스킬은 검증된 번들 위에서 구성, 옵션, 규격, 소재, 사용법, 주의사항과 공급처가 명시한 제품 사실을 `supplier-facts.json`으로 정규화한다.
 
+도매꾹 원문은 한 덩어리로 요약하지 않고 다음 네 층으로 분리한다.
+
+1. `supplier-photo-inventory.json`: 대표·상세 원본 사진을 제품 동일성, 디테일, 치수, 사용 시연, 제외 자산으로 분류한다.
+2. `supplier-facts.json`: 치수·재질·구조·구성·사용 정보와 변동 운영 정보를 원본 locator와 함께 저장한다.
+3. `supplier-appeal-candidates.json`: 공급처 소구점을 사실 ID에 연결하고 검증 전 과장 확장을 막는다.
+4. `supplier-planning-brief.json`: 제품 질문, 구매 서사, 필요한 이미지·모션과 금지 주장을 정리한다.
+
+소구 후보와 기획은 공급처 사실에서 파생되지만 그 자체가 제품 사실의 출처는 아니다. 게시 가능한 값은 원본에서 확인되고 사람의 승인을 받은 사실로 제한한다.
+
 ### 공급처 추출 후 선택 입력
 
 - 사용자가 직접 촬영한 동일 SKU의 다각도 제품 사진
@@ -43,8 +52,8 @@
 2. 기존 `dmk-extractor`로 격리된 portable bundle을 만든다.
 3. 대표 이미지, 펼친 상세 원본, 상세 내부 GIF 전체 프레임, 최근 6개월 공개 후기와 녹화 증거를 보존한다.
 4. 수집 시각, 요청·최종 URL, 원본 경로, 파일 크기·치수와 SHA-256을 포함한 변경 불가능한 공급처 스냅샷을 만든다.
-5. 검증된 bundle에서 출처 locator가 붙은 `supplier-facts.json`을 만든다.
-6. 상품 사실, 광고 주장, 변동 운영 정보, 추정과 합성된 소비자 문제를 구분한다.
+5. 검증된 bundle에서 역할이 붙은 원본 사진 인벤토리와 출처 locator가 붙은 `supplier-facts.json`을 만든다.
+6. 확인된 치수·제품 사실, 공급처 소구 문구, 검증 전 소구 후보, 기획 가설과 변동 운영 정보를 구분한다.
 7. 실제 제품 이미지의 해시와 파일 목록을 제품 동일성의 기준으로 잠근다.
 8. 공급처 페이지에 없는 사실은 추정하거나 ImageGen 결과에서 역으로 만들어내지 않는다.
 9. 근거가 없는 성능·효과·인증 주장은 상세페이지에 사용하지 않는다.
@@ -54,6 +63,16 @@
 상세 계약은 [`docs/contracts/domeggook-supplier-extraction.md`](docs/contracts/domeggook-supplier-extraction.md)를 따른다.
 
 첫 실제 추출 prototype은 `https://domeggook.com/43314131?from=popular100`으로 수행한다. 이전 `dmk-extractor`가 탐지한 `within_detail_root: true` 상세 자산만 사실 정규화와 제품 SSOT에 자동 승격하고, root 밖 장문 이미지 fallback은 수동 검수 전까지 보류한다.
+
+prototype에서 portable bundle 생성과 독립 무결성 검증은 통과했다. 실제 원본에서 제품 사진, 표시 치수, 재질·구조, 소구 후보와 기획 브리프를 분리할 수 있음을 확인했다. 동시에 다음 보완 사항을 발견했다.
+
+- 상세 자산별 `within_detail_root`, 선택 방식과 root selector가 출력에 남아야 한다.
+- GIF MIME 원본 수와 실제 다중 프레임 동적 GIF 수를 분리해야 한다. 첫 fixture의 GIF 원본 6개는 모두 1프레임 정지 GIF였다.
+- 가격, 최소 주문수량과 옵션은 수집 시각을 가진 변동 정보로 추가 보존해야 한다.
+- 이미지 속 치수와 문구는 OCR 결과, 원본 영역과 사람의 확인 상태를 함께 기록해야 한다.
+- 특정 상품번호나 한 판매자 레이아웃에 고정되지 않도록 서로 다른 도매꾹 상품 fixture로 회귀 검증해야 한다.
+
+상세 결과는 [`prototypes/domeggook-43314131/report.md`](prototypes/domeggook-43314131/report.md)와 [`supplier-facts.json`](prototypes/domeggook-43314131/supplier-facts.json)에 남긴다.
 
 ### 4.2 Behance 품질 표본 구축
 
@@ -99,6 +118,7 @@ AI 디자인 계약의 근거와 상세 QA 루프는 [`research/ai-design-skills
 - 이미지와 GIF는 `assets/`에서 교체할 수 있게 한다.
 - 배경, 장식, 강조 효과는 CSS/SVG로 구현하되 제품 자체를 왜곡하지 않는다.
 - 데스크톱 편집 화면과 실제 판매 채널 폭에서 모두 검수할 수 있게 한다.
+- 폭·패널 수·패널 비율은 전역 고정값이 아니라 판매 채널 preset과 디자인 서사가 결정한다.
 - 접근성용 대체 텍스트와 모션 감소 설정을 제공한다.
 
 ### 4.5 실제 상품 이미지 생성
@@ -198,6 +218,10 @@ detail-page-project/
 │  │  └─ gif/
 │  └─ fonts/
 ├─ planning/
+│  ├─ supplier-photo-inventory.json
+│  ├─ supplier-facts.json
+│  ├─ supplier-appeal-candidates.json
+│  ├─ supplier-planning-brief.json
 │  ├─ product-facts.json
 │  ├─ evidence-map.json
 │  ├─ design-direction.md
@@ -228,6 +252,14 @@ detail-page-project/
 - ImageGen 결과와 GIF 전 구간에서 동일한 SKU로 보여야 한다.
 - 모든 디자인·모션 장면이 승인된 제품 컷아웃 SSOT 또는 그 출처가 명확한 제품 뷰 시트를 참조해야 한다.
 
+### 제품 진실성과 기획
+
+- HTML에 게시된 모든 제품 사실은 원본 locator, 확인 상태와 fact ID를 가져야 한다.
+- 치수는 숫자·단위뿐 아니라 치수선이 가리키는 부위와 방향이 일치해야 한다.
+- 공급처 소구 문구, 소구 후보와 기획 가설은 확인된 제품 사실과 별도 상태로 관리해야 한다.
+- 소구 후보는 하나 이상의 사실 ID에 연결하고 근거보다 강한 성능·효과 표현으로 확대하지 않아야 한다.
+- `publishable: true`는 원본을 사람이 확인해 `publication_status: confirmed`가 된 사실에만 허용한다.
+
 ### 제품 컷아웃
 
 - 파일은 알파 채널이 있는 PNG이며 네 모서리가 완전히 투명해야 한다.
@@ -242,6 +274,7 @@ detail-page-project/
 - 이미지와 GIF를 파일 교체만으로 바꿀 수 있어야 한다.
 - 색상·폰트·간격을 디자인 토큰에서 일괄 수정할 수 있어야 한다.
 - 섹션을 이동·복제·삭제해도 전체 구조가 무너지지 않아야 한다.
+- CSS 선언만 보지 않고 실제 브라우저 bounding box, 가로 overflow와 텍스트 clipping을 검증해야 한다.
 
 ### GIF
 
@@ -273,6 +306,9 @@ detail-page-project/
 - 로컬 이슈의 triage 라벨은 `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix` 기본값을 사용한다.
 - 최초 입력은 공급처 상품 URL 1개만 받는다.
 - 첫 공급처는 도매꾹으로 한정한다.
+- 특정 도매꾹 상품번호·판매자 CDN·상세 자산 개수에 고정하지 않고 유효한 임의 도매꾹 상품 URL을 처리한다.
+- 도매꾹에서는 원본 사진, 치수·제품 사실, 사실에 연결된 소구 후보와 기획 브리프를 각각 분리해 만든다.
+- 공급처 소구와 기획은 제품 사실의 출처로 승격하지 않으며 게시 전 사람의 승인을 요구한다.
 - 공급처 원문과 실제 상품 이미지를 SKU 사실 및 제품 동일성의 최우선 기준으로 사용한다.
 - 사용자가 촬영한 동일 SKU의 다각도 원본 사진을 제품 사실 SSOT에 추가한다.
 - 사용자 촬영 원본에서 배경을 제거한 투명 PNG 제품 컷아웃 SSOT를 가장 먼저 만든다.
@@ -300,4 +336,4 @@ detail-page-project/
 
 ## 11. 현재 단계
 
-지금은 Wayfinder 계획 단계다. 목적과 핵심 제작 파이프라인을 정리했으며, 결정 지도는 `.scratch/editable-html-detail-page-maker/map.md`에서 관리한다. 아직 새 스킬의 구현이나 실제 상품 상세페이지 제작은 시작하지 않았다.
+지금은 Wayfinder 계획 단계다. 목적과 핵심 제작 파이프라인을 정리했고 첫 도매꾹 실제 추출 prototype과 무결성 검증을 완료했다. 결정 지도는 `.scratch/editable-html-detail-page-maker/map.md`에서 관리한다. 아직 새 스킬 구현이나 실제 판매용 상세페이지 제작은 시작하지 않았다.
