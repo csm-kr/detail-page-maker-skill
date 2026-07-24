@@ -2,12 +2,12 @@
   "schema_version": "1.0",
   "product_id": "43314131",
   "locale": "ko-KR",
-  "content_status": "supplier-reference-v1-final",
+  "content_status": "supplier-reference-v3-commercial",
   "product": {
     "display_name": "다용도 미니 채칼",
     "hero_headline": "한 헤드에, 두 가지 커터.",
-    "hero_lead": "껍질 제거와 얇게 썰기, 채썰기를 한 도구의 서로 다른 커터에 담은 다용도 미니 채칼.",
-    "closing_headline": "손질은 세 가지. 도구는 하나."
+    "hero_lead": "껍질 제거와 얇게 썰기, 채썰기에 감자 눈 제거용 돌기까지 한 자루에 담았습니다.",
+    "closing_headline": "세 가지 손질에, 감자 눈 제거까지."
   },
   "sections": [
     {
@@ -19,18 +19,26 @@
         "supplier-fact-002",
         "supplier-fact-003",
         "supplier-fact-004",
-        "supplier-fact-006"
+        "supplier-fact-006",
+        "supplier-fact-014"
       ]
     },
     {
       "id": "context",
       "disclosure_level": "surface",
-      "headline": "도구는 작게. 가능성은 세 가지.",
-      "single_message": "손질 목적에 맞는 커터를 선택한다.",
+      "headline": "손질 하나에, 도구는 몇 번?",
+      "single_message": "잠깐 채썰기와 감자 눈 제거 때문에 도구를 바꿔 드는 번거로움을 한 헤드의 두 면과 제거 돌기로 줄이는 구조를 제안한다.",
+      "voice_provenance": "MARKET_PAIN",
+      "voice_source_ids": [
+        "market-voice-ohouse-001",
+        "market-voice-daiso-001"
+      ],
+      "solution_declaration": "한 자루 안에서, 손질에 맞는 면만.",
       "fact_ids": [
         "supplier-fact-002",
         "supplier-fact-003",
-        "supplier-fact-004"
+        "supplier-fact-004",
+        "supplier-fact-014"
       ]
     },
     {
@@ -42,7 +50,13 @@
         "얇게 썰기",
         "채썰기"
       ],
-      "evidence_caption": "공급처 시연 이미지 기준 · 기능 종류를 설명하는 자료이며 일정한 절삭 결과를 보장하지 않습니다."
+      "evidence_caption": "기능 종류를 설명하는 사용 이미지이며 일정한 절삭 결과를 보장하지 않습니다.",
+      "extra_detail": {
+        "headline": "오른쪽 돌기로, 감자 눈까지.",
+        "fact_ids": [
+          "supplier-fact-014"
+        ]
+      }
     },
     {
       "id": "motion-guide",
@@ -71,7 +85,7 @@
     {
       "id": "material",
       "disclosure_level": "proof",
-      "headline": "재질은 명확하게. 과장은 덜어내고.",
+      "headline": "표시 재질, 스테인레스 430.",
       "material": "스테인레스 430",
       "prohibited_extensions": [
         "녹 방지",
@@ -100,7 +114,7 @@
     {
       "id": "closing",
       "disclosure_level": "surface",
-      "headline": "손질은 세 가지. 도구는 하나."
+      "headline": "세 가지 손질에, 감자 눈 제거까지."
     }
   ],
   "assets": {
@@ -110,15 +124,15 @@
     },
     "use-peel": {
       "path": "assets/use-peel.jpg",
-      "alt": "감자 껍질을 제거하는 공급처 시연 장면"
+      "alt": "감자 껍질을 제거하는 제품 사용 장면"
     },
     "use-slice": {
       "path": "assets/use-slice.jpg",
-      "alt": "오이를 얇게 써는 공급처 시연 장면"
+      "alt": "오이를 얇게 써는 제품 사용 장면"
     },
     "use-julienne": {
       "path": "assets/use-julienne.jpg",
-      "alt": "당근을 채 써는 공급처 시연 장면"
+      "alt": "당근을 채 써는 제품 사용 장면"
     },
     "use-slice-motion": {
       "path": "assets/use-slice-motion.gif",
@@ -128,8 +142,22 @@
     "dual-blade-function": {
       "path": "assets/dual-blade-function.gif",
       "poster": "assets/dual-blade-function-poster.png",
-      "alt": "제품 헤드의 껍질 제거·얇게 썰기 커터와 채썰기 커터 위치를 순차적으로 강조하는 반복 모션"
+      "alt": "제품 헤드의 A면과 B면을 실제로 뒤집어 두 커터 기능을 연결하는 반복 모션"
+    },
+    "dimension-guide": {
+      "path": "assets/dimension-guide.gif",
+      "poster": "assets/dimension-guide-poster.png",
+      "alt": "제품의 네 치수 구간을 순서대로 보여주는 반복 모션"
+    },
+    "ingredient-still-life": {
+      "path": "assets/ingredient-still-life.png",
+      "alt": "감자, 오이, 당근을 여백 있게 배치한 식재료 준비 장면"
+    },
+    "potato-eye-motion": {
+      "path": "assets/potato-eye-motion.gif",
+      "poster": "assets/potato-eye-motion-poster.png",
+      "alt": "제품 오른쪽 제거 돌기가 감자 눈에 닿는 지점을 보여주는 반복 동작"
     }
   },
-  "source_note": "도매꾹 공급처 상세 원문 기준 · 기능 연출 이미지는 사용 흐름의 이해를 돕기 위한 자료입니다"
+  "source_note": "기능 연출 이미지는 제품 구조와 사용 흐름의 이해를 돕기 위한 자료입니다"
 }

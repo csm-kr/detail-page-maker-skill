@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "product_id": "43314131",
-  "page_status": "supplier-reference-v1-final",
+  "page_status": "supplier-reference-v3-commercial",
   "publication_gate": "supplier-stated facts are approved for this v1; generated product imagery remains replaceable when user-photo SSOT becomes available",
   "claims": [
     {
@@ -10,7 +10,7 @@
       "claim_type": "product-identity",
       "fact_ids": ["supplier-fact-001"],
       "section_ids": ["hero", "product-facts", "closing"],
-      "asset_ids": ["product-cutout"],
+      "asset_ids": ["dimension-guide", "supplier-spec-evidence"],
       "verification_status": "supplier-source-stated",
       "publishable": true
     },
@@ -50,7 +50,7 @@
       "claim_type": "structure",
       "fact_ids": ["supplier-fact-005"],
       "section_ids": ["motion-guide", "storage"],
-      "asset_ids": ["product-cutout"],
+      "asset_ids": ["product-cutout", "supplier-storage-evidence"],
       "verification_status": "supplier-source-stated",
       "publishable": true
     },
@@ -75,7 +75,7 @@
         "supplier-fact-010"
       ],
       "section_ids": ["specifications", "product-facts"],
-      "asset_ids": ["product-cutout"],
+      "asset_ids": ["dimension-guide", "supplier-spec-evidence"],
       "verification_status": "supplier-source-stated; manual visual review",
       "publishable": true
     },
@@ -98,6 +98,30 @@
       "asset_ids": ["supplier-spec-evidence"],
       "verification_status": "supplier-source-stated; manual visual review",
       "publishable": true
+    },
+    {
+      "claim_id": "claim-010",
+      "claim_text": "오른쪽 보조 돌기를 이용한 감자 눈과 과일·채소 꼭지 제거",
+      "claim_type": "function",
+      "fact_ids": ["supplier-fact-014"],
+      "section_ids": ["hero", "context", "functions", "closing"],
+      "asset_ids": ["potato-eye-motion", "supplier-storage-evidence"],
+      "verification_status": "supplier-source-stated; ImageGen frames preserve the supplier contact direction and HyperFrames motion is explanatory",
+      "publishable": true
+    }
+  ],
+  "problem_planning_inputs": [
+    {
+      "copy": "잠깐 채썰자고 큰 채칼을 꺼내기 번거롭고.",
+      "voice_source_id": "market-voice-ohouse-001",
+      "source_scope": "similar-product-review",
+      "product_claim": false
+    },
+    {
+      "copy": "감자 눈 제거 돌기가 없으면 칼끝을 다시 잡게 되고.",
+      "voice_source_id": "market-voice-daiso-001",
+      "source_scope": "similar-product-review",
+      "product_claim": false
     }
   ],
   "blocked_claims": [

@@ -359,6 +359,25 @@
       "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
+      "fact_id": "supplier-fact-014",
+      "category": "function",
+      "raw_label": "더듬이",
+      "raw_value": "과일, 야채 꼭지나 썩은 부분을 쉽게 제거할 수 있습니다.",
+      "normalized_value": "produce-blemish-removal-tip",
+      "unit": null,
+      "source_path": "detail/gif-frames/detail-04/frame-0001.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 4,
+        "region": "상단 더듬이 기능 및 감자 사용 시연"
+      },
+      "status": "source-stated",
+      "publication_status": "confirmed-supplier-source",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v2"
+    },
+    {
       "fact_id": "supplier-fact-012",
       "category": "supplier-claim",
       "raw_label": "공급처 소구 문구",
@@ -414,6 +433,16 @@
       "publishable": true,
       "prohibited_extension": "녹 방지·위생·내구 성능으로 확대하지 않음",
       "required_approval": "fulfilled-for-supplier-reference-v1"
+    },
+    {
+      "appeal_id": "appeal-004",
+      "label": "감자 눈과 과일·채소 꼭지 제거용 보조 돌기",
+      "supporting_fact_ids": [
+        "supplier-fact-014"
+      ],
+      "status": "approved-supplier-reference-v2",
+      "publishable": true,
+      "required_approval": "fulfilled-for-supplier-reference-v2"
     }
   ],
   "planning_brief": {
@@ -421,6 +450,7 @@
     "recommended_story": [
       "제품과 두 기능을 첫 화면에서 식별",
       "껍질 제거·얇게 썰기와 채썰기의 사용 면을 시각적으로 구분",
+      "오른쪽 보조 돌기와 감자 눈 제거 사용 장면을 연결",
       "양면 커터 구조를 근접 이미지로 설명",
       "치수와 고리 구조로 크기·보관 정보를 확인",
       "재질·원산지·구매 정보를 사실표로 마무리"

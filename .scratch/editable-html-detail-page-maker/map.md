@@ -22,6 +22,8 @@
 - [실제 도매꾹 URL 추출과 사실 정규화 검증](issues/12-prototype-domeggook-extraction.md) —원본 캡처·무결성은 통과했고, 원본 사진·치수·소구 후보·기획을 분리했다. 상세 root provenance, 정지 GIF 분류, 가격·MOQ·옵션과 OCR locator 보완을 후속 과제로 확정했다.
 - [첫 수정 가능 HTML 상세페이지와 모션 증거 검증](issues/15-build-and-qa-first-editable-html-prototype.md) —ImageGen 참조 장면, HyperFrames GIF 2개, 편집 모드와 360·800px QA를 연결해 88/100 prototype을 완성했다. 실사진 SSOT와 사실 승인 전 판매 게시 게이트는 차단했다.
 - [공급처 기준 v1 최종 납품본 마감](issues/16-finalize-supplier-reference-v1.md) —공급처 사실 12개와 공개 claim 9개를 잠그고 prototype·내부 제작 문구를 제거했으며, 콘텐츠 데이터·편집 저장 상태·320~800px QA를 갖춘 94/100 최종 HTML로 마감했다.
+- [동종 후기 서사와 네 모션을 갖춘 v3 업그레이드](issues/17-upgrade-to-market-pain-and-four-motion-v3.md) —동종 제품 실제 후기 기반 문제→해결, ImageGen 소재, 감자 눈·치수 HyperFrames를 더해 97/100·하드 실패 0개로 마감했다.
+- [Taste Skill·정기 학습·도매꾹 인기상품 반복 루프](issues/18-queue-taste-cron-and-popular-loop.md) —Taste 검증, Behance 정기 학습 큐와 인기상품 1개씩의 전체 파이프라인을 다음 실행 순서로 잠갔다.
 
 ## Not yet specified
 

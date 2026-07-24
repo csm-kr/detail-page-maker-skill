@@ -1,0 +1,19 @@
+{
+  "duration": 4,
+  "assertions": [
+    {
+      "kind": "staysInFrame",
+      "selector": "#potato-eye-clip"
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#contact-frame",
+      "bySec": 1.4
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#contact-ring",
+      "bySec": 1.6
+    }
+  ]
+}

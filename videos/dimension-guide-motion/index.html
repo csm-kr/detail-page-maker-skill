@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, height=900" />
+    <title>제품 치수 안내 모션</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans KR";
+        src: local("Noto Sans KR");
+        font-style: normal;
+        font-weight: 100 900;
+      }
+
+      @font-face {
+        font-family: "Apple SD Gothic Neo";
+        src: local("Apple SD Gothic Neo");
+        font-style: normal;
+        font-weight: 100 900;
+      }
+
+      :root {
+        --ink: #0b2922;
+        --forest: #173e34;
+        --accent: #dfff5a;
+        --paper: #f4f1e8;
+        --orange: #ff805f;
+        --blue: #48a7c6;
+        --violet: #8c79d9;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 800px;
+        height: 900px;
+        margin: 0;
+        overflow: hidden;
+        background: var(--paper);
+      }
+
+      body {
+        font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+      }
+
+      #stage {
+        position: relative;
+        width: 800px;
+        height: 900px;
+        overflow: hidden;
+        color: var(--ink);
+      }
+
+      .clip {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .scene-fill {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.92), transparent 46%),
+          var(--paper);
+      }
+
+      .product {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 800px;
+        height: 900px;
+        object-fit: contain;
+      }
+
+      .measure-layer {
+        position: absolute;
+        inset: 0;
+        width: 800px;
+        height: 900px;
+        overflow: visible;
+      }
+
+      .measure-path {
+        fill: none;
+        stroke-linecap: round;
+        stroke-width: 3;
+      }
+
+      .measure-tick {
+        fill: none;
+        stroke-linecap: round;
+        stroke-width: 3;
+      }
+
+      .measure-group {
+        opacity: 0;
+      }
+
+      .measure-label {
+        position: absolute;
+        display: grid;
+        min-width: 142px;
+        gap: 2px;
+        padding: 11px 14px 12px;
+        border: 1px solid rgba(11, 41, 34, 0.12);
+        border-radius: 15px;
+        background: rgba(255, 254, 249, 0.94);
+        box-shadow: 0 12px 28px rgba(11, 41, 34, 0.12);
+        opacity: 0;
+      }
+
+      .measure-label small {
+        color: rgba(11, 41, 34, 0.64);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .measure-label strong {
+        color: var(--ink);
+        font-size: 24px;
+        font-weight: 950;
+        letter-spacing: -0.06em;
+        line-height: 1;
+      }
+
+      #label-width {
+        top: 6px;
+        left: 328px;
+      }
+
+      #label-head {
+        top: 175px;
+        right: 16px;
+      }
+
+      #label-handle {
+        top: 462px;
+        left: 16px;
+      }
+
+      #label-loop {
+        right: 16px;
+        bottom: 22px;
+      }
+
+      .legend {
+        position: absolute;
+        right: 50px;
+        bottom: 102px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(11, 41, 34, 0.64);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+
+      .legend::before {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        content: "";
+        background: var(--forest);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="stage"
+      data-composition-id="dimension-guide-motion"
+      data-start="0"
+      data-duration="4.2"
+      data-fps="30"
+      data-width="800"
+      data-height="900"
+    >
+      <section
+        id="dimension-guide-clip"
+        class="clip"
+        data-start="0"
+        data-duration="4.2"
+        data-track-index="1"
+      >
+        <div class="scene-fill" aria-hidden="true"></div>
+        <img
+          class="product"
+          src="assets/product-dimension-base-v2.png"
+          alt="치수 안내를 위한 다용도 미니 채칼 정면 제품 이미지"
+        />
+
+        <svg class="measure-layer" viewBox="0 0 800 900" aria-hidden="true" data-layout-ignore>
+          <g id="width-group" class="measure-group" style="color:#173e34">
+            <path id="width-path" class="measure-path" pathLength="1" stroke="currentColor" d="M 230 88 L 570 88" />
+            <path class="measure-tick" stroke="currentColor" d="M 230 76 L 230 100 M 570 76 L 570 100" />
+          </g>
+          <g id="head-group" class="measure-group" style="color:#ff805f">
+            <path id="head-path" class="measure-path" pathLength="1" stroke="currentColor" d="M 623 92 L 623 303" />
+            <path class="measure-tick" stroke="currentColor" d="M 611 92 L 635 92 M 611 303 L 635 303" />
+          </g>
+          <g id="handle-group" class="measure-group" style="color:#48a7c6">
+            <path id="handle-path" class="measure-path" pathLength="1" stroke="currentColor" d="M 171 305 L 171 734" />
+            <path class="measure-tick" stroke="currentColor" d="M 159 305 L 183 305 M 159 734 L 183 734" />
+          </g>
+          <g id="loop-group" class="measure-group" style="color:#8c79d9">
+            <path id="loop-path" class="measure-path" pathLength="1" stroke="currentColor" d="M 623 738 L 623 836" />
+            <path class="measure-tick" stroke="currentColor" d="M 611 738 L 635 738 M 611 836 L 635 836" />
+          </g>
+        </svg>
+
+        <div id="label-width" class="measure-label">
+          <small>헤드 가로</small>
+          <strong>7.2 cm</strong>
+        </div>
+        <div id="label-head" class="measure-label">
+          <small>헤드 높이</small>
+          <strong>5.3 cm</strong>
+        </div>
+        <div id="label-handle" class="measure-label">
+          <small>손잡이 길이</small>
+          <strong>10.05 cm</strong>
+        </div>
+        <div id="label-loop" class="measure-label">
+          <small>고리</small>
+          <strong>2 cm</strong>
+        </div>
+        <p class="legend">표시 치수의 측정 구간</p>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      const tl = gsap.timeline({ paused: true });
+      document.querySelectorAll(".measure-path").forEach((path) => {
+        const length = path.getTotalLength();
+        path.style.strokeDasharray = String(length);
+        path.style.strokeDashoffset = String(length);
+      });
+
+      const revealMeasure = (group, path, label, at) => {
+        tl.to(group, { opacity: 1, duration: 0.08, ease: "none" }, at);
+        tl.to(path, { strokeDashoffset: 0, duration: 0.46, ease: "power2.out" }, at);
+        tl.fromTo(
+          label,
+          { y: 10, scale: 0.96, opacity: 0 },
+          { y: 0, scale: 1, opacity: 1, duration: 0.28, ease: "power3.out" },
+          at + 0.28,
+        );
+      };
+
+      revealMeasure("#width-group", "#width-path", "#label-width", 0.16);
+      revealMeasure("#head-group", "#head-path", "#label-head", 0.86);
+      revealMeasure("#handle-group", "#handle-path", "#label-handle", 1.56);
+      revealMeasure("#loop-group", "#loop-path", "#label-loop", 2.34);
+
+      tl.to(
+        [".measure-group", ".measure-label"],
+        { opacity: 0, duration: 0.32, ease: "power2.in" },
+        3.72,
+      );
+
+      window.__timelines["dimension-guide-motion"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

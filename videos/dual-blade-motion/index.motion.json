@@ -3,12 +3,11 @@
   "assertions": [
     {
       "kind": "staysInFrame",
-      "selector": "#dual-blade-product"
+      "selector": "#flip-card"
     },
     {
-      "kind": "appearsBy",
-      "selector": "#front-label",
-      "bySec": 0.05
+      "kind": "keepsMoving",
+      "withinSelector": ".flip-stage"
     }
   ]
 }

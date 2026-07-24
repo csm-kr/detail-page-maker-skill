@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "product_id": "43314131",
-  "version": "supplier-reference-v1",
+  "version": "supplier-reference-v3",
   "decision_source": "사용자가 공급처 URL을 현재 버전의 기준 사실로 지정하고 완성을 요청함",
   "approved_scope": {
     "supplier_fact_ids": [
@@ -16,10 +16,16 @@
       "supplier-fact-009",
       "supplier-fact-010",
       "supplier-fact-011",
-      "supplier-fact-013"
+      "supplier-fact-013",
+      "supplier-fact-014"
     ],
-    "page_copy": "공급처 원문 범위 안의 제품명·기능·구조·치수·재질·원산지·수입원",
-    "generated_media": "사용 흐름과 커터 위치를 설명하는 연출로만 사용"
+    "page_copy": "공급처 원문 범위 안의 제품명·기능·보조 돌기·구조·치수·재질·원산지·수입원",
+    "generated_media": "사용 흐름, 커터 뒤집기, 치수 구간과 감자 눈 접촉 위치를 설명하는 연출로만 사용",
+    "market_problem_copy": {
+      "source": "../market-voice-evidence.json",
+      "use": "동종 제품 공개 후기에서 확인한 생활 불편을 문제 제기 언어로만 사용",
+      "prohibition": "현재 SKU의 성능·만족도·사용후기로 전환하지 않음"
+    }
   },
   "not_approved_or_not_available": [
     "녹 방지·위생·내구·안전 성능",

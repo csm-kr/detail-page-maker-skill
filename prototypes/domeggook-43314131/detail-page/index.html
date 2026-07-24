@@ -145,6 +145,13 @@
       font-weight: 800;
     }
 
+    .editor button:focus-visible,
+    .color-control input:focus-visible,
+    [contenteditable="true"]:focus-visible {
+      outline: 3px solid #ff7be5;
+      outline-offset: 3px;
+    }
+
     .editor button[data-action="save"] {
       display: none;
       color: #fff;
@@ -283,6 +290,12 @@
       position: relative;
       z-index: 4;
       max-width: 660px;
+      padding: 30px 32px 32px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      background: rgba(6, 22, 18, 0.82);
+      box-shadow: 0 24px 54px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(14px);
     }
 
     .hero__headline em {
@@ -293,7 +306,7 @@
     .hero__product-stage {
       position: relative;
       height: 540px;
-      margin: 28px -44px -84px;
+      margin: 68px -44px -84px;
     }
 
     .hero__product-stage::after {
@@ -353,22 +366,138 @@
 
     .question {
       display: grid;
-      min-height: 630px;
-      place-content: center;
-      text-align: center;
+      min-height: 1160px;
+      align-content: space-between;
+      overflow: hidden;
+      color: var(--ink);
+      background: var(--paper);
     }
 
-    .question__mark {
-      margin-bottom: 24px;
-      color: var(--forest);
-      font-family: Georgia, serif;
-      font-size: 88px;
-      line-height: 0.7;
+    .question__background,
+    .question__veil {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
     }
 
-    .question .lead {
-      margin-right: auto;
-      margin-left: auto;
+    .question__background {
+      object-fit: cover;
+    }
+
+    .question__veil {
+      background:
+        linear-gradient(180deg, rgba(244, 241, 232, 0.94) 0%, rgba(244, 241, 232, 0.62) 45%, rgba(8, 31, 26, 0.12) 68%, rgba(8, 31, 26, 0.72) 100%),
+        linear-gradient(90deg, rgba(244, 241, 232, 0.78), transparent 72%);
+    }
+
+    .question__content {
+      position: relative;
+      z-index: 2;
+      max-width: 610px;
+    }
+
+    .question__intro {
+      padding: 28px 30px 30px;
+      border: 1px solid rgba(11, 41, 34, 0.12);
+      border-radius: 24px;
+      background: rgba(255, 254, 249, 0.8);
+      box-shadow: 0 20px 46px rgba(11, 41, 34, 0.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .question__intro .lead {
+      margin-top: 20px;
+    }
+
+    .problem-voices {
+      display: grid;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .problem-voice {
+      display: grid;
+      padding: 16px 18px;
+      border: 1px solid rgba(11, 41, 34, 0.12);
+      border-radius: 16px;
+      background: rgba(255, 254, 249, 0.86);
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .problem-voice span {
+      display: grid;
+      width: 26px;
+      aspect-ratio: 1;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--paper);
+      background: var(--forest);
+      font-size: 10px;
+      font-weight: 950;
+    }
+
+    .problem-voice p {
+      margin: 1px 0 0;
+      font-size: clamp(15px, 2.4vw, 19px);
+      font-weight: 780;
+      letter-spacing: -0.035em;
+      line-height: 1.45;
+    }
+
+    .solution-panel {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      min-height: 390px;
+      align-content: end;
+      margin: 84px -16px -38px;
+      padding: 40px 48px 44px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 34px 34px 0 0;
+      color: var(--white);
+      background: rgba(8, 31, 26, 0.9);
+      box-shadow: 0 -22px 54px rgba(8, 31, 26, 0.2);
+      backdrop-filter: blur(12px);
+    }
+
+    .solution-panel__copy {
+      position: relative;
+      z-index: 2;
+      max-width: 430px;
+    }
+
+    .solution-panel h3 {
+      max-width: 430px;
+      margin: 10px 0 0;
+      font-size: clamp(30px, 5.5vw, 50px);
+      font-weight: 950;
+      letter-spacing: -0.065em;
+      line-height: 1.03;
+    }
+
+    .solution-panel p:last-child {
+      max-width: 420px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 15px;
+      font-weight: 650;
+      line-height: 1.62;
+    }
+
+    .solution-panel__product {
+      position: absolute;
+      z-index: 1;
+      right: -108px;
+      bottom: -162px;
+      width: 520px;
+      max-width: none;
+      opacity: 0.76;
+      filter: drop-shadow(0 22px 18px rgba(0, 0, 0, 0.28));
+      transform: rotate(12deg);
     }
 
     .functions {
@@ -440,6 +569,67 @@
 
     .functions__evidence {
       margin: 24px clamp(28px, 7.5vw, 68px) 0;
+    }
+
+    .eye-tool {
+      display: grid;
+      align-items: stretch;
+      margin: 56px clamp(28px, 7.5vw, 68px) 0;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      color: var(--white);
+      background: var(--forest-deep);
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+
+    .eye-tool__visual {
+      min-height: 410px;
+      background: #f4f4f2;
+    }
+
+    .eye-tool__visual picture,
+    .eye-tool__visual img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .eye-tool__visual img {
+      object-fit: cover;
+    }
+
+    .eye-tool__copy {
+      display: grid;
+      align-content: center;
+      padding: 34px 30px;
+    }
+
+    .eye-tool__badge {
+      width: fit-content;
+      margin: 0 0 22px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      color: var(--forest-deep);
+      background: var(--accent);
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: 0.12em;
+    }
+
+    .eye-tool h3 {
+      margin: 0;
+      font-size: clamp(26px, 4.6vw, 42px);
+      font-weight: 950;
+      letter-spacing: -0.06em;
+      line-height: 1.08;
+    }
+
+    .eye-tool p:last-child {
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 15px;
+      font-weight: 650;
+      line-height: 1.65;
     }
 
     .motion-proof {
@@ -573,69 +763,50 @@
       overflow: hidden;
     }
 
-    .spec-stage {
-      position: relative;
-      height: 570px;
-      margin-top: 46px;
-    }
-
-    .spec-stage::before {
-      position: absolute;
-      inset: 7% 11%;
-      border: 1px solid rgba(23, 62, 52, 0.18);
-      border-radius: 50%;
-      content: "";
-    }
-
-    .spec-stage img {
-      position: absolute;
-      top: -4%;
-      left: 4%;
-      width: 91%;
-      transform: rotate(7deg);
-      filter: drop-shadow(0 28px 20px rgba(9, 26, 21, 0.18));
-    }
-
-    .measure {
-      position: absolute;
-      z-index: 3;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 12px;
-      font-weight: 850;
-    }
-
-    .measure::before {
-      width: 70px;
-      height: 1px;
-      content: "";
-      background: currentColor;
-    }
-
-    .measure strong {
+    .spec-motion {
       display: block;
+      margin: 48px -22px 0;
+      overflow: hidden;
+      border: 1px solid rgba(23, 62, 52, 0.14);
+      border-radius: var(--radius-md);
+      background: var(--paper);
+      box-shadow: 0 24px 58px rgba(11, 41, 34, 0.14);
+    }
+
+    .spec-motion img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 8 / 9;
+      object-fit: cover;
+    }
+
+    .spec-key-grid {
+      display: grid;
+      margin-top: 24px;
+      border-top: 1px solid rgba(23, 62, 52, 0.2);
+      border-left: 1px solid rgba(23, 62, 52, 0.2);
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .spec-key {
+      padding: 22px 20px 24px;
+      border-right: 1px solid rgba(23, 62, 52, 0.2);
+      border-bottom: 1px solid rgba(23, 62, 52, 0.2);
+    }
+
+    .spec-key span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .spec-key strong {
+      display: block;
+      margin-top: 7px;
       font-family: var(--display);
-      font-size: 28px;
-      letter-spacing: -0.06em;
-    }
-
-    .measure--head {
-      right: 1%;
-      bottom: 14%;
-      color: var(--forest);
-    }
-
-    .measure--handle {
-      top: 12%;
-      left: 0;
-      color: var(--forest);
-    }
-
-    .measure--loop {
-      top: 8%;
-      right: 2%;
-      color: var(--forest);
+      font-size: clamp(26px, 5vw, 38px);
+      letter-spacing: -0.065em;
     }
 
     .material-grid {
@@ -713,27 +884,15 @@
 
     .storage__hook {
       position: absolute;
-      top: -45px;
-      left: 50%;
-      width: 8px;
-      height: 130px;
-      border-radius: 999px;
-      background: var(--forest);
-      transform: translateX(-50%);
-    }
-
-    .storage__hook::after {
-      position: absolute;
-      bottom: -28px;
-      left: -20px;
-      width: 42px;
-      height: 42px;
-      border: 8px solid var(--forest);
-      border-top-color: transparent;
-      border-left-color: transparent;
+      top: 78px;
+      left: calc(50% + 18px);
+      width: 66px;
+      height: 66px;
+      border: 3px dashed var(--forest);
       border-radius: 50%;
-      content: "";
-      transform: rotate(45deg);
+      background: transparent;
+      box-shadow: 0 0 0 9px rgba(223, 255, 90, 0.18);
+      transform: translateX(-50%);
     }
 
     .storage__visual img {
@@ -867,8 +1026,13 @@
         min-height: 830px;
       }
 
+      .hero__headline {
+        padding: 24px 22px 26px;
+      }
+
       .hero__product-stage {
         height: 420px;
+        margin-top: 50px;
         margin-right: -52px;
         margin-left: -52px;
       }
@@ -883,6 +1047,37 @@
         left: 8%;
         width: 92px;
         font-size: 10px;
+      }
+
+      .question {
+        min-height: 1200px;
+      }
+
+      .question__intro {
+        padding: 24px 22px;
+      }
+
+      .problem-voice {
+        padding: 14px;
+        grid-template-columns: 30px 1fr;
+      }
+
+      .solution-panel {
+        min-height: 430px;
+        margin-right: -14px;
+        margin-left: -14px;
+        padding: 34px 24px 38px;
+      }
+
+      .solution-panel__copy {
+        max-width: 310px;
+      }
+
+      .solution-panel__product {
+        right: -175px;
+        bottom: -125px;
+        width: 500px;
+        opacity: 0.56;
       }
 
       .use-grid {
@@ -902,8 +1097,17 @@
         grid-template-columns: 1fr;
       }
 
+      .eye-tool {
+        grid-template-columns: 1fr;
+      }
+
+      .eye-tool__visual {
+        min-height: 280px;
+      }
+
       .motion-frame,
-      .blade__visual {
+      .blade__visual,
+      .spec-motion {
         margin-right: -14px;
         margin-left: -14px;
         border-radius: 20px;
@@ -1017,12 +1221,12 @@
       id="hero"
       data-section="hero"
       data-disclosure-level="surface"
-      data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004 supplier-fact-006">
+      data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004 supplier-fact-006 supplier-fact-014">
       <div class="hero__headline reveal">
         <p class="eyebrow" data-editable>DUAL BLADE · MINI SLICER</p>
         <h1 class="display" data-editable>한 헤드에,<br><em>두 가지 커터.</em></h1>
         <p class="lead" data-editable>
-          껍질 제거와 얇게 썰기, 채썰기를 한 도구의 서로 다른 커터에 담은 다용도 미니 채칼.
+          껍질 제거와 얇게 썰기, 채썰기에 감자 눈 제거용 돌기까지 한 자루에 담았습니다.
         </p>
       </div>
       <div class="hero__product-stage">
@@ -1037,17 +1241,51 @@
     </section>
 
     <section
-      class="section question section--accent"
+      class="section question"
       id="context"
       data-section="context"
       data-disclosure-level="surface"
-      data-fact-id="supplier-fact-002 supplier-fact-003 supplier-fact-004">
-      <div class="reveal">
-        <div class="question__mark" aria-hidden="true">“</div>
-        <h2 class="display display--medium" data-editable>도구는 작게.<br>가능성은 세 가지.</h2>
-        <p class="lead" data-editable>
-          한쪽은 껍질 제거와 얇게 썰기, 다른 한쪽은 채썰기. 손질에 맞는 커터 면을 선택하세요.
-        </p>
+      data-fact-id="supplier-fact-002 supplier-fact-003 supplier-fact-004 supplier-fact-014"
+      data-market-voice-id="market-voice-ohouse-001 market-voice-daiso-001">
+      <img
+        class="question__background"
+        src="assets/ingredient-still-life.png"
+        alt="감자, 오이, 당근을 여백 있게 배치한 식재료 준비 장면"
+        data-replaceable
+        data-asset-id="ingredient-still-life">
+      <div class="question__veil" aria-hidden="true"></div>
+      <div class="question__content reveal">
+        <div class="question__intro">
+          <p class="eyebrow" data-editable>BEFORE — PREP FRICTION</p>
+          <h2 class="display display--medium" data-editable>손질 하나에,<br>도구는 몇 번?</h2>
+          <p class="lead" data-editable>
+            큰 채칼을 꺼내기엔 손질 양이 적고, 감자 눈 하나 때문에 칼을 다시 잡게 되는 순간이 있습니다.
+          </p>
+          <div class="problem-voices" aria-label="동종 제품 후기에서 확인한 사용 불편">
+            <article class="problem-voice" data-market-voice-id="market-voice-ohouse-001">
+              <span>01</span>
+              <p data-editable>잠깐 채썰자고 큰 채칼을 꺼내기 번거롭고.</p>
+            </article>
+            <article class="problem-voice" data-market-voice-id="market-voice-daiso-001">
+              <span>02</span>
+              <p data-editable>감자 눈 제거 돌기가 없으면 칼끝을 다시 잡게 되고.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+      <div class="solution-panel reveal">
+        <div class="solution-panel__copy">
+          <p class="eyebrow" data-editable>OUR ANSWER</p>
+          <h3 data-editable>한 자루 안에서,<br>손질에 맞는 면만.</h3>
+          <p data-editable>
+            껍질 제거·얇게 썰기, 채썰기, 감자 눈 제거 돌기를 한 헤드에서 이어서 사용합니다.
+          </p>
+        </div>
+        <img
+          class="solution-panel__product"
+          src="assets/product-cutout.png"
+          alt=""
+          aria-hidden="true">
       </div>
     </section>
 
@@ -1065,7 +1303,7 @@
         <article class="use-card">
           <img
             src="assets/use-peel.jpg"
-            alt="감자 껍질을 제거하는 공급처 시연 장면"
+            alt="감자 껍질을 제거하는 제품 사용 장면"
             data-replaceable
             data-asset-id="use-peel">
           <div class="use-card__copy">
@@ -1076,7 +1314,7 @@
         <article class="use-card">
           <img
             src="assets/use-slice.jpg"
-            alt="오이를 얇게 써는 공급처 시연 장면"
+            alt="오이를 얇게 써는 제품 사용 장면"
             data-replaceable
             data-asset-id="use-slice">
           <div class="use-card__copy">
@@ -1087,7 +1325,7 @@
         <article class="use-card">
           <img
             src="assets/use-julienne.jpg"
-            alt="당근을 채 써는 공급처 시연 장면"
+            alt="당근을 채 써는 제품 사용 장면"
             data-replaceable
             data-asset-id="use-julienne">
           <div class="use-card__copy">
@@ -1100,8 +1338,31 @@
         class="evidence-note functions__evidence"
         data-fact-id="supplier-fact-002 supplier-fact-003"
         data-editable>
-        공급처 시연 이미지 기준 · 기능 종류를 설명하는 자료이며 일정한 절삭 결과를 보장하지 않습니다.
+        기능 종류를 설명하는 사용 이미지이며 일정한 절삭 결과를 보장하지 않습니다.
       </p>
+      <aside class="eye-tool reveal" data-fact-id="supplier-fact-014">
+        <div class="eye-tool__visual">
+          <picture>
+            <source
+              media="(prefers-reduced-motion: reduce)"
+              srcset="assets/potato-eye-motion-poster.png">
+            <img
+              src="assets/potato-eye-motion.gif"
+              alt="제품 오른쪽 제거 돌기가 감자 눈에 닿는 지점을 보여주는 반복 동작"
+              width="800"
+              height="800"
+              data-replaceable
+              data-asset-id="potato-eye-motion">
+          </picture>
+        </div>
+        <div class="eye-tool__copy">
+          <p class="eye-tool__badge" data-editable>EXTRA DETAIL</p>
+          <h3 data-editable>오른쪽 돌기로,<br>감자 눈까지.</h3>
+          <p data-editable>
+            헤드 오른쪽의 작은 돌기는 감자 눈이나 과일·채소의 꼭지처럼 도려낼 부분을 제거할 때 사용합니다.
+          </p>
+        </div>
+      </aside>
     </section>
 
     <section
@@ -1165,7 +1426,7 @@
         <p class="eyebrow" data-editable>02 — DUAL EDGE</p>
         <h2 class="display display--medium" data-editable>두 커터를<br>한 헤드에.</h2>
         <p class="lead" data-editable>
-          안쪽 커터는 껍질 제거와 얇게 썰기에, 바깥쪽 커터는 채썰기에 사용하는 공급처 표시 구조입니다.
+          A면은 껍질 제거와 얇게 썰기에, 헤드를 뒤집어 보이는 B면은 채썰기에 사용합니다.
         </p>
       </div>
       <picture class="blade__visual">
@@ -1181,8 +1442,8 @@
           data-asset-id="dual-blade-function">
       </picture>
       <div class="motion-caption">
-        <span data-editable>두 커터 위치 안내</span>
-        <span data-editable>공급처 구조 이미지 기준 · 껍질 제거·얇게 썰기 커터와 채썰기 커터의 위치를 설명하는 연출</span>
+        <span data-editable>A면 → 뒤집기 → B면</span>
+        <span data-editable>실제 두 커터 면을 앞·뒤로 연결한 기능 안내</span>
       </div>
     </section>
 
@@ -1196,23 +1457,37 @@
         <p class="eyebrow" data-editable>03 — COMPACT SCALE</p>
         <h2 class="display display--medium" data-editable>필요한 만큼만<br>남긴 크기.</h2>
         <p class="lead" data-editable>
-          공급처 표시 치수를 기준으로 제품의 폭, 헤드 높이, 손잡이 길이와 고리 크기를 확인하세요.
+          치수선이 가리키는 구간을 따라 제품의 폭, 헤드 높이, 손잡이 길이와 고리 크기를 확인하세요.
         </p>
       </div>
-      <div class="spec-stage">
+      <picture class="spec-motion">
+        <source
+          media="(prefers-reduced-motion: reduce)"
+          srcset="assets/dimension-guide-poster.png">
         <img
-          src="assets/product-cutout.png"
-          alt="제품 표시 치수를 설명하기 위한 미니 채칼 전체 모습"
+          src="assets/dimension-guide.gif"
+          alt="제품의 헤드 가로, 헤드 높이, 손잡이 길이와 고리 치수선을 순서대로 보여주는 반복 모션"
+          width="800"
+          height="900"
           data-replaceable
-          data-asset-id="product-cutout-spec">
-        <div class="measure measure--handle">
-          <span data-editable>손잡이 길이<strong>10.05 cm</strong></span>
+          data-asset-id="dimension-guide">
+      </picture>
+      <div class="spec-key-grid" aria-label="제품 표시 치수">
+        <div class="spec-key" data-fact-id="supplier-fact-007">
+          <span data-editable>헤드 가로</span>
+          <strong data-editable>7.2 cm</strong>
         </div>
-        <div class="measure measure--loop">
-          <span data-editable>고리<strong>2 cm</strong></span>
+        <div class="spec-key" data-fact-id="supplier-fact-008">
+          <span data-editable>헤드 높이</span>
+          <strong data-editable>5.3 cm</strong>
         </div>
-        <div class="measure measure--head">
-          <span data-editable>가로<strong>7.2 cm</strong>헤드 높이 5.3 cm</span>
+        <div class="spec-key" data-fact-id="supplier-fact-009">
+          <span data-editable>손잡이 길이</span>
+          <strong data-editable>10.05 cm</strong>
+        </div>
+        <div class="spec-key" data-fact-id="supplier-fact-010">
+          <span data-editable>고리</span>
+          <strong data-editable>2 cm</strong>
         </div>
       </div>
     </section>
@@ -1225,17 +1500,17 @@
       data-fact-id="supplier-fact-006">
       <div class="reveal">
         <p class="eyebrow" data-editable>04 — MATERIAL</p>
-        <h2 class="display display--medium" data-editable>재질은 명확하게.<br>과장은 덜어내고.</h2>
+        <h2 class="display display--medium" data-editable>표시 재질,<br>스테인레스 430.</h2>
       </div>
       <div class="material-grid">
         <article class="material-card material-card--steel">
           <p class="material-card__number" data-editable>430</p>
-          <p class="material-card__label" data-editable>공급처 표시 재질<br>스테인레스 430</p>
+          <p class="material-card__label" data-editable>표시 재질<br>스테인레스 430</p>
         </article>
         <article class="material-card">
           <p class="eyebrow" data-editable>재질 정보</p>
           <p class="material-card__note" data-editable>
-            재질 표기만 사실로 사용합니다. 별도의 시험 근거가 없는 녹 방지·위생·내구 성능은 이 페이지에서 확정하지 않습니다.
+            제품에 표시된 재질 정보를 안내합니다. 별도의 시험 근거가 없는 녹 방지·위생·내구 성능은 확정하지 않습니다.
           </p>
         </article>
       </div>
@@ -1292,7 +1567,10 @@
         </div>
       </dl>
       <p class="evidence-note" data-editable>
-        수치·재질·구조 정보는 2026-07-24 도매꾹 공급처 상세 원문의 표시사항을 기준으로 정리했습니다. 판매 옵션과 구성은 상품 선택 영역에서 함께 확인하세요.
+        수치·재질·구조는 제품 표시사항을 기준으로 정리했습니다. 판매 옵션과 구성은 상품 선택 영역에서 함께 확인하세요.
+      </p>
+      <p class="evidence-note" data-market-voice-id="market-voice-daiso-002" data-editable>
+        날이 노출된 제품이므로 사용·세척·보관할 때 손이 닿지 않게 주의하세요.
       </p>
     </section>
 
@@ -1301,7 +1579,7 @@
       id="closing"
       data-section="closing"
       data-disclosure-level="surface"
-      data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004">
+      data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004 supplier-fact-014">
       <img
         class="closing__product"
         src="assets/product-cutout.png"
@@ -1310,7 +1588,7 @@
         data-asset-id="product-cutout-closing">
       <div class="reveal">
         <p class="eyebrow" data-editable>ONE TOOL · THREE PREPS</p>
-        <h2 class="display display--medium" data-editable>손질은 세 가지.<br>도구는 하나.</h2>
+        <h2 class="display display--medium" data-editable>세 가지 손질에,<br>감자 눈 제거까지.</h2>
         <p class="lead" data-editable>다용도 미니 채칼</p>
       </div>
     </section>
@@ -1319,9 +1597,9 @@
       class="source-footnote"
       data-section="source-note"
       data-disclosure-level="proof"
-      data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004 supplier-fact-005 supplier-fact-006 supplier-fact-007 supplier-fact-008 supplier-fact-009 supplier-fact-010 supplier-fact-011 supplier-fact-013"
+      data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004 supplier-fact-005 supplier-fact-006 supplier-fact-007 supplier-fact-008 supplier-fact-009 supplier-fact-010 supplier-fact-011 supplier-fact-013 supplier-fact-014"
       data-editable>
-      도매꾹 공급처 상세 원문 기준 · 기능 연출 이미지는 사용 흐름의 이해를 돕기 위한 자료입니다
+      기능 연출 이미지는 제품 구조와 사용 흐름의 이해를 돕기 위한 자료입니다
     </footer>
   </main>
 
