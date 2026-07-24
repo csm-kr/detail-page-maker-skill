@@ -1,0 +1,14 @@
+{
+  "duration": 5.2,
+  "assertions": [
+    {
+      "kind": "appearsBy",
+      "selector": ".size-card:first-child",
+      "bySec": 0.8
+    },
+    {
+      "kind": "staysInFrame",
+      "selector": ".size-grid"
+    }
+  ]
+}

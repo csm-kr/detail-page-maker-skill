@@ -1,0 +1,204 @@
+{
+  "schema_version": "1.0",
+  "product_id": "66475839",
+  "source_url": "https://domeggook.com/66475839?from=popular100",
+  "source_bundle": "../../tests/dmk-extractor-66475839-20260725-retry1",
+  "captured_at": "2026-07-24T22:29:59.419218+00:00",
+  "human_reviewed_at": "2026-07-25",
+  "publication_status": "approved_for_supplier_reference_page",
+  "publication_constraints": [
+    "현재 제품 SSOT는 공급처 원본을 참조해 ImageGen으로 정리한 승인 컷아웃이며, 사용자 다각도 실사진 도착 시 교체한다.",
+    "밑창 소재는 TPR과 고무로 서로 다르게 표기돼 판매 카피에서 제외한다.",
+    "미끄럼 방지, 빠른 건조, 충격 흡수 등 성능 주장은 시험서가 없어 판매 카피에서 제외한다."
+  ],
+  "facts": [
+    {
+      "id": "FACT-001",
+      "field": "product_name",
+      "value": "아쿠아핏 워터 슈즈",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=8400..10500; research/supplier-crops/segment-05.png"
+    },
+    {
+      "id": "FACT-002",
+      "field": "listing_title",
+      "value": "[싸더라] 초경량 아쿠아슈즈 쿠션깔창 워터슈즈 논슬립 물놀이 신발",
+      "status": "confirmed_from_marketplace",
+      "publishable": false,
+      "reason": "공급처 등록 제목이며 판매용 제품명으로 자동 승격하지 않는다.",
+      "locator": "../../tests/dmk-extractor-66475839-20260725-retry1/page.json"
+    },
+    {
+      "id": "FACT-003",
+      "field": "colors",
+      "value": ["그린", "그레이"],
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=10500..12402; research/supplier-crops/segment-06.png"
+    },
+    {
+      "id": "FACT-004",
+      "field": "upper_material",
+      "value": "스판덱스 또는 신축성 원단으로 표기",
+      "status": "supplier_wording_variation",
+      "publishable": true,
+      "publication_copy": "신축성 원단 갑피",
+      "locator": "detail/assets/detail-01.png y=8400..12402; research/supplier-crops/segment-05.png, segment-06.png"
+    },
+    {
+      "id": "FACT-005",
+      "field": "outsole_material",
+      "value": {
+        "upper_table": "TPR",
+        "lower_table": "고무"
+      },
+      "status": "conflicting_supplier_labels",
+      "publishable": false,
+      "required_action": "공급처에 정확한 밑창 소재 확인",
+      "locator": "detail/assets/detail-01.png y=8400..12402; research/supplier-crops/segment-05.png, segment-06.png"
+    },
+    {
+      "id": "FACT-006",
+      "field": "sizes",
+      "value": [
+        {"option": "S", "shoe_size": "34-35", "recommended_foot_length_cm": "22.0-22.5"},
+        {"option": "M", "shoe_size": "36-37", "recommended_foot_length_cm": "23.0-23.5"},
+        {"option": "L", "shoe_size": "38-39", "recommended_foot_length_cm": "24.0-24.5"},
+        {"option": "XL", "shoe_size": "40-41", "recommended_foot_length_cm": "25.0-25.5"},
+        {"option": "XXL", "shoe_size": "42-43", "recommended_foot_length_cm": "26.0-26.5"},
+        {"option": "XXXL", "shoe_size": "44-45", "recommended_foot_length_cm": "27.0-27.5"}
+      ],
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=8400..10500; research/supplier-crops/segment-05.png"
+    },
+    {
+      "id": "FACT-007",
+      "field": "fit_guidance",
+      "value": "발볼이 넓으면 한 치수 크게 선택하도록 권장",
+      "status": "supplier_guidance",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=8400..10500; research/supplier-crops/segment-05.png"
+    },
+    {
+      "id": "FACT-008",
+      "field": "outsole_thickness",
+      "value": 1.5,
+      "unit": "cm",
+      "qualifier": "약, 바닥 기준",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=10500..12402; research/supplier-crops/segment-06.png"
+    },
+    {
+      "id": "FACT-009",
+      "field": "weight",
+      "value": 197,
+      "unit": "g",
+      "qualifier": "L 사이즈 기준, 사이즈별 편차 있음",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=10500..12402; research/supplier-crops/segment-06.png"
+    },
+    {
+      "id": "FACT-010",
+      "field": "origin",
+      "value": "중국",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=10500..12402; research/supplier-crops/segment-06.png"
+    },
+    {
+      "id": "FACT-011",
+      "field": "importer",
+      "value": "라인컴퍼니",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=10500..12402; research/supplier-crops/segment-06.png"
+    },
+    {
+      "id": "FACT-012",
+      "field": "visible_structure",
+      "value": ["뒤꿈치 세로 밴드", "입구 둘레 봉제", "전면과 측면 보강 패턴", "요철형 바닥 패턴"],
+      "status": "human_verified_visual_observation",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=6300..12402; research/supplier-crops/segment-04.png, segment-06.png"
+    },
+    {
+      "id": "FACT-013",
+      "field": "measurement_tolerance",
+      "value": "측정 방법에 따라 약 ±0.5cm 오차 가능",
+      "status": "supplier_disclaimer",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=10500..12402; research/supplier-crops/segment-06.png"
+    },
+    {
+      "id": "FACT-014",
+      "field": "color_disclaimer",
+      "value": "모니터 해상도와 조명에 따라 실제 색상과 차이가 있을 수 있음",
+      "status": "supplier_disclaimer",
+      "publishable": true,
+      "locator": "detail/assets/detail-01.png y=10500..12402; research/supplier-crops/segment-06.png"
+    }
+  ],
+  "supplier_claims": [
+    {
+      "id": "CLAIM-001",
+      "claim": "통기성이 뛰어나고 땀 배출이 빠르다.",
+      "status": "supplier_claim_unverified",
+      "publishable": false,
+      "required_evidence": "소재 또는 통기 시험"
+    },
+    {
+      "id": "CLAIM-002",
+      "claim": "흡수와 건조가 빠르다.",
+      "status": "supplier_claim_unverified",
+      "publishable": false,
+      "required_evidence": "흡수·건조 비교 시험"
+    },
+    {
+      "id": "CLAIM-003",
+      "claim": "뒤꿈치 밴드가 발을 잡아 쉽게 벗겨지지 않는다.",
+      "status": "supplier_claim_unverified",
+      "publishable": false,
+      "allowed_visual_copy": "뒤꿈치 밴드 구조"
+    },
+    {
+      "id": "CLAIM-004",
+      "claim": "유연하게 말리며 720도 회전할 수 있다.",
+      "status": "supplier_marketing_overstatement",
+      "publishable": false,
+      "allowed_visual_copy": "유연한 밑창 구조",
+      "required_evidence": "반복 굴곡 시험"
+    },
+    {
+      "id": "CLAIM-005",
+      "claim": "육각 패턴과 30도 패턴이 접지력을 높여 미끄럼을 줄인다.",
+      "status": "supplier_claim_unverified",
+      "publishable": false,
+      "allowed_visual_copy": "요철형 바닥 패턴",
+      "required_evidence": "젖은 바닥 마찰 시험"
+    },
+    {
+      "id": "CLAIM-006",
+      "claim": "쿠션 깔창이 충격을 흡수하고 압력을 분산한다.",
+      "status": "supplier_claim_unverified",
+      "publishable": false,
+      "allowed_visual_copy": "쿠션형 깔창 구성",
+      "required_evidence": "충격 흡수·압력 분포 시험"
+    },
+    {
+      "id": "CLAIM-007",
+      "claim": "족저근막염을 예방한다.",
+      "status": "prohibited_medical_claim",
+      "publishable": false,
+      "action": "판매 카피와 기획에서 완전 제외"
+    }
+  ],
+  "review_summary": {
+    "supplier_visible_review_count": 0,
+    "supplier_captured_review_count": 0,
+    "complete": true
+  }
+}

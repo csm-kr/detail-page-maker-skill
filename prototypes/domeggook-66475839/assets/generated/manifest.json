@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "product_id": "66475839",
+  "assets": [
+    {
+      "id": "GEN-WEAR-CONTEXT-V1",
+      "path": "poolside-wear-v1.png",
+      "kind": "imagegen-reference-guided-context-scene",
+      "status": "approved_for_context_only",
+      "width_px": 1024,
+      "height_px": 1536,
+      "bytes": 2222978,
+      "sha256": "2cd2672ee9f7f2ae3fc20093cfa50765720f225284929700c0385f599aae40d5",
+      "reference_assets": [
+        "../product-ssot/cutout/green-side-v1.png",
+        "../../research/supplier-crops/segment-04.png",
+        "../../research/supplier-crops/segment-06.png"
+      ],
+      "prompt_summary": "수영장 가장자리의 한쪽 발에 승인된 그린 아쿠아슈즈를 착용한 자연광 상업 사진. 제품의 형태, 연녹색·회색·검정 배색, 뒤꿈치 고리, 측면 패턴과 Sport Keeper 레터링을 참조와 일치시키고 제품 재설계·추가 로고·성능 시연을 금지.",
+      "allowed_use": "착화 비율과 물가 사용 맥락",
+      "prohibited_use": "미끄럼 방지, 배수, 통기, 건조, 충격 흡수 또는 내구 증거"
+    }
+  ]
+}

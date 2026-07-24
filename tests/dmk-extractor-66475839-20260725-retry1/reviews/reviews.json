@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "product_id": "66475839",
+  "source_page_url": "https://domeggook.com/66475839?from=popular100",
+  "scope": "public_purchase_reviews_recent_six_months",
+  "visible_review_count": 0,
+  "requested_review_limit": 0,
+  "captured_review_count": 0,
+  "complete": true,
+  "author_identifiers_removed": true,
+  "rating_summary": {
+    "average": null,
+    "distribution_percent": {
+      "5": 0,
+      "4": 0,
+      "3": 0,
+      "2": 0,
+      "1": 0
+    }
+  },
+  "reviews": []
+}

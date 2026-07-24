@@ -1,0 +1,133 @@
+{
+  "schema_version": "1.0",
+  "product_id": "66475839",
+  "locale": "ko-KR",
+  "content_status": "supplier-reference-v1-commercial",
+  "product": {
+    "display_name": "아쿠아핏 워터 슈즈",
+    "hero_headline": "물에 들어가기 전, 발에 맞는 구조부터.",
+    "hero_lead": "발길이 표와 제품 구조를 먼저 확인할 수 있도록 사실 중심으로 구성했습니다.",
+    "closing_headline": "물놀이 준비, 발길이부터."
+  },
+  "sections": [
+    {
+      "id": "hero",
+      "disclosure_level": "surface",
+      "single_message": "사이즈 범위, 바닥 기준 두께와 L 기준 무게를 첫 화면에서 확인한다.",
+      "fact_ids": ["FACT-001", "FACT-006", "FACT-008", "FACT-009"]
+    },
+    {
+      "id": "purchase-questions",
+      "disclosure_level": "surface",
+      "single_message": "동종 제품 후기에서 반복된 구매 불안을 질문으로 제시하되 현재 SKU의 단점으로 단정하지 않는다.",
+      "market_pain_theme_ids": ["MP-SIZE", "MP-HEEL", "MP-SLIP"],
+      "fact_ids": ["FACT-006", "FACT-007", "FACT-012"]
+    },
+    {
+      "id": "visible-structure",
+      "disclosure_level": "intermediate",
+      "headline": "보이는 구조는, 분명하게.",
+      "single_message": "뒤꿈치 밴드, 입구 봉제, 측면 보강 패턴을 제품 이미지로 확인한다.",
+      "fact_ids": ["FACT-012"]
+    },
+    {
+      "id": "wear-context",
+      "disclosure_level": "intermediate",
+      "headline": "물가에서 신는 모습도, 제품 그대로.",
+      "single_message": "동일 제품 참조를 사용한 착화 연출로 사용 맥락만 설명한다.",
+      "limitations": [
+        "ImageGen 착화 연출이며 실제 사용 사진이 아니다.",
+        "미끄럼 방지 또는 배수 성능을 시연하지 않는다."
+      ]
+    },
+    {
+      "id": "fit-guide",
+      "disclosure_level": "proof",
+      "headline": "신발 호수보다, 발길이를 먼저.",
+      "single_message": "22.0cm부터 27.5cm까지의 발길이를 S부터 XXXL 옵션과 연결한다.",
+      "fact_ids": ["FACT-006", "FACT-007"]
+    },
+    {
+      "id": "outsole-profile",
+      "disclosure_level": "proof",
+      "headline": "약 1.5cm, 어디를 잰 수치인지.",
+      "single_message": "제품과 떨어진 치수선으로 바닥 기준 두께 위치를 설명한다.",
+      "fact_ids": ["FACT-008", "FACT-013"]
+    },
+    {
+      "id": "numbers",
+      "disclosure_level": "proof",
+      "headline": "숫자는 크게, 기준은 바로 옆에.",
+      "facts": {
+        "weight": "약 197g · L 사이즈 기준 · 사이즈별 편차 있음",
+        "option_count": "6개 · S부터 XXXL"
+      },
+      "fact_ids": ["FACT-006", "FACT-009"]
+    },
+    {
+      "id": "colors",
+      "disclosure_level": "proof",
+      "headline": "물가에 어울리는 두 가지 컬러.",
+      "colors": ["그린", "그레이"],
+      "limitations": [
+        "그레이 제품 카드는 색상 방향을 보여주는 참고 표현이다.",
+        "모니터 해상도와 조명에 따라 실제 색상과 차이가 있을 수 있다."
+      ],
+      "fact_ids": ["FACT-003", "FACT-014"]
+    },
+    {
+      "id": "product-facts",
+      "disclosure_level": "proof",
+      "headline": "구매 전에, 끝까지 확인하세요.",
+      "facts": {
+        "제품명": "아쿠아핏 워터 슈즈",
+        "색상": "그린, 그레이",
+        "갑피": "신축성 원단",
+        "규격": "S(34–35)부터 XXXL(44–45)",
+        "바닥 두께": "약 1.5cm · 바닥 기준",
+        "무게": "약 197g · L 사이즈 기준",
+        "수입원": "라인컴퍼니",
+        "원산지": "중국"
+      },
+      "fact_ids": [
+        "FACT-001",
+        "FACT-003",
+        "FACT-004",
+        "FACT-006",
+        "FACT-008",
+        "FACT-009",
+        "FACT-010",
+        "FACT-011",
+        "FACT-013",
+        "FACT-014"
+      ]
+    },
+    {
+      "id": "closing",
+      "disclosure_level": "surface",
+      "headline": "물놀이 준비, 발길이부터.",
+      "fact_ids": ["FACT-006"]
+    }
+  ],
+  "assets": {
+    "product-green-side": {
+      "path": "assets/product-green-side.png",
+      "alt": "연녹색 본체와 회색 입구, 검정 밑창으로 구성된 그린 아쿠아핏 워터 슈즈 측면"
+    },
+    "wear-context": {
+      "path": "assets/aqua-use-context.gif",
+      "poster": "assets/aqua-use-context-poster.png",
+      "alt": "수영장 가장자리에서 그린 아쿠아슈즈를 착용한 장면이 천천히 확대되는 GIF"
+    },
+    "fit-guide": {
+      "path": "assets/aqua-fit-guide.gif",
+      "poster": "assets/aqua-fit-guide-poster.png",
+      "alt": "발길이와 S부터 XXXL 옵션을 순서대로 연결하는 GIF"
+    },
+    "outsole-profile": {
+      "path": "assets/aqua-thickness.gif",
+      "poster": "assets/aqua-thickness-poster.png",
+      "alt": "아쿠아슈즈 바닥 기준 약 1.5cm의 위치를 제품에서 떨어진 치수선으로 보여주는 GIF"
+    }
+  }
+}

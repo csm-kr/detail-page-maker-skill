@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, height=760" />
+    <title>아쿠아슈즈 바닥 두께 안내</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans KR";
+        src: local("Noto Sans KR");
+        font-style: normal;
+        font-weight: 100 900;
+      }
+      @font-face {
+        font-family: "Apple SD Gothic Neo";
+        src: local("Apple SD Gothic Neo");
+        font-style: normal;
+        font-weight: 100 900;
+      }
+      :root {
+        --ink: #12352e;
+        --deep: #0c2823;
+        --mint: #dceee5;
+        --lime: #cde975;
+        --paper: #f5f4ed;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        width: 800px;
+        height: 760px;
+        margin: 0;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      body { font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif; }
+      #stage {
+        position: relative;
+        width: 800px;
+        height: 760px;
+        overflow: hidden;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 50% 42%, rgba(255,255,255,.96), rgba(255,255,255,0) 50%),
+          linear-gradient(160deg, #f8f7f0 0%, #dceee5 100%);
+      }
+      .halo {
+        position: absolute;
+        width: 560px;
+        height: 560px;
+        left: 74px;
+        top: 110px;
+        border: 1px solid rgba(18,53,46,.12);
+        border-radius: 50%;
+      }
+      .kicker {
+        position: absolute;
+        top: 58px;
+        left: 58px;
+        margin: 0;
+        color: rgba(18,53,46,.82);
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: .08em;
+      }
+      h1 {
+        position: absolute;
+        top: 86px;
+        left: 58px;
+        margin: 0;
+        color: var(--deep);
+        font-size: 42px;
+        font-weight: 900;
+        letter-spacing: -.055em;
+        line-height: 1.08;
+      }
+      .product {
+        position: absolute;
+        left: 44px;
+        top: 238px;
+        width: 680px;
+        height: auto;
+        opacity: 0;
+        filter: drop-shadow(0 24px 26px rgba(12,40,35,.16));
+      }
+      .measure-layer {
+        position: absolute;
+        inset: 0;
+        width: 800px;
+        height: 760px;
+        overflow: visible;
+      }
+      #measure-group { opacity: 0; color: var(--deep); }
+      .measure-path, .measure-tick, .guide {
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+      }
+      .measure-path, .measure-tick { stroke-width: 4; }
+      .guide {
+        stroke-width: 2;
+        stroke-dasharray: 5 7;
+        opacity: .35;
+      }
+      #thickness-label {
+        position: absolute;
+        right: 56px;
+        bottom: 62px;
+        display: grid;
+        gap: 5px;
+        min-width: 250px;
+        padding: 20px 22px;
+        border: 1px solid rgba(18,53,46,.13);
+        border-radius: 20px;
+        background: rgba(255,255,250,.95);
+        box-shadow: 0 18px 40px rgba(12,40,35,.14);
+        opacity: 0;
+      }
+      #thickness-label small {
+        color: rgba(18,53,46,.82);
+        font-size: 14px;
+        font-weight: 800;
+      }
+      #thickness-label strong {
+        color: var(--deep);
+        font-size: 34px;
+        font-weight: 950;
+        letter-spacing: -.055em;
+      }
+      .source-note {
+        position: absolute;
+        left: 58px;
+        bottom: 72px;
+        width: 290px;
+        margin: 0;
+        color: rgba(18,53,46,.84);
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="stage"
+      data-composition-id="aqua-thickness-motion"
+      data-start="0"
+      data-duration="4"
+      data-fps="30"
+      data-width="800"
+      data-height="760"
+    >
+      <div class="halo" aria-hidden="true"></div>
+      <p class="kicker">OUTSOLE PROFILE</p>
+      <h1>두께는 수치보다<br />위치가 먼저.</h1>
+      <img class="product" src="assets/green-side-v1.png" alt="그린 아쿠아슈즈 측면" />
+      <svg class="measure-layer" viewBox="0 0 800 760" aria-hidden="true" data-layout-ignore>
+        <g id="measure-group">
+          <path class="guide" d="M 734 449 L 754 449 M 734 520 L 754 520" />
+          <path id="thickness-path" class="measure-path" pathLength="1" d="M 758 449 L 758 520" />
+          <path class="measure-tick" d="M 748 449 L 768 449 M 748 520 L 768 520" />
+        </g>
+      </svg>
+      <div id="thickness-label">
+        <small>제품 표시 · 바닥 기준</small>
+        <strong>약 1.5 cm</strong>
+      </div>
+      <p class="source-note">측정 방법에 따라 약 ±0.5cm 차이가 날 수 있습니다.</p>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const path = document.querySelector("#thickness-path");
+      const pathLength = path.getTotalLength();
+      path.style.strokeDasharray = String(pathLength);
+      path.style.strokeDashoffset = String(pathLength);
+
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(".product", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: .52, ease: "power3.out" }, .2);
+      tl.to("#measure-group", { opacity: 1, duration: .08, ease: "none" }, .65);
+      tl.to("#thickness-path", { strokeDashoffset: 0, duration: .46, ease: "power2.out" }, .65);
+      tl.fromTo("#thickness-label", { y: 12, scale: .96, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: .34, ease: "power3.out" }, 1.05);
+      tl.to(["#measure-group", "#thickness-label", ".product"], { opacity: 0, duration: .34, ease: "power2.in" }, 3.45);
+      window.__timelines["aqua-thickness-motion"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, height=1000" />
+    <title>아쿠아슈즈 사용 맥락</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans KR";
+        src: local("Noto Sans KR");
+        font-style: normal;
+        font-weight: 100 900;
+      }
+      @font-face {
+        font-family: "Apple SD Gothic Neo";
+        src: local("Apple SD Gothic Neo");
+        font-style: normal;
+        font-weight: 100 900;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        width: 800px;
+        height: 1000px;
+        margin: 0;
+        overflow: hidden;
+        background: #dceceb;
+      }
+      body { font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif; }
+      #stage {
+        position: relative;
+        width: 800px;
+        height: 1000px;
+        overflow: hidden;
+        background: #dceceb;
+      }
+      .scene {
+        position: absolute;
+        inset: -18px;
+        width: 836px;
+        height: 1036px;
+        object-fit: cover;
+        object-position: center 58%;
+        opacity: 0;
+        transform-origin: 58% 62%;
+      }
+      .shade {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, rgba(8,34,32,.55) 0%, rgba(8,34,32,.06) 38%, rgba(8,34,32,.08) 100%);
+        pointer-events: none;
+      }
+      .wave {
+        position: absolute;
+        top: 230px;
+        left: -120px;
+        width: 1040px;
+        height: 110px;
+        opacity: .48;
+      }
+      .wave path {
+        fill: none;
+        stroke: rgba(255,255,255,.82);
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-dasharray: 18 16;
+      }
+      .context-card {
+        position: absolute;
+        top: 52px;
+        left: 52px;
+        width: 520px;
+        padding: 24px 26px 26px;
+        border: 1px solid rgba(255,255,255,.3);
+        border-radius: 24px;
+        background: rgba(10,39,35,.74);
+        color: #fff;
+        backdrop-filter: blur(12px);
+        opacity: 0;
+      }
+      .context-card small {
+        display: block;
+        margin-bottom: 10px;
+        color: rgba(255,255,255,.78);
+        font-size: 14px;
+        font-weight: 850;
+        letter-spacing: .08em;
+      }
+      .context-card strong {
+        display: block;
+        font-size: 37px;
+        font-weight: 950;
+        letter-spacing: -.055em;
+        line-height: 1.12;
+      }
+      .proof {
+        position: absolute;
+        right: 34px;
+        bottom: 34px;
+        padding: 12px 15px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.9);
+        color: #244b44;
+        font-size: 13px;
+        font-weight: 850;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="stage"
+      data-composition-id="aqua-use-context-motion"
+      data-start="0"
+      data-duration="4.2"
+      data-fps="30"
+      data-width="800"
+      data-height="1000"
+    >
+      <img class="scene" src="assets/poolside-wear-v1.png" alt="수영장 가장자리에서 그린 아쿠아슈즈를 착용한 장면" data-layout-ignore />
+      <div class="shade" aria-hidden="true"></div>
+      <svg class="wave" viewBox="0 0 1040 110" aria-hidden="true" data-layout-ignore>
+        <path d="M 0 42 C 120 14, 210 78, 330 42 S 550 14, 670 42 S 890 78, 1040 42" />
+        <path d="M 0 78 C 120 50, 210 106, 330 78 S 550 50, 670 78 S 890 106, 1040 78" />
+      </svg>
+      <div class="context-card">
+        <small>WEAR CONTEXT</small>
+        <strong>물가에 들어가기 전,<br />발에 맞는지 먼저.</strong>
+      </div>
+      <span class="proof">착화 연출 이미지</span>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(".scene", { opacity: 0, scale: 1 }, { opacity: 1, scale: 1.025, duration: 3.25, ease: "power1.inOut" }, .2);
+      tl.fromTo(".context-card", { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: .42, ease: "power3.out" }, .55);
+      tl.fromTo(".wave", { x: -28, opacity: .2 }, { x: 28, opacity: .48, duration: 3.05, ease: "sine.inOut" }, .42);
+      tl.to([".scene", ".context-card", ".wave"], { opacity: 0, duration: .38, ease: "power2.in" }, 3.65);
+      window.__timelines["aqua-use-context-motion"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

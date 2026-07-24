@@ -24,6 +24,8 @@
 - [공급처 기준 v1 최종 납품본 마감](issues/16-finalize-supplier-reference-v1.md) —공급처 사실 12개와 공개 claim 9개를 잠그고 prototype·내부 제작 문구를 제거했으며, 콘텐츠 데이터·편집 저장 상태·320~800px QA를 갖춘 94/100 최종 HTML로 마감했다.
 - [동종 후기 서사와 네 모션을 갖춘 v3 업그레이드](issues/17-upgrade-to-market-pain-and-four-motion-v3.md) —동종 제품 실제 후기 기반 문제→해결, ImageGen 소재, 감자 눈·치수 HyperFrames를 더해 97/100·하드 실패 0개로 마감했다.
 - [Taste Skill·정기 학습·도매꾹 인기상품 반복 루프](issues/18-queue-taste-cron-and-popular-loop.md) —Taste 검증, Behance 정기 학습 큐와 인기상품 1개씩의 전체 파이프라인을 다음 실행 순서로 잠갔다.
+- [도매꾹 인기 1위 아쿠아슈즈 전체 파이프라인](issues/19-prototype-popular-aqua-shoes-pipeline.md) —상품 66475839의 공급처 사실과 동종 후기 시장 불편을 분리하고, ImageGen 제품 참조·착화 장면, HyperFrames GIF 3개, 수정 가능 HTML을 제작해 97/100·하드 실패 0개로 마감했다.
+- [경쟁상품 후기 개인정보 검증 보강](issues/20-fix-competitor-review-privacy-validation.md) —추출 결과의 review_text에 작성자·판매자 헤더가 남는 결함을 발견해 원문 번들 커밋을 차단하고 validator 회귀 조건을 정의했다.
 
 ## Not yet specified
 

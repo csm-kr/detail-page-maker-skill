@@ -1,0 +1,10 @@
+{
+  "duration": 4.2,
+  "assertions": [
+    {
+      "kind": "appearsBy",
+      "selector": ".context-card",
+      "bySec": 1.1
+    }
+  ]
+}

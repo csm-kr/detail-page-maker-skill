@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0",
+  "product_id": "66475839",
+  "researched_at": "2026-07-25",
+  "evidence_class": "MARKET_PAIN",
+  "scope_note": "경쟁상품의 공개 후기이며 현재 SKU의 성능 또는 단점 증거가 아니다.",
+  "sources": [
+    {
+      "id": "COMP-001",
+      "name": "엘르 미끄럼방지 스트림라인 아쿠아슈즈",
+      "url": "https://www.coupang.com/vp/products/8763326666?itemId=25483060036",
+      "product_id": "8763326666",
+      "item_id": "25483060036",
+      "capture_status": "PARTIAL",
+      "captured_reviews": 135,
+      "meaningful_low_rating_reviews": 6,
+      "sampling_note": "최신 100건은 충족했으나 저평점 보강 표본이 목표보다 적다."
+    },
+    {
+      "id": "COMP-002",
+      "name": "베이스알파에센셜 스킨핏 아쿠아 슈즈",
+      "url": "https://www.coupang.com/vp/products/7060014104?itemId=17502692992",
+      "product_id": "7060014104",
+      "item_id": "17502692992",
+      "capture_status": "PARTIAL",
+      "captured_reviews": 200,
+      "meaningful_low_rating_reviews": 60,
+      "sampling_note": "최신 100건과 저평점:고평점 67:33 보강 표본을 관찰했다. 전체 후기 전수조사는 아니다."
+    },
+    {
+      "id": "COMP-003",
+      "name": "밸롭 인젝션 블럭 아쿠아슈즈",
+      "url": "https://www.coupang.com/vp/products/1800716221?itemId=3063865825",
+      "product_id": "1800716221",
+      "item_id": "3063865825",
+      "capture_status": "PARTIAL",
+      "captured_reviews": 199,
+      "meaningful_low_rating_reviews": 67,
+      "sampling_note": "최신 100건과 저평점:고평점 66:33 보강 표본을 관찰했다. 전체 후기 전수조사는 아니다."
+    }
+  ],
+  "themes": [
+    {
+      "id": "PAIN-001",
+      "theme": "젖은 바닥에서 미끄럽다고 느낀 경험",
+      "source_coverage": "3/3",
+      "rough_keyword_hits_by_source": {"COMP-001": 2, "COMP-002": 5, "COMP-003": 4},
+      "current_sku_resolution": "unproven",
+      "planning_use": "바닥 패턴을 확대해 구조만 보여주고, 표면 상태에 따라 주의하라는 안전 고지로 사용한다.",
+      "forbidden_conversion": "논슬립 보장, 접지력 향상, 안전 인증"
+    },
+    {
+      "id": "PAIN-002",
+      "theme": "표기와 체감 사이즈 차이 또는 물속에서 벗겨짐",
+      "source_coverage": "3/3",
+      "rough_keyword_hits_by_source": {"COMP-001": 2, "COMP-002": 6, "COMP-003": 1},
+      "current_sku_resolution": "selection_information_available",
+      "planning_use": "발길이 cm와 S~XXXL을 직접 연결하고 발볼 예외와 ±0.5cm 오차를 함께 보여준다.",
+      "evidence_ids": ["FACT-006", "FACT-007", "FACT-013"]
+    },
+    {
+      "id": "PAIN-003",
+      "theme": "뒤꿈치 라벨·봉제선·실밥의 마찰",
+      "source_coverage": "3/3",
+      "rough_keyword_hits_by_source": {"COMP-001": 1, "COMP-002": 2, "COMP-003": 2},
+      "current_sku_resolution": "unproven_but_structure_visible",
+      "planning_use": "뒤꿈치 세로 밴드와 입구 봉제를 숨기지 않고 확대한다. 무압박이나 편안함을 보장하지 않는다.",
+      "evidence_ids": ["FACT-012"]
+    },
+    {
+      "id": "PAIN-004",
+      "theme": "모래 유입",
+      "source_coverage": "3/3",
+      "rough_keyword_hits_by_source": {"COMP-001": 1, "COMP-002": 1, "COMP-003": 1},
+      "current_sku_resolution": "unproven",
+      "planning_use": "해변 사용 시 모래가 들어올 수 있다는 사용 주의로만 처리한다."
+    },
+    {
+      "id": "PAIN-005",
+      "theme": "물이 안에서 잘 빠지지 않는 체감",
+      "source_coverage": "2/3",
+      "current_sku_resolution": "unproven",
+      "planning_use": "배수·빠른 건조 성능을 주장하지 않는다. 실물 배수 시험 전까지 기획 제외한다."
+    },
+    {
+      "id": "PAIN-006",
+      "theme": "깔창 박리·원단 손상·봉제 내구",
+      "source_coverage": "2/3",
+      "current_sku_resolution": "unproven",
+      "planning_use": "현재 SKU 실물의 깔창 고정 방식과 반복 사용 상태를 확인하기 전 해결 소구로 쓰지 않는다."
+    },
+    {
+      "id": "PAIN-007",
+      "theme": "화면과 실물 색상 또는 오배송 차이",
+      "source_coverage": "2/3",
+      "current_sku_resolution": "disclosure_available",
+      "planning_use": "그린·그레이를 같은 조명에서 비교하고 모니터·조명 차이를 고지한다.",
+      "evidence_ids": ["FACT-003", "FACT-014"]
+    }
+  ],
+  "safe_narrative": {
+    "problem": "물놀이 신발은 보기보다 사이즈, 뒤꿈치 마감, 바닥 구조를 먼저 확인해야 한다.",
+    "product_role": "현재 SKU의 발길이 표와 관찰 가능한 구조를 구매 전에 선명하게 보여준다.",
+    "proof": "6단계 발길이 표, 뒤꿈치 밴드·봉제 확대, 요철형 바닥, 약 1.5cm 두께, L 기준 약 197g",
+    "caution": "미끄럼 방지, 배수, 건조, 내구 성능은 시험 전 보장하지 않는다."
+  },
+  "privacy_qa": {
+    "raw_competitor_bundles_committed": false,
+    "reason": "추출기의 review_text 일부에 마스킹된 작성자 문자열이 섞여 개인정보 제거 계약을 통과하지 못했다.",
+    "repository_policy": "원문 대신 익명화된 주제, 집계, 상품 URL과 식별자만 저장한다."
+  }
+}

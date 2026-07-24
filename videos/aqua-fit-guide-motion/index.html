@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, height=800" />
+    <title>아쿠아슈즈 발길이 선택 안내</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Noto Sans KR";
+        src: local("Noto Sans KR");
+        font-style: normal;
+        font-weight: 100 900;
+      }
+      @font-face {
+        font-family: "Apple SD Gothic Neo";
+        src: local("Apple SD Gothic Neo");
+        font-style: normal;
+        font-weight: 100 900;
+      }
+      :root {
+        --ink: #14372f;
+        --deep: #0c2823;
+        --mint: #dbece3;
+        --lime: #d6ef78;
+        --paper: #f7f5ed;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        width: 800px;
+        height: 800px;
+        margin: 0;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      body { font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif; }
+      #stage {
+        position: relative;
+        width: 800px;
+        height: 800px;
+        overflow: hidden;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 84% 12%, rgba(214,239,120,.55), transparent 28%),
+          linear-gradient(145deg, #faf9f4 0%, #e2eee8 100%);
+      }
+      .head {
+        position: absolute;
+        left: 54px;
+        top: 48px;
+      }
+      .kicker {
+        margin: 0 0 12px;
+        color: rgba(20,55,47,.8);
+        font-size: 15px;
+        font-weight: 850;
+        letter-spacing: .08em;
+      }
+      h1 {
+        margin: 0;
+        color: var(--deep);
+        font-size: 46px;
+        font-weight: 950;
+        letter-spacing: -.06em;
+        line-height: 1.08;
+      }
+      .ruler {
+        position: absolute;
+        left: 54px;
+        top: 196px;
+        width: 692px;
+        height: 92px;
+        border-radius: 24px;
+        background: rgba(255,255,252,.9);
+        box-shadow: 0 18px 42px rgba(12,40,35,.1);
+        opacity: 0;
+      }
+      .ruler-line {
+        position: absolute;
+        left: 40px;
+        right: 40px;
+        top: 46px;
+        height: 3px;
+        border-radius: 3px;
+        background: rgba(20,55,47,.22);
+      }
+      .ruler-line::before, .ruler-line::after {
+        position: absolute;
+        top: -6px;
+        width: 3px;
+        height: 15px;
+        border-radius: 2px;
+        background: var(--deep);
+        content: "";
+      }
+      .ruler-line::before { left: 0; }
+      .ruler-line::after { right: 0; }
+      .ruler-value {
+        position: absolute;
+        top: 17px;
+        color: var(--deep);
+        font-size: 15px;
+        font-weight: 900;
+      }
+      .ruler-value--start { left: 38px; }
+      .ruler-value--end { right: 38px; }
+      .cursor {
+        position: absolute;
+        left: 39px;
+        top: 39px;
+        width: 17px;
+        height: 17px;
+        border: 4px solid white;
+        border-radius: 50%;
+        background: var(--deep);
+        box-shadow: 0 6px 12px rgba(12,40,35,.22);
+      }
+      .range {
+        position: absolute;
+        left: 40px;
+        top: 43px;
+        width: 62px;
+        height: 9px;
+        border-radius: 9px;
+        background: var(--lime);
+        transform-origin: left center;
+      }
+      .current-range {
+        position: absolute;
+        right: 30px;
+        bottom: 14px;
+        color: rgba(20,55,47,.82);
+        font-size: 14px;
+        font-weight: 850;
+      }
+      .size-grid {
+        position: absolute;
+        left: 54px;
+        right: 54px;
+        top: 322px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+      .size-card {
+        min-height: 132px;
+        padding: 22px 20px;
+        border: 1px solid rgba(20,55,47,.1);
+        border-radius: 22px;
+        background: rgba(255,255,252,.82);
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      .size-card strong {
+        display: block;
+        color: var(--deep);
+        font-size: 29px;
+        font-weight: 950;
+        letter-spacing: -.04em;
+      }
+      .size-card span {
+        display: block;
+        margin-top: 7px;
+        color: rgba(20,55,47,.82);
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .size-card.active {
+        border-color: var(--deep);
+        background: var(--deep);
+        box-shadow: 0 18px 30px rgba(12,40,35,.17);
+      }
+      .size-card.active strong, .size-card.active span { color: white; }
+      .note {
+        position: absolute;
+        left: 54px;
+        right: 54px;
+        bottom: 44px;
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 19px 22px;
+        border-radius: 18px;
+        background: rgba(20,55,47,.08);
+        color: rgba(20,55,47,.86);
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="stage"
+      data-composition-id="aqua-fit-guide-motion"
+      data-start="0"
+      data-duration="5.2"
+      data-fps="30"
+      data-width="800"
+      data-height="800"
+    >
+      <header class="head">
+        <p class="kicker">FIT BY FOOT LENGTH</p>
+        <h1>신발 호수보다,<br />발길이를 먼저.</h1>
+      </header>
+      <div class="ruler">
+        <div class="ruler-line"></div>
+        <span class="ruler-value ruler-value--start">22.0 cm</span>
+        <span class="ruler-value ruler-value--end">27.5 cm</span>
+        <div class="range"></div>
+        <div class="cursor"></div>
+        <span class="current-range">22.0–22.5 cm · S</span>
+      </div>
+      <div class="size-grid">
+        <article class="size-card" data-index="0"><strong>S</strong><span>34–35 · 22.0–22.5cm</span></article>
+        <article class="size-card" data-index="1"><strong>M</strong><span>36–37 · 23.0–23.5cm</span></article>
+        <article class="size-card" data-index="2"><strong>L</strong><span>38–39 · 24.0–24.5cm</span></article>
+        <article class="size-card" data-index="3"><strong>XL</strong><span>40–41 · 25.0–25.5cm</span></article>
+        <article class="size-card" data-index="4"><strong>XXL</strong><span>42–43 · 26.0–26.5cm</span></article>
+        <article class="size-card" data-index="5"><strong>XXXL</strong><span>44–45 · 27.0–27.5cm</span></article>
+      </div>
+      <div class="note">
+        <span>발볼이 넓다면 한 치수 크게</span>
+        <span>착용감에는 개인차가 있습니다</span>
+      </div>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const cards = [...document.querySelectorAll(".size-card")];
+      const labels = [
+        "22.0–22.5 cm · S",
+        "23.0–23.5 cm · M",
+        "24.0–24.5 cm · L",
+        "25.0–25.5 cm · XL",
+        "26.0–26.5 cm · XXL",
+        "27.0–27.5 cm · XXXL",
+      ];
+      const xValues = [39, 145, 251, 357, 463, 569];
+      const tl = gsap.timeline({ paused: true });
+      tl.to(".ruler", { opacity: 1, duration: .36, ease: "power2.out" }, .2);
+      tl.to(cards, { opacity: 1, y: 0, duration: .38, stagger: .055, ease: "power3.out" }, .28);
+      cards.forEach((card, index) => {
+        const at = .82 + index * .58;
+        tl.call(() => {
+          cards.forEach((item) => item.classList.remove("active"));
+          card.classList.add("active");
+          document.querySelector(".current-range").textContent = labels[index];
+        }, [], at);
+        tl.to(".cursor", { x: xValues[index] - 39, duration: .3, ease: "power2.inOut" }, at);
+        tl.to(".range", { x: xValues[index] - 39, duration: .3, ease: "power2.inOut" }, at);
+      });
+      tl.to([".ruler", ".size-card", ".note"], { opacity: 0, duration: .32, ease: "power2.in" }, 4.7);
+      window.__timelines["aqua-fit-guide-motion"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
