@@ -62,6 +62,8 @@
 3. 작품별 스타일을 복사하지 않고 재사용 가능한 디자인 규칙으로 추출한다.
 4. 제품군과 브랜드 포지션에 맞는 한 가지 디자인 방향을 선택하고 페이지 전체에 고정한다.
 
+완료된 9개 제품군 조사는 [`research/behance-detail-page-design-grammar.md`](research/behance-detail-page-design-grammar.md)를 따른다. 공통 기본 서사는 `제품·가치 인지 → 상황·문제 → 해결 원리·장점 → 구조·수치 증거 → 사용 → 구매 확인`이며, 감성·정보·증거 블록을 교차하고 최소 세 가지 카메라 거리를 사용한다.
+
 ### 4.3 디자인 디렉션 잠금
 
 HTML 제작 전 다음 항목을 승인 가능한 디자인 명세로 만든다.
@@ -76,6 +78,8 @@ HTML 제작 전 다음 항목을 승인 가능한 디자인 명세로 만든다.
 - GIF가 필요한 주장과 정지 이미지로 충분한 주장
 
 디자인 명세가 승인되기 전에는 최종 이미지, GIF, HTML을 제작하지 않는다.
+
+AI 디자인 계약의 근거와 상세 QA 루프는 [`research/ai-design-skills.md`](research/ai-design-skills.md)를 따른다. 생성 과정은 `디자인 디렉션 잠금 → 토큰·콘텐츠·DOM 구현 → 정적 감사 → 다중 폭 시각 회귀 → 접근성·성능 → 사람의 아트디렉션 비평 → 국소 수정` 순서로 고정한다.
 
 ### 4.4 수정 가능한 HTML 설계
 
@@ -142,12 +146,13 @@ ImageGen은 시각 자산 생성에만 사용하며, 상품 사실이나 광고 
 제품 효과나 작동을 보여줘야 하는 장면은 다음 파이프라인을 사용한다.
 
 1. `imagegen`으로 제품 동일성이 유지된 기준 이미지 또는 시작·종료 상태 이미지를 만든다.
-2. HyperFrames HTML 컴포지션에서 제품 이미지, 배경, 마스크, SVG, 카피 없는 보조 그래픽을 레이어로 분리한다.
-3. DOM의 `data-*` 타이밍과 seek 가능한 애니메이션으로 동작을 구성한다.
+2. HyperFrames HTML 컴포지션에서 승인된 제품 컷아웃 한 장을 제품 본체 DOM으로 유지하고 배경, 마스크, SVG, 카피 없는 보조 그래픽을 별도 레이어로 분리한다.
+3. DOM의 `data-*` 타이밍과 paused seek timeline으로 결정적 동작을 구성한다.
 4. 제품이 실제로 변형되는 것처럼 보이게 하지 않고 위치, 회전, 확대, 마스크, 조명, 입자, 전후 비교 등 검증 가능한 효과만 사용한다.
-5. 짧은 무음 영상으로 렌더링하고 프레임·제품 동일성·루프 연결을 검수한다.
-6. 게시 환경에 맞게 GIF로 변환·최적화한다.
-7. 관련 HTML 섹션의 주장 바로 옆에 GIF를 삽입한다.
+5. 제작·QA용 30fps 무음 MP4를 보존하고 프레임·제품 동일성·루프 연결을 검수한다.
+6. 게시용은 HyperFrames에서 15fps·무음·무한 루프·불투명 GIF로 직접 렌더링한다.
+7. 용량 예산을 넘을 때만 PNG sequence와 FFmpeg 두 단계 팔레트 후처리를 사용한다.
+8. 관련 HTML 섹션의 주장 바로 옆에 GIF를 삽입한다.
 
 한 GIF는 한 가지 동작 또는 효과만 설명한다. 장식만을 위한 자동 재생 GIF는 만들지 않는다.
 
@@ -157,7 +162,10 @@ ImageGen은 시각 자산 생성에만 사용하며, 상품 사실이나 광고 
 - 기존 스킬의 LTX 2.3 영상 생성 의존성은 새 스킬의 기본 흐름에서 제거한다.
 - 제품 참조와 ImageGen이 정지 이미지의 동일성을 책임진다.
 - HyperFrames가 장면 타이밍, 전환, 마스크, 카메라 효과와 렌더링을 책임진다.
-- 최종 HTML에는 GIF를 사용하되, 제작·QA를 위해 원본 HyperFrames 컴포지션과 렌더 영상도 보존한다.
+- 최종 HTML에는 15fps·무음·무한 루프·불투명 GIF를 기본으로 사용한다.
+- 제작·QA를 위해 원본 HyperFrames 컴포지션과 30fps MP4도 보존한다.
+- 현재 HyperFrames GIF 구현은 JPEG 중간 프레임을 사용하므로 투명 GIF에 의존하지 않는다.
+- 상세 계약은 [`research/hyperframes-gif-pipeline.md`](research/hyperframes-gif-pipeline.md)를 따른다.
 - `prefers-reduced-motion` 환경에서는 GIF 대신 대표 정지 이미지를 제공한다.
 
 ## 6. 예상 산출물 구조
@@ -235,13 +243,17 @@ detail-page-project/
 - 무한 루프의 연결이 자연스러워야 한다.
 - 파일 크기와 해상도는 실제 HTML 로딩 성능 기준을 통과해야 한다.
 
-## 8. 조사 항목
+## 8. 조사 결과와 남은 조사
 
-- Behance 우수 상세페이지의 제품군별 제작 문법
-- 상용 HTML 상세페이지용 AI 디자인 스킬과 디자인 시스템 패턴
+### 완료된 조사
+
+- [`Behance 제품 상세페이지 디자인 문법`](research/behance-detail-page-design-grammar.md)
+- [`상용 HTML에 흡수할 AI 디자인 스킬 계약`](research/ai-design-skills.md)
+- [`HyperFrames 제품 효과 GIF 파이프라인`](research/hyperframes-gif-pipeline.md)
+
+### 남은 조사
+
 - ImageGen 참조 이미지 기반 제품 동일성 유지 방법
-- HyperFrames의 core, creative, animation, keyframes, CLI 계약
-- HyperFrames 영상의 GIF 변환·최적화 기준
 - 판매 채널별 HTML, GIF, 외부 리소스 제한
 
 조사는 공식 문서, 공식 저장소, 원본 작품을 우선 출처로 사용한다.
@@ -261,10 +273,13 @@ detail-page-project/
 - ImageGen 제품 뷰 시트는 파생 시각 자산이며 공급처 원문과 사용자 촬영 원본을 덮어쓰지 않는다.
 - 최종 산출물은 상용 수준의 수정 가능한 HTML 상세페이지다.
 - Behance `상세페이지` 검색 결과를 품질 표본 풀로 사용한다.
+- Behance 9개 제품군 조사에서 구매 질문 중심 서사, 감성·정보·증거 리듬, 카메라 거리와 복제 방지 규칙을 내부 디자인 계약으로 채택한다.
+- AI 디자인은 단일 외부 스킬을 런타임 호출하지 않고 Anthropic·Vercel·DTCG·Playwright·WCAG의 역할별 계약을 내부화한다.
 - 시각 생성 AI 모델은 `imagegen`만 사용한다.
 - 실제 상품 장면은 제품 참조 이미지를 ImageGen에 전달해 만든다.
 - 제품 모션은 HyperFrames로 제작한다.
-- HyperFrames 렌더 결과를 GIF로 최적화해 HTML에 삽입한다.
+- HyperFrames가 직접 렌더한 15fps·무음·무한 루프·불투명 GIF를 기본으로 HTML에 삽입한다.
+- 30fps MP4는 QA 보존물이며 PNG sequence·FFmpeg 후처리는 용량 초과 시에만 사용한다.
 - 한 GIF는 한 가지 제품 작동 또는 효과만 입증한다.
 
 ## 10. 아직 결정할 항목
@@ -272,9 +287,7 @@ detail-page-project/
 - 프로젝트 규칙 파일을 `AGENTS.md`와 `CLAUDE.md` 중 어디에 둘지
 - 기본 판매 채널과 허용되는 HTML/CSS/JavaScript 범위
 - 기본 상세페이지 콘텐츠 폭과 반응형 범위
-- 제품군별 Behance 표본의 선정 수와 평가 점수
 - 한 페이지에 허용할 GIF 수, 길이, 해상도, 최대 파일 크기
-- HyperFrames 원본 영상의 기본 포맷과 GIF 변환 도구
 - 최종 HTML의 편집 인터페이스를 코드 편집으로 한정할지, 별도 시각 편집 UI를 제공할지
 
 ## 11. 현재 단계
