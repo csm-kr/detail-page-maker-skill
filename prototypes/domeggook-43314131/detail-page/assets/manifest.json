@@ -1,0 +1,105 @@
+{
+  "schema_version": "0.1-prototype",
+  "product_id": "43314131",
+  "campaign_direction": {
+    "name": "Precision Green",
+    "palette": ["#173e34", "#0b2922", "#dfff5a", "#f4f1e8"],
+    "design_intent": "스테인레스 도구의 정밀함과 신선한 식재료의 에너지를 대비시키는 편집형 상업 상세페이지"
+  },
+  "assets": [
+    {
+      "asset": "product-cutout.png",
+      "kind": "generated-cutout",
+      "source_roles": ["identity-primary", "identity-detail"],
+      "source_paths": [
+        ".artifacts/dmk-extractor-43314131/thumbnail/thumbnail.png",
+        ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-03/frame-0001.png",
+        ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-04/frame-0001.png"
+      ],
+      "generation_mode": "built-in-imagegen-edit-with-references",
+      "chroma_source": "product-cutout-chroma.png",
+      "prohibited_mutations": [
+        "silhouette",
+        "handle",
+        "hanging-loop",
+        "head-frame",
+        "blade-count",
+        "blade-placement",
+        "side-protrusions",
+        "material-color"
+      ],
+      "status": "prototype-accepted",
+      "replacement_gate": "사용자 다각도 실사진 SSOT 도착 후 재생성·재승인"
+    },
+    {
+      "asset": "use-peel.jpg",
+      "kind": "supplier-evidence-crop",
+      "source_path": ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-03/frame-0001.png",
+      "source_sha256": "7c79ff7c64743a40278e657ad1f8f3f2565860b27ab82fc11f36cda8cdfdaefc",
+      "visible_fact": "peeling"
+    },
+    {
+      "asset": "use-slice.jpg",
+      "kind": "supplier-evidence-crop",
+      "source_path": ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-03/frame-0001.png",
+      "source_sha256": "7c79ff7c64743a40278e657ad1f8f3f2565860b27ab82fc11f36cda8cdfdaefc",
+      "visible_fact": "thin-slicing"
+    },
+    {
+      "asset": "use-julienne.jpg",
+      "kind": "supplier-evidence-crop",
+      "source_path": ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-03/frame-0001.png",
+      "source_sha256": "7c79ff7c64743a40278e657ad1f8f3f2565860b27ab82fc11f36cda8cdfdaefc",
+      "visible_fact": "julienne-cutting"
+    },
+    {
+      "asset": "use-motion-start.png",
+      "kind": "imagegen-reference-keyframe",
+      "sha256": "31e01b68f0c0e4eed2f2a77e0eddc55d340b66d9d8d9d40f922905323b9fa7c0",
+      "source_paths": [
+        "assets/product-cutout.png",
+        ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-03/frame-0001.png"
+      ],
+      "generation_mode": "built-in-imagegen-edit-with-references",
+      "scene_state": "오이 슬라이스 시작 전",
+      "identity_gate": "제품 실루엣·손잡이·고리·헤드 프레임·커터 수와 배치를 유지"
+    },
+    {
+      "asset": "use-motion-end.png",
+      "kind": "imagegen-reference-keyframe",
+      "sha256": "08df94cd36562223b59a045a7ef46f1931e5fd19d4241a32de682af678692d3b",
+      "source_paths": [
+        "assets/use-motion-start.png",
+        "assets/product-cutout.png",
+        ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-03/frame-0001.png"
+      ],
+      "generation_mode": "built-in-imagegen-edit-with-references",
+      "scene_state": "얇은 오이 슬라이스 생성 후",
+      "identity_gate": "시작 프레임의 카메라·손·조명·제품 구조를 유지"
+    },
+    {
+      "asset": "use-slice-motion.gif",
+      "kind": "hyperframes-gif",
+      "sha256": "b846ecb6035534190b3a34c385f8c0242937dd212fb234a7e0905a50368af46e",
+      "source_paths": [
+        "assets/use-motion-start.png",
+        "assets/use-motion-end.png",
+        "videos/use-demo-motion/index.html"
+      ],
+      "render": "800x600 · 4s · 15fps · infinite loop",
+      "claim": "얇게 썰기 사용 전후의 연출 시각화"
+    },
+    {
+      "asset": "dual-blade-function.gif",
+      "kind": "hyperframes-gif",
+      "sha256": "e3ca0f6dad40e1024294cd84b6682d28499bdf2a42e841028aee07955f50c24e",
+      "source_paths": [
+        "assets/product-cutout.png",
+        ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-03/frame-0001.png",
+        "videos/dual-blade-motion/index.html"
+      ],
+      "render": "800x720 · 4s · 15fps · infinite loop",
+      "claim": "껍질 제거·얇게 썰기 커터와 채썰기 커터의 실제 위치"
+    }
+  ]
+}

@@ -88,7 +88,7 @@ prototype에서 portable bundle 생성과 독립 무결성 검증은 통과했�
 3. 작품별 스타일을 복사하지 않고 재사용 가능한 디자인 규칙으로 추출한다.
 4. 제품군과 브랜드 포지션에 맞는 한 가지 디자인 방향을 선택하고 페이지 전체에 고정한다.
 
-완료된 9개 제품군 조사는 [`research/behance-detail-page-design-grammar.md`](research/behance-detail-page-design-grammar.md)를 따른다. 공통 기본 서사는 `제품·가치 인지 → 상황·문제 → 해결 원리·장점 → 구조·수치 증거 → 사용 → 구매 확인`이며, 감성·정보·증거 블록을 교차하고 최소 세 가지 카메라 거리를 사용한다.
+완료된 제품군 조사는 [`research/behance-detail-page-design-grammar.md`](research/behance-detail-page-design-grammar.md)를 따른다. 공통 기본 서사는 `제품·가치 인지 → 상황·문제 → 해결 원리·장점 → 구조·수치 증거 → 사용 → 구매 확인`이며, 감성·정보·증거 블록을 교차하고 최소 세 가지 카메라 거리를 사용한다. HTML 제작 때마다 읽는 압축 규약은 루트의 [`commetial-detail-page.md`](commetial-detail-page.md)로 관리한다.
 
 ### 4.3 디자인 디렉션 잠금
 
@@ -106,6 +106,8 @@ HTML 제작 전 다음 항목을 승인 가능한 디자인 명세로 만든다.
 디자인 명세가 승인되기 전에는 최종 이미지, GIF, HTML을 제작하지 않는다.
 
 AI 디자인 계약의 근거와 상세 QA 루프는 [`research/ai-design-skills.md`](research/ai-design-skills.md)를 따른다. 생성 과정은 `디자인 디렉션 잠금 → 토큰·콘텐츠·DOM 구현 → 정적 감사 → 다중 폭 시각 회귀 → 접근성·성능 → 사람의 아트디렉션 비평 → 국소 수정` 순서로 고정한다.
+
+외부 디자인 지식은 [`study-desing-skill.md`](study-desing-skill.md)에 출처·시험한 규칙·채택 여부·실패 이유를 누적한다. `awesome-design-md`와 `ai-design-skills` 원문을 시작점으로 삼되, 새 규칙은 실제 상세페이지에 적용하고 브라우저 QA에서 개선이 확인된 경우에만 영구 규약으로 승격한다.
 
 ### 4.4 수정 가능한 HTML 설계
 
@@ -182,6 +184,8 @@ ImageGen은 시각 자산 생성에만 사용하며, 상품 사실이나 광고 
 8. 관련 HTML 섹션의 주장 바로 옆에 GIF를 삽입한다.
 
 한 GIF는 한 가지 동작 또는 효과만 설명한다. 장식만을 위한 자동 재생 GIF는 만들지 않는다.
+
+첫 구현에서는 커터 두 위치를 순차 강조하는 800×720 GIF와, ImageGen start/end keyframe을 방향성 mask로 연결한 800×600 오이 얇게 썰기 GIF를 각각 4초·15fps로 만들었다. 두 원본 HyperFrames 프로젝트는 `videos/dual-blade-motion/`과 `videos/use-demo-motion/`에 보존한다.
 
 ## 5. HyperFrames 적용 원칙
 
@@ -317,7 +321,7 @@ detail-page-project/
 - ImageGen 제품 뷰 시트는 파생 시각 자산이며 공급처 원문과 사용자 촬영 원본을 덮어쓰지 않는다.
 - 최종 산출물은 상용 수준의 수정 가능한 HTML 상세페이지다.
 - Behance `상세페이지` 검색 결과를 품질 표본 풀로 사용한다.
-- Behance 9개 제품군 조사에서 구매 질문 중심 서사, 감성·정보·증거 리듬, 카메라 거리와 복제 방지 규칙을 내부 디자인 계약으로 채택한다.
+- Behance 15개 원본 프로젝트 조사에서 구매 질문 중심 서사, 감성·정보·증거 리듬, 카메라 거리와 복제 방지 규칙을 내부 디자인 계약으로 채택한다.
 - AI 디자인은 단일 외부 스킬을 런타임 호출하지 않고 Anthropic·Vercel·DTCG·Playwright·WCAG의 역할별 계약을 내부화한다.
 - 시각 생성 AI 모델은 `imagegen`만 사용한다.
 - 실제 상품 장면은 제품 참조 이미지를 ImageGen에 전달해 만든다.
@@ -336,4 +340,4 @@ detail-page-project/
 
 ## 11. 현재 단계
 
-지금은 Wayfinder 계획 단계다. 목적과 핵심 제작 파이프라인을 정리했고 첫 도매꾹 실제 추출 prototype과 무결성 검증을 완료했다. 결정 지도는 `.scratch/editable-html-detail-page-maker/map.md`에서 관리한다. 아직 새 스킬 구현이나 실제 판매용 상세페이지 제작은 시작하지 않았다.
+첫 실제 수정 가능 HTML prototype을 [`prototypes/domeggook-43314131/detail-page/index.html`](prototypes/domeggook-43314131/detail-page/index.html)에 구현했다. 도매꾹 사실표, ImageGen 참조 컷, HyperFrames GIF 2개, 편집 모드, 반응형·접근성 처리를 연결했고 Behance 15개 원본 공통 문법과 360px·800px Browser Harness QA에서 88/100으로 prototype을 통과했다. `awesome-design-md`와 `ai-design-skills`에서 가져온 첫 소규모 디자인 실험은 78→85점으로 올라 현재 상품에 한해 채택했다. 이 결과는 제품 실사진 SSOT가 도착하기 전의 prototype이며 판매 게시 승인은 아니다.

@@ -1,0 +1,1373 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="다용도 미니 채칼의 양면 커터, 치수와 사용 장면을 설명하는 수정 가능한 상품 상세페이지">
+  <title>다용도 미니 채칼 — Editable Detail Page</title>
+  <style>
+    :root {
+      --ink: #11130f;
+      --forest: #173e34;
+      --forest-deep: #0b2922;
+      --accent: #dfff5a;
+      --paper: #f4f1e8;
+      --white: #fffef9;
+      --steel: #c7cec9;
+      --muted: #6d726b;
+      --line: rgba(17, 19, 15, 0.16);
+      --radius-sm: 16px;
+      --radius-md: 28px;
+      --radius-lg: 48px;
+      --page-width: 800px;
+      --shadow: 0 28px 80px rgba(9, 26, 21, 0.18);
+      --display: "Arial Black", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      --body: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: #d9ddd8;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--body);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.9), transparent 36rem),
+        #d9ddd8;
+      -webkit-font-smoothing: antialiased;
+      word-break: keep-all;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .editor {
+      position: fixed;
+      z-index: 1000;
+      top: 16px;
+      right: 16px;
+      width: auto;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 18px;
+      color: #fff;
+      background: rgba(11, 41, 34, 0.94);
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(18px);
+    }
+
+    .editor__top,
+    .editor__colors {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .editor__top {
+      justify-content: space-between;
+    }
+
+    .editor__colors {
+      overflow: hidden;
+      max-height: 0;
+      margin-top: 0;
+      opacity: 0;
+      transition: max-height 240ms ease, opacity 240ms ease, margin 240ms ease;
+    }
+
+    .edit-mode .editor__colors {
+      max-height: 64px;
+      margin-top: 10px;
+      opacity: 1;
+    }
+
+    .editor button {
+      min-height: 44px;
+      padding: 0 13px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--forest-deep);
+      background: var(--accent);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .editor button[data-action="save"] {
+      display: none;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .edit-mode .editor {
+      width: min(320px, calc(100vw - 32px));
+    }
+
+    .edit-mode .editor button[data-action="save"] {
+      display: block;
+    }
+
+    .color-control {
+      display: grid;
+      flex: 1;
+      gap: 4px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .color-control input {
+      width: 100%;
+      height: 44px;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 7px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .detail-page {
+      width: min(100%, var(--page-width));
+      margin: 0 auto;
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .section {
+      position: relative;
+      padding: clamp(80px, 13vw, 128px) clamp(28px, 7.5vw, 68px);
+      isolation: isolate;
+    }
+
+    .section--dark {
+      color: var(--white);
+      background: var(--forest-deep);
+    }
+
+    .section--white {
+      background: var(--white);
+    }
+
+    .section--accent {
+      background: var(--accent);
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 22px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 30px;
+      height: 2px;
+      content: "";
+      background: currentColor;
+    }
+
+    .display {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(42px, 9.5vw, 88px);
+      font-weight: 950;
+      letter-spacing: -0.075em;
+      line-height: 0.95;
+    }
+
+    .display--medium {
+      font-size: clamp(38px, 7.2vw, 66px);
+      line-height: 1.02;
+    }
+
+    .lead {
+      max-width: 560px;
+      margin: 28px 0 0;
+      color: inherit;
+      font-size: clamp(17px, 2.7vw, 22px);
+      font-weight: 620;
+      line-height: 1.58;
+      letter-spacing: -0.025em;
+    }
+
+    .micro {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .hero {
+      display: grid;
+      min-height: 970px;
+      align-content: start;
+      padding-top: 86px;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 76% 54%, rgba(223, 255, 90, 0.23), transparent 17rem),
+        linear-gradient(155deg, var(--forest) 0%, var(--forest-deep) 66%, #061612 100%);
+    }
+
+    .hero::before {
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      right: -110px;
+      width: 430px;
+      height: 430px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      content: "";
+      box-shadow:
+        0 0 0 62px rgba(255, 255, 255, 0.025),
+        0 0 0 124px rgba(255, 255, 255, 0.02);
+    }
+
+    .hero__headline {
+      position: relative;
+      z-index: 4;
+      max-width: 660px;
+    }
+
+    .hero__headline em {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    .hero__product-stage {
+      position: relative;
+      height: 540px;
+      margin: 28px -44px -84px;
+    }
+
+    .hero__product-stage::after {
+      position: absolute;
+      right: 2%;
+      bottom: 12%;
+      width: 62%;
+      height: 18%;
+      border-radius: 50%;
+      content: "";
+      background: rgba(0, 0, 0, 0.26);
+      filter: blur(28px);
+      transform: rotate(-10deg);
+    }
+
+    .hero__product {
+      position: absolute;
+      z-index: 2;
+      right: -3%;
+      bottom: -4%;
+      width: 102%;
+      max-width: none;
+      transform: rotate(-4deg);
+      filter: drop-shadow(0 34px 22px rgba(0, 0, 0, 0.25));
+      animation: product-float 5s ease-in-out infinite;
+      cursor: default;
+    }
+
+    .hero__stamp {
+      position: absolute;
+      z-index: 3;
+      top: 16%;
+      left: 3%;
+      display: grid;
+      width: 118px;
+      aspect-ratio: 1;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 50%;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.35;
+      text-align: center;
+      transform: rotate(-9deg);
+    }
+
+    @keyframes product-float {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-4deg);
+      }
+      50% {
+        transform: translateY(-12px) rotate(-2deg);
+      }
+    }
+
+    .question {
+      display: grid;
+      min-height: 630px;
+      place-content: center;
+      text-align: center;
+    }
+
+    .question__mark {
+      margin-bottom: 24px;
+      color: var(--forest);
+      font-family: Georgia, serif;
+      font-size: 88px;
+      line-height: 0.7;
+    }
+
+    .question .lead {
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .functions {
+      padding-right: 0;
+      padding-left: 0;
+    }
+
+    .functions__header {
+      padding: 0 clamp(28px, 7.5vw, 68px) 56px;
+    }
+
+    .use-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+    }
+
+    .use-card {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      border-right: 1px solid var(--line);
+      background: #dfe2dc;
+    }
+
+    .use-card:last-child {
+      border-right: 0;
+    }
+
+    .use-card img {
+      width: 100%;
+      height: clamp(360px, 69vw, 532px);
+      object-fit: cover;
+      filter: saturate(0.9) contrast(1.04);
+      transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .use-card:hover img {
+      transform: scale(1.035);
+    }
+
+    .use-card__copy {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      left: 10px;
+      padding: 15px 12px 13px;
+      border-radius: 12px;
+      color: #fff;
+      background: rgba(11, 41, 34, 0.9);
+      backdrop-filter: blur(8px);
+    }
+
+    .use-card__number {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+    }
+
+    .use-card__title {
+      margin: 0;
+      font-size: clamp(17px, 3vw, 24px);
+      font-weight: 900;
+      letter-spacing: -0.045em;
+    }
+
+    .functions__evidence {
+      margin: 24px clamp(28px, 7.5vw, 68px) 0;
+    }
+
+    .motion-proof {
+      overflow: hidden;
+    }
+
+    .motion-proof__header {
+      display: grid;
+      align-items: end;
+      grid-template-columns: 1fr auto;
+      gap: 28px;
+    }
+
+    .proof-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      padding: 10px 14px;
+      border: 1px solid rgba(17, 19, 15, 0.18);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .proof-chip::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      content: "";
+      background: var(--forest);
+    }
+
+    .motion-frame {
+      display: block;
+      margin: 48px -22px 0;
+      overflow: hidden;
+      border: 1px solid rgba(17, 19, 15, 0.16);
+      border-radius: var(--radius-md);
+      background: #e8eee8;
+      box-shadow: 0 24px 54px rgba(11, 41, 34, 0.14);
+    }
+
+    .motion-frame img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+
+    .motion-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      margin: 18px 4px 0;
+      color: rgba(17, 19, 15, 0.66);
+      font-size: 12px;
+      font-weight: 720;
+      line-height: 1.6;
+    }
+
+    .section--dark .motion-caption {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .appeal-strip {
+      display: grid;
+      margin-top: 48px;
+      border-top: 1px solid rgba(17, 19, 15, 0.22);
+      border-bottom: 1px solid rgba(17, 19, 15, 0.22);
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .appeal-card {
+      min-width: 0;
+      padding: 26px 20px 28px;
+      border-right: 1px solid rgba(17, 19, 15, 0.22);
+    }
+
+    .appeal-card:last-child {
+      border-right: 0;
+    }
+
+    .appeal-card__number {
+      display: block;
+      margin-bottom: 24px;
+      color: var(--forest);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+    }
+
+    .appeal-card h3 {
+      margin: 0;
+      font-size: clamp(19px, 3vw, 26px);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1.15;
+    }
+
+    .appeal-card p {
+      margin: 12px 0 0;
+      color: rgba(17, 19, 15, 0.68);
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.55;
+    }
+
+    .blade {
+      overflow: hidden;
+    }
+
+    .blade__visual {
+      display: block;
+      margin: 50px -22px 0;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-md);
+      background: var(--forest);
+    }
+
+    .blade__visual img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 10 / 9;
+      object-fit: cover;
+    }
+
+    .specs {
+      overflow: hidden;
+    }
+
+    .spec-stage {
+      position: relative;
+      height: 570px;
+      margin-top: 46px;
+    }
+
+    .spec-stage::before {
+      position: absolute;
+      inset: 7% 11%;
+      border: 1px solid rgba(23, 62, 52, 0.18);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .spec-stage img {
+      position: absolute;
+      top: -4%;
+      left: 4%;
+      width: 91%;
+      transform: rotate(7deg);
+      filter: drop-shadow(0 28px 20px rgba(9, 26, 21, 0.18));
+    }
+
+    .measure {
+      position: absolute;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .measure::before {
+      width: 70px;
+      height: 1px;
+      content: "";
+      background: currentColor;
+    }
+
+    .measure strong {
+      display: block;
+      font-family: var(--display);
+      font-size: 28px;
+      letter-spacing: -0.06em;
+    }
+
+    .measure--head {
+      right: 1%;
+      bottom: 14%;
+      color: var(--forest);
+    }
+
+    .measure--handle {
+      top: 12%;
+      left: 0;
+      color: var(--forest);
+    }
+
+    .measure--loop {
+      top: 8%;
+      right: 2%;
+      color: var(--forest);
+    }
+
+    .material-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      margin-top: 52px;
+    }
+
+    .material-card {
+      min-height: 330px;
+      padding: 32px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .material-card--steel {
+      position: relative;
+      color: var(--ink);
+      background:
+        linear-gradient(112deg, #8d9791 0%, #f6f7f5 29%, #a7b0aa 52%, #f1f4f2 76%, #7e8983 100%);
+    }
+
+    .material-card--steel::after {
+      position: absolute;
+      inset: 0;
+      content: "";
+      opacity: 0.2;
+      background: repeating-linear-gradient(90deg, transparent 0 2px, rgba(0, 0, 0, 0.08) 3px);
+      mix-blend-mode: multiply;
+    }
+
+    .material-card__number {
+      position: relative;
+      z-index: 2;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(64px, 13vw, 112px);
+      font-weight: 950;
+      letter-spacing: -0.085em;
+      line-height: 0.85;
+    }
+
+    .material-card__label {
+      position: relative;
+      z-index: 2;
+      margin-top: 22px;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+    }
+
+    .material-card__note {
+      margin-top: 86px;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .storage {
+      display: grid;
+      min-height: 720px;
+      align-items: center;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 24px;
+      overflow: hidden;
+    }
+
+    .storage__visual {
+      position: relative;
+      align-self: stretch;
+      min-height: 520px;
+    }
+
+    .storage__hook {
+      position: absolute;
+      top: -45px;
+      left: 50%;
+      width: 8px;
+      height: 130px;
+      border-radius: 999px;
+      background: var(--forest);
+      transform: translateX(-50%);
+    }
+
+    .storage__hook::after {
+      position: absolute;
+      bottom: -28px;
+      left: -20px;
+      width: 42px;
+      height: 42px;
+      border: 8px solid var(--forest);
+      border-top-color: transparent;
+      border-left-color: transparent;
+      border-radius: 50%;
+      content: "";
+      transform: rotate(45deg);
+    }
+
+    .storage__visual img {
+      position: absolute;
+      top: 150px;
+      left: 50%;
+      width: 450px;
+      max-width: none;
+      transform: translateX(-50%) rotate(45deg);
+      filter: drop-shadow(18px 32px 20px rgba(11, 41, 34, 0.17));
+    }
+
+    .storage__copy {
+      position: relative;
+      z-index: 3;
+    }
+
+    .facts {
+      padding-bottom: 92px;
+    }
+
+    .facts-table {
+      margin-top: 46px;
+      border-top: 2px solid var(--ink);
+    }
+
+    .fact-row {
+      display: grid;
+      padding: 19px 0;
+      border-bottom: 1px solid var(--line);
+      grid-template-columns: 150px 1fr;
+      gap: 20px;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .fact-row dt {
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .fact-row dd {
+      margin: 0;
+      font-weight: 750;
+    }
+
+    .evidence-note {
+      margin-top: 26px;
+      padding: 18px 20px;
+      border-left: 3px solid var(--forest);
+      color: var(--muted);
+      background: rgba(23, 62, 52, 0.06);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .closing {
+      display: grid;
+      min-height: 620px;
+      place-content: center;
+      text-align: center;
+    }
+
+    .closing__product {
+      width: min(500px, 95%);
+      margin: -80px auto 22px;
+      transform: rotate(-28deg);
+      filter: drop-shadow(0 26px 18px rgba(0, 0, 0, 0.2));
+    }
+
+    .closing .eyebrow {
+      justify-content: center;
+    }
+
+    .closing .lead {
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .source-footnote {
+      padding: 24px 30px;
+      color: rgba(255, 255, 255, 0.52);
+      background: #061612;
+      font-size: 12px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 700ms ease, transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .edit-mode [data-editable] {
+      outline: 2px dashed rgba(223, 255, 90, 0.8);
+      outline-offset: 5px;
+      cursor: text;
+    }
+
+    .edit-mode [data-replaceable] {
+      outline: 3px solid #ff7be5;
+      outline-offset: 3px;
+      cursor: pointer;
+    }
+
+    .edit-mode [data-replaceable]:hover {
+      filter: saturate(0.6) brightness(0.85);
+    }
+
+    @media (max-width: 620px) {
+      .editor {
+        top: auto;
+        right: 10px;
+        bottom: 10px;
+        left: auto;
+        width: auto;
+      }
+
+      .edit-mode .editor {
+        right: 10px;
+        left: 10px;
+      }
+
+      .hero {
+        min-height: 830px;
+      }
+
+      .hero__product-stage {
+        height: 420px;
+        margin-right: -52px;
+        margin-left: -52px;
+      }
+
+      .hero__product {
+        right: -10%;
+        width: 116%;
+      }
+
+      .hero__stamp {
+        top: 7%;
+        left: 8%;
+        width: 92px;
+        font-size: 10px;
+      }
+
+      .use-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .use-card {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .use-card img {
+        height: 520px;
+      }
+
+      .motion-proof__header {
+        grid-template-columns: 1fr;
+      }
+
+      .motion-frame,
+      .blade__visual {
+        margin-right: -14px;
+        margin-left: -14px;
+        border-radius: 20px;
+      }
+
+      .motion-caption {
+        display: grid;
+        gap: 4px;
+      }
+
+      .appeal-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .appeal-card {
+        border-right: 0;
+        border-bottom: 1px solid rgba(17, 19, 15, 0.22);
+      }
+
+      .appeal-card:last-child {
+        border-bottom: 0;
+      }
+
+      .blade__visual {
+        margin-bottom: 0;
+      }
+
+      .material-grid,
+      .storage {
+        grid-template-columns: 1fr;
+      }
+
+      .storage__copy {
+        order: -1;
+      }
+
+      .storage__visual {
+        min-height: 540px;
+      }
+
+      .storage__visual img {
+        width: 450px;
+      }
+
+      .fact-row {
+        grid-template-columns: 105px 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .editor {
+        display: none;
+      }
+
+      .detail-page {
+        width: 800px;
+        box-shadow: none;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="editor" aria-label="상세페이지 편집 도구">
+    <div class="editor__top">
+      <button type="button" data-action="edit" aria-pressed="false">편집 모드</button>
+      <button type="button" data-action="save">HTML 저장</button>
+    </div>
+    <div class="editor__colors" aria-label="디자인 색상">
+      <label class="color-control">배경<input type="color" value="#173e34" data-token="--forest"></label>
+      <label class="color-control">강조<input type="color" value="#dfff5a" data-token="--accent"></label>
+      <label class="color-control">종이<input type="color" value="#f4f1e8" data-token="--paper"></label>
+    </div>
+    <input type="file" accept="image/*" data-image-input hidden>
+  </aside>
+
+  <main class="detail-page" id="detail-page">
+    <section
+      class="section hero"
+      id="hero"
+      data-section="hero"
+      data-disclosure-level="surface"
+      data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004 supplier-fact-006">
+      <div class="hero__headline reveal">
+        <p class="eyebrow" data-editable>DUAL BLADE · MINI SLICER</p>
+        <h1 class="display" data-editable>뒤집으면,<br><em>손질이 바뀐다.</em></h1>
+        <p class="lead" data-editable>
+          껍질 제거와 얇게 썰기, 채썰기를 한 도구의 서로 다른 커터에 담은 다용도 미니 채칼.
+        </p>
+      </div>
+      <div class="hero__product-stage">
+        <div class="hero__stamp" data-editable>STAINLESS<br>STEEL 430</div>
+        <img
+          class="hero__product"
+          src="assets/product-cutout.png"
+          alt="원통형 손잡이와 양면 커터가 있는 스테인레스 미니 채칼"
+          data-replaceable
+          data-asset-id="product-cutout">
+      </div>
+    </section>
+
+    <section
+      class="section question section--accent"
+      id="context"
+      data-section="context"
+      data-disclosure-level="surface"
+      data-fact-id="supplier-fact-002 supplier-fact-003 supplier-fact-004">
+      <div class="reveal">
+        <div class="question__mark" aria-hidden="true">“</div>
+        <h2 class="display display--medium" data-editable>도구는 작게.<br>가능성은 세 가지.</h2>
+        <p class="lead" data-editable>
+          한쪽은 껍질 제거와 얇게 썰기, 다른 한쪽은 채썰기. 손질에 맞는 커터 면을 선택하세요.
+        </p>
+      </div>
+    </section>
+
+    <section
+      class="section section--white functions"
+      id="functions"
+      data-section="functions"
+      data-disclosure-level="intermediate"
+      data-fact-id="supplier-fact-002 supplier-fact-003 supplier-fact-004">
+      <header class="functions__header reveal">
+        <p class="eyebrow" data-editable>01 — THREE PREP MODES</p>
+        <h2 class="display display--medium" data-editable>한 자루로<br>이어지는 손질.</h2>
+      </header>
+      <div class="use-grid">
+        <article class="use-card">
+          <img
+            src="assets/use-peel.jpg"
+            alt="감자 껍질을 제거하는 공급처 시연 장면"
+            data-replaceable
+            data-asset-id="use-peel">
+          <div class="use-card__copy">
+            <span class="use-card__number">MODE 01</span>
+            <h3 class="use-card__title" data-editable>껍질 제거</h3>
+          </div>
+        </article>
+        <article class="use-card">
+          <img
+            src="assets/use-slice.jpg"
+            alt="오이를 얇게 써는 공급처 시연 장면"
+            data-replaceable
+            data-asset-id="use-slice">
+          <div class="use-card__copy">
+            <span class="use-card__number">MODE 02</span>
+            <h3 class="use-card__title" data-editable>얇게 썰기</h3>
+          </div>
+        </article>
+        <article class="use-card">
+          <img
+            src="assets/use-julienne.jpg"
+            alt="당근을 채 써는 공급처 시연 장면"
+            data-replaceable
+            data-asset-id="use-julienne">
+          <div class="use-card__copy">
+            <span class="use-card__number">MODE 03</span>
+            <h3 class="use-card__title" data-editable>채썰기</h3>
+          </div>
+        </article>
+      </div>
+      <p
+        class="evidence-note functions__evidence"
+        data-fact-id="supplier-fact-002 supplier-fact-003"
+        data-editable>
+        공급처 시연 이미지 기준 · 기능 종류를 설명하는 자료이며 일정한 절삭 결과를 보장하지 않습니다.
+      </p>
+    </section>
+
+    <section
+      class="section section--accent motion-proof"
+      id="motion-guide"
+      data-section="motion-guide"
+      data-disclosure-level="intermediate"
+      data-fact-id="supplier-fact-002">
+      <header class="motion-proof__header reveal">
+        <div>
+          <p class="eyebrow" data-editable>MOTION GUIDE — THIN SLICE</p>
+          <h2 class="display display--medium" data-editable>당겨서,<br>얇은 슬라이스.</h2>
+          <p class="lead" data-editable>
+            공급처의 오이 사용 장면을 참고해 제품 구조와 사용 전후를 이해하기 쉽게 구성한 연출 모션입니다. 실제 성능 증거로 사용하지 않습니다.
+          </p>
+        </div>
+        <span class="proof-chip" data-editable>공급처 시연 참조 · 연출</span>
+      </header>
+      <picture class="motion-frame">
+        <source
+          media="(prefers-reduced-motion: reduce)"
+          srcset="assets/use-motion-end.png">
+        <img
+          src="assets/use-slice-motion.gif"
+          alt="다용도 미니 채칼을 오이에 대고 당겨 얇은 슬라이스가 생기는 반복 시연"
+          width="800"
+          height="600"
+          data-replaceable
+          data-asset-id="use-slice-motion">
+      </picture>
+      <div class="motion-caption">
+        <span data-editable>IMAGEGEN KEYFRAMES → HYPERFRAMES LOOP</span>
+        <span data-editable>기능 이해를 위한 연출 이미지 · 실제 사용 결과는 식재료와 사용 방식에 따라 달라질 수 있음</span>
+      </div>
+      <div class="appeal-strip" aria-label="핵심 구매 소구">
+        <article class="appeal-card" data-fact-id="supplier-fact-002 supplier-fact-003 supplier-fact-004">
+          <span class="appeal-card__number">POINT 01</span>
+          <h3 data-editable>세 가지 손질</h3>
+          <p data-editable>껍질 제거 · 얇게 썰기 · 채썰기</p>
+        </article>
+        <article class="appeal-card" data-fact-id="supplier-fact-004">
+          <span class="appeal-card__number">POINT 02</span>
+          <h3 data-editable>두 커터 구조</h3>
+          <p data-editable>한 헤드에서 용도별 커터를 선택</p>
+        </article>
+        <article class="appeal-card" data-fact-id="supplier-fact-005">
+          <span class="appeal-card__number">POINT 03</span>
+          <h3 data-editable>걸이형 보관</h3>
+          <p data-editable>손잡이 끝 고리를 이용한 보관 구조</p>
+        </article>
+      </div>
+    </section>
+
+    <section
+      class="section section--dark blade"
+      id="dual-edge"
+      data-section="dual-edge"
+      data-disclosure-level="intermediate"
+      data-fact-id="supplier-fact-002 supplier-fact-003 supplier-fact-004">
+      <div class="reveal">
+        <p class="eyebrow" data-editable>02 — DUAL EDGE</p>
+        <h2 class="display display--medium" data-editable>두 커터를<br>한 헤드에.</h2>
+        <p class="lead" data-editable>
+          안쪽 커터는 껍질 제거와 얇게 썰기에, 바깥쪽 커터는 채썰기에 사용하는 공급처 표시 구조입니다.
+        </p>
+      </div>
+      <picture class="blade__visual">
+        <source
+          media="(prefers-reduced-motion: reduce)"
+          srcset="assets/dual-blade-function-poster.png">
+        <img
+          src="assets/dual-blade-function.gif"
+          alt="제품 헤드의 안쪽 커터와 바깥쪽 채썰기 커터 위치를 순차적으로 강조하는 반복 모션"
+          width="800"
+          height="720"
+          data-replaceable
+          data-asset-id="dual-blade-function">
+      </picture>
+      <div class="motion-caption">
+        <span data-editable>SUPPLIER STRUCTURE REFERENCE → HYPERFRAMES GUIDE</span>
+        <span data-editable>공급처 구조 이미지의 커터 위치를 참조한 설명 도해 · 실제 판매 전 사용자 실사진 SSOT로 재검수 필요</span>
+      </div>
+    </section>
+
+    <section
+      class="section specs"
+      id="specifications"
+      data-section="specifications"
+      data-disclosure-level="proof"
+      data-fact-id="supplier-fact-007 supplier-fact-008 supplier-fact-009 supplier-fact-010">
+      <div class="reveal">
+        <p class="eyebrow" data-editable>03 — COMPACT SCALE</p>
+        <h2 class="display display--medium" data-editable>필요한 만큼만<br>남긴 크기.</h2>
+        <p class="lead" data-editable>
+          공급처 표시 치수를 기준으로 제품의 폭, 헤드 높이, 손잡이 길이와 고리 크기를 확인하세요.
+        </p>
+      </div>
+      <div class="spec-stage">
+        <img
+          src="assets/product-cutout.png"
+          alt="제품 표시 치수를 설명하기 위한 미니 채칼 전체 모습"
+          data-replaceable
+          data-asset-id="product-cutout-spec">
+        <div class="measure measure--handle">
+          <span data-editable>손잡이 길이<strong>10.05 cm</strong></span>
+        </div>
+        <div class="measure measure--loop">
+          <span data-editable>고리<strong>2 cm</strong></span>
+        </div>
+        <div class="measure measure--head">
+          <span data-editable>가로<strong>7.2 cm</strong>헤드 높이 5.3 cm</span>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="section section--dark"
+      id="material"
+      data-section="material"
+      data-disclosure-level="proof"
+      data-fact-id="supplier-fact-006">
+      <div class="reveal">
+        <p class="eyebrow" data-editable>04 — MATERIAL</p>
+        <h2 class="display display--medium" data-editable>재질은 명확하게.<br>과장은 덜어내고.</h2>
+      </div>
+      <div class="material-grid">
+        <article class="material-card material-card--steel">
+          <p class="material-card__number" data-editable>430</p>
+          <p class="material-card__label" data-editable>공급처 표시 재질<br>스테인레스 430</p>
+        </article>
+        <article class="material-card">
+          <p class="eyebrow" data-editable>FACT FIRST</p>
+          <p class="material-card__note" data-editable>
+            재질 표기만 사실로 사용합니다. 별도의 시험 근거가 없는 녹 방지·위생·내구 성능은 이 페이지에서 확정하지 않습니다.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section
+      class="section section--white storage"
+      id="storage"
+      data-section="storage"
+      data-disclosure-level="proof"
+      data-fact-id="supplier-fact-005">
+      <div class="storage__visual" aria-hidden="true">
+        <div class="storage__hook"></div>
+        <img src="assets/product-cutout.png" alt="" data-replaceable data-asset-id="product-cutout-storage">
+      </div>
+      <div class="storage__copy reveal">
+        <p class="eyebrow" data-editable>05 — HANGING LOOP</p>
+        <h2 class="display display--medium" data-editable>손잡이 끝,<br>보관용 고리.</h2>
+        <p class="lead" data-editable>
+          손잡이 끝에 표시된 고리를 이용해 걸어서 보관할 수 있는 구조입니다.
+        </p>
+      </div>
+    </section>
+
+    <section
+      class="section facts"
+      id="product-facts"
+      data-section="product-facts"
+      data-disclosure-level="proof">
+      <div class="reveal">
+        <p class="eyebrow" data-editable>06 — PRODUCT FACTS</p>
+        <h2 class="display display--medium" data-editable>구매 전에<br>확인하세요.</h2>
+      </div>
+      <dl class="facts-table">
+        <div class="fact-row" data-fact-id="supplier-fact-001">
+          <dt data-editable>제품명</dt>
+          <dd data-editable>다용도 미니 채칼</dd>
+        </div>
+        <div class="fact-row" data-fact-id="supplier-fact-006">
+          <dt data-editable>재질</dt>
+          <dd data-editable>스테인레스 430</dd>
+        </div>
+        <div class="fact-row" data-fact-id="supplier-fact-007 supplier-fact-008 supplier-fact-009 supplier-fact-010">
+          <dt data-editable>표시 치수</dt>
+          <dd data-editable>가로 7.2cm · 헤드 높이 5.3cm · 손잡이 길이 10.05cm · 고리 2cm</dd>
+        </div>
+        <div class="fact-row" data-fact-id="supplier-fact-011">
+          <dt data-editable>원산지</dt>
+          <dd data-editable>중국 (PRODUCT OF CHINA)</dd>
+        </div>
+        <div class="fact-row">
+          <dt data-editable>수입원</dt>
+          <dd data-editable>㈜이한선 생활과학</dd>
+        </div>
+      </dl>
+      <p class="evidence-note" data-editable>
+        본 prototype의 수치·재질·구조 정보는 2026-07-24 도매꾹 공급처 상세 원문에서 확인한 값입니다. 실제 판매 전 옵션·구성·표시사항을 다시 확인하세요.
+      </p>
+    </section>
+
+    <section
+      class="section section--accent closing"
+      id="closing"
+      data-section="closing"
+      data-disclosure-level="surface"
+      data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004">
+      <img
+        class="closing__product"
+        src="assets/product-cutout.png"
+        alt="다용도 미니 채칼"
+        data-replaceable
+        data-asset-id="product-cutout-closing">
+      <div class="reveal">
+        <p class="eyebrow" data-editable>ONE TOOL · THREE PREPS</p>
+        <h2 class="display display--medium" data-editable>손질은 세 가지.<br>도구는 하나.</h2>
+        <p class="lead" data-editable>다용도 미니 채칼</p>
+      </div>
+    </section>
+
+    <footer
+      class="source-footnote"
+      data-section="source-note"
+      data-disclosure-level="proof"
+      data-editable>
+      공급처 사실 기반 편집 가능 HTML prototype · 생성 제품 컷아웃은 사용자 실사진 SSOT 도착 후 교체·재승인 필요
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const body = document.body;
+      const editButton = document.querySelector('[data-action="edit"]');
+      const saveButton = document.querySelector('[data-action="save"]');
+      const imageInput = document.querySelector('[data-image-input]');
+      const editables = [...document.querySelectorAll('[data-editable]')];
+      const replaceables = [...document.querySelectorAll('[data-replaceable]')];
+      let activeImage = null;
+
+      const setEditing = (enabled) => {
+        body.classList.toggle('edit-mode', enabled);
+        editButton.setAttribute('aria-pressed', String(enabled));
+        editButton.textContent = enabled ? '편집 종료' : '편집 모드';
+        editables.forEach((element) => {
+          element.contentEditable = enabled ? 'true' : 'false';
+          element.spellcheck = enabled;
+        });
+      };
+
+      editButton.addEventListener('click', () => {
+        setEditing(!body.classList.contains('edit-mode'));
+      });
+
+      document.querySelectorAll('[data-token]').forEach((input) => {
+        input.addEventListener('input', () => {
+          root.style.setProperty(input.dataset.token, input.value);
+        });
+      });
+
+      replaceables.forEach((image) => {
+        image.addEventListener('click', () => {
+          if (!body.classList.contains('edit-mode')) return;
+          activeImage = image;
+          imageInput.click();
+        });
+      });
+
+      imageInput.addEventListener('change', () => {
+        const file = imageInput.files?.[0];
+        if (!file || !activeImage) return;
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          const assetId = activeImage.dataset.assetId;
+          document.querySelectorAll(`[data-asset-id="${assetId}"]`).forEach((image) => {
+            image.src = reader.result;
+          });
+          imageInput.value = '';
+          activeImage = null;
+        });
+        reader.readAsDataURL(file);
+      });
+
+      saveButton.addEventListener('click', () => {
+        setEditing(false);
+        document.querySelectorAll('.reveal').forEach((element) => element.classList.add('is-visible'));
+        const html = '<!doctype html>\\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'detail-page-edited.html';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const reveals = [...document.querySelectorAll('.reveal')];
+      if (reducedMotion || !('IntersectionObserver' in window)) {
+        reveals.forEach((element) => element.classList.add('is-visible'));
+      } else {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
+        reveals.forEach((element) => observer.observe(element));
+      }
+    })();
+  </script>
+</body>
+</html>

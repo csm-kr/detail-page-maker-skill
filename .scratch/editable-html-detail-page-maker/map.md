@@ -15,11 +15,12 @@
 ## Decisions so far
 
 - [목적지와 핵심 증거 모델 확정](issues/01-lock-destination-and-evidence-model.md) —공급처 URL, 촬영 원본, 컷아웃 SSOT, ImageGen, HyperFrames와 수정 가능한 HTML의 역할을 분리했다.
-- [Behance 우수 상세페이지의 디자인 문법 조사](issues/02-research-behance-design-grammar.md) —9개 제품군에서 구매 질문 중심 서사, 감성·정보·증거 리듬과 복제 방지 규칙을 추출했다.
+- [Behance 우수 상세페이지의 디자인 문법 조사](issues/02-research-behance-design-grammar.md) —15개 원본 프로젝트에서 구매 질문 중심 서사, 감성·정보·증거 리듬과 복제 방지 규칙을 추출했다.
 - [상용 HTML에 적용할 AI 디자인 스킬 조사](issues/03-research-ai-design-skills.md) —디렉션 잠금부터 토큰·DOM, 다중 폭·접근성·성능·사람 비평까지의 검증 루프를 내부화하기로 했다.
 - [HyperFrames에서 GIF까지의 공식 제작 계약 조사](issues/04-research-hyperframes-gif-pipeline.md) —동일 컷아웃 DOM, 결정적 seek 모션과 15fps 불투명 GIF 기본 계약을 확정했다.
 - [공급처 URL 추출 계약 결정](issues/05-decide-supplier-extraction-contract.md) —도매꾹 portable bundle을 원본 증거로 보존하고 출처 locator가 붙은 사실표를 별도로 만들기로 했다.
 - [실제 도매꾹 URL 추출과 사실 정규화 검증](issues/12-prototype-domeggook-extraction.md) —원본 캡처·무결성은 통과했고, 원본 사진·치수·소구 후보·기획을 분리했다. 상세 root provenance, 정지 GIF 분류, 가격·MOQ·옵션과 OCR locator 보완을 후속 과제로 확정했다.
+- [첫 수정 가능 HTML 상세페이지와 모션 증거 검증](issues/15-build-and-qa-first-editable-html-prototype.md) —ImageGen 참조 장면, HyperFrames GIF 2개, 편집 모드와 360·800px QA를 연결해 88/100 prototype을 완성했다. 실사진 SSOT와 사실 승인 전 판매 게시 게이트는 차단했다.
 
 ## Not yet specified
 

@@ -1,0 +1,18 @@
+{
+  "duration": 4,
+  "assertions": [
+    {
+      "kind": "staysInFrame",
+      "selector": "#start-frame"
+    },
+    {
+      "kind": "staysInFrame",
+      "selector": "#end-frame"
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#start-frame",
+      "bySec": 0.05
+    }
+  ]
+}
