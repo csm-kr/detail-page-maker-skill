@@ -2,7 +2,7 @@
 
 ## Destination
 
-공급처 URL 하나에서 시작해 제품 사실·컷아웃 SSOT를 구축하고, ImageGen과 HyperFrames를 사용해 Behance 수준의 수정 가능한 HTML 상세페이지를 만드는 Codex 스킬의 구현 준비가 끝난 명세와 수치형 인수 기준을 완성한다.
+공급처 URL 하나에서 시작해 제품 사실·컷아웃 SSOT를 구축하고, ImageGen과 HyperFrames를 사용해 Behance 수준의 수정 가능한 HTML 상세페이지를 만드는 Codex 스킬과 첫 최종 납품본을 완성한다.
 
 ## Notes
 
@@ -10,7 +10,7 @@
 - 도메인 용어는 [`CONTEXT.md`](../../CONTEXT.md)를 따른다.
 - 조사에는 `research`와 `browser-harness`를 사용하고 1차 출처를 우선한다.
 - 이미지 생성·편집 계약은 `imagegen`, 모션 계약은 `hyperframes`, 스킬 패키징은 `skill-creator`를 따른다.
-- 이 Wayfinder 지도는 계획을 완성하는 데 집중한다. 실제 스킬 구현은 지도가 닫힌 뒤 별도 실행 단계로 넘긴다.
+- 이 Wayfinder 지도는 조사·계약·구현·최종 QA 결정을 함께 추적한다.
 
 ## Decisions so far
 
@@ -21,6 +21,7 @@
 - [공급처 URL 추출 계약 결정](issues/05-decide-supplier-extraction-contract.md) —도매꾹 portable bundle을 원본 증거로 보존하고 출처 locator가 붙은 사실표를 별도로 만들기로 했다.
 - [실제 도매꾹 URL 추출과 사실 정규화 검증](issues/12-prototype-domeggook-extraction.md) —원본 캡처·무결성은 통과했고, 원본 사진·치수·소구 후보·기획을 분리했다. 상세 root provenance, 정지 GIF 분류, 가격·MOQ·옵션과 OCR locator 보완을 후속 과제로 확정했다.
 - [첫 수정 가능 HTML 상세페이지와 모션 증거 검증](issues/15-build-and-qa-first-editable-html-prototype.md) —ImageGen 참조 장면, HyperFrames GIF 2개, 편집 모드와 360·800px QA를 연결해 88/100 prototype을 완성했다. 실사진 SSOT와 사실 승인 전 판매 게시 게이트는 차단했다.
+- [공급처 기준 v1 최종 납품본 마감](issues/16-finalize-supplier-reference-v1.md) —공급처 사실 12개와 공개 claim 9개를 잠그고 prototype·내부 제작 문구를 제거했으며, 콘텐츠 데이터·편집 저장 상태·320~800px QA를 갖춘 94/100 최종 HTML로 마감했다.
 
 ## Not yet specified
 
@@ -32,6 +33,6 @@
 
 ## Out of scope
 
-- 이 지도에서 실제 판매 상품 상세페이지를 완성하거나 마켓에 게시하는 작업
+- 외부 마켓 계정에 상품을 실제 게시하거나 가격·배송·옵션을 변경하는 작업
 - ImageGen 이외의 생성형 이미지·영상 모델 도입
 - Behance 작품의 레이아웃·이미지·카피를 그대로 복제하는 작업

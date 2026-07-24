@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1-prototype",
+  "schema_version": "1.0",
   "product_id": "43314131",
   "campaign_direction": {
     "name": "Precision Green",
@@ -28,8 +28,8 @@
         "side-protrusions",
         "material-color"
       ],
-      "status": "prototype-accepted",
-      "replacement_gate": "사용자 다각도 실사진 SSOT 도착 후 재생성·재승인"
+      "status": "supplier-reference-v1-selected",
+      "replacement_gate": "사용자 다각도 실사진 SSOT 도착 시 제품 동일성 강화 버전으로 교체"
     },
     {
       "asset": "use-peel.jpg",
@@ -100,6 +100,51 @@
       ],
       "render": "800x720 · 4s · 15fps · infinite loop",
       "claim": "껍질 제거·얇게 썰기 커터와 채썰기 커터의 실제 위치"
+    },
+    {
+      "asset": "supplier-dual-blade-evidence.png",
+      "kind": "supplier-evidence",
+      "sha256": "7c79ff7c64743a40278e657ad1f8f3f2565860b27ab82fc11f36cda8cdfdaefc",
+      "source_path": ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-03/frame-0001.png",
+      "visible_facts": [
+        "껍질 제거·얇게 썰기 커터 위치",
+        "채썰기 커터 위치"
+      ],
+      "allowed_uses": [
+        "fact-verification",
+        "identity-comparison"
+      ]
+    },
+    {
+      "asset": "supplier-spec-evidence.png",
+      "kind": "supplier-evidence",
+      "sha256": "410534aec19ffd32096195585b5b2e9e870e8aa8b5c74b0c0325372e129cd07c",
+      "source_path": ".artifacts/dmk-extractor-43314131/detail/assets/detail-07.png",
+      "visible_facts": [
+        "제품명",
+        "치수",
+        "재질",
+        "원산지",
+        "수입원"
+      ],
+      "allowed_uses": [
+        "fact-verification",
+        "purchase-information"
+      ]
+    },
+    {
+      "asset": "supplier-storage-evidence.png",
+      "kind": "supplier-evidence",
+      "sha256": "0cf70bb2ecd1ae737e5cdc75c9cf3431384cd719506b7d50a0e49ba6329570c3",
+      "source_path": ".artifacts/dmk-extractor-43314131/detail/gif-frames/detail-04/frame-0001.png",
+      "visible_facts": [
+        "손잡이 끝 고리",
+        "측면 돌출 구조"
+      ],
+      "allowed_uses": [
+        "fact-verification",
+        "identity-comparison"
+      ]
     }
   ]
 }

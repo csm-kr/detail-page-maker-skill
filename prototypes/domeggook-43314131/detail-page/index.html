@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="다용도 미니 채칼의 양면 커터, 치수와 사용 장면을 설명하는 수정 가능한 상품 상세페이지">
-  <title>다용도 미니 채칼 — Editable Detail Page</title>
+  <link rel="alternate" type="application/json" href="content.json" title="상세페이지 콘텐츠 데이터">
+  <title>다용도 미니 채칼 | 상품 상세페이지</title>
   <style>
     :root {
       --ink: #11130f;
@@ -75,6 +76,43 @@
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .editor__status {
+      display: none;
+      align-items: center;
+      gap: 7px;
+      margin: 10px 4px 0;
+      color: rgba(255, 255, 255, 0.74);
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.4;
+    }
+
+    .editor__status::before {
+      width: 7px;
+      height: 7px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      content: "";
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .edit-mode .editor__status {
+      display: flex;
+    }
+
+    .editor__status[data-state="dirty"] {
+      color: #fff;
+    }
+
+    .editor__status[data-state="dirty"]::before {
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(223, 255, 90, 0.14);
+    }
+
+    .editor__status[data-state="saved"]::before {
+      background: #8fe3c2;
     }
 
     .editor__top {
@@ -967,10 +1005,13 @@
       <label class="color-control">강조<input type="color" value="#dfff5a" data-token="--accent"></label>
       <label class="color-control">종이<input type="color" value="#f4f1e8" data-token="--paper"></label>
     </div>
+    <p class="editor__status" data-editor-status data-state="clean" role="status" aria-live="polite">
+      편집 준비 · 변경 없음
+    </p>
     <input type="file" accept="image/*" data-image-input hidden>
   </aside>
 
-  <main class="detail-page" id="detail-page">
+  <main class="detail-page" id="detail-page" data-content-source="content.json">
     <section
       class="section hero"
       id="hero"
@@ -979,7 +1020,7 @@
       data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004 supplier-fact-006">
       <div class="hero__headline reveal">
         <p class="eyebrow" data-editable>DUAL BLADE · MINI SLICER</p>
-        <h1 class="display" data-editable>뒤집으면,<br><em>손질이 바뀐다.</em></h1>
+        <h1 class="display" data-editable>한 헤드에,<br><em>두 가지 커터.</em></h1>
         <p class="lead" data-editable>
           껍질 제거와 얇게 썰기, 채썰기를 한 도구의 서로 다른 커터에 담은 다용도 미니 채칼.
         </p>
@@ -1071,13 +1112,13 @@
       data-fact-id="supplier-fact-002">
       <header class="motion-proof__header reveal">
         <div>
-          <p class="eyebrow" data-editable>MOTION GUIDE — THIN SLICE</p>
+          <p class="eyebrow" data-editable>얇게 썰기 · 사용 흐름</p>
           <h2 class="display display--medium" data-editable>당겨서,<br>얇은 슬라이스.</h2>
           <p class="lead" data-editable>
-            공급처의 오이 사용 장면을 참고해 제품 구조와 사용 전후를 이해하기 쉽게 구성한 연출 모션입니다. 실제 성능 증거로 사용하지 않습니다.
+            제품을 오이에 대고 손잡이를 당기는 사용 흐름을 이해하기 쉽게 구성했습니다. 결과의 모양은 식재료와 사용 방식에 따라 달라질 수 있습니다.
           </p>
         </div>
-        <span class="proof-chip" data-editable>공급처 시연 참조 · 연출</span>
+        <span class="proof-chip" data-editable>사용 흐름 · 연출 이미지</span>
       </header>
       <picture class="motion-frame">
         <source
@@ -1085,15 +1126,15 @@
           srcset="assets/use-motion-end.png">
         <img
           src="assets/use-slice-motion.gif"
-          alt="다용도 미니 채칼을 오이에 대고 당겨 얇은 슬라이스가 생기는 반복 시연"
+          alt="다용도 미니 채칼을 오이에 대고 당기는 얇게 썰기 사용 흐름을 설명하는 반복 연출"
           width="800"
           height="600"
           data-replaceable
           data-asset-id="use-slice-motion">
       </picture>
       <div class="motion-caption">
-        <span data-editable>IMAGEGEN KEYFRAMES → HYPERFRAMES LOOP</span>
-        <span data-editable>기능 이해를 위한 연출 이미지 · 실제 사용 결과는 식재료와 사용 방식에 따라 달라질 수 있음</span>
+        <span data-editable>제품에 대기 → 손잡이 당기기</span>
+        <span data-editable>기능 이해를 위한 연출 이미지 · 실제 결과는 식재료와 사용 방식에 따라 달라질 수 있음</span>
       </div>
       <div class="appeal-strip" aria-label="핵심 구매 소구">
         <article class="appeal-card" data-fact-id="supplier-fact-002 supplier-fact-003 supplier-fact-004">
@@ -1140,8 +1181,8 @@
           data-asset-id="dual-blade-function">
       </picture>
       <div class="motion-caption">
-        <span data-editable>SUPPLIER STRUCTURE REFERENCE → HYPERFRAMES GUIDE</span>
-        <span data-editable>공급처 구조 이미지의 커터 위치를 참조한 설명 도해 · 실제 판매 전 사용자 실사진 SSOT로 재검수 필요</span>
+        <span data-editable>두 커터 위치 안내</span>
+        <span data-editable>공급처 구조 이미지 기준 · 껍질 제거·얇게 썰기 커터와 채썰기 커터의 위치를 설명하는 연출</span>
       </div>
     </section>
 
@@ -1192,7 +1233,7 @@
           <p class="material-card__label" data-editable>공급처 표시 재질<br>스테인레스 430</p>
         </article>
         <article class="material-card">
-          <p class="eyebrow" data-editable>FACT FIRST</p>
+          <p class="eyebrow" data-editable>재질 정보</p>
           <p class="material-card__note" data-editable>
             재질 표기만 사실로 사용합니다. 별도의 시험 근거가 없는 녹 방지·위생·내구 성능은 이 페이지에서 확정하지 않습니다.
           </p>
@@ -1245,13 +1286,13 @@
           <dt data-editable>원산지</dt>
           <dd data-editable>중국 (PRODUCT OF CHINA)</dd>
         </div>
-        <div class="fact-row">
+        <div class="fact-row" data-fact-id="supplier-fact-013">
           <dt data-editable>수입원</dt>
           <dd data-editable>㈜이한선 생활과학</dd>
         </div>
       </dl>
       <p class="evidence-note" data-editable>
-        본 prototype의 수치·재질·구조 정보는 2026-07-24 도매꾹 공급처 상세 원문에서 확인한 값입니다. 실제 판매 전 옵션·구성·표시사항을 다시 확인하세요.
+        수치·재질·구조 정보는 2026-07-24 도매꾹 공급처 상세 원문의 표시사항을 기준으로 정리했습니다. 판매 옵션과 구성은 상품 선택 영역에서 함께 확인하세요.
       </p>
     </section>
 
@@ -1278,8 +1319,9 @@
       class="source-footnote"
       data-section="source-note"
       data-disclosure-level="proof"
+      data-fact-id="supplier-fact-001 supplier-fact-002 supplier-fact-003 supplier-fact-004 supplier-fact-005 supplier-fact-006 supplier-fact-007 supplier-fact-008 supplier-fact-009 supplier-fact-010 supplier-fact-011 supplier-fact-013"
       data-editable>
-      공급처 사실 기반 편집 가능 HTML prototype · 생성 제품 컷아웃은 사용자 실사진 SSOT 도착 후 교체·재승인 필요
+      도매꾹 공급처 상세 원문 기준 · 기능 연출 이미지는 사용 흐름의 이해를 돕기 위한 자료입니다
     </footer>
   </main>
 
@@ -1290,14 +1332,32 @@
       const editButton = document.querySelector('[data-action="edit"]');
       const saveButton = document.querySelector('[data-action="save"]');
       const imageInput = document.querySelector('[data-image-input]');
+      const editorStatus = document.querySelector('[data-editor-status]');
       const editables = [...document.querySelectorAll('[data-editable]')];
       const replaceables = [...document.querySelectorAll('[data-replaceable]')];
       let activeImage = null;
+      let hasUnsavedChanges = false;
+
+      const setEditorStatus = (state) => {
+        const labels = {
+          clean: '편집 준비 · 변경 없음',
+          dirty: '수정됨 · HTML 저장 필요',
+          saved: '저장됨 · 수정본 다운로드 완료'
+        };
+        editorStatus.dataset.state = state;
+        editorStatus.textContent = labels[state];
+      };
+
+      const markDirty = () => {
+        hasUnsavedChanges = true;
+        setEditorStatus('dirty');
+      };
 
       const setEditing = (enabled) => {
         body.classList.toggle('edit-mode', enabled);
         editButton.setAttribute('aria-pressed', String(enabled));
         editButton.textContent = enabled ? '편집 종료' : '편집 모드';
+        if (enabled) setEditorStatus(hasUnsavedChanges ? 'dirty' : 'clean');
         editables.forEach((element) => {
           element.contentEditable = enabled ? 'true' : 'false';
           element.spellcheck = enabled;
@@ -1311,7 +1371,12 @@
       document.querySelectorAll('[data-token]').forEach((input) => {
         input.addEventListener('input', () => {
           root.style.setProperty(input.dataset.token, input.value);
+          markDirty();
         });
+      });
+
+      editables.forEach((element) => {
+        element.addEventListener('input', markDirty);
       });
 
       replaceables.forEach((image) => {
@@ -1331,6 +1396,7 @@
           document.querySelectorAll(`[data-asset-id="${assetId}"]`).forEach((image) => {
             image.src = reader.result;
           });
+          markDirty();
           imageInput.value = '';
           activeImage = null;
         });
@@ -1338,6 +1404,8 @@
       });
 
       saveButton.addEventListener('click', () => {
+        hasUnsavedChanges = false;
+        setEditorStatus('saved');
         setEditing(false);
         document.querySelectorAll('.reveal').forEach((element) => element.classList.add('is-visible'));
         const html = '<!doctype html>\\n' + document.documentElement.outerHTML;

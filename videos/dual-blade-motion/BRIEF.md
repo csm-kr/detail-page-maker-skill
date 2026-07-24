@@ -17,7 +17,7 @@ angle: product-function
 
 ## Assets
 
-- `assets/product-cutout.png` — 공급처 실제 제품 참조로 만든 승인 전 prototype 컷아웃. 프레임 전체에서 유일한 제품 본체로 사용한다.
+- `assets/product-cutout.png` — 공급처 실제 제품 참조로 만든 `supplier-reference-v1` 컷아웃. 프레임 전체에서 유일한 제품 본체로 사용한다.
 
 ## Customizations
 

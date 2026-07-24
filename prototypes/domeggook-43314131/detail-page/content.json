@@ -1,0 +1,135 @@
+{
+  "schema_version": "1.0",
+  "product_id": "43314131",
+  "locale": "ko-KR",
+  "content_status": "supplier-reference-v1-final",
+  "product": {
+    "display_name": "다용도 미니 채칼",
+    "hero_headline": "한 헤드에, 두 가지 커터.",
+    "hero_lead": "껍질 제거와 얇게 썰기, 채썰기를 한 도구의 서로 다른 커터에 담은 다용도 미니 채칼.",
+    "closing_headline": "손질은 세 가지. 도구는 하나."
+  },
+  "sections": [
+    {
+      "id": "hero",
+      "disclosure_level": "surface",
+      "single_message": "한 헤드의 서로 다른 두 커터로 세 가지 손질을 선택한다.",
+      "fact_ids": [
+        "supplier-fact-001",
+        "supplier-fact-002",
+        "supplier-fact-003",
+        "supplier-fact-004",
+        "supplier-fact-006"
+      ]
+    },
+    {
+      "id": "context",
+      "disclosure_level": "surface",
+      "headline": "도구는 작게. 가능성은 세 가지.",
+      "single_message": "손질 목적에 맞는 커터를 선택한다.",
+      "fact_ids": [
+        "supplier-fact-002",
+        "supplier-fact-003",
+        "supplier-fact-004"
+      ]
+    },
+    {
+      "id": "functions",
+      "disclosure_level": "intermediate",
+      "headline": "한 자루로 이어지는 손질.",
+      "items": [
+        "껍질 제거",
+        "얇게 썰기",
+        "채썰기"
+      ],
+      "evidence_caption": "공급처 시연 이미지 기준 · 기능 종류를 설명하는 자료이며 일정한 절삭 결과를 보장하지 않습니다."
+    },
+    {
+      "id": "motion-guide",
+      "disclosure_level": "intermediate",
+      "headline": "당겨서, 얇은 슬라이스.",
+      "single_message": "제품을 오이에 대고 손잡이를 당기는 사용 흐름을 이해한다.",
+      "limitation": "기능 이해를 위한 연출 이미지이며 실제 결과는 식재료와 사용 방식에 따라 달라질 수 있습니다."
+    },
+    {
+      "id": "dual-edge",
+      "disclosure_level": "intermediate",
+      "headline": "두 커터를 한 헤드에.",
+      "single_message": "껍질 제거·얇게 썰기 커터와 채썰기 커터의 위치를 구분한다."
+    },
+    {
+      "id": "specifications",
+      "disclosure_level": "proof",
+      "headline": "필요한 만큼만 남긴 크기.",
+      "measurements": {
+        "width_cm": 7.2,
+        "head_height_cm": 5.3,
+        "handle_length_cm": 10.05,
+        "loop_cm": 2
+      }
+    },
+    {
+      "id": "material",
+      "disclosure_level": "proof",
+      "headline": "재질은 명확하게. 과장은 덜어내고.",
+      "material": "스테인레스 430",
+      "prohibited_extensions": [
+        "녹 방지",
+        "위생 성능",
+        "내구 성능"
+      ]
+    },
+    {
+      "id": "storage",
+      "disclosure_level": "proof",
+      "headline": "손잡이 끝, 보관용 고리.",
+      "single_message": "손잡이 끝 고리를 이용한 걸이형 보관 구조를 확인한다."
+    },
+    {
+      "id": "product-facts",
+      "disclosure_level": "proof",
+      "headline": "구매 전에 확인하세요.",
+      "facts": {
+        "제품명": "다용도 미니 채칼",
+        "재질": "스테인레스 430",
+        "표시 치수": "가로 7.2cm · 헤드 높이 5.3cm · 손잡이 길이 10.05cm · 고리 2cm",
+        "원산지": "중국 (PRODUCT OF CHINA)",
+        "수입원": "㈜이한선 생활과학"
+      }
+    },
+    {
+      "id": "closing",
+      "disclosure_level": "surface",
+      "headline": "손질은 세 가지. 도구는 하나."
+    }
+  ],
+  "assets": {
+    "product-cutout": {
+      "path": "assets/product-cutout.png",
+      "alt": "원통형 손잡이와 두 커터가 있는 스테인레스 미니 채칼"
+    },
+    "use-peel": {
+      "path": "assets/use-peel.jpg",
+      "alt": "감자 껍질을 제거하는 공급처 시연 장면"
+    },
+    "use-slice": {
+      "path": "assets/use-slice.jpg",
+      "alt": "오이를 얇게 써는 공급처 시연 장면"
+    },
+    "use-julienne": {
+      "path": "assets/use-julienne.jpg",
+      "alt": "당근을 채 써는 공급처 시연 장면"
+    },
+    "use-slice-motion": {
+      "path": "assets/use-slice-motion.gif",
+      "poster": "assets/use-motion-end.png",
+      "alt": "다용도 미니 채칼을 오이에 대고 당기는 얇게 썰기 사용 흐름을 설명하는 반복 연출"
+    },
+    "dual-blade-function": {
+      "path": "assets/dual-blade-function.gif",
+      "poster": "assets/dual-blade-function-poster.png",
+      "alt": "제품 헤드의 껍질 제거·얇게 썰기 커터와 채썰기 커터 위치를 순차적으로 강조하는 반복 모션"
+    }
+  },
+  "source_note": "도매꾹 공급처 상세 원문 기준 · 기능 연출 이미지는 사용 흐름의 이해를 돕기 위한 자료입니다"
+}

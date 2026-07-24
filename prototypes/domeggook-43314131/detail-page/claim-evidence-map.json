@@ -1,8 +1,8 @@
 {
-  "schema_version": "0.1-prototype",
+  "schema_version": "1.0",
   "product_id": "43314131",
-  "page_status": "prototype-only",
-  "publication_gate": "all supplier facts require user approval; user-photo product SSOT is not yet available",
+  "page_status": "supplier-reference-v1-final",
+  "publication_gate": "supplier-stated facts are approved for this v1; generated product imagery remains replaceable when user-photo SSOT becomes available",
   "claims": [
     {
       "claim_id": "claim-001",
@@ -12,7 +12,7 @@
       "section_ids": ["hero", "product-facts", "closing"],
       "asset_ids": ["product-cutout"],
       "verification_status": "supplier-source-stated",
-      "publishable": false
+      "publishable": true
     },
     {
       "claim_id": "claim-002",
@@ -22,7 +22,7 @@
       "section_ids": ["functions", "motion-guide", "dual-edge"],
       "asset_ids": ["use-peel", "use-slice", "use-slice-motion", "dual-blade-function"],
       "verification_status": "supplier-source-stated; generated motion is explanation only",
-      "publishable": false
+      "publishable": true
     },
     {
       "claim_id": "claim-003",
@@ -32,7 +32,7 @@
       "section_ids": ["functions", "dual-edge"],
       "asset_ids": ["use-julienne", "dual-blade-function"],
       "verification_status": "supplier-source-stated",
-      "publishable": false
+      "publishable": true
     },
     {
       "claim_id": "claim-004",
@@ -42,7 +42,7 @@
       "section_ids": ["hero", "context", "dual-edge"],
       "asset_ids": ["product-cutout", "dual-blade-function"],
       "verification_status": "supplier-source-stated; generated cutout awaits user-photo SSOT",
-      "publishable": false
+      "publishable": true
     },
     {
       "claim_id": "claim-005",
@@ -52,7 +52,7 @@
       "section_ids": ["motion-guide", "storage"],
       "asset_ids": ["product-cutout"],
       "verification_status": "supplier-source-stated",
-      "publishable": false
+      "publishable": true
     },
     {
       "claim_id": "claim-006",
@@ -62,7 +62,7 @@
       "section_ids": ["hero", "material", "product-facts"],
       "asset_ids": [],
       "verification_status": "supplier-source-stated; no durability, hygiene or corrosion extension",
-      "publishable": false
+      "publishable": true
     },
     {
       "claim_id": "claim-007",
@@ -77,7 +77,7 @@
       "section_ids": ["specifications", "product-facts"],
       "asset_ids": ["product-cutout"],
       "verification_status": "supplier-source-stated; manual visual review",
-      "publishable": false
+      "publishable": true
     },
     {
       "claim_id": "claim-008",
@@ -87,7 +87,17 @@
       "section_ids": ["product-facts"],
       "asset_ids": [],
       "verification_status": "supplier-source-stated; manual visual review",
-      "publishable": false
+      "publishable": true
+    },
+    {
+      "claim_id": "claim-009",
+      "claim_text": "수입원 ㈜이한선 생활과학",
+      "claim_type": "importer",
+      "fact_ids": ["supplier-fact-013"],
+      "section_ids": ["product-facts"],
+      "asset_ids": ["supplier-spec-evidence"],
+      "verification_status": "supplier-source-stated; manual visual review",
+      "publishable": true
     }
   ],
   "blocked_claims": [

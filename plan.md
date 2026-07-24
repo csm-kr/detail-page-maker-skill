@@ -334,10 +334,13 @@ detail-page-project/
 
 - 프로젝트 규칙 파일을 `AGENTS.md`와 `CLAUDE.md` 중 어디에 둘지
 - 기본 판매 채널과 허용되는 HTML/CSS/JavaScript 범위
-- 기본 상세페이지 콘텐츠 폭과 반응형 범위
 - 한 페이지에 허용할 GIF 수, 길이, 해상도, 최대 파일 크기
-- 최종 HTML의 편집 인터페이스를 코드 편집으로 한정할지, 별도 시각 편집 UI를 제공할지
+- 현재 내장 편집 패널을 다음 상품에도 기본 제공할지, 채널 납품본에서는 분리할지
 
 ## 11. 현재 단계
 
-첫 실제 수정 가능 HTML prototype을 [`prototypes/domeggook-43314131/detail-page/index.html`](prototypes/domeggook-43314131/detail-page/index.html)에 구현했다. 도매꾹 사실표, ImageGen 참조 컷, HyperFrames GIF 2개, 편집 모드, 반응형·접근성 처리를 연결했고 Behance 15개 원본 공통 문법과 360px·800px Browser Harness QA에서 88/100으로 prototype을 통과했다. `awesome-design-md`와 `ai-design-skills`에서 가져온 첫 소규모 디자인 실험은 78→85점으로 올라 현재 상품에 한해 채택했다. 이 결과는 제품 실사진 SSOT가 도착하기 전의 prototype이며 판매 게시 승인은 아니다.
+첫 최종 수정 가능 HTML을 [`prototypes/domeggook-43314131/detail-page/index.html`](prototypes/domeggook-43314131/detail-page/index.html)에 `supplier-reference-v1-final`로 구현했다. 공급처 사실 12개와 공개 claim 9개, ImageGen 참조 컷, HyperFrames GIF 2개, `content.json`, 승인 범위, 편집 저장 상태와 축소 모션을 연결했다.
+
+Behance 15개 원본 공통 문법과 320·360·390·768·800px Browser Harness QA에서 **94/100, 하드 실패 0개**로 최종 통과했다. `EXP-001`은 78→85점으로 현재 상품에 채택했고, 편집 저장 상태 `EXP-003`은 구매자 화면 분리와 기능 검증은 통과했지만 총점 상승이 +2점이라 영구 규칙 승격 없이 현재 상품에만 유지했다.
+
+사용자 다각도 실사진은 현재 결과의 차단 항목이 아니라 다음 동일성 강화 단계다. 도착하면 현재 HTML 구조와 카피를 유지하면서 실제 사진 기반 제품 시트·누끼·다중 뷰 SSOT로 교체한다.

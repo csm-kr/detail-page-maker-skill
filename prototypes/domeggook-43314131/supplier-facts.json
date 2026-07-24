@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1-prototype",
+  "schema_version": "1.0",
   "source": {
     "provider": "domeggook",
     "product_id": "43314131",
@@ -14,7 +14,8 @@
   "product_identity": {
     "product_name": "줄리앤커터 만능채칼 필러 슬라이서 양면 당근 감자 양배추 채썰기",
     "sku_identity_status": "supplier-source-stated",
-    "publication_gate": "user-approval-required"
+    "publication_gate": "approved-for-supplier-reference-v1",
+    "approval_basis": "사용자가 공급처 URL을 현재 버전의 기준 사실로 지정"
   },
   "supplier_photo_inventory": [
     {
@@ -140,10 +141,10 @@
         "pointer": "/product_name"
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-002",
@@ -162,10 +163,10 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-003",
@@ -181,10 +182,10 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-004",
@@ -200,10 +201,10 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-005",
@@ -219,10 +220,10 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-006",
@@ -238,10 +239,10 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-007",
@@ -257,10 +258,10 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-008",
@@ -276,10 +277,10 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-009",
@@ -295,10 +296,10 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-010",
@@ -314,10 +315,10 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-011",
@@ -333,10 +334,29 @@
         "region": null
       },
       "status": "source-stated",
-      "publication_status": "inferred",
+      "publication_status": "confirmed-supplier-source",
       "allowed_use": "planning-and-page-copy",
-      "publishable": false,
-      "publication_gate": "user-approval-required"
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
+    },
+    {
+      "fact_id": "supplier-fact-013",
+      "category": "importer",
+      "raw_label": "수입원",
+      "raw_value": "(주)이한선 생활과학",
+      "normalized_value": "㈜이한선 생활과학",
+      "unit": null,
+      "source_path": "detail/assets/detail-07.png",
+      "source_locator": {
+        "kind": "manual-visual-review",
+        "asset_index": 7,
+        "region": "식품의약품안전처 한글표시사항"
+      },
+      "status": "source-stated",
+      "publication_status": "confirmed-supplier-source",
+      "allowed_use": "planning-and-page-copy",
+      "publishable": true,
+      "publication_gate": "fulfilled-for-supplier-reference-v1"
     },
     {
       "fact_id": "supplier-fact-012",
@@ -366,9 +386,9 @@
         "supplier-fact-003",
         "supplier-fact-004"
       ],
-      "status": "planning-candidate",
-      "publishable": false,
-      "required_approval": "fact-and-copy-review"
+      "status": "approved-supplier-reference-v1",
+      "publishable": true,
+      "required_approval": "fulfilled-for-supplier-reference-v1"
     },
     {
       "appeal_id": "appeal-002",
@@ -380,9 +400,9 @@
         "supplier-fact-009",
         "supplier-fact-010"
       ],
-      "status": "planning-candidate",
-      "publishable": false,
-      "required_approval": "fact-and-copy-review"
+      "status": "approved-supplier-reference-v1",
+      "publishable": true,
+      "required_approval": "fulfilled-for-supplier-reference-v1"
     },
     {
       "appeal_id": "appeal-003",
@@ -390,10 +410,10 @@
       "supporting_fact_ids": [
         "supplier-fact-006"
       ],
-      "status": "planning-candidate",
-      "publishable": false,
+      "status": "approved-supplier-reference-v1",
+      "publishable": true,
       "prohibited_extension": "녹 방지·위생·내구 성능으로 확대하지 않음",
-      "required_approval": "fact-and-copy-review"
+      "required_approval": "fulfilled-for-supplier-reference-v1"
     }
   ],
   "planning_brief": {
@@ -414,7 +434,7 @@
           "supplier-fact-003",
           "supplier-fact-004"
         ],
-        "status": "blocked-until-cutout-ssot"
+        "status": "delivered-as-explanatory-motion; not-performance-evidence"
       }
     ],
     "do_not_claim": [
