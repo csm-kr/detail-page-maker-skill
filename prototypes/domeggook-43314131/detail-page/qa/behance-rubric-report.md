@@ -19,7 +19,7 @@
 | 주장-근거 | 20 | 20 | 공개 제품 claim 10개가 supplier fact에 연결되고, 동종 후기 문제 카피는 별도 voice ID와 금지 범위를 가진다. |
 | 정보 서사·전환 | 15 | 15 | 제품 가치→실제 생활 불편→한 자루의 해결 구조→사용→커터 전환→치수·재질·보관→구매 확인이 연결된다. |
 | 시각 체계·리듬 | 15 | 15 | 아이보리 소재 장면, 실제 제품 레이어, 라임 기능 장면, 짙은 구조 장면과 수치 블록의 리듬이 일관된다. |
-| 편집성·반응형 | 10 | 10 | HTML 카피 76개, 교체 자산 11개, CSS 토큰, 편집 모드와 HTML 저장을 제공한다. 320~800px overflow·텍스트 잘림 0개다. |
+| 편집성·반응형 | 10 | 10 | HTML 카피 68개, 교체 자산 11개, CSS 토큰, 편집 모드와 HTML 저장을 제공한다. 320~800px overflow·텍스트 잘림 0개다. |
 | 접근성 | 10 | 9 | h1 1개, 누락 alt 0개, 빈 fact/asset ID 0개, 버튼 이름, 축소 모션 poster와 reveal 표시를 확인했다. 별도 수동 스크린리더 검수는 남아 있다. |
 | 성능·모션 | 5 | 4 | 4개 GIF가 각각 한 정보만 설명하고 poster를 제공한다. GIF 합계 약 8MB로 상용 상세 범위지만 판매 채널별 예산 확정 후 추가 압축 여지가 있다. |
 | **합계** | **100** | **97** | **상용 후보 통과** |
@@ -50,10 +50,10 @@
 |---|---|---|---|
 | 얇게 썰기 흐름 | 800×600, 4초, 15fps | 오류 0, 경고 0 | `use-slice-motion.gif` |
 | 양면 커터 전환 | 800×720, 4초, 15fps | 오류 0, 경고 0 | `dual-blade-function.gif` |
-| 치수 안내 | 800×900, 4.2초, 15fps | 오류 0, 경고 0 | `dimension-guide.gif` |
+| 치수 안내 | 800×900, 4.2초, 15fps | 오류 0, 경고 0. 가로선과 제품 상단 분리 | `dimension-guide.gif` |
 | 감자 눈 접촉 | 800×800, 4초, 15fps | 오류 0, 경고 0 | `potato-eye-motion.gif` |
 
-감자 눈 모션은 점, 안내선 끝과 강조 원의 중심을 하나의 좌표로 고정했다. 제품 사진 전체 확대를 제거해 GIF를 약 7.2MB에서 약 2.7MB로 줄였다.
+감자 눈 모션은 점, 안내선 끝과 강조 원의 중심을 하나의 좌표로 고정했다. 제품 사진 전체 확대를 제거해 GIF를 약 7.2MB에서 약 2.7MB로 줄였다. 치수 모션의 가로선은 `y=88`에서 `y=52`로, 끝점 하단은 `y=100`에서 `y=64`로 올려 제품 헤드와 닿지 않게 했다.
 
 ## 실제 GIF 재생 검증
 
@@ -69,7 +69,7 @@
 - `gif-potato-final-t0.png` ≠ `gif-potato-final-t1.png`
 - `gif-use-t0.png` ≠ `gif-use-t1.png`
 - `gif-dual-t0.png` ≠ `gif-dual-t1.png`
-- `gif-dimension-t0.png` ≠ `gif-dimension-t1.png`
+- `gif-dimension-gap-t0.png` ≠ `gif-dimension-gap-t1.png`
 
 축소 모션에서는 네 GIF가 각각 PNG poster로 바뀌며 숨은 `.reveal` 요소는 0개였다.
 
@@ -79,17 +79,27 @@
 
 - `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\final-page-qa-v3`
 - `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\responsive-final-v3`
+- `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\dimension-gap-and-taste-final`
+- `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\taste-edit-mode-final-dom`
 
 DOM 결과:
 
 - 의미 섹션 11개
-- `data-editable` 76개
+- `data-editable` 68개
 - `data-replaceable` 11개
 - `img:not([alt])` 0개
 - 빈 fact ID 0개, 빈 asset ID 0개, 중복 ID 0개
 - h1 1개, 이름 없는 버튼 0개, 깨진 이미지 0개
 - 구매자 화면의 `도매꾹`, `공급처 원문`, `원문 기준` 노출 0개
-- 편집 모드 진입·종료 시 76개 요소의 contenteditable 상태 전환 통과
+- 편집 모드 진입·종료 시 68개 요소의 contenteditable 상태 전환 통과
+
+Taste Skill v2 보조 검수:
+
+- 의미 섹션 10개에 눈썹 라벨 4개로 `ceil(10/3)=4` 상한 통과
+- 구매자 노출 텍스트의 em dash·en dash 0개
+- `SECTION 01`, `MODE 01`, `POINT 01`형 숫자 메타 라벨 0개
+- 숫자 장식을 없앤 뒤에도 기능명·제품 사실·근거 캡션과 정보 순서는 유지
+- 현재 상업 상세페이지 rubric은 97/100, 하드 실패 0개로 유지
 
 반응형 결과:
 
@@ -106,8 +116,11 @@ DOM 결과:
 - `06-problem-solution.png`
 - `07-potato-eye-motion.png`
 - `08-dimensions-v2.png`
+- `11-dimension-gap-final.png`
 - `09-storage-v2.png`
 - `10-mobile-390-problem.png`
+- `taste-after-800-top.png`
+- `taste-after-390-top.png`
 - `gif-potato-final-t0.png`, `gif-potato-final-t1.png`
 
 ## 남은 비차단 항목

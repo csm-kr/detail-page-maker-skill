@@ -566,4 +566,58 @@
 
 ---
 
+## 17. Taste Skill v2 보조 규약 실험
+
+- 날짜: 2026-07-25
+- 저장소: https://github.com/Leonxlnx/taste-skill
+- 사이트: https://www.tasteskill.dev/
+- 확인 버전: 기본 `design-taste-frontend` v2 experimental
+- 라이선스: MIT
+- 상태: `held`
+
+### 설치한 관련 스킬
+
+- `design-taste-frontend`
+- `gpt-taste`
+- `redesign-existing-projects`
+- `image-to-code`
+- `imagegen-frontend-web`
+
+### 상세페이지에 유효한 규칙
+
+1. 코드 전에 페이지 종류, 구매자, 분위기, 근거 제약을 한 줄로 읽고 `VARIANCE / MOTION / DENSITY`를 고정한다.
+2. 섹션 번호, `MODE 01`, `POINT 01`처럼 내용 없이 설계된 메타 라벨을 실제 기능명으로 바꾼다.
+3. 작은 대문자 눈썹 라벨은 모든 섹션에 반복하지 않고 최대 `ceil(섹션 수 / 3)`개로 제한한다.
+4. 모션마다 위계, 작동 설명, 피드백, 상태 전환 중 하나의 목적을 설명하지 못하면 삭제한다.
+5. 한 강조색과 한 곡률 체계를 잠그고, 카피·버튼·이미지 캡션까지 출시 전 다시 읽는다.
+6. 기존 페이지는 전면 재작성보다 타이포, 간격, 색, 모션, 핵심 섹션 순으로 작은 변경을 시험한다.
+
+### 상세페이지용 로컬 예외
+
+- React·Next.js·Tailwind 기본값은 수정 가능한 단일 HTML 납품 조건보다 우선하지 않는다.
+- 내비게이션, SaaS식 CTA, 가격표, AIDA 고정 팩은 공급처형 세로 상품 상세페이지에 강제하지 않는다.
+- 짙은 숲색과 아이보리의 교대는 서로 다른 테마가 아니라 동일 팔레트의 구매 챕터 구분으로 사용한다.
+- 제품명, 재질, 치수, 사용 제한을 전달하는 근거 라벨은 장식 라벨과 구분해 유지한다.
+- 제품 동일성과 주장 근거는 비대칭·모션·시각 실험보다 항상 우선한다.
+
+### `EXP-007` 숫자형 메타 라벨 축소
+
+- Design Read: 한국 오픈마켓의 단일 주방 소도구 상세페이지, 구매자가 기능·치수·안전을 빠르게 확인하는 신뢰 우선형 프리미엄 소비재, 네이티브 편집 HTML과 근거 기반 제품 이미지·HyperFrames 모션.
+- Dials: `DESIGN_VARIANCE 6 / MOTION_INTENSITY 6 / VISUAL_DENSITY 5`
+- 변경 전: `.eyebrow` 12개, 숫자형 섹션·모드·포인트 라벨 반복, 구매자 텍스트 em dash 1개, 편집 텍스트 76개
+- 변경 후: 의미 있는 `.eyebrow` 4개, `ceil(10/3)=4` 상한 통과, 숫자형 메타 라벨 0개, em dash·en dash 0개, 편집 텍스트 68개
+- 유지한 것: 제품·치수·기능·근거 캡션·섹션 순서·ImageGen 자산·GIF 4개·HTML 저장 기능
+- 브라우저 증거: `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\dimension-gap-and-taste-final`, `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\taste-edit-mode-final-dom`
+- 결과: 390px overflow 0, 잘린 편집 텍스트 0, 깨진 이미지 0, 68/68 편집 모드 전환, 기존 rubric 97/100 유지
+- 판정: 총점 상승이 없어 영구 규칙 승격은 `held`다. 다만 현재 상품에서는 정보 손실 없이 장식 밀도가 줄어든 상태를 유지한다.
+- 되돌림: 제거한 영문 눈썹과 숫자 라벨만 복원하고 제품·근거·모션은 건드리지 않는다.
+
+### `FIX-DIM-001` 가로 치수선 분리
+
+- 사용자 관찰: 7.2cm 가로 치수선 끝점이 제품 헤드 상단에 닿아 보였다.
+- HyperFrames 변경: 선 `y=88→52`, 끝점 하단 `y=100→64`
+- 검증: `check` 오류 0, 경고 0, 대비 31/31, 새 GIF 실제 재생 프레임 해시 차이 확인
+- 화면 증거: `prototypes/domeggook-43314131/detail-page/qa/screenshots/11-dimension-gap-final.png`
+- 결과: 선과 제품 사이에 명확한 여백이 생기고 네 치수 값과 측정 방향은 유지됐다.
+
 핵심 원칙은 단순하다. **디자인 규칙은 출처가 있어야 하고, 상품에 맞게 변환한 부분은 변환이라고 밝혀야 하며, 작은 전후 실험으로 이득을 증명하기 전에는 영구 기억으로 승격하지 않는다.**

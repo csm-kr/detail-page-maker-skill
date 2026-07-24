@@ -351,15 +351,18 @@ Behance 원본 공통 문법과 320·360·390·768·800px Browser Harness QA에�
 
 ### Taste Skill 검증
 
-- `npx skills add Leonxlnx/taste-skill`로 설치하기 전에 저장소와 `https://www.tasteskill.dev/`의 실제 계약, 라이선스, 파일 구조를 확인한다.
-- 설치 후 스킬 전문을 읽고 현재 내부 디자인 규약과 중복·충돌·추가 가치를 비교한다.
-- 같은 상품 섹션을 기존 규약과 Taste Skill 규약으로 각각 한 번 시안화하고, 타이포·여백·위계·상업성·제품 동일성·편집성 점수로 비교한다.
+- [완료] 저장소와 `https://www.tasteskill.dev/`의 실제 계약, MIT 라이선스, v2 파일 구조를 확인했다.
+- [완료] `design-taste-frontend`, `gpt-taste`, `redesign-existing-projects`, `image-to-code`, `imagegen-frontend-web`를 Codex 전역 스킬로 설치했다.
+- [완료] 현재 페이지의 숫자형 메타 라벨과 눈썹 밀도를 Taste 규약으로 A/B 검수했다. 눈썹은 12→4개, 숫자형 메타 라벨과 em dash는 0개가 됐고, 390px·축소 모션·68개 편집 텍스트가 통과했다.
+- [완료] 사용자 피드백에 따라 7.2cm 가로 치수선을 HyperFrames 원본에서 더 위로 올리고 새 GIF·포스터를 게시했다.
 - 점수가 실제로 개선된 규칙만 `study-desing-skill.md`와 `commetial-detail-page.md`에 승격한다. 외부 스킬 문구를 무조건 복사하지 않는다.
 - 검증 결과와 실패 사례를 누적해 다음 상세페이지 기획 전에 다시 읽는다.
 
 ### 정기 디자인 학습 작업
 
-- Behance `상세페이지` 검색 결과와 Taste Skill의 새 사례를 주기적으로 수집하는 로컬 예약 작업을 설계한다.
+- [완료] Behance `상세페이지` 검색 결과와 Taste Skill 변경 신호를 Browser Harness로 수집하는 로컬 예약 작업을 구현했다.
+- [완료] Windows Task Scheduler의 `DetailPageMaker-DesignStudyRefresh`를 매주 월요일 09:30 KST로 등록했다.
+- [완료] 예약 실행 경로에서 `LastTaskResult=0`을 확인했다. 다음 실행은 2026-07-27 09:30 KST다.
 - 예약 작업은 원본을 자동 복제하거나 상세페이지를 무인 수정하지 않는다. 후보 URL, 게시일, 카테고리, 채택할 디자인 가설을 검토 큐 Markdown으로 갱신한다.
 - 사람 또는 에이전트 검토에서 제품 카테고리 적합성, 근거 강도, 편집 가능한 HTML 전환 가능성을 통과한 규칙만 학습 메모리에 승격한다.
 - 같은 규칙이 서로 다른 우수 사례 3개 이상에서 재현되고 현재 상품 A/B 시안에서 점수를 높였을 때만 영구 규약으로 채택한다.

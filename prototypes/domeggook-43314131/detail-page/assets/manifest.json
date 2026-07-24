@@ -118,14 +118,14 @@
     {
       "asset": "dimension-guide.gif",
       "kind": "hyperframes-gif",
-      "sha256": "821574c2fb6dccf24ff84cdd97729b6f342a3eaa561077960a47ab7b16672b0b",
+      "sha256": "387b14346e0a39bf63f092b104e3391c62e269d9119b1b67917b5d3fbbbefcd1",
       "source_paths": [
         "assets/product-dimension-base-v2.png",
         "assets/supplier-spec-evidence.png",
         "videos/dimension-guide-motion/index.html"
       ],
       "render": "800x900 · 4.2s · 15fps · infinite loop",
-      "claim": "가로 7.2cm, 헤드 높이 5.3cm, 손잡이 길이 10.05cm, 고리 2cm의 측정 구간"
+      "claim": "가로 7.2cm, 헤드 높이 5.3cm, 손잡이 길이 10.05cm, 고리 2cm의 측정 구간. 가로 치수선은 제품 상단과 분리"
     },
     {
       "asset": "potato-eye-start.png",
