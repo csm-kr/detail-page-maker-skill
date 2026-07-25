@@ -28,7 +28,7 @@
 - [경쟁상품 후기 개인정보 검증 보강](issues/20-fix-competitor-review-privacy-validation.md) —추출 결과의 review_text에 작성자·판매자 헤더가 남는 결함을 발견해 원문 번들 커밋을 차단하고 validator 회귀 조건을 정의했다.
 - [아쿠아슈즈 사진 중심 상세페이지와 독립 Studio](issues/21-photo-led-detail-page-studio.md) —사용 맥락 ImageGen 장면 5개, HTML 카피 117개, 별도 Studio와 단일 HTML 내보내기, 발길이 바·점 정렬 교정을 완료했다.
 - [도매꾹 23824901 commercial-tight v2 프로토타입](issues/22-prototype-domeggook-23824901-commercial-tight-v2.md) —새 공급처 추출부터 핵심 소구, 새 Behance 조사, 누끼 SSOT, 다섯 ImageGen·HyperFrames 역할, SVG 말풍선, 95/97점 하드 게이트까지 실행 순서를 잠갔다.
-- [실제품 기반 노바페이스 기능성 깔창 commercial-final v8](issues/24-prototype-actual-product-air-cushion-insole.md) —사용자 승격 SSOT, ImageGen 상용 소재, 역할형 HyperFrames GIF 8개, 후기형 소구 메시지 3개, 수정 가능한 HTML·Studio와 5개 폭 QA를 연결해 98/100·하드 실패 0개로 마감했다.
+- [실제품 기반 노바페이스 기능성 깔창 commercial-final v9](issues/24-prototype-actual-product-air-cushion-insole.md) —사용자 승격 SSOT, 신규 ImageGen 소재 12장, 역할형 HyperFrames GIF 8개, 4종 사용 상황 사진, 수정 가능한 HTML·Studio와 5개 폭 QA를 연결해 97.5/100·하드 실패 0개로 마감했다.
 
 ## Not yet specified
 

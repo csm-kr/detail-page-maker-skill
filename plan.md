@@ -527,3 +527,19 @@ Behance 원본 공통 문법과 320·360·390·768·800px Browser Harness QA에�
 - HTML validator 0, duplicate ID 0, duplicate image source 0, 금지 제작 메타 0건을 확인했다.
 - Studio 편집 모드를 실제로 켜고 95개 contenteditable 활성화, 텍스트 변경·원문 복원, 편집 모드 해제를 확인했다.
 - 최종 타이트 루브릭은 **98/100, 하드 실패 0개**다. 근거는 `prototypes/domeggook-60851997/qa/commercial-final-v8.md`에 기록한다.
+
+### 2026-07-25 노바페이스 image-led commercial-final v9 완료
+
+- [완료] ImageGen 신규 소재 12장을 제작했다: 제품 인쇄 보정 3장, 윗면·아랫면 비교 2장, 군화·작업화·운동화·일상화 4장, 문제·통풍·마감 배경 3장.
+- [완료] 네 사용 상황을 독립 사진 카드로 교체하고 2열 데스크톱·1열 모바일 레이아웃에 통합했다.
+- [완료] `ZOOM SPORTS` 흰 HTML·HyperFrames 오버레이를 제거하고 제품 이미지 안에 인쇄가 포함된 소스로 바꿨다.
+- [완료] 공개 HTML·alt·GIF 카피의 `상면 / 하면`을 `윗면 / 아랫면`으로 교체했다.
+- [완료] 소재 비교 GIF의 분할선·커서를 `+224px → -224px → 0px`로 움직여 양 끝 상태와 최종 50:50 상태를 명확히 했다.
+- [완료] 정적 삽입 섹션과 삽입 GIF 중복을 하나로 합쳐 18개 섹션을 17개로 줄였다.
+- [완료] FAQ 4개를 모두 펼친 상태로 제공했다.
+- [완료] HyperFrames master v9을 800×800, 15fps, 38.4초로 렌더링했다. strict check는 lint·runtime·layout·motion 0, contrast 35/35다.
+- [완료] GIF 8개를 800×800, 12fps, 각 4.83초·58프레임으로 게시하고 SHA-256 manifest와 8×3 접촉판을 갱신했다.
+- [완료] Browser Harness 320·360·390·768·800px에서 overflow·경계 밖 요소·잘린 텍스트·깨진 이미지 0을 확인했다.
+- [완료] HTML validator 0, GIF 8개 currentSrc, FAQ 4/4 open, 제품 인쇄 텍스트 오버레이 0을 확인했다.
+- [완료] Studio 수정 모드에서 편집 텍스트 90개와 이미지 17개가 활성화되는 것을 확인했다.
+- [완료] 이번 피드백을 `SKILL.md`, 네 개의 분리 규약, `commetial-detail-page.md`, `study-desing-skill.md`에 반영했다.

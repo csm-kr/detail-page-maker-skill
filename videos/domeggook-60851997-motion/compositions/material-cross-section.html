@@ -3,49 +3,51 @@
     @font-face { font-family: "Malgun Gothic"; src: local("Malgun Gothic"); font-weight: 100 900; }
     * { box-sizing: border-box; }
     #mt-root { position: relative; width: 800px; height: 800px; overflow: hidden; background: #f3f8ff; color: #10203a; font-family: "Malgun Gothic", sans-serif; }
-    .mt-half { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; }
+    .mt-half { position: absolute; top: 0; bottom: 0; overflow: hidden; }
     .mt-half img { position: absolute; top: 0; width: 800px; height: 800px; object-fit: cover; }
-    .mt-left { left: 0; }
+    .mt-left { left: 0; width: 78%; }
     .mt-left img { left: 0; }
-    .mt-right { right: 0; }
+    .mt-right { right: 0; width: 22%; }
     .mt-right img { right: 0; }
     .mt-divider { position: absolute; z-index: 4; left: 50%; top: 0; width: 5px; height: 100%; background: #fff; box-shadow: 0 0 24px rgba(28,120,255,.8); }
     .mt-copy { position: absolute; z-index: 6; left: 34px; top: 34px; width: 538px; padding: 20px 23px 22px; border-radius: 25px; background: rgba(255,255,255,.95); box-shadow: 0 18px 48px rgba(21,63,115,.14); }
     .mt-copy p { margin: 0 0 7px; color: #155acb; font-size: 15px; font-weight: 950; letter-spacing: .08em; }
-    .mt-copy h1 { margin: 0; font-size: 35px; line-height: 1.14; letter-spacing: -.055em; font-weight: 950; }
+    .mt-copy h1 { margin: 0; font-size: 38px; line-height: 1.14; letter-spacing: -.055em; font-weight: 950; }
     .mt-copy h1 span { display: block; white-space: nowrap; }
-    .mt-label { position: absolute; z-index: 6; bottom: 38px; min-width: 210px; padding: 14px 18px; border-radius: 18px; font-size: 16px; font-weight: 950; text-align: center; box-shadow: 0 14px 34px rgba(8,31,66,.2); }
+    .mt-label { position: absolute; z-index: 6; bottom: 38px; min-width: 218px; padding: 14px 18px; border-radius: 18px; font-size: 17px; font-weight: 950; text-align: center; box-shadow: 0 14px 34px rgba(8,31,66,.2); }
     .mt-label small { display: block; margin-bottom: 4px; font-size: 11px; letter-spacing: .1em; opacity: .72; }
     .mt-label-left { left: 34px; background: #fff; color: #10203a; }
     .mt-label-right { right: 34px; background: #176bff; color: #fff; }
+    .mt-travel { position: absolute; z-index: 7; left: 50%; bottom: 125px; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: #fff; border: 6px solid #176bff; box-shadow: 0 0 24px rgba(23,107,255,.65); }
   </style>
   <div id="mt-root" data-composition-id="actual-material-cross-section" data-start="0" data-duration="4.8" data-width="800" data-height="800">
-    <div class="mt-half mt-left"><img src="assets/top-pair-v2.png" alt="" data-layout-allow-overflow /></div>
-    <div class="mt-half mt-right"><img src="assets/hero-underside-pair-v2.png" alt="" data-layout-allow-overflow /></div>
+    <div class="mt-half mt-left"><img src="assets/surface-top-studio-v3.png" alt="" data-layout-allow-overflow /></div>
+    <div class="mt-half mt-right"><img src="assets/surface-bottom-studio-v3.png" alt="" data-layout-allow-overflow /></div>
     <div class="mt-divider"></div>
+    <div class="mt-travel" aria-hidden="true"></div>
     <div class="mt-copy">
-      <p>두 가지 소재, 한 켤레에</p>
-      <h1><span>발이 닿는 면은 부드럽게</span><span>신발 바닥에 닿는 면은 탄탄하게</span></h1>
+      <p>서로 다른 두 면을 한 번에</p>
+      <h1><span>발이 닿는 면은 부드럽게,</span><span>바닥은 탄탄하게.</span></h1>
     </div>
-    <div class="mt-label mt-label-left"><small>01 · TOP</small>에어메시 상면</div>
-    <div class="mt-label mt-label-right"><small>02 · BOTTOM</small>고탄성 PU 하면</div>
+    <div class="mt-label mt-label-left"><small>01 · UPPER</small>에어메시 윗면</div>
+    <div class="mt-label mt-label-right"><small>02 · LOWER</small>고탄성 PU 아랫면</div>
   </div>
   <script>
     window.__timelines = window.__timelines || {};
     const tl = gsap.timeline({ paused: true });
-    tl.fromTo(".mt-left", { width: "58%" }, { width: "62%", duration: .7, ease: "power3.out" }, 0)
-      .fromTo(".mt-right", { width: "42%" }, { width: "38%", duration: .7, ease: "power3.out" }, 0)
-      .fromTo(".mt-divider", { x: 64 }, { x: 96, duration: .7, ease: "power3.out" }, 0)
-      .fromTo(".mt-copy", { y: -10 }, { y: 0, duration: .46, ease: "power3.out" }, .18)
-      .fromTo(".mt-label", { y: 10 }, { y: 0, duration: .36, stagger: .14, ease: "power3.out" }, .62)
-      .to(".mt-label-left", { scale: 1.06, duration: .36, yoyo: true, repeat: 1, ease: "sine.inOut" }, 1.15)
-      .to(".mt-left", { width: "38%", duration: .82, ease: "power2.inOut" }, 2.0)
-      .to(".mt-right", { width: "62%", duration: .82, ease: "power2.inOut" }, 2.0)
-      .to(".mt-divider", { x: -96, duration: .82, ease: "power2.inOut" }, 2.0)
-      .to(".mt-label-right", { scale: 1.06, duration: .36, yoyo: true, repeat: 1, ease: "sine.inOut" }, 2.78)
-      .to(".mt-left", { width: "50%", duration: .62, ease: "power2.out" }, 3.62)
-      .to(".mt-right", { width: "50%", duration: .62, ease: "power2.out" }, 3.62)
-      .to(".mt-divider", { x: 0, duration: .62, ease: "power2.out" }, 3.62);
+    tl.set(".mt-divider, .mt-travel", { x: 224 }, 0)
+      .fromTo(".mt-copy", { y: -12, opacity: 0 }, { y: 0, opacity: 1, duration: .46, ease: "power3.out" }, .12)
+      .fromTo(".mt-label", { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: .36, stagger: .14, ease: "power3.out" }, .5)
+      .to(".mt-label-left", { scale: 1.07, duration: .32, yoyo: true, repeat: 1, ease: "sine.inOut" }, 1.0)
+      .to(".mt-left", { width: "22%", duration: 1.02, ease: "power2.inOut" }, 1.75)
+      .to(".mt-right", { width: "78%", duration: 1.02, ease: "power2.inOut" }, 1.75)
+      .to(".mt-divider", { x: -224, duration: 1.02, ease: "power2.inOut" }, 1.75)
+      .to(".mt-travel", { x: -224, duration: 1.02, ease: "power2.inOut" }, 1.75)
+      .to(".mt-label-right", { scale: 1.07, duration: .34, yoyo: true, repeat: 1, ease: "sine.inOut" }, 2.78)
+      .to(".mt-left", { width: "50%", duration: .72, ease: "power2.out" }, 3.72)
+      .to(".mt-right", { width: "50%", duration: .72, ease: "power2.out" }, 3.72)
+      .to(".mt-divider", { x: 0, duration: .72, ease: "power2.out" }, 3.72)
+      .to(".mt-travel", { x: 0, duration: .72, ease: "power2.out" }, 3.72);
     window.__timelines["actual-material-cross-section"] = tl;
     tl.seek(0);
   </script>

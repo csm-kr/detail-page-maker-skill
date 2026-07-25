@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "product_id": "domeggook-60851997",
   "updated_at": "2026-07-25",
   "reference_ssot": [
@@ -14,34 +14,74 @@
       "identity_checks": ["air_cell", "air_hole", "blue_cushion", "pair"]
     },
     {
-      "file": "top-pair-v2.png",
-      "role": "top surface overview",
-      "identity_checks": ["gray_air_mesh", "gray_heel_patch", "no_blue_cushion_on_top"]
+      "file": "surface-top-studio-v3.png",
+      "role": "upper surface comparison",
+      "identity_checks": ["gray_air_mesh", "gray_heel_patch", "no_blue_cushion_on_upper"]
     },
     {
-      "file": "ventilation-airflow-v4.png",
+      "file": "surface-bottom-studio-v3.png",
+      "role": "lower surface comparison",
+      "identity_checks": ["air_cell", "air_hole", "blue_cushion_position", "factory_print_embedded"]
+    },
+    {
+      "file": "ventilation-airflow-v5.png",
       "role": "airflow effect",
-      "identity_checks": ["airflow_originates_only_from_air_holes", "air_cell", "solid_blue_cushion"]
+      "identity_checks": ["airflow_originates_only_from_air_holes", "air_cell", "solid_blue_cushion", "factory_print_embedded"]
     },
     {
-      "file": "heel-macro-v2.png",
+      "file": "heel-macro-v3.png",
       "role": "heel component macro",
-      "identity_checks": ["blue_cushion_position", "air_cell_border"]
+      "identity_checks": ["blue_cushion_position", "air_cell_border", "factory_print_embedded"]
     },
     {
-      "file": "flex-hand-v4.png",
+      "file": "flex-hand-v5.png",
       "role": "flexibility scene",
-      "identity_checks": ["bottom_surface", "blue_cushion_position", "air_cell_border"]
+      "identity_checks": ["lower_surface", "blue_cushion_position", "air_cell_border", "factory_print_embedded"]
     },
     {
       "file": "shoe-insertion-v4.png",
       "role": "shoe insertion scene",
-      "identity_checks": ["top_surface", "gray_heel_patch", "no_blue_cushion_on_top"]
+      "identity_checks": ["upper_surface", "gray_heel_patch", "no_blue_cushion_on_upper"]
     },
     {
       "file": "cushion-impact-v4.png",
       "role": "blue cushion impact scene",
       "identity_checks": ["blue_cushion_position", "ZOOM SPORTS", "air_cell", "air_hole"]
+    },
+    {
+      "file": "usecase-military-v1.png",
+      "role": "military boot use-case background",
+      "identity_checks": ["unbranded_footwear", "no_insole_reconstruction"]
+    },
+    {
+      "file": "usecase-work-v1.png",
+      "role": "work-shoe use-case background",
+      "identity_checks": ["unbranded_footwear", "no_insole_reconstruction"]
+    },
+    {
+      "file": "usecase-sports-v1.png",
+      "role": "athletic-shoe use-case background",
+      "identity_checks": ["unbranded_footwear", "no_insole_reconstruction"]
+    },
+    {
+      "file": "usecase-casual-v1.png",
+      "role": "casual-shoe use-case background",
+      "identity_checks": ["unbranded_footwear", "no_insole_reconstruction"]
+    },
+    {
+      "file": "problem-standing-bg-v2.png",
+      "role": "problem-hook lifestyle background",
+      "identity_checks": ["no_medical_dramatization", "html_copy_safe_space"]
+    },
+    {
+      "file": "airflow-atmosphere-bg-v1.png",
+      "role": "airflow atmosphere background",
+      "identity_checks": ["abstract_only", "no_product_claim"]
+    },
+    {
+      "file": "finale-shoe-lineup-bg-v1.png",
+      "role": "four-footwear finale background",
+      "identity_checks": ["four_distinct_contexts", "unbranded_footwear", "html_copy_safe_space"]
     }
   ],
   "deprecated": [
@@ -51,15 +91,33 @@
     },
     {
       "file": "shoe-insertion-v2.png",
-      "reason": "blue cushion appeared on top surface"
+      "reason": "blue cushion appeared on upper surface"
     },
     {
       "file": "cushion-impact-v2.png",
-      "reason": "ZOOM SPORTS print was missing or structurally weak"
+      "reason": "factory print was missing or structurally weak"
     },
     {
       "file": "ventilation-airflow-v2.png",
       "reason": "airflow appeared to originate from the solid blue cushion"
+    },
+    {
+      "file": "ventilation-airflow-v4.png",
+      "reason": "final page needed a source image with embedded dark factory print instead of a white DOM overlay"
+    },
+    {
+      "file": "heel-macro-v2.png",
+      "reason": "factory print was added as a separate HTML overlay"
+    },
+    {
+      "file": "flex-hand-v4.png",
+      "reason": "factory print was added as a separate HyperFrames text overlay"
     }
-  ]
+  ],
+  "commercial_gates": {
+    "generated_asset_count_for_v9": 12,
+    "factory_print_policy": "제품 각인·인쇄는 최종 이미지 픽셀에 포함하고 HTML 또는 HyperFrames 텍스트 오버레이로 대체하지 않는다.",
+    "consumer_surface_terms": ["윗면", "아랫면"],
+    "comparison_motion": "두 상태를 좌우 끝에서 각각 홀드한 뒤 50:50으로 정리한다."
+  }
 }

@@ -5,7 +5,7 @@
     #tb-root { position: relative; width: 800px; height: 800px; overflow: hidden; perspective: 1100px; background: #061127; color: #fff; font-family: "Malgun Gothic", sans-serif; }
     .tb-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-style: preserve-3d; }
     #tb-bottom { opacity: 0; }
-    .tb-vignette { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,10,28,.16), rgba(4,10,28,.04) 42%, rgba(4,10,28,.94)); }
+    .tb-vignette { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,10,28,.16), rgba(4,10,28,.02) 42%, rgba(4,10,28,.94)); }
     .tb-brand { position: absolute; z-index: 4; left: 42px; top: 38px; padding: 9px 14px; border: 1px solid rgba(255,255,255,.42); border-radius: 999px; background: rgba(4,12,32,.62); font-size: 14px; font-weight: 900; letter-spacing: .1em; }
     .tb-steps { position: absolute; z-index: 5; top: 38px; right: 38px; display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 18px; background: rgba(3,13,35,.72); backdrop-filter: blur(10px); }
     .tb-step { padding: 10px 13px; border-radius: 12px; color: #9fb0c7; font-size: 14px; font-weight: 950; }
@@ -16,36 +16,36 @@
     .tb-copy h1 { margin: 0; font-size: 52px; line-height: 1.08; letter-spacing: -.06em; font-weight: 950; text-shadow: 0 4px 24px rgba(0,0,0,.35); }
     .tb-copy h1 span { display: block; }
     .tb-state { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 11px 16px; border-radius: 999px; background: #176bff; color: #fff; font-size: 15px; font-weight: 950; }
-    .tb-state b { color: #010308; }
+    .tb-state b { color: #fff; }
   </style>
   <div id="tb-root" data-composition-id="actual-top-bottom" data-start="0" data-duration="4.8" data-width="800" data-height="800">
-    <img id="tb-top" class="tb-media" src="assets/top-pair-v2.png" alt="" data-layout-allow-overflow />
-    <img id="tb-bottom" class="tb-media" src="assets/hero-underside-pair-v2.png" alt="" data-layout-allow-overflow />
+    <img id="tb-top" class="tb-media" src="assets/surface-top-studio-v3.png" alt="" data-layout-allow-overflow />
+    <img id="tb-bottom" class="tb-media" src="assets/surface-bottom-studio-v3.png" alt="" data-layout-allow-overflow />
     <div class="tb-vignette"></div>
     <div class="tb-brand">NOVAFACE</div>
     <div class="tb-steps">
-      <span id="tb-step-top" class="tb-step active">1 상면</span>
+      <span id="tb-step-top" class="tb-step active">1 윗면</span>
       <span class="tb-arrow">→ 뒤집기 →</span>
-      <span id="tb-step-bottom" class="tb-step">2 하면</span>
+      <span id="tb-step-bottom" class="tb-step">2 아랫면</span>
     </div>
     <div class="tb-copy">
-      <p>상면에서 하면까지</p>
+      <p>윗면에서 아랫면까지</p>
       <h1><span>뒤집을수록 보이는</span><span>편안함의 설계</span></h1>
-      <div class="tb-state"><b>상면</b><span id="tb-state-text">에어메시가 발에 닿아요</span></div>
+      <div class="tb-state"><b id="tb-state-label">윗면</b><span id="tb-state-text">에어메시가 발에 닿아요</span></div>
     </div>
   </div>
   <script>
     window.__timelines = window.__timelines || {};
     const tl = gsap.timeline({ paused: true });
     tl.fromTo("#tb-top", { scale: 1.06, rotation: -1.1 }, { scale: 1, rotation: 0, duration: 1.15, ease: "power2.out" }, 0)
-      .fromTo(".tb-copy", { y: 16 }, { y: 0, duration: .55, ease: "power3.out" }, .18)
+      .fromTo(".tb-copy", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: .55, ease: "power3.out" }, .18)
       .to("#tb-top", { rotationY: 88, scale: .96, opacity: 0, duration: .48, ease: "power2.in" }, 1.45)
       .fromTo("#tb-bottom", { rotationY: -88, scale: .96, opacity: 0 }, { rotationY: 0, scale: 1, opacity: 1, duration: .58, ease: "power3.out" }, 1.82)
       .to("#tb-step-top", { backgroundColor: "rgba(255,255,255,0)", color: "#9fb0c7", duration: .2 }, 1.62)
       .to("#tb-step-bottom", { backgroundColor: "#ffffff", color: "#10203a", duration: .28 }, 1.92)
-      .to(".tb-state b", { textContent: "하면", duration: .01 }, 1.9)
-      .to("#tb-state-text", { textContent: "에어셀·에어홀·블루쿠션", duration: .01 }, 1.9)
-      .to("#tb-bottom", { scale: 1.035, duration: 1.4, ease: "sine.inOut" }, 2.55)
+      .to("#tb-state-label", { textContent: "아랫면", duration: .01 }, 1.9)
+      .to("#tb-state-text", { textContent: "에어홀과 블루쿠션을 확인하세요", duration: .01 }, 1.9)
+      .to("#tb-bottom", { scale: 1.035, duration: 1.35, ease: "sine.inOut" }, 2.55)
       .to("#tb-bottom", { scale: 1, duration: .6, ease: "power2.out" }, 4.0);
     window.__timelines["actual-top-bottom"] = tl;
     tl.seek(0);

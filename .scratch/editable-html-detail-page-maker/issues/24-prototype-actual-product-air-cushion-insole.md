@@ -22,7 +22,7 @@
 
 ## 수락 기준
 
-- 실제 제품 사진을 다중 참조로 사용한 상용 생성 이미지는 허용하되, 실루엣·상하면·색·홀·셀·부품 위치를 구조 게이트로 검수한다.
+- 실제 제품 사진을 다중 참조로 사용한 상용 생성 이미지는 허용하되, 실루엣·윗면/아랫면·색·홀·셀·부품 위치를 구조 게이트로 검수한다.
 - 모든 제품 주장에 출처·분류·차단 규칙이 있다.
 - 첫 화면에서 제품과 헤드라인의 대비가 충분하다.
 - GIF가 HTML에 실제로 연결되고 서로 다른 역할을 한다.
@@ -44,17 +44,22 @@
 - 2026-07-25: 에어홀·블루쿠션·유연함 장면의 `ZOOM SPORTS`를 모두 보존하고, 통풍 경로는 에어홀에서만 시작하도록 잠갔다.
 - 2026-07-25: HyperFrames check lint·runtime·layout·motion 0, WCAG AA 35/35, 320·360·390·768·800px overflow·outside·textOutside 0을 확인했다.
 - 2026-07-25: HTML validator 0, 깨진 이미지 0, 중복 ID·이미지 소스 0, Studio 편집·복원 동작을 확인하고 상용 타이트 루브릭 98/100·하드 실패 0개로 승인했다.
+- 2026-07-25: commercial-final v9에서 ImageGen 신규 소재 12장, 4종 사용 상황 이미지, 문제·통풍·마감 배경을 페이지에 통합했다.
+- 2026-07-25: 제품 위 흰 `ZOOM SPORTS` 오버레이를 제거하고 인쇄가 이미지 픽셀에 포함된 소스로 교체했다.
+- 2026-07-25: 공개 용어를 `윗면 / 아랫면`으로 통일하고 재질 비교 분할선을 좌우 끝까지 이동하도록 다시 렌더링했다.
+- 2026-07-25: 정적·동적 삽입 중복을 한 섹션으로 합쳐 17개 섹션으로 마감하고 FAQ 4개를 모두 펼쳤다.
+- 2026-07-25: HyperFrames strict 0, 대비 35/35, 320~800px overflow·outside·clipping 0, HTML validator 0, Studio 편집 텍스트 90개·이미지 17개를 확인했다.
 
 ## Answer
 
-노바페이스 `발편한 기능성깔창`의 실제품·사용자 승격 SSOT를 기준으로 상면·하면·에어셀·에어홀·블루쿠션을 잠그고, ImageGen 상용 소재와 HyperFrames GIF 8개를 결합한 수정 가능한 HTML을 완성했다.
+노바페이스 `발편한 기능성깔창`의 실제품·사용자 승격 SSOT를 기준으로 윗면·아랫면·에어셀·에어홀·블루쿠션을 잠그고, 신규 ImageGen 소재 12장과 HyperFrames GIF 8개를 결합한 수정 가능한 HTML을 완성했다.
 
 - 공개 페이지: `prototypes/domeggook-60851997/detail-page/index.html`
 - 편집 Studio: `prototypes/domeggook-60851997/detail-page/studio.html`
 - 구조화 카피: `prototypes/domeggook-60851997/detail-page/content.json`
-- 최종 MP4: `videos/domeggook-60851997-motion/renders/novaface-insole-commercial-master-v8.mp4`
-- 최종 QA: `prototypes/domeggook-60851997/qa/commercial-final-v8.md`
-- 판정: **98/100, 하드 실패 0개**
+- 최종 MP4: `videos/domeggook-60851997-motion/renders/novaface-insole-commercial-master-v9.mp4`
+- 최종 QA: `prototypes/domeggook-60851997/qa/commercial-final-v9.md`
+- 판정: **97.5/100, 하드 실패 0개**
 
 ## Comments
 
@@ -62,3 +67,6 @@
 - 2026-07-25: 구멍이 없는 블루쿠션에서 통풍 효과가 나오는 오류를 발견했다. 기존 통풍 소재를 폐기하고 앞꿈치·중족부 에어홀에서만 바람이 시작되는 ImageGen v4와 HyperFrames 경로로 교체한다.
 - 2026-07-25: 반복되던 정지 설명·정사각 GIF 구간을 통합해 23개 섹션을 18개로 축약하되 역할이 다른 GIF 8개는 유지한다.
 - 2026-07-25: 최종 사용자 피드백에 따라 후기처럼 읽히는 소구 메시지 3개를 추가하고, 말풍선 본체·꼬리를 같은 불투명 흰색으로 통일했다.
+- 2026-07-25: 제품 위 흰색 `ZOOM SPORTS` 오버레이를 실제 인쇄가 포함된 ImageGen 소재로 교체하고, 군화·작업화·운동화·일상화의 별도 장면 4개와 추가 배경을 포함한 신규 이미지 10장 이상을 제작하기 위해 다시 열었다.
+- 2026-07-25: 소재 비교 GIF는 중앙 왕복을 금지하고 윗면·아랫면을 좌우 끝까지 명확히 이동하며 비교하도록 수정한다. 삽입 장면은 중복 두 섹션을 하나로 합치고 FAQ는 전부 펼친다.
+- 2026-07-25: v9 QA에서 신규 12개 소재의 역할 분리, GIF 8개 실재생, 제품 인쇄 오버레이 0, 5개 폭 무결성을 확인하고 티켓을 해결 처리했다.

@@ -47,7 +47,7 @@
     {
       "id": "FACT-VISUAL-STRUCTURE",
       "field": "visual_structure",
-      "value": "회색 에어메시 상면, 흰색 PU 입체 에어셀 하면, 앞꿈치·중족부 에어홀, 뒤꿈치 블루쿠션"
+      "value": "회색 에어메시 윗면, 흰색 PU 입체 에어셀 아랫면, 앞꿈치·중족부 에어홀, 뒤꿈치 블루쿠션"
     },
     {
       "id": "FACT-CONTENTS",
@@ -92,9 +92,10 @@
     280
   ],
   "composition": {
-    "section_count": 18,
+    "section_count": 17,
     "gif_count": 8,
-    "editable_text_nodes": 95,
+    "imagegen_asset_count": 12,
+    "editable_text_nodes": 90,
     "html": "index.html",
     "studio": "studio.html",
     "styles": "styles.css",
