@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.2",
+  "source_project": "../../../videos/domeggook-60851997-motion",
+  "renderer": "HyperFrames 0.7.71",
+  "master": {
+    "file": "novaface-insole-commercial-master-v8.mp4",
+    "duration_seconds": 38.4,
+    "fps": 30,
+    "bytes": 14738428,
+    "sha256": "b39eff099154a48d3cc5fd9eb124d4ed92be136130839968d3cf05322e08bd98"
+  },
+  "gif_profile": {
+    "width": 800,
+    "height": 800,
+    "fps": 12,
+    "duration_seconds": 4.83,
+    "frames": 58,
+    "audio": false,
+    "loop": "infinite"
+  },
+  "qa": {
+    "checked_at": "2026-07-25",
+    "contact_sheet": "../../../../.scratch/novaface-gif-qa-v8/contact.png",
+    "method": "각 장면의 시작·중간·마지막 프레임을 8×3 접촉 시트로 비교",
+    "result": "PASS",
+    "first_frame_claim_visible": true,
+    "comparison_states_explicit": true,
+    "exact_product_print_present": [
+      "에어홀",
+      "블루쿠션",
+      "유연함"
+    ],
+    "blue_cushion_airflow_forbidden": true,
+    "airflow_origin": "forefoot_and_midfoot_air_holes_only",
+    "korean_orphan_wraps": 0,
+    "product_identity_failures": 0
+  },
+  "clips": [
+    {
+      "file": "top-bottom-reveal.gif",
+      "role": "상면 → 뒤집기 → 하면",
+      "bytes": 11046876,
+      "sha256": "c548e511722f4554a60917546582c3bc17d27f6c20400116b0040383457445c7",
+      "source_asset": "../commercial/top-pair-v2.png + ../commercial/hero-underside-pair-v2.png"
+    },
+    {
+      "file": "cell-scan.gif",
+      "role": "발이 닿기 전 → 블루쿠션이 닿을 때",
+      "bytes": 7349003,
+      "sha256": "4f8cb3b279dcf516e678ff88789292a817c94bf9fc6fd1d7079c67763a035f24",
+      "source_asset": "../commercial/cushion-impact-v4.png"
+    },
+    {
+      "file": "perforation-path.gif",
+      "role": "공기 유입 → 에어홀 통과",
+      "bytes": 5085405,
+      "sha256": "ff729ceee4bf982c850cde01cb3c88fe728e68d0344860262604407f14b35059",
+      "source_asset": "../commercial/ventilation-airflow-v4.png",
+      "hard_gate": "블루쿠션에서는 바람·빛줄기가 시작되지 않음"
+    },
+    {
+      "file": "flex-photo-sequence.gif",
+      "role": "발의 움직임을 따르는 PU 곡선",
+      "bytes": 8933368,
+      "sha256": "103185b30e86cb99f980e4cdbaafb34d3b63edecc8df4fcb40b32a89c87ef16f",
+      "source_asset": "../commercial/flex-hand-v4.png"
+    },
+    {
+      "file": "size-selector.gif",
+      "role": "발길이 255mm → 260 선택",
+      "bytes": 965659,
+      "sha256": "437779167165fe518eb0f7c6921d14653ccaa4a5d2e0c1f3368d3e22579e694d"
+    },
+    {
+      "file": "shoe-insertion-guide.gif",
+      "role": "기존 깔창 빼기 → 노바페이스 넣기",
+      "bytes": 6340837,
+      "sha256": "db45fa42f0c390beeba30da19919e6d89b056fd8ccb2797e3340eb3537ccdd86",
+      "source_asset": "../commercial/shoe-insertion-v4.png"
+    },
+    {
+      "file": "one-pair-contents.gif",
+      "role": "좌우 한 세트 구성",
+      "bytes": 9106908,
+      "sha256": "5f5a92f23f153993e81ea3377eb934ee5e295b8562e7d2bed6c8101226227094",
+      "source_asset": "../commercial/hero-underside-pair-v2.png"
+    },
+    {
+      "file": "material-cross-section.gif",
+      "role": "에어메시 상면 → 고탄성 PU 하면",
+      "bytes": 1913738,
+      "sha256": "2bbb92f3b9cb1aae337804294749ec71b9c3c32b137feff673809048c7c6247a",
+      "source_asset": "../commercial/top-pair-v2.png + ../commercial/hero-underside-pair-v2.png"
+    }
+  ]
+}

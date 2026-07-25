@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.0",
+  "artifact_type": "dmk_extractor_snapshot",
+  "product_id": "60851997",
+  "requested_url": "https://domeggook.com/60851997?from=lstGen",
+  "final_url": "https://domeggook.com/60851997?from=lstGen",
+  "captured_at": "2026-07-25T07:11:16.291773+00:00",
+  "browser_mode": "isolated_headless_browser_harness",
+  "gif_summary": {
+    "target_scope": "expanded_seller_product_detail_only",
+    "animated_gif_count": 0,
+    "numbered_frame_count": 0
+  },
+  "review_summary": {
+    "visible_review_count": 7,
+    "captured_review_count": 7,
+    "complete": true
+  },
+  "artifacts": [
+    {
+      "path": "detail/assets/detail-01.png",
+      "kind": "seller_detail_source_asset",
+      "size_bytes": 8757388,
+      "sha256": "30b218ed6aa6f00f0fc99812dd0241f3e7abfe4e55b465ba1cb122c805c1096b",
+      "width_px": 800,
+      "height_px": 15287
+    },
+    {
+      "path": "detail/detail-page.png",
+      "kind": "assembled_seller_detail_page",
+      "size_bytes": 8757388,
+      "sha256": "30b218ed6aa6f00f0fc99812dd0241f3e7abfe4e55b465ba1cb122c805c1096b",
+      "width_px": 800,
+      "height_px": 15287
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0001.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0002.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 148936,
+      "sha256": "c852fc66ee9c4de2d17fa49c824de97de8190d26d84687e2cfe23074f8da681a"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0003.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 183532,
+      "sha256": "05a9adc595e945eb14ec64620c786a53513d0e3bb9c9ad749b304ef706b5909c"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0004.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 158230,
+      "sha256": "8523940c98acc6ea284d2f049bf0de1dec7978d55636f887c37384a55675d033"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0005.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0006.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0007.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0008.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0009.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 28096,
+      "sha256": "404369261df93b5130608bc568ef3cf5346357f1d4d5ccb1cf16032b53c9a9d1"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0010.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 32671,
+      "sha256": "397b8cf9eefe3c7d0c25ed07aa912c35601fd35b9e5ecd27044b775e8c7ec90e"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0011.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 98349,
+      "sha256": "a5560a1822c9b5081c593915393cca13be615f586a0341b23c2b953905462ba7"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/0012.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 111905,
+      "sha256": "b54dd8df1e421aee9a3d7f4a2478252511a256716271c0b31a8f1144bdc04da9"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/events.jsonl",
+      "kind": "browser_harness_recording",
+      "size_bytes": 3471,
+      "sha256": "026e91a7e55351b55ab7d609670ee6122e7d8c705a930cf69240b4d8304bb7e3"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-60851997-extract/meta.json",
+      "kind": "browser_harness_recording",
+      "size_bytes": 185,
+      "sha256": "fec16d4f7dbde4aeee100c1aaf77438f25d42538d004a0aef2827ea9086e00f2"
+    },
+    {
+      "path": "page.json",
+      "kind": "structured_product_page",
+      "size_bytes": 3145,
+      "sha256": "75a24a92bac03149fdd46abfcb8f2aee7cc011bca7e5615f66f64e05050fd5f4"
+    },
+    {
+      "path": "reviews/reviews.json",
+      "kind": "sanitized_public_reviews",
+      "size_bytes": 1920,
+      "sha256": "e94cb677a30ec5b35dc662c185f90654df53053d0570f5ac517f77e6a304f2ff"
+    },
+    {
+      "path": "thumbnail/thumbnail.png",
+      "kind": "product_thumbnail",
+      "size_bytes": 377321,
+      "sha256": "035ec5da3d30f7bdc73521493e13bf002507f60b2a5936f0cdc97a99f859f935",
+      "width_px": 600,
+      "height_px": 600
+    }
+  ]
+}

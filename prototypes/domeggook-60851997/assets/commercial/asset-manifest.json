@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "product_id": "domeggook-60851997",
+  "updated_at": "2026-07-25",
+  "reference_ssot": [
+    "../product-ssot/source/real-product-raw/Flux2-Klein_00355_.png",
+    "../product-ssot/source/real-product-raw/normalized-ref/",
+    "../product-ssot/cutout/"
+  ],
+  "accepted": [
+    {
+      "file": "hero-underside-pair-v2.png",
+      "role": "hero and underside overview",
+      "identity_checks": ["air_cell", "air_hole", "blue_cushion", "pair"]
+    },
+    {
+      "file": "top-pair-v2.png",
+      "role": "top surface overview",
+      "identity_checks": ["gray_air_mesh", "gray_heel_patch", "no_blue_cushion_on_top"]
+    },
+    {
+      "file": "ventilation-airflow-v4.png",
+      "role": "airflow effect",
+      "identity_checks": ["airflow_originates_only_from_air_holes", "air_cell", "solid_blue_cushion"]
+    },
+    {
+      "file": "heel-macro-v2.png",
+      "role": "heel component macro",
+      "identity_checks": ["blue_cushion_position", "air_cell_border"]
+    },
+    {
+      "file": "flex-hand-v4.png",
+      "role": "flexibility scene",
+      "identity_checks": ["bottom_surface", "blue_cushion_position", "air_cell_border"]
+    },
+    {
+      "file": "shoe-insertion-v4.png",
+      "role": "shoe insertion scene",
+      "identity_checks": ["top_surface", "gray_heel_patch", "no_blue_cushion_on_top"]
+    },
+    {
+      "file": "cushion-impact-v4.png",
+      "role": "blue cushion impact scene",
+      "identity_checks": ["blue_cushion_position", "ZOOM SPORTS", "air_cell", "air_hole"]
+    }
+  ],
+  "deprecated": [
+    {
+      "file": "flex-hand-v2.png",
+      "reason": "blue cushion position did not match SSOT"
+    },
+    {
+      "file": "shoe-insertion-v2.png",
+      "reason": "blue cushion appeared on top surface"
+    },
+    {
+      "file": "cushion-impact-v2.png",
+      "reason": "ZOOM SPORTS print was missing or structurally weak"
+    },
+    {
+      "file": "ventilation-airflow-v2.png",
+      "reason": "airflow appeared to originate from the solid blue cushion"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "generator": "OpenAI ImageGen via imagegen skill",
+  "created_at": "2026-07-25",
+  "identity_policy": "모든 생성 자산은 제품이 없는 배경·장식·사용 맥락이다. 실제품 누끼를 별도 레이어로 합성하며 상품 형상이나 성능 근거로 사용하지 않는다.",
+  "assets": [
+    {
+      "file": "hero-locker-bg.png",
+      "role": "hero_background",
+      "product_present": false,
+      "motion_use": "hero-orbit"
+    },
+    {
+      "file": "shoe-insertion-bg.png",
+      "role": "shoe_insertion_context",
+      "product_present": false,
+      "motion_use": "shoe-insertion-guide"
+    },
+    {
+      "file": "airflow-cell-bg.png",
+      "role": "decorative_cell_airflow",
+      "product_present": false,
+      "motion_use": "perforation-path"
+    },
+    {
+      "file": "work-context-bg.png",
+      "role": "work_lifestyle_context",
+      "product_present": false,
+      "motion_use": "daily-context"
+    },
+    {
+      "file": "cobalt-halo-bg.png",
+      "role": "decorative_product_stage",
+      "product_present": false,
+      "motion_use": "one-pair-contents"
+    },
+    {
+      "file": "material-macro-bg.png",
+      "role": "decorative_material_macro",
+      "product_present": false,
+      "motion_use": "material-cross-section"
+    }
+  ]
+}

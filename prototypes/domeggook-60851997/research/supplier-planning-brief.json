@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "product": "기능성 충격 완화 아치깔창",
+  "main_story": "얇거나 구조가 보이지 않는 일반 깔창과 달리, 실제 촬영에서 확인되는 에어메시 상면과 입체 셀·타공 PU 하면을 먼저 보여준다. 이어서 여섯 호수 선택 규칙과 신발 내부 공간 체크를 제공해 과장보다 판단 가능한 정보를 남긴다.",
+  "target": "운동화·작업화·군화용 교체 깔창을 찾지만 두께와 호수 선택이 걱정되는 성인 구매자",
+  "design_read": {
+    "language": "clean athletic / cold luxury / evidence-led",
+    "palette": ["#F7FAFD", "#111826", "#176BFF", "#BFD9FF"],
+    "typography": "Pretendard 우선, 큰 한국어 헤드라인과 짧은 근거 문장",
+    "motion": "실제품 구조 전환, 타공 하이라이트, 사이즈 선택, 삽입 순서를 각각 독립 GIF로 설명",
+    "variability": 6,
+    "motion_intensity": 7,
+    "visual_density": 6
+  },
+  "story_order": [
+    "실제품 중심 히어로",
+    "구매 전 불편 말풍선",
+    "실제품 상·하면 증거",
+    "이중 재질 구조",
+    "입체 셀·타공",
+    "실제품 굽힘 장면",
+    "파란 뒤꿈치 부품",
+    "230–280 사이즈 선택",
+    "신발 내부 공간 체크",
+    "실사용 삽입 가이드",
+    "실제품 갤러리",
+    "공급처 후기의 제한된 목소리",
+    "상품 정보와 미확인 항목",
+    "구매 전 최종 확인"
+  ],
+  "required_motion": [
+    "top-bottom-reveal",
+    "cell-scan",
+    "perforation-path",
+    "flex-photo-sequence",
+    "size-selector",
+    "shoe-insertion-guide",
+    "one-pair-contents"
+  ],
+  "required_imagegen": [
+    "hero locker-room background without product",
+    "open sneaker insertion background without insole",
+    "cool airflow abstract texture",
+    "standing-work context without product claims",
+    "cobalt halo decorative asset",
+    "minimal product-facts background"
+  ]
+}

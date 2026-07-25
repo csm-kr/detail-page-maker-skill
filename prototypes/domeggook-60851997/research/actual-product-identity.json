@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.1",
+  "product_id": "domeggook-60851997",
+  "updated_at": "2026-07-25",
+  "ssot_priority": [
+    "사용자가 직접 수정하고 SSOT로 승격한 제품 참조 이미지",
+    "사용자가 제공한 실제품 다각도 촬영본",
+    "도매꾹 공급처 원본",
+    "동일성 검수를 통과한 ImageGen 상용 파생 소재"
+  ],
+  "source_directory": "../assets/product-ssot/source/real-product-raw",
+  "user_promoted_ssot": [
+    {
+      "file": "Flux2-Klein_00355_.png",
+      "status": "authoritative_supporting_reference",
+      "role": [
+        "측면 두께",
+        "굽힘 곡선",
+        "에어셀과 블루쿠션의 상대 위치"
+      ],
+      "provenance": "사용자가 수정한 뒤 2026-07-25에 SSOT로 명시",
+      "restriction": "원본을 소비자 페이지에 그대로 노출하지 않고 제품 구조 검수와 ImageGen 참조에 사용"
+    }
+  ],
+  "verified_photographs": {
+    "pattern": "photo-2026-07-*.jpg",
+    "count": 13,
+    "format_note": "확장자는 JPG지만 일부 파일 내부에 MPO 정보가 있어 EXIF 방향을 적용한 PNG 참조본을 ImageGen 입력에 사용한다.",
+    "observed_identity": [
+      "회색 직물 에어메시 상면",
+      "흰색 입체 에어셀 PU 하면",
+      "하면 뒤꿈치 중앙의 블루쿠션",
+      "블루쿠션의 ZOOM SPORTS 표기",
+      "앞꿈치와 중족부의 원형 에어홀",
+      "좌우 한 켤레"
+    ]
+  },
+  "normalized_imagegen_references": [
+    "normalized-ref/photo-2026-07-19-ed61f162-ref.png",
+    "normalized-ref/photo-2026-07-19-0cc7d6e7-ref.png",
+    "normalized-ref/photo-2026-07-19-778b4289-ref.png",
+    "normalized-ref/photo-2026-07-19-836c264b-ref.png",
+    "normalized-ref/photo-2026-07-19-9774f18f-ref.png",
+    "Flux2-Klein_00355_.png"
+  ],
+  "authoritative_cutouts": [
+    {
+      "file": "../assets/product-ssot/cutout/actual-bottom-pair-v1.png",
+      "method": "실제품 촬영 픽셀을 보존한 전경 분리",
+      "status": "internal_identity_reference"
+    },
+    {
+      "file": "../assets/product-ssot/cutout/actual-top-pair-v1.png",
+      "method": "실제품 촬영 픽셀을 보존한 전경 분리",
+      "status": "internal_identity_reference"
+    }
+  ],
+  "surface_map": {
+    "top": [
+      "회색 에어메시",
+      "회색 뒤꿈치 접촉 패치",
+      "블루쿠션 노출 금지"
+    ],
+    "bottom": [
+      "흰색 PU 입체 에어셀",
+      "앞꿈치·중족부 에어홀",
+      "하면 뒤꿈치 중앙 블루쿠션",
+      "블루쿠션 위 ZOOM SPORTS 표기"
+    ]
+  },
+  "naming_registry": {
+    "air_cell": "에어셀",
+    "air_hole": "에어홀",
+    "blue_heel_component": "블루쿠션",
+    "visible_product_print": "ZOOM SPORTS"
+  },
+  "imagegen_policy": {
+    "allowed": [
+      "실제품 참조를 조건으로 한 상용 제품 장면",
+      "제품 없는 배경과 공기 흐름·빛·파동 같은 장식 효과",
+      "동일성 검수를 통과한 사용 맥락 장면",
+      "제품의 상면·하면 구조를 보존한 GIF용 키비주얼"
+    ],
+    "required_gates": [
+      "상면과 하면의 부품이 섞이지 않는다",
+      "블루쿠션 위치와 크기가 SSOT 범위 안에 있다",
+      "ZOOM SPORTS 표기가 사라지거나 다른 문자로 바뀌지 않는다",
+      "에어홀과 에어셀을 서로 다른 기능명으로 유지한다",
+      "첫·중간·마지막 프레임에서 동일 제품으로 보인다"
+    ],
+    "not_allowed": [
+      "제품 형상·색상·부품 결합을 다른 SKU처럼 변경",
+      "검증되지 않은 시험 수치나 의료 효능을 시각적 증명처럼 제시",
+      "원본 촬영 상태나 내부 제작 메타데이터를 소비자 카피로 노출"
+    ]
+  }
+}

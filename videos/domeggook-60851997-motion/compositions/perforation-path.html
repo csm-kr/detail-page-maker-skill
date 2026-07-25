@@ -1,0 +1,66 @@
+<template>
+  <style>
+    @font-face { font-family: "Malgun Gothic"; src: local("Malgun Gothic"); font-weight: 100 900; }
+    * { box-sizing: border-box; }
+    #pp-root { position: relative; width: 800px; height: 800px; overflow: hidden; background: #071936; color: #fff; font-family: "Malgun Gothic", sans-serif; }
+    .pp-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .pp-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3,12,37,.15), rgba(3,12,37,.03) 48%, rgba(3,12,37,.9)); }
+    .pp-flow { position: absolute; z-index: 5; top: 34px; right: 34px; display: flex; align-items: center; gap: 9px; padding: 9px; border-radius: 17px; background: rgba(4,18,48,.75); backdrop-filter: blur(10px); }
+    .pp-flow span { padding: 10px 13px; border-radius: 11px; color: #c6ddf6; font-size: 14px; font-weight: 950; }
+    .pp-flow span:first-child { background: #fff; color: #10203a; }
+    .pp-flow b { color: #7dd7ff; font-size: 18px; }
+    .pp-copy { position: absolute; z-index: 4; left: 44px; right: 44px; bottom: 42px; }
+    .pp-copy p { margin: 0 0 10px; color: #86d4ff; font-size: 17px; font-weight: 950; letter-spacing: .08em; }
+    .pp-copy h1 { margin: 0; font-size: 48px; line-height: 1.08; letter-spacing: -.06em; font-weight: 950; text-shadow: 0 3px 20px rgba(0,0,0,.4); }
+    .pp-copy h1 span { display: block; }
+    .pp-stream { position: absolute; z-index: 3; left: 250px; top: 250px; width: 360px; height: 360px; overflow: visible; }
+    .pp-stream path { fill: none; stroke: #8eeaff; stroke-width: 7; stroke-linecap: round; filter: drop-shadow(0 0 10px #23a9ff); }
+    .pp-dots { position: absolute; z-index: 3; inset: 0; }
+    .pp-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #bdf5ff; box-shadow: 0 0 14px #48c7ff; }
+    .pp-dot:nth-child(1) { left: 430px; top: 360px; }
+    .pp-dot:nth-child(2) { left: 500px; top: 400px; }
+    .pp-dot:nth-child(3) { left: 390px; top: 465px; }
+    .pp-dot:nth-child(4) { left: 535px; top: 500px; }
+    .pp-dot:nth-child(5) { left: 455px; top: 555px; }
+    .pp-print { position: absolute; z-index: 4; left: 78.5%; top: 14.5%; transform: translate(-50%,-50%) rotate(78deg); color: #eef5ff; font-family: Inter,sans-serif; font-weight: 950; line-height: 1; letter-spacing: -.055em; text-align: center; text-shadow: 0 1px 2px rgba(2,22,58,.5); }
+    .pp-print b { display: block; font-size: 16px; line-height: 1; }
+    .pp-print small { display: block; margin-top: 4px; font-size: 8px; line-height: 1; letter-spacing: .06em; }
+  </style>
+  <div id="pp-root" data-composition-id="actual-perforation-path" data-start="0" data-duration="4.8" data-width="800" data-height="800">
+    <img class="pp-media" src="assets/ventilation-airflow-v4.png" alt="" data-layout-allow-overflow />
+    <div class="pp-shade"></div>
+    <div class="pp-print" aria-hidden="true" data-layout-allow-overlap data-layout-allow-occlusion><b>ZOOM</b><small>SPORTS</small></div>
+    <div class="pp-flow"><span id="pp-in">공기 유입</span><b>→</b><span id="pp-out">에어홀 통과</span></div>
+    <svg class="pp-stream" viewBox="0 0 360 420" aria-hidden="true">
+      <path id="pp-path-a" d="M55 330 C30 250, 80 205, 55 130 S25 55, 20 25" />
+      <path id="pp-path-b" d="M210 350 C195 270, 245 235, 210 165 S160 95, 150 48" />
+    </svg>
+    <div class="pp-dots"><i class="pp-dot"></i><i class="pp-dot"></i><i class="pp-dot"></i><i class="pp-dot"></i><i class="pp-dot"></i></div>
+    <div class="pp-copy">
+      <p>에어메시 + 촘촘한 에어홀</p>
+      <h1><span>신발 안 공기 흐름까지</span><span>생각한 통풍 구조</span></h1>
+    </div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const paths = ["#pp-path-a", "#pp-path-b"];
+    paths.forEach((selector) => {
+      const path = document.querySelector(selector);
+      const length = path.getTotalLength();
+      path.style.strokeDasharray = `${length}`;
+      path.style.strokeDashoffset = `${length}`;
+    });
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo(".pp-media", { scale: 1.08 }, { scale: 1, duration: 1.2, ease: "power3.out" }, 0)
+      .fromTo(".pp-copy", { y: 16 }, { y: 0, duration: .52, ease: "power3.out" }, .18)
+      .to("#pp-path-a", { strokeDashoffset: 0, duration: 1.2, ease: "power2.inOut" }, .72)
+      .to("#pp-path-b", { strokeDashoffset: 0, duration: 1.2, ease: "power2.inOut" }, 1.02)
+      .to("#pp-in", { backgroundColor: "rgba(255,255,255,0)", color: "#c6ddf6", duration: .2 }, 1.58)
+      .to("#pp-out", { backgroundColor: "#176bff", color: "#ffffff", duration: .28 }, 1.72)
+      .fromTo(".pp-dot", { opacity: 0, scale: .4, y: 18 }, { opacity: 1, scale: 1, y: -14, duration: .72, stagger: .12, ease: "power2.out" }, 1.48)
+      .to(".pp-dot", { y: -60, opacity: 0, duration: 1, stagger: .1, ease: "power2.in" }, 2.45)
+      .to(".pp-media", { scale: 1.025, duration: 1.1, ease: "sine.inOut" }, 3.45);
+    window.__timelines["actual-perforation-path"] = tl;
+    tl.seek(0);
+  </script>
+</template>

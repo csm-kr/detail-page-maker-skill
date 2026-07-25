@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "project": "domeggook-60851997",
+  "brand": "노바페이스",
+  "product_name": "발편한 기능성깔창",
+  "source_url": "https://domeggook.com/60851997?from=lstGen",
+  "tone": [
+    "화려한 커머셜",
+    "짧고 자연스러운 한국어",
+    "제품 장점 중심",
+    "제작 과정이나 내부 제약을 구매자에게 노출하지 않음"
+  ],
+  "terminology": {
+    "surface": "에어메시",
+    "body": "고탄성 PU",
+    "raised_structure": "에어셀",
+    "ventilation_opening": "에어홀",
+    "heel_part": "블루쿠션",
+    "product_print": "ZOOM SPORTS"
+  },
+  "facts": [
+    {
+      "id": "FACT-MATERIAL",
+      "field": "material",
+      "value": "고탄성 PU(폴리우레탄) + 에어메시천"
+    },
+    {
+      "id": "FACT-SIZES",
+      "field": "sizes_mm",
+      "value": [230, 240, 250, 260, 270, 280]
+    },
+    {
+      "id": "FACT-SIZE-RULE",
+      "field": "size_rule",
+      "value": "5mm 단위 발길이는 한 단계 위 사이즈 선택"
+    },
+    {
+      "id": "FACT-ORIGIN",
+      "field": "origin",
+      "value": "중국 OEM"
+    },
+    {
+      "id": "FACT-SUPPLIER-TITLE",
+      "field": "supplier_title",
+      "value": "군화·운동화용 기능성 깔창"
+    },
+    {
+      "id": "FACT-VISUAL-STRUCTURE",
+      "field": "visual_structure",
+      "value": "회색 에어메시 상면, 흰색 PU 입체 에어셀 하면, 앞꿈치·중족부 에어홀, 뒤꿈치 블루쿠션"
+    },
+    {
+      "id": "FACT-CONTENTS",
+      "field": "contents",
+      "value": "좌우 한 켤레"
+    }
+  ],
+  "claims": [
+    {
+      "id": "CLAIM-CUSHION",
+      "copy": "입체 에어셀과 블루쿠션이 발 아래를 포근하게 받쳐줍니다.",
+      "evidence": "supplier-and-ssot"
+    },
+    {
+      "id": "CLAIM-AIRFLOW",
+      "copy": "에어메시와 다수의 에어홀로 신발 속 공기 흐름을 고려했습니다.",
+      "evidence": "supplier-and-ssot",
+      "hard_gate": "통풍 이펙트는 에어홀에서만 시작하며 블루쿠션에서 시작하지 않음"
+    },
+    {
+      "id": "CLAIM-FLEX",
+      "copy": "고탄성 PU가 발의 움직임을 따라 유연하게 휘어집니다.",
+      "evidence": "supplier-and-ssot"
+    }
+  ],
+  "problem_questions": [
+    "오래 신으면 발바닥이 쉽게 피곤하지 않을까?",
+    "신발 속이 답답하고 습해지지 않을까?",
+    "내 발길이에는 어떤 사이즈가 맞을까?"
+  ],
+  "appeal_messages": [
+    "오래 서 있는 날에도 발바닥을 포근하게 받쳐줘요.",
+    "에어홀로 신발 속 답답함을 덜어줘요.",
+    "발길이에 맞춰 고르니 사이즈 선택이 쉬워요."
+  ],
+  "sizes_mm": [
+    230,
+    240,
+    250,
+    260,
+    270,
+    280
+  ],
+  "composition": {
+    "section_count": 18,
+    "gif_count": 8,
+    "editable_text_nodes": 95,
+    "html": "index.html",
+    "studio": "studio.html",
+    "styles": "styles.css",
+    "script": "app.js"
+  },
+  "motion": [
+    "top-bottom-reveal.gif",
+    "material-cross-section.gif",
+    "perforation-path.gif",
+    "cell-scan.gif",
+    "flex-photo-sequence.gif",
+    "size-selector.gif",
+    "shoe-insertion-guide.gif",
+    "one-pair-contents.gif"
+  ]
+}

@@ -11,8 +11,12 @@ description: 공급처 상품 URL에서 원본 사진·치수·재질·구조·�
 
 1. [`commetial-detail-page.md`](commetial-detail-page.md)를 전부 읽어 상업 상세페이지 규약과 QA 기준을 고정한다.
 2. [`study-desing-skill.md`](study-desing-skill.md)를 전부 읽어 검증된 디자인 규칙과 최근 실험 결과를 반영한다.
-3. 상품 사실·런타임 계약이 필요하면 [`plan.md`](plan.md)와 [`docs/contracts/domeggook-supplier-extraction.md`](docs/contracts/domeggook-supplier-extraction.md)에서 관련 절만 읽는다.
-4. 두 메모가 없으면 공급처 추출과 증거 보존까지만 진행하고, 사실 없는 디자인 규칙을 임의로 만들지 않는다.
+3. 실제품 사진이나 ImageGen 제품 장면이 있으면 [`references/product-identity-imagegen.md`](references/product-identity-imagegen.md)를 전부 읽는다.
+4. GIF·전후 비교·사용 동작이 있으면 [`references/hyperframes-gif-qa.md`](references/hyperframes-gif-qa.md)를 전부 읽는다.
+5. 한글 카피·말풍선·사진 위 제목이 있으면 [`references/korean-copy-typography.md`](references/korean-copy-typography.md)를 전부 읽는다.
+6. Behance 학습 또는 상용 구성 판단이 필요하면 최신 [`references/behance-commercial-analysis-20260725.md`](references/behance-commercial-analysis-20260725.md)와 [`references/user-feedback-quality-gates.md`](references/user-feedback-quality-gates.md)를 전부 읽는다.
+7. 상품 사실·런타임 계약이 필요하면 [`plan.md`](plan.md)와 [`docs/contracts/domeggook-supplier-extraction.md`](docs/contracts/domeggook-supplier-extraction.md)에서 관련 절만 읽는다.
+8. 필수 메모가 없으면 공급처 추출과 증거 보존까지만 진행하고, 사실 없는 디자인 규칙을 임의로 만들지 않는다.
 
 ## 제작 순서
 
@@ -42,6 +46,8 @@ description: 공급처 상품 URL에서 원본 사진·치수·재질·구조·�
 - 동종 후기는 현재 SKU의 치수·성능·만족도 증거가 아니다. 소비자 언어, 문제 제기, 기획 질문과 카테고리 사용 주의에만 쓴다.
 - 불편마다 현재 제품의 어떤 fact ID·구조가 연결되는지 판정한다. 현재 제품이 실제로 해결하지 못하는 불편은 해결 소구로 사용하지 않는다.
 - 실제 후기가 부족하면 `SYNTHETIC_PAIN`으로 “이런 불편은 없었나요?” 수준의 기획 질문만 만들고 실제 구매자 발화처럼 꾸미지 않는다.
+- 실제 후기 표본이 없지만 후기처럼 읽히는 소구 메시지가 필요하면, 승인 fact와 직접 연결된 1인칭 편익 문장을 핵심 소구별로 만든다. 별점·실명·구매 인증·후기 출처를 붙이지 않고 `사용 장면으로 보는 선택 이유`처럼 성격을 명시한다.
+- 소구 메시지는 보통 3개 이상 두고 `상황 → 제품 구조 → 기대 편익`이 한 문장 안에서 읽히게 한다. 같은 장점을 어휘만 바꿔 반복하지 않는다.
 - `market-voice-evidence.json` 또는 동등한 파일에 출처, 허용 카피, 금지 확장을 기록한다.
 
 ### 4. 구매 서사와 디자인 방향 잠금
@@ -100,6 +106,17 @@ description: 공급처 상품 URL에서 원본 사진·치수·재질·구조·�
 - 점수·가독성·근거 인접성·반응형 중 하나가 명확히 개선된 규칙만 `채택`으로 승격한다.
 - 취향 차이, 한 작품의 고유 장식, 접근성·성능을 악화한 규칙은 영구 메모리에 넣지 않는다.
 - 각 기록에 날짜, 출처 URL, 적용 위치, 관찰 결과와 되돌림 조건을 남긴다.
+
+## 실제품 참조 상용화 게이트
+
+상세 규칙은 [`references/product-identity-imagegen.md`](references/product-identity-imagegen.md), [`references/hyperframes-gif-qa.md`](references/hyperframes-gif-qa.md), [`references/korean-copy-typography.md`](references/korean-copy-typography.md)에 분리한다. 메인 스킬에서는 다음 하드 게이트만 유지한다.
+
+1. 실제 촬영본과 사용자 승격 자산을 제품 정체성 SSOT로 기록한다.
+2. 상면·하면 surface map, 위치형 부품, 고유 인쇄를 모든 ImageGen·GIF에서 보존한다.
+3. 시각 효과의 시작점은 실제 기능 구조와 일치해야 한다. 구멍이 없는 부품에서 통풍 효과가 나오면 실패다.
+4. 비교 GIF는 전·후 상태와 실제 변화를 함께 보여준다. 움직이는 선만으로 비교를 대신하지 않는다.
+5. 구매자 화면에서 제작 메타·가짜 후기·근거 없는 효능 표현을 제거한다. 후기형 소구 메시지는 fact에 연결하고 가짜 출처를 붙이지 않는다.
+6. 배포 후보는 제품 동일성 하드 실패 0, HyperFrames 오류·경고 0, 모바일 overflow 0, 상용 QA 97점 이상을 동시에 충족한다.
 
 ## 완료 산출물
 
