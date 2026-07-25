@@ -1,0 +1,85 @@
+<template>
+  <style>
+    @font-face { font-family: "Noto Sans KR"; src: local("Noto Sans KR"); font-weight: 100 900; }
+    @font-face { font-family: "Malgun Gothic"; src: local("Malgun Gothic"); font-weight: 100 900; }
+    * { box-sizing: border-box; }
+    #care-root { position: relative; width: 800px; height: 800px; overflow: hidden; color: #f6fcff; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; }
+    .care-fill { position: absolute; inset: 0; background: radial-gradient(circle at 76% 16%, rgba(69,203,203,.24), transparent 28%), linear-gradient(145deg, #061f35, #07394d); }
+    .care-head { position: absolute; left: 52px; top: 48px; width: 696px; }
+    .care-kicker { margin: 0 0 10px; color: #83f3ea; font-size: 16px; font-weight: 900; letter-spacing: .12em; }
+    .care-title { margin: 0; max-width: 660px; font-size: 46px; font-weight: 950; letter-spacing: -.055em; line-height: 1.12; }
+    .care-cards { position: absolute; left: 52px; right: 52px; top: 210px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .care-card { position: relative; min-height: 360px; padding: 24px 20px; overflow: hidden; border: 1px solid rgba(255,255,255,.15); border-radius: 28px; background: rgba(255,255,255,.09); }
+    .care-card::after { position: absolute; width: 100px; height: 100px; right: -30px; bottom: -30px; border-radius: 50%; background: rgba(131,243,234,.1); content: ""; }
+    .care-index { color: #83f3ea; font-size: 14px; font-weight: 900; letter-spacing: .09em; }
+    .care-icon { display: block; width: 108px; height: 108px; margin: 28px auto 22px; }
+    .care-card strong { display: block; text-align: center; font-size: 22px; font-weight: 950; letter-spacing: -.04em; line-height: 1.25; }
+    .care-card p { margin: 12px 0 0; color: #b9ccd4; text-align: center; font-size: 14px; font-weight: 750; line-height: 1.52; }
+    .care-bar { position: absolute; left: 52px; right: 52px; bottom: 54px; min-height: 106px; display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 20px 24px; border-radius: 24px; background: #c9f75f; color: #092a3f; }
+    .care-bar strong { font-size: 23px; font-weight: 950; letter-spacing: -.04em; }
+    .care-bar span { max-width: 300px; text-align: right; font-size: 14px; font-weight: 850; line-height: 1.45; }
+    .care-check, .care-stop { transform-origin: center center; }
+  </style>
+  <div id="care-root" data-composition-id="cool-patch-care-motion" data-start="0" data-duration="5.2" data-width="800" data-height="800">
+    <div class="care-fill" aria-hidden="true"></div>
+    <section id="care-scene" class="clip" data-start="0" data-duration="5.2" data-track-index="1">
+      <header class="care-head">
+        <p class="care-kicker">USE WITH CARE</p>
+        <h1 class="care-title">붙이기 전과 사용하는 동안,<br>피부 상태를 확인하세요</h1>
+      </header>
+      <div class="care-cards">
+        <article id="care-card-1" class="care-card">
+          <span class="care-index">01 · PREP</span>
+          <svg class="care-icon" viewBox="0 0 110 110" aria-label="깨끗하고 마른 피부">
+            <circle cx="55" cy="55" r="50" fill="#0c5265"/>
+            <path d="M31 68c11-4 14-15 19-27 3-8 11-12 19-8 8 4 10 13 6 21-6 14-13 26-29 29-8 2-17-6-15-15Z" fill="#ddb08d"/>
+            <path class="care-check" d="m34 58 12 12 29-31" fill="none" stroke="#c9f75f" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <strong>물기·땀 닦기</strong>
+          <p>깨끗하고 마른 피부에<br>부착하세요.</p>
+        </article>
+        <article id="care-card-2" class="care-card">
+          <span class="care-index">02 · TIME</span>
+          <svg class="care-icon" viewBox="0 0 110 110" aria-label="같은 부위 장시간 사용 금지">
+            <circle cx="55" cy="55" r="50" fill="#0c5265"/>
+            <circle cx="55" cy="55" r="28" fill="none" stroke="#f6fcff" stroke-width="6"/>
+            <path d="M55 38v20l14 8" fill="none" stroke="#f6fcff" stroke-width="6" stroke-linecap="round"/>
+            <path class="care-stop" d="M23 87 87 23" stroke="#ff7782" stroke-width="8" stroke-linecap="round"/>
+          </svg>
+          <strong>같은 부위<br>장시간 사용 금지</strong>
+          <p>한 부위에 오래 붙이지<br>마세요.</p>
+        </article>
+        <article id="care-card-3" class="care-card">
+          <span class="care-index">03 · STOP</span>
+          <svg class="care-icon" viewBox="0 0 110 110" aria-label="이상 시 사용 중단">
+            <circle cx="55" cy="55" r="50" fill="#0c5265"/>
+            <path d="M55 24 91 86H19Z" fill="#ffcc67"/>
+            <path d="M55 44v21M55 77v2" stroke="#092a3f" stroke-width="7" stroke-linecap="round"/>
+          </svg>
+          <strong>이상이 있으면<br>바로 중단</strong>
+          <p>가려움·발진·발적이 있으면<br>사용을 멈추세요.</p>
+        </article>
+      </div>
+      <div id="care-bar" class="care-bar">
+        <strong>상처·습진 부위에는 사용하지 마세요</strong>
+        <span>본 제품은 의약품이 아닙니다.</span>
+      </div>
+    </section>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    tl.from(".care-head > *", { opacity: 0, y: 22, duration: .48, stagger: .1, ease: "power3.out" }, .12);
+    tl.from(".care-card", { opacity: 0, y: 38, scale: .94, duration: .54, stagger: .18, ease: "back.out(1.45)" }, .58);
+    tl.from(".care-check", { opacity: 0, scale: .4, duration: .42, ease: "back.out(2)" }, 1.48);
+    tl.to(".care-stop", { rotation: 8, duration: .28, yoyo: true, repeat: 1, ease: "power2.inOut" }, 1.85);
+    tl.to("#care-card-3 svg", { scale: 1.08, duration: .32, yoyo: true, repeat: 1, transformOrigin: "center center", ease: "power2.inOut" }, 2.22);
+    tl.from("#care-bar", { opacity: 0, y: 28, duration: .52, ease: "power3.out" }, 2.58);
+    tl.to("#care-card-1", { backgroundColor: "rgba(131,243,234,.16)", duration: .4, ease: "power2.out" }, 3.25);
+    tl.to("#care-card-2", { backgroundColor: "rgba(255,119,130,.14)", duration: .4, ease: "power2.out" }, 3.64);
+    tl.to("#care-card-3", { backgroundColor: "rgba(255,204,103,.15)", duration: .4, ease: "power2.out" }, 4.03);
+    tl.to("#care-bar strong", { scale: 1.025, duration: .32, yoyo: true, repeat: 1, transformOrigin: "left center", ease: "power2.inOut" }, 4.42);
+    window.__timelines["cool-patch-care-motion"] = tl;
+    tl.seek(0);
+  </script>
+</template>

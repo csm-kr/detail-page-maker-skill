@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "product_id": "23824901",
+  "primary_appeal": {
+    "copy": "더운 순간, 손에 들지 말고 붙이세요.",
+    "evidence": ["FACT-009", "FACT-010"],
+    "boundary": "product form only; no adhesion or cooling-performance guarantee"
+  },
+  "published_claims": [
+    {
+      "copy": "약 5×12cm",
+      "evidence": ["FACT-005"],
+      "placement": ["hero", "dimension motion", "spec table", "final summary"]
+    },
+    {
+      "copy": "1팩 2매입",
+      "evidence": ["FACT-003"],
+      "placement": ["hero", "dimension motion", "material facts", "spec table"]
+    },
+    {
+      "copy": "하이드로겔, PE",
+      "evidence": ["FACT-004"],
+      "placement": ["hero", "material facts", "spec table"]
+    },
+    {
+      "copy": "냉장 1–2시간, 냉동 금지",
+      "evidence": ["FACT-011", "FACT-012"],
+      "placement": ["preparation section", "preparation motion"]
+    },
+    {
+      "copy": "개봉, 투명 필름 제거, 깨끗하고 마른 피부에 부착",
+      "evidence": ["FACT-009"],
+      "placement": ["product form", "mechanism motion"]
+    },
+    {
+      "copy": "만 3세 이상",
+      "evidence": ["FACT-006"],
+      "placement": ["hero", "care", "spec table", "final summary"]
+    },
+    {
+      "copy": "같은 부위 장시간 사용 금지, 피부 이상 시 사용 중단",
+      "evidence": ["FACT-014"],
+      "placement": ["care motion", "care cards", "spec table"]
+    },
+    {
+      "copy": "의약품이 아닙니다",
+      "evidence": ["FACT-013"],
+      "placement": ["care section"]
+    }
+  ],
+  "market_pain_copy": {
+    "status": "MARKET_PAIN_NOT_CURRENT_SKU_FACT",
+    "source": "../research/market-pain-research.json",
+    "copy": [
+      "냉팩을 계속 들고 있기는 불편해요.",
+      "땀이 나고 움직여도 괜찮을지 걱정돼요."
+    ],
+    "disclosure_present": true
+  },
+  "blocked_claims": [
+    "-5°C immediate cooling",
+    "36.2°C to 26.1°C or -10.1°C",
+    "maximum 8 hours",
+    "fragrance-free or low-irritation",
+    "strong adhesion or no lifting",
+    "33% larger or 40% more gel",
+    "fever treatment or medical treatment",
+    "KC or KATRI badge without original verification"
+  ]
+}

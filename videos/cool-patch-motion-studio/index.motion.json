@@ -1,0 +1,9 @@
+{
+  "duration": 26,
+  "assertions": [
+    { "kind": "appearsBy", "selector": "#problem-motion-slot", "bySec": 0.2 },
+    { "kind": "before", "a": "#problem-motion-slot", "b": "#care-motion-slot" },
+    { "kind": "staysInFrame", "selector": "#root" },
+    { "kind": "keepsMoving", "withinSelector": "#root", "maxStaticSec": 1.8 }
+  ]
+}

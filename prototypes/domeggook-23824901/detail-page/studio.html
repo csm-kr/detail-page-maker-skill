@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>아이스 쿨패치 상세페이지 스튜디오</title>
+    <style>
+      @font-face { font-family: "Noto Sans KR"; src: local("Noto Sans KR"); font-weight: 100 900; }
+      :root {
+        --ink: #0a2d40;
+        --deep: #071d2b;
+        --panel: #0d2939;
+        --line: rgba(255,255,255,.12);
+        --aqua: #38d7e3;
+        --lime: #c9f75f;
+        --paper: #eef4f5;
+      }
+      * { box-sizing: border-box; }
+      html, body { width: 100%; min-height: 100%; margin: 0; }
+      body { background: #07141d; color: white; font-family: "Noto Sans KR", sans-serif; }
+      button, input, select, textarea { font: inherit; }
+      button { cursor: pointer; }
+      .app { min-height: 100vh; display: grid; grid-template-rows: 68px 1fr; }
+      .topbar {
+        position: sticky; top: 0; z-index: 20;
+        display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        padding: 0 18px 0 22px; border-bottom: 1px solid var(--line); background: rgba(7,29,43,.96); backdrop-filter: blur(16px);
+      }
+      .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+      .brand__mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--lime); color: var(--ink); font-size: 18px; font-weight: 950; }
+      .brand strong { display: block; font-size: 15px; font-weight: 950; }
+      .brand span { display: block; margin-top: 2px; color: #9bb3bf; font-size: 11px; font-weight: 750; }
+      .top-actions { display: flex; align-items: center; gap: 8px; }
+      .button {
+        min-height: 38px; padding: 0 13px; border: 1px solid var(--line); border-radius: 11px;
+        background: rgba(255,255,255,.06); color: white; font-size: 12px; font-weight: 900;
+      }
+      .button:hover { border-color: rgba(255,255,255,.3); }
+      .button--primary { border-color: var(--lime); background: var(--lime); color: var(--ink); }
+      .button--danger.is-armed { border-color: #ff8790; background: #6c2630; }
+      .workspace { min-height: 0; display: grid; grid-template-columns: 292px 1fr; }
+      .sidebar {
+        position: sticky; top: 68px; align-self: start; height: calc(100vh - 68px); overflow: auto;
+        border-right: 1px solid var(--line); background: var(--panel);
+      }
+      .panel { padding: 18px; border-bottom: 1px solid var(--line); }
+      .panel h2 { margin: 0 0 12px; color: #a9c0ca; font-size: 11px; font-weight: 900; letter-spacing: .1em; }
+      .panel p { margin: 0; color: #8fa7b2; font-size: 11px; font-weight: 720; line-height: 1.5; }
+      .section-list { display: grid; gap: 7px; }
+      .section-button {
+        width: 100%; min-height: 38px; padding: 0 11px; border: 1px solid transparent; border-radius: 10px;
+        background: rgba(255,255,255,.04); color: #d8e5e9; text-align: left; font-size: 12px; font-weight: 820;
+      }
+      .section-button:hover, .section-button.is-active { border-color: rgba(56,215,227,.6); background: rgba(56,215,227,.1); color: white; }
+      .field { display: grid; gap: 7px; margin-top: 12px; }
+      .field:first-of-type { margin-top: 0; }
+      .field label { color: #a9c0ca; font-size: 11px; font-weight: 850; }
+      .field textarea, .field select, .field input[type="text"] {
+        width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; background: #071d2b; color: white; padding: 10px; font-size: 12px; font-weight: 720;
+      }
+      .field textarea { min-height: 106px; resize: vertical; line-height: 1.5; }
+      .field input[type="range"] { width: 100%; accent-color: var(--aqua); }
+      .field input[type="color"] { width: 100%; height: 36px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: transparent; }
+      .control-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+      .choice { min-height: 34px; padding: 0; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.04); color: white; font-size: 11px; font-weight: 850; }
+      .choice.is-active { border-color: var(--aqua); background: rgba(56,215,227,.12); }
+      .selected-state { min-height: 54px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,.05); color: #b6cbd3; font-size: 11px; font-weight: 750; line-height: 1.45; }
+      .token-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stage {
+        min-width: 0; padding: 22px; overflow: auto;
+        background: radial-gradient(circle at 50% 0%, rgba(56,215,227,.08), transparent 35%), #07141d;
+      }
+      .stage-toolbar { position: sticky; top: 82px; z-index: 10; display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; pointer-events: none; }
+      .stage-toolbar > * { pointer-events: auto; }
+      .viewport-switch { display: flex; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: rgba(7,29,43,.9); }
+      .viewport-switch button { min-width: 62px; height: 32px; border: 0; border-radius: 8px; background: transparent; color: #a8bdc6; font-size: 11px; font-weight: 900; }
+      .viewport-switch button.is-active { background: var(--aqua); color: var(--ink); }
+      .preview-wrap {
+        width: min(100%, 800px); margin: 0 auto; overflow: hidden; border-radius: 8px; background: white;
+        box-shadow: 0 30px 80px rgba(0,0,0,.35); transition: width .25s ease;
+      }
+      .preview-wrap[data-width="390"] { width: 390px; }
+      iframe { display: block; width: 100%; height: calc(100vh - 122px); min-height: 760px; border: 0; background: white; }
+      .toast {
+        position: fixed; z-index: 50; right: 20px; bottom: 20px; max-width: 320px; padding: 13px 16px; border-radius: 12px;
+        background: var(--lime); color: var(--ink); font-size: 12px; font-weight: 900; box-shadow: 0 16px 40px rgba(0,0,0,.25);
+        opacity: 0; transform: translateY(12px); pointer-events: none; transition: .25s ease;
+      }
+      .toast.is-visible { opacity: 1; transform: translateY(0); }
+      [hidden] { display: none !important; }
+      @media (max-width: 900px) {
+        .workspace { grid-template-columns: 250px 1fr; }
+        .topbar { padding-inline: 12px; }
+        .brand span { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand__mark">C</span>
+          <div><strong>COOL PATCH DETAIL STUDIO</strong><span>카피·폰트·정렬·색상·이미지·GIF를 수정하고 단일 HTML로 내보냅니다.</span></div>
+        </div>
+        <div class="top-actions">
+          <button class="button" type="button" data-export-json>JSON</button>
+          <button class="button button--primary" type="button" data-export-html>단일 HTML 내보내기</button>
+          <button class="button button--danger" type="button" data-reset>초기화</button>
+        </div>
+      </header>
+      <div class="workspace">
+        <aside class="sidebar">
+          <section class="panel">
+            <h2>SECTIONS</h2>
+            <div class="section-list" data-section-list></div>
+          </section>
+          <section class="panel">
+            <h2>SELECTION</h2>
+            <div class="selected-state" data-selected-state>미리보기에서 글자 또는 이미지를 클릭하세요.</div>
+          </section>
+          <section class="panel" data-copy-controls hidden>
+            <h2>COPY</h2>
+            <div class="field"><label for="copy-text">문구</label><textarea id="copy-text" data-copy-text></textarea></div>
+            <div class="field"><label for="font-size">글자 크기</label><select id="font-size" data-font-size><option value="">원본</option><option value="14px">14px</option><option value="16px">16px</option><option value="18px">18px</option><option value="22px">22px</option><option value="28px">28px</option><option value="36px">36px</option><option value="44px">44px</option><option value="54px">54px</option><option value="68px">68px</option></select></div>
+            <div class="field"><label>정렬</label><div class="control-row"><button class="choice" type="button" data-align="left">왼쪽</button><button class="choice" type="button" data-align="center">가운데</button><button class="choice" type="button" data-align="right">오른쪽</button></div></div>
+            <div class="field"><label for="text-color">글자색</label><input id="text-color" type="color" value="#082c3f" data-text-color /></div>
+          </section>
+          <section class="panel" data-image-controls hidden>
+            <h2>IMAGE / GIF</h2>
+            <div class="field"><label for="image-file">이미지 교체</label><input id="image-file" type="file" accept="image/*" data-image-file /></div>
+            <div class="field"><label for="position-x">가로 초점</label><input id="position-x" type="range" min="0" max="100" value="50" data-position-x /></div>
+            <div class="field"><label for="position-y">세로 초점</label><input id="position-y" type="range" min="0" max="100" value="50" data-position-y /></div>
+            <p>GIF도 같은 방식으로 교체할 수 있습니다. 원본 파일은 브라우저 안에서만 저장됩니다.</p>
+          </section>
+          <section class="panel">
+            <h2>THEME TOKENS</h2>
+            <div class="token-grid">
+              <div class="field"><label for="token-ink">INK</label><input id="token-ink" type="color" value="#082c3f" data-token="--ink" /></div>
+              <div class="field"><label for="token-deep">DEEP</label><input id="token-deep" type="color" value="#052438" data-token="--deep" /></div>
+              <div class="field"><label for="token-aqua">AQUA</label><input id="token-aqua" type="color" value="#38d7e3" data-token="--aqua" /></div>
+              <div class="field"><label for="token-lime">LIME</label><input id="token-lime" type="color" value="#c9f75f" data-token="--lime" /></div>
+            </div>
+          </section>
+          <section class="panel">
+            <h2>PREVIEW</h2>
+            <div class="control-row">
+              <button class="choice" type="button" data-motion="on">모션 ON</button>
+              <button class="choice" type="button" data-motion="off">모션 OFF</button>
+              <button class="choice" type="button" data-save>저장</button>
+            </div>
+          </section>
+        </aside>
+        <main class="stage">
+          <div class="stage-toolbar">
+            <div class="viewport-switch"><button class="is-active" type="button" data-viewport="800">800</button><button type="button" data-viewport="390">390</button></div>
+          </div>
+          <div class="preview-wrap" data-preview-wrap data-width="800">
+            <iframe title="아이스 쿨패치 상세페이지 미리보기" src="index.html?edit=1" data-preview></iframe>
+          </div>
+        </main>
+      </div>
+    </div>
+    <div class="toast" role="status" aria-live="polite" data-toast></div>
+    <script>
+      (() => {
+        const storageKey = "detail-page-maker:23824901:studio:v1";
+        const preview = document.querySelector("[data-preview]");
+        const previewWrap = document.querySelector("[data-preview-wrap]");
+        const sectionList = document.querySelector("[data-section-list]");
+        const selectedState = document.querySelector("[data-selected-state]");
+        const copyControls = document.querySelector("[data-copy-controls]");
+        const imageControls = document.querySelector("[data-image-controls]");
+        const copyText = document.querySelector("[data-copy-text]");
+        const fontSize = document.querySelector("[data-font-size]");
+        const textColor = document.querySelector("[data-text-color]");
+        const imageFile = document.querySelector("[data-image-file]");
+        const positionX = document.querySelector("[data-position-x]");
+        const positionY = document.querySelector("[data-position-y]");
+        const toast = document.querySelector("[data-toast]");
+        let selectedCopy = null;
+        let selectedImage = null;
+        let resetArmed = false;
+        let saveTimer = null;
+
+        const showToast = (message) => {
+          toast.textContent = message;
+          toast.classList.add("is-visible");
+          clearTimeout(showToast.timer);
+          showToast.timer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
+        };
+
+        const frameDoc = () => preview.contentDocument;
+        const assignKeys = () => {
+          const doc = frameDoc();
+          [...doc.querySelectorAll("[data-editable]")].forEach((node, index) => node.dataset.studioKey = `copy-${String(index + 1).padStart(3, "0")}`);
+          [...doc.querySelectorAll("[data-replaceable]")].forEach((node, index) => node.dataset.studioKey = `image-${String(index + 1).padStart(3, "0")}`);
+        };
+
+        const collectState = () => {
+          const doc = frameDoc();
+          return {
+            version: 1,
+            copies: [...doc.querySelectorAll("[data-editable]")].map((node) => ({
+              key: node.dataset.studioKey,
+              html: node.innerHTML,
+              style: { fontSize: node.style.fontSize, textAlign: node.style.textAlign, color: node.style.color }
+            })),
+            images: [...doc.querySelectorAll("[data-replaceable]")].map((node) => ({
+              key: node.dataset.studioKey,
+              src: node.getAttribute("src"),
+              objectPosition: node.style.objectPosition
+            })),
+            tokens: [...document.querySelectorAll("[data-token]")].reduce((acc, input) => {
+              acc[input.dataset.token] = input.value;
+              return acc;
+            }, {}),
+            motionOff: frameDoc().documentElement.classList.contains("reduced-motion")
+          };
+        };
+
+        const applyState = (state) => {
+          if (!state || !state.version) return;
+          const doc = frameDoc();
+          (state.copies || []).forEach((entry) => {
+            const node = doc.querySelector(`[data-studio-key="${entry.key}"]`);
+            if (!node) return;
+            node.innerHTML = entry.html;
+            node.style.fontSize = entry.style?.fontSize || "";
+            node.style.textAlign = entry.style?.textAlign || "";
+            node.style.color = entry.style?.color || "";
+          });
+          (state.images || []).forEach((entry) => {
+            const node = doc.querySelector(`[data-studio-key="${entry.key}"]`);
+            if (!node) return;
+            if (entry.src) node.setAttribute("src", entry.src);
+            node.style.objectPosition = entry.objectPosition || "";
+          });
+          Object.entries(state.tokens || {}).forEach(([token, value]) => {
+            doc.documentElement.style.setProperty(token, value);
+            const input = document.querySelector(`[data-token="${token}"]`);
+            if (input) input.value = value;
+          });
+          doc.documentElement.classList.toggle("reduced-motion", Boolean(state.motionOff));
+          doc.querySelectorAll(".reveal").forEach((node) => node.classList.add("is-visible"));
+        };
+
+        const scheduleSave = () => {
+          clearTimeout(saveTimer);
+          saveTimer = setTimeout(() => {
+            localStorage.setItem(storageKey, JSON.stringify(collectState()));
+          }, 180);
+        };
+
+        const selectCopy = (node) => {
+          selectedCopy = node;
+          selectedImage = null;
+          copyControls.hidden = false;
+          imageControls.hidden = true;
+          selectedState.textContent = `문구 · ${node.dataset.studioKey}`;
+          copyText.value = node.innerHTML.replaceAll("<br>", "\n").replace(/<[^>]+>/g, "");
+          fontSize.value = node.style.fontSize || "";
+          const color = getComputedStyle(node).color.match(/\d+/g);
+          if (color) textColor.value = `#${color.slice(0,3).map((n) => Number(n).toString(16).padStart(2,"0")).join("")}`;
+          document.querySelectorAll("[data-align]").forEach((button) => button.classList.toggle("is-active", button.dataset.align === (node.style.textAlign || getComputedStyle(node).textAlign)));
+        };
+
+        const selectImage = (node) => {
+          selectedCopy = null;
+          selectedImage = node;
+          copyControls.hidden = true;
+          imageControls.hidden = false;
+          selectedState.textContent = `이미지 · ${node.dataset.studioKey} · ${node.getAttribute("src")}`;
+          const position = (node.style.objectPosition || getComputedStyle(node).objectPosition || "50% 50%").match(/\d+/g) || [50, 50];
+          positionX.value = position[0] || 50;
+          positionY.value = position[1] || 50;
+        };
+
+        const buildSectionList = () => {
+          sectionList.innerHTML = "";
+          [...frameDoc().querySelectorAll("[data-section-name]")].forEach((section, index) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "section-button";
+            button.textContent = `${String(index + 1).padStart(2, "0")} · ${section.dataset.sectionName}`;
+            button.addEventListener("click", () => {
+              section.scrollIntoView({ behavior: "smooth", block: "start" });
+              document.querySelectorAll(".section-button").forEach((item) => item.classList.remove("is-active"));
+              button.classList.add("is-active");
+            });
+            sectionList.append(button);
+          });
+        };
+
+        const blobToDataUrl = (blob) => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        const download = (name, content, type) => {
+          const url = URL.createObjectURL(new Blob([content], { type }));
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = name;
+          document.body.append(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        };
+
+        const exportStandaloneHtml = async () => {
+          showToast("이미지와 GIF를 단일 HTML에 넣는 중입니다.");
+          const source = frameDoc().documentElement.cloneNode(true);
+          source.classList.remove("edit-mode");
+          source.querySelectorAll("[contenteditable]").forEach((node) => node.removeAttribute("contenteditable"));
+          const images = [...source.querySelectorAll("img[src]")];
+          for (const image of images) {
+            const src = image.getAttribute("src");
+            if (!src || src.startsWith("data:")) continue;
+            const absolute = new URL(src, preview.contentWindow.location.href);
+            const response = await fetch(absolute);
+            if (!response.ok) throw new Error(`이미지를 읽지 못했습니다: ${src}`);
+            image.setAttribute("src", await blobToDataUrl(await response.blob()));
+          }
+          const html = "<!doctype html>\n" + source.outerHTML;
+          download("cool-patch-detail-page-standalone.html", html, "text/html;charset=utf-8");
+          showToast(`단일 HTML 완료 · 이미지/GIF ${images.length}개 포함`);
+        };
+
+        preview.addEventListener("load", () => {
+          assignKeys();
+          frameDoc().querySelectorAll(".reveal").forEach((node) => node.classList.add("is-visible"));
+          buildSectionList();
+          try { applyState(JSON.parse(localStorage.getItem(storageKey) || "null")); } catch {}
+          frameDoc().addEventListener("click", (event) => {
+            const target = event.target.closest("[data-editable], [data-replaceable]");
+            if (!target) return;
+            event.preventDefault();
+            if (target.matches("[data-editable]")) selectCopy(target);
+            else selectImage(target);
+          }, true);
+          frameDoc().addEventListener("input", scheduleSave);
+        });
+
+        copyText.addEventListener("input", () => {
+          if (!selectedCopy) return;
+          selectedCopy.innerHTML = copyText.value.split("\n").map((line) => line.replace(/[&<>]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[char]))).join("<br>");
+          scheduleSave();
+        });
+        fontSize.addEventListener("change", () => { if (selectedCopy) { selectedCopy.style.fontSize = fontSize.value; scheduleSave(); } });
+        textColor.addEventListener("input", () => { if (selectedCopy) { selectedCopy.style.color = textColor.value; scheduleSave(); } });
+        document.querySelectorAll("[data-align]").forEach((button) => button.addEventListener("click", () => {
+          if (!selectedCopy) return;
+          selectedCopy.style.textAlign = button.dataset.align;
+          document.querySelectorAll("[data-align]").forEach((item) => item.classList.toggle("is-active", item === button));
+          scheduleSave();
+        }));
+        imageFile.addEventListener("change", () => {
+          const file = imageFile.files?.[0];
+          if (!file || !selectedImage) return;
+          const reader = new FileReader();
+          reader.onload = () => { selectedImage.src = reader.result; scheduleSave(); showToast("이미지를 교체했습니다."); };
+          reader.readAsDataURL(file);
+        });
+        const updatePosition = () => {
+          if (!selectedImage) return;
+          selectedImage.style.objectPosition = `${positionX.value}% ${positionY.value}%`;
+          scheduleSave();
+        };
+        positionX.addEventListener("input", updatePosition);
+        positionY.addEventListener("input", updatePosition);
+        document.querySelectorAll("[data-token]").forEach((input) => input.addEventListener("input", () => {
+          frameDoc().documentElement.style.setProperty(input.dataset.token, input.value);
+          scheduleSave();
+        }));
+        document.querySelectorAll("[data-viewport]").forEach((button) => button.addEventListener("click", () => {
+          previewWrap.dataset.width = button.dataset.viewport;
+          document.querySelectorAll("[data-viewport]").forEach((item) => item.classList.toggle("is-active", item === button));
+        }));
+        document.querySelectorAll("[data-motion]").forEach((button) => button.addEventListener("click", () => {
+          const off = button.dataset.motion === "off";
+          frameDoc().documentElement.classList.toggle("reduced-motion", off);
+          frameDoc().querySelectorAll(".reveal").forEach((node) => node.classList.add("is-visible"));
+          scheduleSave();
+          showToast(off ? "스크롤 모션을 껐습니다." : "스크롤 모션을 켰습니다.");
+        }));
+        document.querySelector("[data-save]").addEventListener("click", () => {
+          localStorage.setItem(storageKey, JSON.stringify(collectState()));
+          showToast("현재 편집 상태를 저장했습니다.");
+        });
+        document.querySelector("[data-export-json]").addEventListener("click", () => {
+          download("cool-patch-detail-page-state.json", JSON.stringify(collectState(), null, 2), "application/json;charset=utf-8");
+        });
+        document.querySelector("[data-export-html]").addEventListener("click", () => exportStandaloneHtml().catch((error) => showToast(error.message)));
+        document.querySelector("[data-reset]").addEventListener("click", (event) => {
+          if (!resetArmed) {
+            resetArmed = true;
+            event.currentTarget.classList.add("is-armed");
+            event.currentTarget.textContent = "한 번 더 클릭";
+            showToast("초기화하려면 한 번 더 클릭하세요.");
+            setTimeout(() => {
+              resetArmed = false;
+              event.currentTarget.classList.remove("is-armed");
+              event.currentTarget.textContent = "초기화";
+            }, 2800);
+            return;
+          }
+          localStorage.removeItem(storageKey);
+          location.reload();
+        });
+      })();
+    </script>
+  </body>
+</html>

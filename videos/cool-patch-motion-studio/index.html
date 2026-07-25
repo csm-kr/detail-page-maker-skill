@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, height=800" />
+    <title>아이스 쿨패치 모션 스튜디오</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { width: 800px; height: 800px; margin: 0; overflow: hidden; background: #071b2f; }
+      #root { position: relative; width: 800px; height: 800px; overflow: hidden; }
+      .stage-fill { position: absolute; inset: 0; background: #071b2f; }
+      .clip { position: absolute; inset: 0; width: 800px; height: 800px; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="cool-patch-motion-studio" data-start="0" data-duration="26" data-width="800" data-height="800">
+      <div class="stage-fill" aria-hidden="true"></div>
+      <section
+        id="problem-motion-slot"
+        class="clip"
+        data-composition-id="cool-patch-problem-motion"
+        data-composition-src="compositions/problem.html"
+        data-start="0"
+        data-duration="5.2"
+        data-track-index="1"
+      ></section>
+      <section
+        id="prep-motion-slot"
+        class="clip"
+        data-composition-id="cool-patch-prep-motion"
+        data-composition-src="compositions/prep.html"
+        data-start="5.2"
+        data-duration="5.2"
+        data-track-index="1"
+      ></section>
+      <section
+        id="peel-motion-slot"
+        class="clip"
+        data-composition-id="cool-patch-peel-motion"
+        data-composition-src="compositions/peel.html"
+        data-start="10.4"
+        data-duration="5.2"
+        data-track-index="1"
+      ></section>
+      <section
+        id="dimension-motion-slot"
+        class="clip"
+        data-composition-id="cool-patch-dimension-motion"
+        data-composition-src="compositions/dimension.html"
+        data-start="15.6"
+        data-duration="5.2"
+        data-track-index="1"
+      ></section>
+      <section
+        id="care-motion-slot"
+        class="clip"
+        data-composition-id="cool-patch-care-motion"
+        data-composition-src="compositions/care.html"
+        data-start="20.8"
+        data-duration="5.2"
+        data-track-index="1"
+      ></section>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["cool-patch-motion-studio"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

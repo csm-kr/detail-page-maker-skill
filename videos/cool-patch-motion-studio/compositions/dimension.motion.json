@@ -1,0 +1,9 @@
+{
+  "duration": 5.2,
+  "assertions": [
+    { "kind": "appearsBy", "selector": "#dim-product", "bySec": 1.2 },
+    { "kind": "before", "a": "#dim-width-label", "b": "#dim-height-label" },
+    { "kind": "staysInFrame", "selector": ".dim-board" },
+    { "kind": "keepsMoving", "withinSelector": "#dim-scene", "maxStaticSec": 1.4 }
+  ]
+}

@@ -42,3 +42,7 @@
 - 외부 마켓 계정에 상품을 실제 게시하거나 가격·배송·옵션을 변경하는 작업
 - ImageGen 이외의 생성형 이미지·영상 모델 도입
 - Behance 작품의 레이아웃·이미지·카피를 그대로 복제하는 작업
+## 2026-07-25 완료 갱신
+
+- [도매꾹 23824901 commercial-tight v2 프로토타입](issues/22-prototype-domeggook-23824901-commercial-tight-v2.md)은 13섹션 HTML, 별도 Studio, ImageGen 소재 5종, 역할이 다른 HyperFrames GIF 5종, SVG 말풍선, 단일 HTML 내보내기와 5개 폭 Browser Harness QA를 마쳤다.
+- 최종 판정은 `completed`, commercial-tight v2 `98/100`, 하드 실패 `0개`다.

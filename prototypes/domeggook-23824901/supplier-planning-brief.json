@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "product_id": "23824901",
+  "working_title": "더운 순간, 손에 들지 말고 붙이는 5×12cm 쿨패치",
+  "status": "supplier_and_market_research_complete",
+  "target": {
+    "primary": "여름 야외 이동·관람·운동 전후에 손을 쓰지 않는 냉감 보조용품을 찾는 사람",
+    "purchase_questions": [
+      "어디에 어떻게 붙이는 제품인가?",
+      "패치 한 장의 실제 크기는 어느 정도인가?",
+      "한 팩에 몇 장이 들어 있는가?",
+      "냉장과 냉동 중 어떤 준비가 맞는가?",
+      "피부 사용 전에 무엇을 확인해야 하는가?",
+      "발열 치료용 의약품인가?"
+    ]
+  },
+  "primary_appeal": {
+    "headline": "더운 순간, 손에 들지 말고 붙이세요.",
+    "support": "약 5×12cm 하이드로겔 쿨패치 2매입",
+    "evidence_ids": ["FACT-003", "FACT-004", "FACT-005", "FACT-009", "FACT-010"]
+  },
+  "story_arc": [
+    {
+      "stage": "situation",
+      "copy_intent": "더운 이동과 관람 중에는 물수건이나 냉팩을 계속 손에 들기 어렵다."
+    },
+    {
+      "stage": "market_pain",
+      "copy_intent": "동종 후기에서는 땀·움직임에 따른 들뜸, 냉감 개인차, 피부 자극 우려가 반복된다.",
+      "evidence_class": "MARKET_PAIN",
+      "publication_status": "confirmed_as_market_pain_not_current_sku_fact"
+    },
+    {
+      "stage": "product_form",
+      "copy_intent": "현재 제품은 투명 필름을 떼고 깨끗하고 마른 피부에 붙여 쓰는 하이드로겔 패치다.",
+      "evidence_ids": ["FACT-004", "FACT-009", "FACT-010"]
+    },
+    {
+      "stage": "size_and_pack",
+      "copy_intent": "약 5×12cm 한 장 크기와 2매입 구성을 실제 비례로 보여준다.",
+      "evidence_ids": ["FACT-003", "FACT-005"]
+    },
+    {
+      "stage": "preparation",
+      "copy_intent": "더 차갑게 쓰고 싶다면 냉장고에 1~2시간, 냉동실은 피한다.",
+      "evidence_ids": ["FACT-011", "FACT-012"]
+    },
+    {
+      "stage": "caution",
+      "copy_intent": "만 3세 이상, 보호자 지도, 피부 상태 확인, 의약품 아님을 구매 전에 분명히 알린다.",
+      "evidence_ids": ["FACT-006", "FACT-013", "FACT-014", "FACT-015"]
+    }
+  ],
+  "recommended_motion": [
+    {
+      "id": "MOTION-001",
+      "role": "problem",
+      "subject": "손에 든 냉팩과 붙이는 패치의 사용 방식 비교",
+      "proof_scope": "제품 형태의 차이",
+      "requires_product_ssot": true
+    },
+    {
+      "id": "MOTION-002",
+      "role": "prep",
+      "subject": "냉장고 1~2시간과 냉동 금지",
+      "proof_scope": "공급처 사용 안내",
+      "requires_product_ssot": false
+    },
+    {
+      "id": "MOTION-003",
+      "role": "mechanism",
+      "subject": "파우치 개봉→보호 필름 제거→부착",
+      "proof_scope": "사용 순서",
+      "requires_product_ssot": true
+    },
+    {
+      "id": "MOTION-004",
+      "role": "dimension",
+      "subject": "5×12cm 치수선과 2매입 구성",
+      "proof_scope": "제품 정보",
+      "requires_product_ssot": true
+    },
+    {
+      "id": "MOTION-005",
+      "role": "care",
+      "subject": "깨끗하고 마른 피부, 같은 부위 장시간 금지, 이상 시 중단",
+      "proof_scope": "사용 주의",
+      "requires_product_ssot": false
+    }
+  ],
+  "imagegen_constraints": [
+    "공급처 제품 참조 없이 파란 패치의 격자·흰 테두리·비율을 새로 만들지 않는다.",
+    "생성 장면 안에 한글·수치·시험 마크를 굽지 않는다.",
+    "얼음·물결·응결광은 장식이며 냉각 온도나 지속 성능 증거로 사용하지 않는다.",
+    "어린이·발열 환자 장면을 의료 효능처럼 연출하지 않는다.",
+    "피부 부착 장면은 상처·점막·눈 주변을 피한다."
+  ],
+  "hard_exclusions": [
+    "-5°C 즉각 쿨링",
+    "-10.1°C 체온 감소",
+    "최대 8시간 지속",
+    "무자극·저자극",
+    "강력 접착",
+    "열을 내림",
+    "발열 치료",
+    "모든 연령 사용",
+    "냉동 보관"
+  ]
+}

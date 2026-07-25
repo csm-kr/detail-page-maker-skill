@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "project": "cool-patch-motion-studio",
+  "format": {
+    "width": 800,
+    "height": 800,
+    "fps": 30,
+    "duration_each_sec": 5.2
+  },
+  "asset_needs": [],
+  "assets": [
+    {
+      "id": "product-front",
+      "path": "assets/cool-patch-front-v3.png",
+      "role": "approved derivative product SSOT"
+    },
+    {
+      "id": "product-peel",
+      "path": "assets/cool-patch-peel-half-v1.png",
+      "role": "approved derivative peel-state SSOT"
+    },
+    {
+      "id": "fridge-context",
+      "path": "assets/prep-fridge-background-v1.png",
+      "role": "ImageGen context only"
+    }
+  ],
+  "compositions": [
+    {
+      "id": "cool-patch-problem-motion",
+      "file": "compositions/problem.html",
+      "message": "냉팩을 계속 들고 있기보다 붙이는 제품 형태",
+      "rules": ["spring-pop-entrance", "control-target-sync", "ambient-glow-bloom"]
+    },
+    {
+      "id": "cool-patch-prep-motion",
+      "file": "compositions/prep.html",
+      "message": "냉장 1–2시간, 냉동 금지",
+      "rules": ["svg-path-draw", "spring-pop-entrance", "ambient-glow-bloom"]
+    },
+    {
+      "id": "cool-patch-peel-motion",
+      "file": "compositions/peel.html",
+      "message": "개봉, 필름 제거, 깨끗하고 마른 피부에 부착",
+      "rules": ["scale-swap-transition", "svg-path-draw", "spring-pop-entrance"]
+    },
+    {
+      "id": "cool-patch-dimension-motion",
+      "file": "compositions/dimension.html",
+      "message": "약 5×12cm, 1팩 2매입",
+      "rules": ["svg-path-draw", "control-target-sync", "spring-pop-entrance"]
+    },
+    {
+      "id": "cool-patch-care-motion",
+      "file": "compositions/care.html",
+      "message": "사용 전 피부 상태 확인과 이상 시 중단",
+      "rules": ["spring-pop-entrance", "svg-icon-enrichment", "ambient-glow-bloom"]
+    }
+  ]
+}

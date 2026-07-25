@@ -1,0 +1,9 @@
+{
+  "duration": 5.2,
+  "assertions": [
+    { "kind": "appearsBy", "selector": "#problem-hold", "bySec": 1.1 },
+    { "kind": "before", "a": "#problem-hold", "b": "#problem-answer" },
+    { "kind": "staysInFrame", "selector": ".problem-panels" },
+    { "kind": "keepsMoving", "withinSelector": "#problem-scene", "maxStaticSec": 1.5 }
+  ]
+}

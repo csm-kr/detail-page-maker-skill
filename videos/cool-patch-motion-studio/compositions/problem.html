@@ -1,0 +1,86 @@
+<template>
+  <style>
+    @font-face { font-family: "Noto Sans KR"; src: local("Noto Sans KR"); font-weight: 100 900; }
+    @font-face { font-family: "Malgun Gothic"; src: local("Malgun Gothic"); font-weight: 100 900; }
+    * { box-sizing: border-box; }
+    #problem-root {
+      position: relative; width: 800px; height: 800px; overflow: hidden;
+      color: #092a3f; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+    }
+    .problem-fill {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 83% 20%, rgba(74, 222, 224, .32), transparent 30%),
+        linear-gradient(145deg, #f7fcff 0%, #dff4f4 100%);
+    }
+    .problem-grid { position: absolute; inset: 0; opacity: .26; background-image: linear-gradient(rgba(5, 87, 109, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(5, 87, 109, .08) 1px, transparent 1px); background-size: 42px 42px; }
+    .problem-head { position: absolute; left: 54px; top: 50px; width: 692px; }
+    .problem-kicker { margin: 0 0 12px; color: #087a89; font-size: 16px; font-weight: 900; letter-spacing: .11em; }
+    .problem-title { margin: 0; max-width: 650px; font-size: 46px; font-weight: 950; letter-spacing: -.055em; line-height: 1.12; }
+    .problem-panels { position: absolute; left: 54px; right: 54px; top: 216px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .problem-card { position: relative; height: 360px; padding: 28px; overflow: hidden; border: 1px solid rgba(9, 42, 63, .12); border-radius: 30px; background: rgba(255,255,255,.82); box-shadow: 0 22px 52px rgba(9, 42, 63, .10); }
+    .problem-card--answer { background: #062d43; color: white; }
+    .problem-tag { display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(9, 42, 63, .08); color: #345262; font-size: 14px; font-weight: 900; }
+    .problem-card--answer .problem-tag { background: rgba(104, 230, 224, .18); color: #8ff3ec; }
+    .problem-icon { position: absolute; left: 50%; top: 96px; width: 170px; height: 170px; transform: translateX(-50%); }
+    .problem-copy { position: absolute; left: 28px; right: 28px; bottom: 27px; margin: 0; text-align: center; font-size: 24px; font-weight: 950; letter-spacing: -.04em; }
+    .problem-answer { position: absolute; left: 54px; right: 54px; bottom: 52px; height: 98px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; border-radius: 24px; background: #c9f75f; color: #092a3f; box-shadow: 0 18px 40px rgba(20, 80, 65, .14); }
+    .problem-answer strong { font-size: 26px; font-weight: 950; letter-spacing: -.04em; }
+    .problem-answer span { padding: 10px 15px; border-radius: 999px; background: rgba(9,42,63,.1); font-size: 14px; font-weight: 900; }
+    .problem-orbit { transform-origin: 85px 85px; }
+  </style>
+  <div id="problem-root" data-composition-id="cool-patch-problem-motion" data-start="0" data-duration="5.2" data-width="800" data-height="800">
+    <div class="problem-fill" aria-hidden="true"></div>
+    <div class="problem-grid" data-layout-ignore aria-hidden="true"></div>
+    <section id="problem-scene" class="clip" data-start="0" data-duration="5.2" data-track-index="1">
+      <header class="problem-head">
+        <p class="problem-kicker">PAIN → FORM</p>
+        <h1 class="problem-title">더울 때마다 냉팩을<br>계속 들고 있나요?</h1>
+      </header>
+      <div class="problem-panels">
+        <article id="problem-hold" class="problem-card">
+          <span class="problem-tag">들고 있기</span>
+          <svg class="problem-icon problem-orbit" viewBox="0 0 170 170" aria-label="손에 든 냉팩">
+            <circle cx="85" cy="85" r="72" fill="#e6eef1"/>
+            <path d="M54 90c10-18 22-27 36-27h26c10 0 18 8 18 18v24c0 12-10 22-22 22H76c-18 0-31-14-31-31 0-3 3-6 9-6Z" fill="#d8a982"/>
+            <rect x="59" y="38" width="70" height="79" rx="18" fill="#8de3ee" stroke="#0c7690" stroke-width="4"/>
+            <path d="M75 57h38M75 72h38M75 87h38" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".65"/>
+          </svg>
+          <p class="problem-copy">한 손이 계속 바빠져요</p>
+        </article>
+        <article id="problem-attach" class="problem-card problem-card--answer">
+          <span class="problem-tag">붙여 두기</span>
+          <svg class="problem-icon" viewBox="0 0 170 170" aria-label="필요한 부위에 붙인 쿨패치">
+            <circle id="problem-glow" cx="85" cy="85" r="72" fill="#1c5164"/>
+            <path d="M51 130c10-18 18-38 23-59 4-18 16-28 31-28 15 0 27 12 27 27 0 23-8 46-23 68" fill="#d8a982"/>
+            <g id="problem-patch">
+              <rect x="71" y="62" width="54" height="94" rx="11" fill="#ebfbff" stroke="#58ddec" stroke-width="4" transform="rotate(12 98 109)"/>
+              <path d="M85 73l29 8M82 87l31 9M79 101l31 9M76 115l31 9M73 129l31 9" stroke="#58ddec" stroke-width="2" opacity=".7"/>
+            </g>
+          </svg>
+          <p class="problem-copy">필요한 부위에 붙이는 방식</p>
+        </article>
+      </div>
+      <div id="problem-answer" class="problem-answer">
+        <strong>손에 들지 않고, 붙이는 쿨링</strong>
+        <span>제품 형태 기준</span>
+      </div>
+    </section>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    tl.from(".problem-head > *", { opacity: 0, y: 24, duration: .48, stagger: .09, ease: "power3.out" }, .12);
+    tl.from("#problem-hold", { opacity: 0, x: -42, duration: .58, ease: "power3.out" }, .45);
+    tl.from("#problem-attach", { opacity: 0, x: 42, duration: .58, ease: "power3.out" }, .62);
+    tl.from("#problem-patch", { opacity: 0, scale: .55, transformOrigin: "center center", duration: .54, ease: "back.out(1.8)" }, 1.05);
+    tl.to(".problem-orbit", { rotation: -4, duration: .32, ease: "power2.inOut" }, 1.45);
+    tl.to(".problem-orbit", { rotation: 5, duration: .32, ease: "power2.inOut" }, 1.77);
+    tl.to(".problem-orbit", { rotation: 0, duration: .3, ease: "power2.inOut" }, 2.09);
+    tl.from("#problem-answer", { opacity: 0, y: 30, duration: .56, ease: "power3.out" }, 2.25);
+    tl.to("#problem-glow", { scale: 1.12, transformOrigin: "center center", duration: .72, yoyo: true, repeat: 2, ease: "sine.inOut" }, 2.8);
+    tl.to(".problem-answer span", { scale: 1.06, duration: .25, yoyo: true, repeat: 1, ease: "power2.inOut" }, 4.25);
+    window.__timelines["cool-patch-problem-motion"] = tl;
+    tl.seek(0);
+  </script>
+</template>

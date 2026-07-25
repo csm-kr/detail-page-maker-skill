@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "product_id": "23824901",
+  "source_page_url": "https://domeggook.com/23824901?from=popular100",
+  "scope": "public_purchase_reviews_recent_six_months",
+  "visible_review_count": 7,
+  "requested_review_limit": 0,
+  "captured_review_count": 7,
+  "complete": true,
+  "author_identifiers_removed": true,
+  "rating_summary": {
+    "average": 5.0,
+    "distribution_percent": {
+      "5": 100,
+      "4": 0,
+      "3": 0,
+      "2": 0,
+      "1": 0
+    }
+  },
+  "reviews": [
+    {
+      "rating": 5,
+      "content": "감사합니다.",
+      "seller_reply": null,
+      "date": "26/07/18",
+      "premium": false,
+      "image_urls": [],
+      "evidence_id": "REVIEW-0001"
+    },
+    {
+      "rating": 5,
+      "content": "빠른 배송 감사합니다~",
+      "seller_reply": null,
+      "date": "26/07/14",
+      "premium": false,
+      "image_urls": [],
+      "evidence_id": "REVIEW-0002"
+    },
+    {
+      "rating": 5,
+      "content": "",
+      "seller_reply": null,
+      "date": "26/07/05",
+      "premium": false,
+      "image_urls": [],
+      "evidence_id": "REVIEW-0003"
+    },
+    {
+      "rating": 5,
+      "content": "",
+      "seller_reply": null,
+      "date": "26/06/29",
+      "premium": false,
+      "image_urls": [],
+      "evidence_id": "REVIEW-0004"
+    },
+    {
+      "rating": 5,
+      "content": "좋아요 더울 때도 쓰고 열날 때도 쓰려고 구입했어요",
+      "seller_reply": null,
+      "date": "26/06/26",
+      "premium": false,
+      "image_urls": [],
+      "evidence_id": "REVIEW-0005"
+    },
+    {
+      "rating": 5,
+      "content": "",
+      "seller_reply": null,
+      "date": "26/06/22",
+      "premium": false,
+      "image_urls": [],
+      "evidence_id": "REVIEW-0006"
+    },
+    {
+      "rating": 5,
+      "content": "배송도 빠르고 품질도 좋아요",
+      "seller_reply": null,
+      "date": "26/05/26",
+      "premium": false,
+      "image_urls": [],
+      "evidence_id": "REVIEW-0007"
+    }
+  ]
+}
