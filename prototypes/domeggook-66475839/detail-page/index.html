@@ -121,6 +121,80 @@
         line-height: 1.55;
       }
 
+      .campaign-hero {
+        min-height: 920px;
+        display: grid;
+        align-items: end;
+        padding: 0;
+        color: #fff;
+        background: var(--deep);
+      }
+
+      .campaign-hero__image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 54% center;
+        transform: scale(1.025);
+        transition: transform 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+        z-index: -2;
+      }
+
+      .campaign-hero.is-visible .campaign-hero__image {
+        transform: scale(1);
+      }
+
+      .campaign-hero::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background:
+          linear-gradient(90deg, rgba(5, 31, 27, 0.92) 0%, rgba(5, 31, 27, 0.62) 42%, transparent 72%),
+          linear-gradient(0deg, rgba(5, 31, 27, 0.72) 0%, transparent 46%);
+        opacity: var(--studio-overlay-opacity, 1);
+        z-index: -1;
+      }
+
+      .campaign-hero__copy {
+        width: min(680px, 100%);
+        padding: 0 var(--page-pad) clamp(78px, 12vw, 112px);
+      }
+
+      .campaign-hero__kicker {
+        margin: 0 0 20px;
+        color: #dff19b;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+      }
+
+      .campaign-hero .display {
+        max-width: 660px;
+        color: #fff;
+        font-size: clamp(40px, 8.6vw, 70px);
+      }
+
+      .campaign-hero .display em {
+        color: #dff19b;
+      }
+
+      .campaign-hero .lead {
+        max-width: 520px;
+        color: #e0ebe7;
+      }
+
+      .campaign-hero__disclosure {
+        position: absolute;
+        right: 28px;
+        bottom: 24px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 11px;
+        font-weight: 700;
+      }
+
       .hero {
         min-height: 1020px;
         padding-top: 56px;
@@ -247,6 +321,7 @@
       .question-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
+        grid-auto-flow: dense;
         gap: 14px;
         margin-top: 58px;
       }
@@ -257,6 +332,15 @@
         border: 1px solid rgba(255, 255, 255, 0.14);
         border-radius: 26px;
         background: rgba(255, 255, 255, 0.07);
+      }
+
+      .question-card:first-child {
+        grid-column: span 2;
+      }
+
+      .question-card:last-child {
+        grid-column: 1 / -1;
+        min-height: 220px;
       }
 
       .question-card__mark {
@@ -298,6 +382,129 @@
         font-size: 14px;
         font-weight: 700;
         line-height: 1.55;
+      }
+
+      .use-cases-intro {
+        padding-bottom: clamp(64px, 10vw, 88px);
+        background: var(--white);
+      }
+
+      .use-cases-intro .display {
+        max-width: 720px;
+      }
+
+      .photo-chapter {
+        min-height: 690px;
+        display: grid;
+        align-items: end;
+        padding: 0;
+        overflow: hidden;
+        color: #fff;
+        background: var(--deep);
+      }
+
+      .photo-chapter__image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1.035);
+        transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+        z-index: -2;
+      }
+
+      .photo-chapter.is-visible .photo-chapter__image {
+        transform: scale(1);
+      }
+
+      .photo-chapter::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background:
+          linear-gradient(0deg, rgba(5, 31, 27, 0.86) 0%, rgba(5, 31, 27, 0.14) 58%),
+          linear-gradient(90deg, rgba(5, 31, 27, 0.72) 0%, transparent 62%);
+        opacity: var(--studio-overlay-opacity, 1);
+        z-index: -1;
+      }
+
+      .photo-chapter--copy-right::after {
+        background:
+          linear-gradient(0deg, rgba(5, 31, 27, 0.82) 0%, rgba(5, 31, 27, 0.12) 58%),
+          linear-gradient(270deg, rgba(5, 31, 27, 0.8) 0%, transparent 64%);
+      }
+
+      .photo-chapter__copy {
+        width: min(610px, 100%);
+        padding: clamp(48px, 8vw, 76px) var(--page-pad);
+      }
+
+      .photo-chapter--copy-right .photo-chapter__copy {
+        margin-left: auto;
+        text-align: right;
+      }
+
+      .photo-chapter__place {
+        margin: 0 0 15px;
+        color: #dff19b;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.09em;
+      }
+
+      .photo-chapter h3 {
+        max-width: 570px;
+        margin: 0;
+        color: #fff;
+        font-size: clamp(38px, 7vw, 62px);
+        font-weight: 950;
+        letter-spacing: -0.065em;
+        line-height: 1.06;
+      }
+
+      .photo-chapter--copy-right h3 {
+        margin-left: auto;
+      }
+
+      .photo-chapter__copy > p:last-child {
+        max-width: 520px;
+        margin: 21px 0 0;
+        color: #e0ebe7;
+        font-size: clamp(16px, 2.8vw, 20px);
+        font-weight: 650;
+        letter-spacing: -0.03em;
+        line-height: 1.62;
+      }
+
+      .photo-chapter--copy-right .photo-chapter__copy > p:last-child {
+        margin-left: auto;
+      }
+
+      .photo-chapter__note {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .photo-chapter--pool .photo-chapter__image {
+        object-position: 48% center;
+      }
+
+      .photo-chapter--waterpark .photo-chapter__image {
+        object-position: 52% center;
+      }
+
+      .photo-chapter--beach .photo-chapter__image {
+        object-position: 47% center;
+      }
+
+      .photo-chapter--valley .photo-chapter__image {
+        object-position: 52% center;
       }
 
       .anatomy {
@@ -675,7 +882,8 @@
         backdrop-filter: blur(12px);
       }
 
-      .editor button {
+      .editor button,
+      .editor__studio {
         min-height: 36px;
         padding: 0 12px;
         border: 0;
@@ -688,10 +896,22 @@
       }
 
       .editor button:hover,
-      .editor button:focus-visible {
+      .editor button:focus-visible,
+      .editor__studio:hover,
+      .editor__studio:focus-visible {
         background: rgba(255, 255, 255, 0.2);
         outline: 2px solid var(--lime);
         outline-offset: 2px;
+      }
+
+      .editor__studio {
+        display: inline-grid;
+        place-items: center;
+        text-decoration: none;
+      }
+
+      .editor__panel-toggle {
+        display: none;
       }
 
       .editor [data-editor-status] {
@@ -715,10 +935,48 @@
         background: rgba(255, 246, 188, 0.22);
       }
 
+      .studio-embedded .editor {
+        display: none;
+      }
+
+      body.motion-paused .campaign-hero__image,
+      body.motion-paused .photo-chapter__image {
+        transform: none;
+        transition: none;
+      }
+
       @media (max-width: 620px) {
         .section {
           padding-top: 76px;
           padding-bottom: 76px;
+        }
+
+        .campaign-hero {
+          min-height: 760px;
+          padding: 0;
+        }
+
+        .campaign-hero__image {
+          object-position: 61% center;
+        }
+
+        .campaign-hero::after {
+          background:
+            linear-gradient(0deg, rgba(5, 31, 27, 0.94) 0%, rgba(5, 31, 27, 0.44) 62%, transparent 82%),
+            linear-gradient(90deg, rgba(5, 31, 27, 0.42), transparent 78%);
+        }
+
+        .campaign-hero__copy {
+          padding-bottom: 76px;
+        }
+
+        .campaign-hero .display {
+          font-size: 40px;
+        }
+
+        .campaign-hero__disclosure {
+          right: var(--page-pad);
+          bottom: 22px;
         }
 
         .hero {
@@ -739,6 +997,11 @@
         .structure-grid,
         .fit-table {
           grid-template-columns: 1fr;
+        }
+
+        .question-card:first-child,
+        .question-card:last-child {
+          grid-column: auto;
         }
 
         .question-card {
@@ -768,6 +1031,48 @@
           flex-direction: column;
         }
 
+        .photo-chapter {
+          min-height: 640px;
+          padding: 0;
+        }
+
+        .photo-chapter::after,
+        .photo-chapter--copy-right::after {
+          background:
+            linear-gradient(0deg, rgba(5, 31, 27, 0.94) 0%, rgba(5, 31, 27, 0.4) 58%, transparent 82%);
+        }
+
+        .photo-chapter--copy-right .photo-chapter__copy {
+          margin-left: 0;
+          text-align: left;
+        }
+
+        .photo-chapter--copy-right h3,
+        .photo-chapter--copy-right .photo-chapter__copy > p:last-child {
+          margin-left: 0;
+        }
+
+        .photo-chapter__note {
+          top: 16px;
+          right: var(--page-pad);
+        }
+
+        .photo-chapter--pool .photo-chapter__image {
+          object-position: 40% center;
+        }
+
+        .photo-chapter--waterpark .photo-chapter__image {
+          object-position: 58% center;
+        }
+
+        .photo-chapter--beach .photo-chapter__image {
+          object-position: 43% center;
+        }
+
+        .photo-chapter--valley .photo-chapter__image {
+          object-position: 60% center;
+        }
+
         .spec-row {
           grid-template-columns: 1fr;
           gap: 8px;
@@ -777,13 +1082,33 @@
           top: auto;
           right: 8px;
           bottom: 8px;
-          width: calc(100vw - 16px);
+          width: auto;
+          max-width: calc(100vw - 16px);
+        }
+
+        .editor__panel-toggle {
+          display: inline-grid;
+        }
+
+        .editor:not(.is-open) [data-motion-toggle],
+        .editor:not(.is-open) [data-editor-toggle],
+        .editor:not(.is-open) [data-editor-save],
+        .editor:not(.is-open) [data-editor-export],
+        .editor:not(.is-open) [data-editor-reset],
+        .editor:not(.is-open) [data-editor-status] {
+          display: none;
         }
       }
 
       @media (prefers-reduced-motion: reduce) {
         html {
           scroll-behavior: auto;
+        }
+
+        .campaign-hero__image,
+        .photo-chapter__image {
+          transform: none;
+          transition: none;
         }
       }
 
@@ -813,6 +1138,8 @@
   </head>
   <body>
     <aside class="editor" aria-label="상세페이지 편집 도구">
+      <a class="editor__studio" href="studio.html" target="_blank" rel="noopener">스튜디오</a>
+      <button class="editor__panel-toggle" type="button" data-editor-panel-toggle aria-expanded="false">도구</button>
       <button type="button" data-editor-toggle>편집 시작</button>
       <button type="button" data-motion-toggle aria-pressed="false">모션 끄기</button>
       <button type="button" data-editor-save>저장</button>
@@ -822,16 +1149,39 @@
     </aside>
 
     <main class="detail-page" id="detail-page" data-content-source="content.json">
-      <section class="section hero" aria-labelledby="hero-title">
+      <section
+        class="section campaign-hero"
+        aria-labelledby="campaign-title"
+        data-section-name="첫 화면"
+      >
+        <img
+          class="campaign-hero__image"
+          src="assets/campaign-hero-v2.png"
+          alt="야외 수영장 가장자리에 앉아 그린 아쿠아핏 워터 슈즈를 착용한 모습"
+          data-studio-image
+        />
+        <div class="campaign-hero__copy">
+          <p class="campaign-hero__kicker" data-editable>AQUAFIT WATER SHOES</p>
+          <h1 class="display" id="campaign-title" data-editable>
+            물놀이 가는 날,<br /><em>발끝도 준비해요.</em>
+          </h1>
+          <p class="lead" data-editable>
+            어디서 신을지 떠올려 보고, 내 발에 맞는 크기와 마감부터 확인하세요.
+          </p>
+        </div>
+        <p class="campaign-hero__disclosure" data-editable>제품 참조 기반 착화 연출 이미지</p>
+      </section>
+
+      <section class="section hero product-intro" aria-labelledby="hero-title" data-section-name="제품 핵심">
         <div class="hero__topline">
           <span data-editable>AQUAFIT WATER SHOES</span>
           <span data-editable>GREEN · GRAY</span>
         </div>
         <div class="hero__copy">
           <p class="eyebrow" data-editable>FIT FIRST, THEN WATER</p>
-          <h1 class="display" id="hero-title" data-editable>
+          <h2 class="display" id="hero-title" data-editable>
             물에 들어가기 전,<br /><em>발에 맞는 구조부터.</em>
-          </h1>
+          </h2>
           <p class="lead" data-editable>
             발길이 기준 사이즈와 뒤꿈치 마감, 바닥 구조를 구매 전에 한 번에 확인하세요.
           </p>
@@ -846,7 +1196,7 @@
         <div class="hero__facts" aria-label="핵심 제품 정보">
           <div class="fact-pill">
             <strong data-editable>6단계</strong>
-            <span data-editable>S–XXXL</span>
+            <span data-editable>S-XXXL</span>
           </div>
           <div class="fact-pill">
             <strong data-editable>약 1.5cm</strong>
@@ -860,12 +1210,11 @@
       </section>
 
       <section class="section preflight" aria-labelledby="preflight-title">
-        <p class="eyebrow" data-editable>구매 전 세 가지</p>
         <h2 class="display display--medium" id="preflight-title" data-editable>
-          물놀이 신발,<br />겉모습만 보고 고르지 않도록.
+          물놀이 신발,<br />예쁜 색만 보고 고르셨나요?
         </h2>
         <p class="lead" data-editable>
-          같은 아쿠아슈즈라도 사이즈 체감, 뒤꿈치 마찰, 젖은 바닥의 느낌은 달라질 수 있습니다.
+          물에 닿으면 착용감이 달라질 수 있습니다. 발길이와 뒤꿈치 마감부터 차근차근 확인해 보세요.
         </p>
         <div class="question-grid">
           <article class="question-card">
@@ -881,7 +1230,7 @@
           <article class="question-card">
             <span class="question-card__mark" aria-hidden="true">03</span>
             <h3 data-editable>젖은 바닥에서<br />무엇을 봐야 할까?</h3>
-            <p data-editable>성능을 단정하지 않고 바닥 패턴과 사용 주의를 함께 확인합니다.</p>
+            <p data-editable>바닥 무늬는 모양만 확인하고, 물기가 있는 곳에서는 보폭을 줄여 천천히 이동하세요.</p>
           </article>
         </div>
         <p class="preflight__note" data-editable>
@@ -889,13 +1238,110 @@
         </p>
       </section>
 
-      <section class="section anatomy" aria-labelledby="anatomy-title">
-        <p class="eyebrow" data-editable>STRUCTURE, NOT PROMISES</p>
-        <h2 class="display display--medium" id="anatomy-title" data-editable>
-          보이는 구조는,<br /><em>분명하게.</em>
+      <section
+        class="section use-cases-intro"
+        aria-labelledby="use-cases-title"
+        data-section-name="사용 장면 안내"
+      >
+        <p class="eyebrow" data-editable>WHERE YOU WEAR IT</p>
+        <h2 class="display display--medium" id="use-cases-title" data-editable>
+          한 켤레가 필요한 순간은,<br /><em>장소마다 조금씩 다릅니다.</em>
         </h2>
         <p class="lead" data-editable>
-          과장된 성능 문구 대신 실제로 확인할 수 있는 갑피, 뒤꿈치 밴드, 바닥 패턴에 집중했습니다.
+          신는 순간부터 사용 후 관리까지, 물놀이 장소에서 실제로 마주치는 장면을 따라가 보세요.
+        </p>
+      </section>
+
+      <section
+        class="section photo-chapter photo-chapter--pool photo-chapter--copy-right"
+        aria-labelledby="pool-title"
+        data-section-name="수영장 착화"
+      >
+        <img
+          class="photo-chapter__image"
+          src="assets/use-pool-v1.png"
+          alt="실내 수영장 벤치에서 뒤꿈치 고리를 잡고 그린 아쿠아핏 워터 슈즈를 신는 모습"
+          data-studio-image
+        />
+        <div class="photo-chapter__copy">
+          <p class="photo-chapter__place" data-editable>수영장에 들어가기 전</p>
+          <h3 id="pool-title" data-editable>뒤꿈치 고리를 잡고<br />천천히 신어 보세요.</h3>
+          <p data-editable>
+            발을 넣은 뒤 입구 봉제와 뒤꿈치 밴드가 피부에 거슬리지 않는지 먼저 확인하세요.
+          </p>
+        </div>
+        <p class="photo-chapter__note" data-editable>제품 참조 기반 착화 연출</p>
+      </section>
+
+      <section
+        class="section photo-chapter photo-chapter--waterpark"
+        aria-labelledby="waterpark-title"
+        data-section-name="워터파크 이동"
+      >
+        <img
+          class="photo-chapter__image"
+          src="assets/use-waterpark-v1.png"
+          alt="워터파크 데크에서 그린 아쿠아핏 워터 슈즈를 신고 천천히 걷는 모습"
+          data-studio-image
+        />
+        <div class="photo-chapter__copy">
+          <p class="photo-chapter__place" data-editable>워터파크에서 오래 걷기 전</p>
+          <h3 id="waterpark-title" data-editable>발끝에 여유가 너무 남거나<br />뒤꿈치가 뜨지 않는지.</h3>
+          <p data-editable>
+            마른 상태에서 몇 걸음 걸어 보고, 발길이와 발볼에 맞는지 확인한 다음 이용하세요.
+          </p>
+        </div>
+        <p class="photo-chapter__note" data-editable>미끄럼 방지 성능을 시연한 장면이 아닙니다.</p>
+      </section>
+
+      <section
+        class="section photo-chapter photo-chapter--beach photo-chapter--copy-right"
+        aria-labelledby="beach-title"
+        data-section-name="해변 관리"
+      >
+        <img
+          class="photo-chapter__image"
+          src="assets/use-beach-v1.png"
+          alt="잔잔한 해변의 젖은 모래 위에서 그린 아쿠아핏 워터 슈즈를 착용한 모습"
+          data-studio-image
+        />
+        <div class="photo-chapter__copy">
+          <p class="photo-chapter__place" data-editable>모래가 들어오기 쉬운 해변</p>
+          <h3 id="beach-title" data-editable>사용이 끝나면<br />안쪽까지 털어 주세요.</h3>
+          <p data-editable>
+            신발 안쪽의 모래와 이물질을 제거하고, 그늘에서 충분히 말린 뒤 보관하세요.
+          </p>
+        </div>
+        <p class="photo-chapter__note" data-editable>제품 참조 기반 착화 연출</p>
+      </section>
+
+      <section
+        class="section photo-chapter photo-chapter--valley"
+        aria-labelledby="valley-title"
+        data-section-name="계곡 안전"
+      >
+        <img
+          class="photo-chapter__image"
+          src="assets/use-valley-v1.png"
+          alt="여름 계곡 옆 바위에 앉아 그린 아쿠아핏 워터 슈즈를 착용한 모습"
+          data-studio-image
+        />
+        <div class="photo-chapter__copy">
+          <p class="photo-chapter__place" data-editable>바닥이 고르지 않은 계곡</p>
+          <h3 id="valley-title" data-editable>신발보다 먼저,<br />딛을 곳을 살펴보세요.</h3>
+          <p data-editable>
+            젖은 바위와 이끼가 있는 곳에서는 신발 종류와 관계없이 보폭을 줄이고 천천히 이동하세요.
+          </p>
+        </div>
+        <p class="photo-chapter__note" data-editable>제품 참조 기반 착화 연출</p>
+      </section>
+
+      <section class="section anatomy" aria-labelledby="anatomy-title">
+        <h2 class="display display--medium" id="anatomy-title" data-editable>
+          광고 문구보다 먼저,<br /><em>확인할 세 가지.</em>
+        </h2>
+        <p class="lead" data-editable>
+          신축성 원단 갑피, 뒤꿈치 밴드, 바닥 패턴처럼 사진에서 확인할 수 있는 구조를 살펴보세요.
         </p>
         <div class="anatomy__stage">
           <img
@@ -923,10 +1369,10 @@
       <section class="section motion-section" aria-labelledby="context-title">
         <p class="eyebrow" data-editable>WEAR CONTEXT</p>
         <h2 class="display display--medium" id="context-title" data-editable>
-          물가에서 신는 모습도,<br />제품 그대로.
+          물가에서 신으면,<br />이런 모습입니다.
         </h2>
         <p class="lead" data-editable>
-          그린 제품의 배색과 뒤꿈치 고리, 측면 레터링을 그대로 살린 착화 연출입니다.
+          실제 제품 사진을 바탕으로 그린 배색과 뒤꿈치 고리, 발등을 덮는 높이를 보여드립니다.
         </p>
         <div class="motion-frame">
           <img
@@ -941,8 +1387,8 @@
           />
         </div>
         <div class="motion-caption">
-          <span data-editable>착화 연출 이미지</span>
-          <span data-editable>미끄럼·배수 성능을 시연한 장면이 아닙니다.</span>
+          <span data-editable>착용 모습을 돕기 위한 연출 이미지입니다.</span>
+          <span data-editable>미끄럼 방지나 배수 성능을 보여주는 장면은 아닙니다.</span>
         </div>
       </section>
 
@@ -967,12 +1413,12 @@
           />
         </div>
         <div class="fit-table" aria-label="사이즈 간단 표">
-          <div class="fit-cell"><strong data-editable>S</strong><span data-editable>22.0–22.5cm · 34–35</span></div>
-          <div class="fit-cell"><strong data-editable>M</strong><span data-editable>23.0–23.5cm · 36–37</span></div>
-          <div class="fit-cell"><strong data-editable>L</strong><span data-editable>24.0–24.5cm · 38–39</span></div>
-          <div class="fit-cell"><strong data-editable>XL</strong><span data-editable>25.0–25.5cm · 40–41</span></div>
-          <div class="fit-cell"><strong data-editable>XXL</strong><span data-editable>26.0–26.5cm · 42–43</span></div>
-          <div class="fit-cell"><strong data-editable>XXXL</strong><span data-editable>27.0–27.5cm · 44–45</span></div>
+          <div class="fit-cell"><strong data-editable>S</strong><span data-editable>22.0-22.5cm · 34-35</span></div>
+          <div class="fit-cell"><strong data-editable>M</strong><span data-editable>23.0-23.5cm · 36-37</span></div>
+          <div class="fit-cell"><strong data-editable>L</strong><span data-editable>24.0-24.5cm · 38-39</span></div>
+          <div class="fit-cell"><strong data-editable>XL</strong><span data-editable>25.0-25.5cm · 40-41</span></div>
+          <div class="fit-cell"><strong data-editable>XXL</strong><span data-editable>26.0-26.5cm · 42-43</span></div>
+          <div class="fit-cell"><strong data-editable>XXXL</strong><span data-editable>27.0-27.5cm · 44-45</span></div>
         </div>
         <p class="micro" data-editable>
           발볼이 넓은 경우 한 치수 크게 선택하는 것을 권장합니다. 착용감에는 개인차가 있습니다.
@@ -980,12 +1426,11 @@
       </section>
 
       <section class="section thickness-section" aria-labelledby="thickness-title">
-        <p class="eyebrow" data-editable>OUTSOLE PROFILE</p>
         <h2 class="display display--medium" id="thickness-title" data-editable>
           약 1.5cm,<br />어디를 잰 수치인지.
         </h2>
         <p class="lead" data-editable>
-          제품에 표시된 바닥 기준 두께의 위치를 제품에서 떨어진 치수선으로 안내합니다.
+          약 1.5cm는 바닥면을 포함해 표시한 두께입니다. 이미지에서 측정 위치를 확인하세요.
         </p>
         <div class="motion-frame">
           <img
@@ -1006,7 +1451,6 @@
       </section>
 
       <section class="section" aria-labelledby="numbers-title">
-        <p class="eyebrow" data-editable>NUMBERS WITH CONTEXT</p>
         <h2 class="display display--medium" id="numbers-title" data-editable>
           숫자는 크게,<br />기준은 바로 옆에.
         </h2>
@@ -1025,7 +1469,6 @@
       </section>
 
       <section class="section color-section" aria-labelledby="color-title">
-        <p class="eyebrow" data-editable>COLOR OPTIONS</p>
         <h2 class="display display--medium" id="color-title" data-editable>
           물가에 어울리는<br />두 가지 컬러.
         </h2>
@@ -1071,7 +1514,7 @@
           </div>
           <div class="spec-row">
             <dt data-editable>규격</dt>
-            <dd data-editable>S(34–35) / M(36–37) / L(38–39) / XL(40–41) / XXL(42–43) / XXXL(44–45)</dd>
+            <dd data-editable>S(34-35) / M(36-37) / L(38-39) / XL(40-41) / XXL(42-43) / XXXL(44-45)</dd>
           </div>
           <div class="spec-row">
             <dt data-editable>바닥 두께</dt>
@@ -1108,9 +1551,8 @@
 
       <section class="section finale" aria-labelledby="finale-title">
         <div>
-          <p class="eyebrow" data-editable>AQUAFIT WATER SHOES</p>
           <h2 class="display" id="finale-title" data-editable>
-            물놀이 준비,<br /><em>발길이부터.</em>
+            수영장부터 계곡까지,<br /><em>물놀이를 위한 한 켤레.</em>
           </h2>
           <img
             class="finale__product"
@@ -1120,7 +1562,7 @@
         </div>
         <div class="finale__bottom">
           <span data-editable>그린 · 그레이</span>
-          <span data-editable>S–XXXL · 발길이 22.0–27.5cm</span>
+          <span data-editable>S-XXXL · 발길이 22.0-27.5cm</span>
         </div>
       </section>
     </main>
@@ -1130,6 +1572,8 @@
         const root = document.documentElement;
         const page = document.querySelector("#detail-page");
         const editables = [...document.querySelectorAll("[data-editable]")];
+        const editorPanel = document.querySelector(".editor");
+        const panelToggle = document.querySelector("[data-editor-panel-toggle]");
         const toggle = document.querySelector("[data-editor-toggle]");
         const motionToggle = document.querySelector("[data-motion-toggle]");
         const save = document.querySelector("[data-editor-save]");
@@ -1139,6 +1583,7 @@
         const storageKey = "detail-page-66475839-content-v1";
         let editing = false;
         let dirtyCount = 0;
+        let resetArmed = false;
 
         editables.forEach((element, index) => {
           element.dataset.editId = element.dataset.editId || `copy-${String(index + 1).padStart(3, "0")}`;
@@ -1180,6 +1625,12 @@
         };
 
         toggle.addEventListener("click", () => setEditing(!editing));
+
+        panelToggle.addEventListener("click", () => {
+          const open = editorPanel.classList.toggle("is-open");
+          panelToggle.textContent = open ? "도구 닫기" : "도구";
+          panelToggle.setAttribute("aria-expanded", String(open));
+        });
 
         motionToggle.addEventListener("click", () => {
           const paused = document.body.classList.toggle("motion-paused");
@@ -1226,10 +1677,34 @@
         });
 
         reset.addEventListener("click", () => {
-          if (!window.confirm("브라우저에 저장한 문구를 초기화할까요?")) return;
+          if (!resetArmed) {
+            resetArmed = true;
+            reset.textContent = "한 번 더 누르면 초기화";
+            setStatus("저장한 문구를 지우려면 초기화를 한 번 더 누르세요.");
+            window.setTimeout(() => {
+              resetArmed = false;
+              reset.textContent = "초기화";
+            }, 5000);
+            return;
+          }
           localStorage.removeItem(storageKey);
           window.location.reload();
         });
+
+        const revealTargets = [...document.querySelectorAll(".campaign-hero, .photo-chapter")];
+        if ("IntersectionObserver" in window) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) entry.target.classList.add("is-visible");
+              });
+            },
+            { threshold: 0.18 },
+          );
+          revealTargets.forEach((target) => observer.observe(target));
+        } else {
+          revealTargets.forEach((target) => target.classList.add("is-visible"));
+        }
 
         applyStored();
         setEditing(false);

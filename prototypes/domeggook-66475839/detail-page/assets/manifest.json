@@ -50,13 +50,14 @@
       "media_type": "image/gif",
       "width": 800,
       "height": 800,
-      "bytes": 1061556,
-      "sha256": "8b8698c8cbc101327c8c06437b62e26b68316ac4f13c79ef3b1bbdb5068462a2",
+      "bytes": 1047271,
+      "sha256": "7d5ba7b92e9491b61e95b29ab1357329cf60bba0b2d1d8391c8a0c624e999768",
       "duration_seconds": 5.2,
       "fps": 15,
       "source_type": "hyperframes",
       "fact_ids": ["FACT-006", "FACT-007"],
-      "identity_status": "approved"
+      "identity_status": "approved",
+      "qa_note": "612px 눈금선, 6개 범위 점, 활성 커서와 진행 막대 끝점을 한 좌표 배열로 결속하고 카드·라벨 전환을 커서 도착 뒤로 이동"
     },
     {
       "asset_id": "fit-guide-poster",
@@ -64,8 +65,8 @@
       "media_type": "image/png",
       "width": 800,
       "height": 800,
-      "bytes": 261960,
-      "sha256": "a20c358376dc968de61abbb69fee39e843157dce6dd54125c39e5dcc4a8debea",
+      "bytes": 197564,
+      "sha256": "64784d67f0ef65f585fde5f57af0b4347a90b8cde6b7083bec0e78fd763bb040",
       "source_type": "hyperframes-poster",
       "fact_ids": ["FACT-006", "FACT-007"],
       "identity_status": "approved"
@@ -119,6 +120,71 @@
       "sha256": "a8508a781bcb718ff204d4b6741eea0cb541d6cc759f87d2500b99b539bac5f1",
       "source_type": "supplier-original-crop",
       "identity_status": "evidence-only"
+    },
+    {
+      "asset_id": "campaign-hero-v2",
+      "file": "campaign-hero-v2.png",
+      "media_type": "image/png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 2025269,
+      "sha256": "8b453503ee442165c69c955e2d6c4e33e6b2f8f3cb42fd34aa609447dff011e2",
+      "source_type": "imagegen-product-reference-horizontal-scene",
+      "identity_status": "approved-for-context-only",
+      "allowed_use": "campaign hero and poolside preparation context",
+      "prohibited_use": "performance evidence"
+    },
+    {
+      "asset_id": "use-pool-v1",
+      "file": "use-pool-v1.png",
+      "media_type": "image/png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 2102867,
+      "sha256": "0539781ecd5cc43101f82ed90c7a341481f0d958b3a3500c6b41fe8537d8927b",
+      "source_type": "imagegen-product-reference-horizontal-scene",
+      "identity_status": "approved-for-context-only",
+      "allowed_use": "pool dressing context",
+      "prohibited_use": "performance evidence"
+    },
+    {
+      "asset_id": "use-waterpark-v1",
+      "file": "use-waterpark-v1.png",
+      "media_type": "image/png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 2024988,
+      "sha256": "0e6c75359349c341cb96ead3645852370c1d0e801a40df22980f563452e42f73",
+      "source_type": "imagegen-product-reference-horizontal-scene",
+      "identity_status": "approved-for-context-only",
+      "allowed_use": "waterpark walking context",
+      "prohibited_use": "slip or walking performance evidence"
+    },
+    {
+      "asset_id": "use-beach-v1",
+      "file": "use-beach-v1.png",
+      "media_type": "image/png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 2209878,
+      "sha256": "e125db82bc4f1d51edde9dd0a509b3be1f6703453ac2e33002f6d6cdd6c90df2",
+      "source_type": "imagegen-product-reference-horizontal-scene",
+      "identity_status": "approved-for-context-only",
+      "allowed_use": "beach use and after-use care context",
+      "prohibited_use": "drainage, waterproof or durability evidence"
+    },
+    {
+      "asset_id": "use-valley-v1",
+      "file": "use-valley-v1.png",
+      "media_type": "image/png",
+      "width": 1586,
+      "height": 992,
+      "bytes": 2376645,
+      "sha256": "dee128ffc5bf4ade9119ef2af3f87da583278609278a17270e0d49a180f9f3a5",
+      "source_type": "imagegen-product-reference-horizontal-scene",
+      "identity_status": "approved-for-context-only",
+      "allowed_use": "valley safety context",
+      "prohibited_use": "slip, protection, waterproof or durability evidence"
     }
   ]
 }

@@ -19,6 +19,101 @@
       "prompt_summary": "수영장 가장자리의 한쪽 발에 승인된 그린 아쿠아슈즈를 착용한 자연광 상업 사진. 제품의 형태, 연녹색·회색·검정 배색, 뒤꿈치 고리, 측면 패턴과 Sport Keeper 레터링을 참조와 일치시키고 제품 재설계·추가 로고·성능 시연을 금지.",
       "allowed_use": "착화 비율과 물가 사용 맥락",
       "prohibited_use": "미끄럼 방지, 배수, 통기, 건조, 충격 흡수 또는 내구 증거"
+    },
+    {
+      "id": "GEN-CAMPAIGN-HERO-V2",
+      "path": "campaign-hero-v2.png",
+      "kind": "imagegen-reference-guided-horizontal-campaign-scene",
+      "status": "approved_for_context_only",
+      "width_px": 1586,
+      "height_px": 992,
+      "bytes": 2025269,
+      "sha256": "8b453503ee442165c69c955e2d6c4e33e6b2f8f3cb42fd34aa609447dff011e2",
+      "reference_assets": [
+        "../product-ssot/cutout/green-side-v1.png",
+        "../../detail-page/assets/supplier-thumbnail.png",
+        "../../detail-page/assets/supplier-color-spec-source.png"
+      ],
+      "prompt_summary": "야외 수영장 데크의 차분한 착화 장면. 제품 SSOT의 민트 갑피, 회색 입구, 뒤꿈치 고리, 검은 아웃솔, 그린 패턴과 Sport Keeper 표기를 보존하고 왼쪽 HTML 카피 여백을 확보.",
+      "copy_safe_area": "left 42%",
+      "allowed_use": "상세페이지 첫 화면과 물놀이 준비 맥락",
+      "prohibited_use": "미끄럼 방지, 배수, 통기, 건조, 충격 흡수 또는 내구 증거"
+    },
+    {
+      "id": "GEN-USE-POOL-V1",
+      "path": "use-pool-v1.png",
+      "kind": "imagegen-reference-guided-horizontal-use-scene",
+      "status": "approved_for_context_only",
+      "width_px": 1586,
+      "height_px": 992,
+      "bytes": 2102867,
+      "sha256": "0539781ecd5cc43101f82ed90c7a341481f0d958b3a3500c6b41fe8537d8927b",
+      "reference_assets": [
+        "../product-ssot/cutout/green-side-v1.png",
+        "../../detail-page/assets/supplier-thumbnail.png",
+        "../../detail-page/assets/supplier-color-spec-source.png"
+      ],
+      "prompt_summary": "실내 수영장 벤치에서 뒤꿈치 고리를 잡고 신는 순간. 제품 비례와 배색을 보존하고 오른쪽 HTML 카피 여백을 확보.",
+      "copy_safe_area": "right 40%",
+      "allowed_use": "착화 방식과 입구 마감 확인 맥락",
+      "prohibited_use": "착화 용이성 보장 또는 성능 증거"
+    },
+    {
+      "id": "GEN-USE-WATERPARK-V1",
+      "path": "use-waterpark-v1.png",
+      "kind": "imagegen-reference-guided-horizontal-use-scene",
+      "status": "approved_for_context_only",
+      "width_px": 1586,
+      "height_px": 992,
+      "bytes": 2024988,
+      "sha256": "0e6c75359349c341cb96ead3645852370c1d0e801a40df22980f563452e42f73",
+      "reference_assets": [
+        "../product-ssot/cutout/green-side-v1.png",
+        "../../detail-page/assets/supplier-thumbnail.png",
+        "../../detail-page/assets/supplier-color-spec-source.png"
+      ],
+      "prompt_summary": "워터파크 데크를 천천히 걷는 낮은 시점의 장면. 제품을 오른쪽에 두고 왼쪽 HTML 카피 여백을 확보하며 위험한 달리기와 성능 시연을 배제.",
+      "copy_safe_area": "left 46%",
+      "allowed_use": "워터파크 이동 전 사이즈 확인 맥락",
+      "prohibited_use": "미끄럼 방지 또는 보행 성능 증거"
+    },
+    {
+      "id": "GEN-USE-BEACH-V1",
+      "path": "use-beach-v1.png",
+      "kind": "imagegen-reference-guided-horizontal-use-scene",
+      "status": "approved_for_context_only",
+      "width_px": 1586,
+      "height_px": 992,
+      "bytes": 2209878,
+      "sha256": "e125db82bc4f1d51edde9dd0a509b3be1f6703453ac2e33002f6d6cdd6c90df2",
+      "reference_assets": [
+        "../product-ssot/cutout/green-side-v1.png",
+        "../../detail-page/assets/supplier-thumbnail.png",
+        "../../detail-page/assets/supplier-color-spec-source.png"
+      ],
+      "prompt_summary": "잔잔한 해변의 젖은 모래 위를 걷는 장면. 제품을 왼쪽에 두고 오른쪽 바다와 하늘을 HTML 카피 여백으로 확보.",
+      "copy_safe_area": "right 42%",
+      "allowed_use": "해변 사용과 사용 후 모래 제거·건조 안내 맥락",
+      "prohibited_use": "방수, 배수, 미끄럼 방지 또는 내구 증거"
+    },
+    {
+      "id": "GEN-USE-VALLEY-V1",
+      "path": "use-valley-v1.png",
+      "kind": "imagegen-reference-guided-horizontal-use-scene",
+      "status": "approved_for_context_only",
+      "width_px": 1586,
+      "height_px": 992,
+      "bytes": 2376645,
+      "sha256": "dee128ffc5bf4ade9119ef2af3f87da583278609278a17270e0d49a180f9f3a5",
+      "reference_assets": [
+        "../product-ssot/cutout/green-side-v1.png",
+        "../../detail-page/assets/supplier-thumbnail.png",
+        "../../detail-page/assets/supplier-color-spec-source.png"
+      ],
+      "prompt_summary": "계곡 옆 바위에 앉아 쉬는 장면. 제품은 오른쪽에 선명하게 두고 왼쪽 숲과 계곡을 HTML 카피 여백으로 확보.",
+      "copy_safe_area": "left 44%",
+      "allowed_use": "계곡 사용 시 바닥 확인과 천천히 이동하라는 안전 안내 맥락",
+      "prohibited_use": "미끄럼 방지, 발 보호, 방수 또는 내구 증거"
     }
   ]
 }

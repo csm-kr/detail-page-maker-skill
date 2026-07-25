@@ -58,11 +58,17 @@
       }
       h1 {
         margin: 0;
+        display: grid;
+        row-gap: 4px;
         color: var(--deep);
         font-size: 46px;
         font-weight: 950;
         letter-spacing: -.06em;
-        line-height: 1.08;
+        line-height: 1;
+      }
+      h1 span {
+        display: block;
+        min-height: 50px;
       }
       .ruler {
         position: absolute;
@@ -106,24 +112,38 @@
       .ruler-value--end { right: 38px; }
       .cursor {
         position: absolute;
-        left: 39px;
+        left: 86.64px;
         top: 39px;
-        width: 17px;
-        height: 17px;
+        width: 18px;
+        height: 18px;
         border: 4px solid white;
         border-radius: 50%;
         background: var(--deep);
         box-shadow: 0 6px 12px rgba(12,40,35,.22);
+        z-index: 3;
       }
       .range {
         position: absolute;
         left: 40px;
-        top: 43px;
-        width: 62px;
-        height: 9px;
-        border-radius: 9px;
+        top: 46px;
+        width: 612px;
+        height: 4px;
+        border-radius: 4px;
         background: var(--lime);
         transform-origin: left center;
+        transform: scaleX(.09091);
+        z-index: 2;
+      }
+      .ruler-point {
+        position: absolute;
+        top: 47.5px;
+        width: 8px;
+        height: 8px;
+        border: 2px solid rgba(255,255,252,.96);
+        border-radius: 50%;
+        background: rgba(20,55,47,.38);
+        transform: translate(-50%, -50%);
+        z-index: 2;
       }
       .current-range {
         position: absolute;
@@ -201,26 +221,32 @@
     >
       <header class="head">
         <p class="kicker">FIT BY FOOT LENGTH</p>
-        <h1>신발 호수보다,<br />발길이를 먼저.</h1>
+        <h1><span>신발 호수보다,</span><span>발길이를 먼저.</span></h1>
       </header>
       <div class="ruler">
         <div class="ruler-line"></div>
         <span class="ruler-value ruler-value--start">22.0 cm</span>
         <span class="ruler-value ruler-value--end">27.5 cm</span>
+        <i class="ruler-point" style="left: 95.64px"></i>
+        <i class="ruler-point" style="left: 206.91px"></i>
+        <i class="ruler-point" style="left: 318.18px"></i>
+        <i class="ruler-point" style="left: 429.45px"></i>
+        <i class="ruler-point" style="left: 540.73px"></i>
+        <i class="ruler-point" style="left: 652px"></i>
         <div class="range"></div>
         <div class="cursor"></div>
-        <span class="current-range">22.0–22.5 cm · S</span>
+        <span class="current-range">22.0-22.5 cm · S</span>
       </div>
       <div class="size-grid">
-        <article class="size-card" data-index="0"><strong>S</strong><span>34–35 · 22.0–22.5cm</span></article>
-        <article class="size-card" data-index="1"><strong>M</strong><span>36–37 · 23.0–23.5cm</span></article>
-        <article class="size-card" data-index="2"><strong>L</strong><span>38–39 · 24.0–24.5cm</span></article>
-        <article class="size-card" data-index="3"><strong>XL</strong><span>40–41 · 25.0–25.5cm</span></article>
-        <article class="size-card" data-index="4"><strong>XXL</strong><span>42–43 · 26.0–26.5cm</span></article>
-        <article class="size-card" data-index="5"><strong>XXXL</strong><span>44–45 · 27.0–27.5cm</span></article>
+        <article class="size-card" data-index="0"><strong>S</strong><span>34-35 · 22.0-22.5cm</span></article>
+        <article class="size-card" data-index="1"><strong>M</strong><span>36-37 · 23.0-23.5cm</span></article>
+        <article class="size-card" data-index="2"><strong>L</strong><span>38-39 · 24.0-24.5cm</span></article>
+        <article class="size-card" data-index="3"><strong>XL</strong><span>40-41 · 25.0-25.5cm</span></article>
+        <article class="size-card" data-index="4"><strong>XXL</strong><span>42-43 · 26.0-26.5cm</span></article>
+        <article class="size-card" data-index="5"><strong>XXXL</strong><span>44-45 · 27.0-27.5cm</span></article>
       </div>
       <div class="note">
-        <span>발볼이 넓다면 한 치수 크게</span>
+        <span>구매 전 발길이를 실측하세요</span>
         <span>착용감에는 개인차가 있습니다</span>
       </div>
     </div>
@@ -228,26 +254,27 @@
       window.__timelines = window.__timelines || {};
       const cards = [...document.querySelectorAll(".size-card")];
       const labels = [
-        "22.0–22.5 cm · S",
-        "23.0–23.5 cm · M",
-        "24.0–24.5 cm · L",
-        "25.0–25.5 cm · XL",
-        "26.0–26.5 cm · XXL",
-        "27.0–27.5 cm · XXXL",
+        "22.0-22.5 cm · S",
+        "23.0-23.5 cm · M",
+        "24.0-24.5 cm · L",
+        "25.0-25.5 cm · XL",
+        "26.0-26.5 cm · XXL",
+        "27.0-27.5 cm · XXXL",
       ];
-      const xValues = [39, 145, 251, 357, 463, 569];
+      const cursorOffsets = [0, 111.27, 222.54, 333.81, 445.09, 556.36];
+      const rangeScales = [.09091, .27273, .45455, .63636, .81818, 1];
       const tl = gsap.timeline({ paused: true });
       tl.to(".ruler", { opacity: 1, duration: .36, ease: "power2.out" }, .2);
       tl.to(cards, { opacity: 1, y: 0, duration: .38, stagger: .055, ease: "power3.out" }, .28);
       cards.forEach((card, index) => {
         const at = .82 + index * .58;
+        tl.to(".cursor", { x: cursorOffsets[index], duration: .3, ease: "power2.inOut" }, at);
+        tl.to(".range", { scaleX: rangeScales[index], duration: .3, ease: "power2.inOut" }, at);
         tl.call(() => {
           cards.forEach((item) => item.classList.remove("active"));
           card.classList.add("active");
           document.querySelector(".current-range").textContent = labels[index];
-        }, [], at);
-        tl.to(".cursor", { x: xValues[index] - 39, duration: .3, ease: "power2.inOut" }, at);
-        tl.to(".range", { x: xValues[index] - 39, duration: .3, ease: "power2.inOut" }, at);
+        }, [], at + .3);
       });
       tl.to([".ruler", ".size-card", ".note"], { opacity: 0, duration: .32, ease: "power2.in" }, 4.7);
       window.__timelines["aqua-fit-guide-motion"] = tl;

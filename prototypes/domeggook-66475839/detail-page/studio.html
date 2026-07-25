@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="아쿠아핏 워터 슈즈 상세페이지의 문구, 사진 위치, 오버레이와 색을 수정하고 HTML로 내보내는 로컬 스튜디오"
+    />
+    <title>아쿠아핏 상세페이지 스튜디오</title>
+    <style>
+      @font-face {
+        font-family: "Noto Sans KR";
+        src: local("Noto Sans KR");
+        font-style: normal;
+        font-weight: 100 900;
+      }
+
+      :root {
+        --ink: #10251f;
+        --soft: #577069;
+        --deep: #0a2823;
+        --forest: #17473d;
+        --mint: #dceee5;
+        --lime: #d8ef7b;
+        --paper: #f4f2eb;
+        --line: rgba(16, 37, 31, 0.14);
+        --panel: #fffefa;
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-width: 1180px;
+        min-height: 100%;
+        margin: 0;
+        color: var(--ink);
+        font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        background: #d9ddda;
+      }
+
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .studio {
+        min-height: 100vh;
+        display: grid;
+        grid-template:
+          "top top top" 70px
+          "nav stage inspector" calc(100vh - 70px)
+          / 252px minmax(650px, 1fr) 330px;
+      }
+
+      .topbar {
+        grid-area: top;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 0 22px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        color: #fff;
+        background: var(--deep);
+      }
+
+      .brand {
+        min-width: 0;
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+      }
+
+      .brand strong {
+        font-size: 18px;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+      }
+
+      .brand span {
+        color: #bcd2c9;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .toolbar__group {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .topbar button {
+        min-height: 36px;
+        padding: 0 13px;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 12px;
+        font-weight: 850;
+      }
+
+      .topbar button:hover,
+      .topbar button:focus-visible {
+        border-color: var(--lime);
+        outline: 0;
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .topbar button[aria-pressed="true"],
+      .topbar .button--primary {
+        color: var(--deep);
+        background: var(--lime);
+      }
+
+      .sidebar,
+      .inspector {
+        min-height: 0;
+        overflow: auto;
+        background: var(--panel);
+      }
+
+      .sidebar {
+        grid-area: nav;
+        border-right: 1px solid var(--line);
+      }
+
+      .inspector {
+        grid-area: inspector;
+        border-left: 1px solid var(--line);
+      }
+
+      .panel-head {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding: 20px 18px 16px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 254, 250, 0.96);
+        backdrop-filter: blur(10px);
+      }
+
+      .panel-head h2 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 950;
+        letter-spacing: -0.04em;
+      }
+
+      .panel-head p {
+        margin: 5px 0 0;
+        color: var(--soft);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.45;
+      }
+
+      .section-list {
+        display: grid;
+        gap: 6px;
+        padding: 12px;
+      }
+
+      .section-button {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 30px minmax(0, 1fr);
+        align-items: center;
+        gap: 9px;
+        min-height: 48px;
+        padding: 7px 10px;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        color: var(--ink);
+        background: transparent;
+        text-align: left;
+      }
+
+      .section-button:hover,
+      .section-button:focus-visible {
+        border-color: var(--line);
+        outline: 0;
+        background: var(--paper);
+      }
+
+      .section-button.is-active {
+        color: #fff;
+        background: var(--forest);
+      }
+
+      .section-button__number {
+        display: grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        border-radius: 9px;
+        color: var(--forest);
+        background: var(--mint);
+        font-size: 10px;
+        font-weight: 950;
+      }
+
+      .section-button.is-active .section-button__number {
+        color: var(--deep);
+        background: var(--lime);
+      }
+
+      .section-button__label {
+        overflow: hidden;
+        font-size: 12px;
+        font-weight: 850;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .stage {
+        grid-area: stage;
+        min-width: 0;
+        min-height: 0;
+        overflow: auto;
+        padding: 34px max(28px, calc((100% - var(--preview-width, 800px)) / 2));
+        background:
+          linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+          linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+          #cdd3cf;
+        background-size: 24px 24px;
+      }
+
+      .preview-shell {
+        width: var(--preview-width, 800px);
+        min-height: 900px;
+        margin: 0 auto;
+        background: #fff;
+        box-shadow: 0 26px 80px rgba(10, 40, 35, 0.22);
+        transition: width 220ms ease;
+      }
+
+      .preview {
+        width: 100%;
+        min-height: 1200px;
+        display: block;
+        border: 0;
+        background: #fff;
+      }
+
+      .inspector-body {
+        display: grid;
+        gap: 18px;
+        padding: 18px;
+      }
+
+      .control-group {
+        display: grid;
+        gap: 9px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .control-group:last-child {
+        border: 0;
+      }
+
+      .control-group h3 {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 950;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label,
+      .field-row label {
+        color: var(--soft);
+        font-size: 10px;
+        font-weight: 850;
+      }
+
+      .field input[type="text"],
+      .field input[type="url"],
+      .field textarea,
+      .field select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .field input[type="text"],
+      .field input[type="url"],
+      .field select {
+        height: 38px;
+        padding: 0 10px;
+      }
+
+      .field textarea {
+        min-height: 112px;
+        padding: 10px;
+        line-height: 1.5;
+        resize: vertical;
+      }
+
+      .field input:focus,
+      .field textarea:focus,
+      .field select:focus {
+        border-color: var(--forest);
+        outline: 2px solid rgba(23, 71, 61, 0.16);
+      }
+
+      .field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .range-line {
+        display: grid;
+        grid-template-columns: 1fr 42px;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .range-line output {
+        color: var(--soft);
+        font-size: 10px;
+        font-weight: 850;
+        text-align: right;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--forest);
+      }
+
+      .field input[type="color"] {
+        width: 100%;
+        height: 38px;
+        padding: 3px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+      }
+
+      .file-button,
+      .inspector button {
+        min-height: 38px;
+        display: inline-grid;
+        place-items: center;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: var(--ink);
+        background: #fff;
+        font-size: 11px;
+        font-weight: 850;
+      }
+
+      .file-button:hover,
+      .file-button:focus-within,
+      .inspector button:hover,
+      .inspector button:focus-visible {
+        border-color: var(--forest);
+        outline: 0;
+        background: var(--mint);
+      }
+
+      .file-button input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+      }
+
+      .empty {
+        margin: 0;
+        padding: 14px;
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        color: var(--soft);
+        background: var(--paper);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.55;
+      }
+
+      .status {
+        min-width: 240px;
+        margin: 0;
+        color: #c9ddd4;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: right;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .preview-shell {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="studio">
+      <header class="topbar">
+        <div class="brand">
+          <strong>DETAIL PAGE STUDIO</strong>
+          <span>아쿠아핏 워터 슈즈</span>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar__group" aria-label="미리보기 너비">
+            <button type="button" data-viewport="800" aria-pressed="true">800</button>
+            <button type="button" data-viewport="390" aria-pressed="false">390</button>
+          </div>
+          <button type="button" data-motion>모션 끄기</button>
+          <button type="button" data-save>저장</button>
+          <button type="button" data-export-json>JSON</button>
+          <button class="button--primary" type="button" data-export-html>단일 HTML 내보내기</button>
+          <button type="button" data-reset>초기화</button>
+        </div>
+        <p class="status" data-status role="status" aria-live="polite">페이지를 불러오는 중입니다.</p>
+      </header>
+
+      <nav class="sidebar" aria-label="상세페이지 섹션">
+        <div class="panel-head">
+          <h2>섹션</h2>
+          <p>장면을 선택하면 미리보기와 속성이 함께 이동합니다.</p>
+        </div>
+        <div class="section-list" data-section-list></div>
+      </nav>
+
+      <section class="stage" aria-label="상세페이지 미리보기">
+        <div class="preview-shell">
+          <iframe class="preview" src="index.html" title="아쿠아핏 상세페이지 미리보기"></iframe>
+        </div>
+      </section>
+
+      <aside class="inspector" aria-label="선택 항목 속성">
+        <div class="panel-head">
+          <h2 data-inspector-title>속성</h2>
+          <p>미리보기의 문구를 직접 누르면 해당 문구를 수정할 수 있습니다.</p>
+        </div>
+        <div class="inspector-body">
+          <section class="control-group">
+            <h3>선택한 문구</h3>
+            <p class="empty" data-copy-empty>미리보기에서 수정할 문구를 선택하세요.</p>
+            <div class="field" data-copy-controls hidden>
+              <label for="copy-value">내용</label>
+              <textarea id="copy-value" data-copy-value></textarea>
+            </div>
+            <div class="field-row" data-copy-style hidden>
+              <div class="field">
+                <label for="font-size">크기</label>
+                <select id="font-size" data-font-size>
+                  <option value="">기본값</option>
+                  <option value="13px">13px</option>
+                  <option value="16px">16px</option>
+                  <option value="20px">20px</option>
+                  <option value="28px">28px</option>
+                  <option value="40px">40px</option>
+                  <option value="56px">56px</option>
+                  <option value="72px">72px</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="text-align">정렬</label>
+                <select id="text-align" data-text-align>
+                  <option value="">기본값</option>
+                  <option value="left">왼쪽</option>
+                  <option value="center">가운데</option>
+                  <option value="right">오른쪽</option>
+                </select>
+              </div>
+            </div>
+            <div class="field" data-copy-color hidden>
+              <label for="text-color">글자색</label>
+              <input id="text-color" type="color" value="#ffffff" data-text-color />
+            </div>
+          </section>
+
+          <section class="control-group">
+            <h3>장면 사진</h3>
+            <p class="empty" data-image-empty>이 섹션에는 교체 가능한 장면 사진이 없습니다.</p>
+            <div data-image-controls hidden>
+              <label class="file-button">
+                내 이미지로 교체
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-image-file />
+              </label>
+              <div class="field">
+                <label for="image-url">이미지 주소 또는 상대 경로</label>
+                <input id="image-url" type="text" data-image-url />
+              </div>
+              <div class="field">
+                <label for="position-x">가로 초점</label>
+                <div class="range-line">
+                  <input id="position-x" type="range" min="0" max="100" value="50" data-position-x />
+                  <output data-position-x-output>50%</output>
+                </div>
+              </div>
+              <div class="field">
+                <label for="position-y">세로 초점</label>
+                <div class="range-line">
+                  <input id="position-y" type="range" min="0" max="100" value="50" data-position-y />
+                  <output data-position-y-output>50%</output>
+                </div>
+              </div>
+              <div class="field">
+                <label for="overlay-opacity">사진 오버레이</label>
+                <div class="range-line">
+                  <input id="overlay-opacity" type="range" min="0" max="100" value="100" data-overlay />
+                  <output data-overlay-output>100%</output>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="control-group">
+            <h3>색상 토큰</h3>
+            <div class="field-row">
+              <div class="field">
+                <label for="forest-color">포레스트</label>
+                <input id="forest-color" type="color" value="#17473d" data-token="--forest" />
+              </div>
+              <div class="field">
+                <label for="lime-color">라임</label>
+                <input id="lime-color" type="color" value="#d8ef7b" data-token="--lime" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="mint-color">민트</label>
+                <input id="mint-color" type="color" value="#dceee5" data-token="--mint" />
+              </div>
+              <div class="field">
+                <label for="paper-color">배경</label>
+                <input id="paper-color" type="color" value="#f7f5ee" data-token="--paper" />
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </main>
+
+    <script>
+      (() => {
+        const frame = document.querySelector(".preview");
+        const stage = document.querySelector(".stage");
+        const status = document.querySelector("[data-status]");
+        const sectionList = document.querySelector("[data-section-list]");
+        const inspectorTitle = document.querySelector("[data-inspector-title]");
+        const copyEmpty = document.querySelector("[data-copy-empty]");
+        const copyControls = document.querySelector("[data-copy-controls]");
+        const copyStyle = document.querySelector("[data-copy-style]");
+        const copyColor = document.querySelector("[data-copy-color]");
+        const copyValue = document.querySelector("[data-copy-value]");
+        const fontSize = document.querySelector("[data-font-size]");
+        const textAlign = document.querySelector("[data-text-align]");
+        const textColor = document.querySelector("[data-text-color]");
+        const imageEmpty = document.querySelector("[data-image-empty]");
+        const imageControls = document.querySelector("[data-image-controls]");
+        const imageFile = document.querySelector("[data-image-file]");
+        const imageUrl = document.querySelector("[data-image-url]");
+        const positionX = document.querySelector("[data-position-x]");
+        const positionY = document.querySelector("[data-position-y]");
+        const positionXOutput = document.querySelector("[data-position-x-output]");
+        const positionYOutput = document.querySelector("[data-position-y-output]");
+        const overlay = document.querySelector("[data-overlay]");
+        const overlayOutput = document.querySelector("[data-overlay-output]");
+        const storageKey = "detail-page-66475839-studio-v1";
+        let frameDocument;
+        let sections = [];
+        let selectedSection;
+        let selectedCopy;
+        let resetArmed = false;
+
+        const setStatus = (message) => {
+          status.textContent = message;
+        };
+
+        const getSectionName = (section, index) => {
+          const explicit = section.dataset.sectionName;
+          if (explicit) return explicit;
+          const heading = section.querySelector("h1, h2, h3");
+          return heading ? heading.textContent.trim().replace(/\s+/g, " ") : `섹션 ${index + 1}`;
+        };
+
+        const parsePosition = (value) => {
+          const parts = String(value || "50% 50%").match(/(\d+)%\s+(\d+)%/);
+          return parts ? [Number(parts[1]), Number(parts[2])] : [50, 50];
+        };
+
+        const selectCopy = (element) => {
+          selectedCopy = element || null;
+          const active = Boolean(selectedCopy);
+          copyEmpty.hidden = active;
+          copyControls.hidden = !active;
+          copyStyle.hidden = !active;
+          copyColor.hidden = !active;
+          if (!active) return;
+
+          copyValue.value = selectedCopy.innerHTML.replaceAll("<br>", "\n").replaceAll("<br />", "\n");
+          fontSize.value = selectedCopy.style.fontSize || "";
+          textAlign.value = selectedCopy.style.textAlign || "";
+          const computedColor = getComputedStyle(selectedCopy).color;
+          const rgb = computedColor.match(/\d+/g);
+          if (rgb && rgb.length >= 3) {
+            textColor.value = `#${rgb
+              .slice(0, 3)
+              .map((value) => Number(value).toString(16).padStart(2, "0"))
+              .join("")}`;
+          }
+          inspectorTitle.textContent = selectedCopy.textContent.trim().slice(0, 28) || "선택한 문구";
+        };
+
+        const selectSection = (section) => {
+          selectedSection = section;
+          [...sectionList.children].forEach((button, index) => {
+            button.classList.toggle("is-active", sections[index] === section);
+          });
+
+          const image = section.querySelector("[data-studio-image]");
+          imageEmpty.hidden = Boolean(image);
+          imageControls.hidden = !image;
+          if (image) {
+            imageUrl.value = image.getAttribute("src") || "";
+            const position = parsePosition(getComputedStyle(image).objectPosition);
+            positionX.value = String(position[0]);
+            positionY.value = String(position[1]);
+            positionXOutput.value = `${position[0]}%`;
+            positionYOutput.value = `${position[1]}%`;
+            const opacity = Number(section.style.getPropertyValue("--studio-overlay-opacity") || 1);
+            overlay.value = String(Math.round(opacity * 100));
+            overlayOutput.value = `${Math.round(opacity * 100)}%`;
+          }
+          if (!selectedCopy || !section.contains(selectedCopy)) selectCopy(section.querySelector("[data-editable]"));
+        };
+
+        const buildSectionList = () => {
+          sectionList.innerHTML = "";
+          sections.forEach((section, index) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "section-button";
+            button.innerHTML = `
+              <span class="section-button__number">${String(index + 1).padStart(2, "0")}</span>
+              <span class="section-button__label"></span>
+            `;
+            button.querySelector(".section-button__label").textContent = getSectionName(section, index);
+            button.addEventListener("click", () => {
+              selectSection(section);
+              section.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+            sectionList.append(button);
+          });
+        };
+
+        const collectState = () => {
+          const content = {};
+          const styles = {};
+          frameDocument.querySelectorAll("[data-editable]").forEach((element) => {
+            const id = element.dataset.editId;
+            if (!id) return;
+            content[id] = element.innerHTML;
+            styles[id] = {
+              fontSize: element.style.fontSize,
+              textAlign: element.style.textAlign,
+              color: element.style.color,
+            };
+          });
+
+          return {
+            schema_version: "2.0",
+            product_id: "66475839",
+            exported_at: new Date().toISOString(),
+            content,
+            styles,
+            sections: sections.map((section) => {
+              const image = section.querySelector("[data-studio-image]");
+              return {
+                imageSrc: image?.getAttribute("src") || "",
+                objectPosition: image?.style.objectPosition || "",
+                overlayOpacity: section.style.getPropertyValue("--studio-overlay-opacity") || "",
+              };
+            }),
+            tokens: Object.fromEntries(
+              [...document.querySelectorAll("[data-token]")].map((input) => [
+                input.dataset.token,
+                input.value,
+              ]),
+            ),
+          };
+        };
+
+        const applyState = (state) => {
+          if (!state || typeof state !== "object") return;
+          frameDocument.querySelectorAll("[data-editable]").forEach((element) => {
+            const id = element.dataset.editId;
+            if (typeof state.content?.[id] === "string") element.innerHTML = state.content[id];
+            const style = state.styles?.[id];
+            if (style) {
+              element.style.fontSize = style.fontSize || "";
+              element.style.textAlign = style.textAlign || "";
+              element.style.color = style.color || "";
+            }
+          });
+
+          sections.forEach((section, index) => {
+            const saved = state.sections?.[index];
+            const image = section.querySelector("[data-studio-image]");
+            if (saved?.imageSrc && image) image.src = saved.imageSrc;
+            if (image) image.style.objectPosition = saved?.objectPosition || "";
+            section.style.setProperty("--studio-overlay-opacity", saved?.overlayOpacity || "");
+          });
+
+          Object.entries(state.tokens || {}).forEach(([name, value]) => {
+            frameDocument.documentElement.style.setProperty(name, value);
+            const input = document.querySelector(`[data-token="${name}"]`);
+            if (input) input.value = value;
+          });
+        };
+
+        const download = (name, blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = name;
+          link.click();
+          window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        };
+
+        const embedImages = async (sourceDocument, cloneDocument) => {
+          const sourceImages = [...sourceDocument.images];
+          const cloneImages = [...cloneDocument.images];
+          await Promise.all(
+            sourceImages.map(async (image, index) => {
+              const src = image.currentSrc || image.src;
+              if (!src || src.startsWith("data:")) return;
+              try {
+                const response = await fetch(src);
+                const blob = await response.blob();
+                const dataUrl = await new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(reader.result);
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+                });
+                cloneImages[index].setAttribute("src", dataUrl);
+              } catch {
+                cloneImages[index].setAttribute("src", image.getAttribute("src") || src);
+              }
+            }),
+          );
+        };
+
+        const exportStandaloneHtml = async () => {
+          setStatus("이미지를 포함한 HTML을 만드는 중입니다.");
+          const cloneDocument = document.implementation.createHTMLDocument("");
+          const importedRoot = cloneDocument.importNode(frameDocument.documentElement, true);
+          cloneDocument.replaceChild(importedRoot, cloneDocument.documentElement);
+          cloneDocument.documentElement.classList.remove("studio-embedded", "edit-mode");
+          cloneDocument.querySelectorAll("[contenteditable]").forEach((element) => {
+            element.removeAttribute("contenteditable");
+            element.removeAttribute("spellcheck");
+          });
+          cloneDocument.querySelectorAll(".is-visible").forEach((element) => element.classList.remove("is-visible"));
+          cloneDocument.querySelectorAll('link[rel="alternate"]').forEach((element) => element.remove());
+          await embedImages(frameDocument, cloneDocument);
+          const html = `<!doctype html>\n${cloneDocument.documentElement.outerHTML}`;
+          download("aqua-detail-page-standalone.html", new Blob([html], { type: "text/html;charset=utf-8" }));
+          setStatus("단일 HTML 내보내기가 완료되었습니다.");
+        };
+
+        frame.addEventListener("load", () => {
+          frameDocument = frame.contentDocument;
+          frameDocument.documentElement.classList.add("studio-embedded");
+          sections = [...frameDocument.querySelectorAll("#detail-page > section")];
+          frame.style.height = `${frameDocument.documentElement.scrollHeight}px`;
+          buildSectionList();
+
+          frameDocument.querySelectorAll("[data-editable]").forEach((element) => {
+            element.addEventListener("click", (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              selectSection(element.closest("section"));
+              selectCopy(element);
+            });
+          });
+
+          sections.forEach((section) => {
+            section.addEventListener("click", () => selectSection(section));
+          });
+
+          try {
+            applyState(JSON.parse(localStorage.getItem(storageKey) || "{}"));
+          } catch {
+            setStatus("저장 데이터를 읽지 못해 기본 상태로 열었습니다.");
+          }
+          selectSection(sections[0]);
+          setStatus(`${sections.length}개 섹션을 불러왔습니다.`);
+        });
+
+        copyValue.addEventListener("input", () => {
+          if (!selectedCopy) return;
+          selectedCopy.innerHTML = copyValue.value.replace(/\n/g, "<br />");
+          frame.style.height = `${frameDocument.documentElement.scrollHeight}px`;
+          setStatus("문구를 수정했습니다. 저장 전 상태입니다.");
+        });
+
+        fontSize.addEventListener("change", () => {
+          if (selectedCopy) selectedCopy.style.fontSize = fontSize.value;
+        });
+
+        textAlign.addEventListener("change", () => {
+          if (selectedCopy) selectedCopy.style.textAlign = textAlign.value;
+        });
+
+        textColor.addEventListener("input", () => {
+          if (selectedCopy) selectedCopy.style.color = textColor.value;
+        });
+
+        imageFile.addEventListener("change", () => {
+          const file = imageFile.files?.[0];
+          const image = selectedSection?.querySelector("[data-studio-image]");
+          if (!file || !image) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            image.src = String(reader.result);
+            imageUrl.value = image.src;
+            setStatus("선택한 장면 사진을 교체했습니다.");
+          };
+          reader.readAsDataURL(file);
+        });
+
+        imageUrl.addEventListener("change", () => {
+          const image = selectedSection?.querySelector("[data-studio-image]");
+          if (image && imageUrl.value.trim()) image.src = imageUrl.value.trim();
+        });
+
+        [positionX, positionY].forEach((input) => {
+          input.addEventListener("input", () => {
+            const image = selectedSection?.querySelector("[data-studio-image]");
+            if (!image) return;
+            image.style.objectPosition = `${positionX.value}% ${positionY.value}%`;
+            positionXOutput.value = `${positionX.value}%`;
+            positionYOutput.value = `${positionY.value}%`;
+          });
+        });
+
+        overlay.addEventListener("input", () => {
+          if (!selectedSection) return;
+          selectedSection.style.setProperty("--studio-overlay-opacity", String(Number(overlay.value) / 100));
+          overlayOutput.value = `${overlay.value}%`;
+        });
+
+        document.querySelectorAll("[data-token]").forEach((input) => {
+          input.addEventListener("input", () => {
+            frameDocument.documentElement.style.setProperty(input.dataset.token, input.value);
+          });
+        });
+
+        document.querySelectorAll("[data-viewport]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const width = Number(button.dataset.viewport);
+            stage.style.setProperty("--preview-width", `${width}px`);
+            document.querySelectorAll("[data-viewport]").forEach((item) => {
+              item.setAttribute("aria-pressed", String(item === button));
+            });
+            setStatus(`${width}px 미리보기로 전환했습니다.`);
+          });
+        });
+
+        document.querySelector("[data-motion]").addEventListener("click", (event) => {
+          const paused = frameDocument.body.classList.toggle("motion-paused");
+          event.currentTarget.textContent = paused ? "모션 보기" : "모션 끄기";
+          setStatus(`미리보기 모션을 ${paused ? "멈췄습니다." : "재생합니다."}`);
+        });
+
+        document.querySelector("[data-save]").addEventListener("click", () => {
+          localStorage.setItem(storageKey, JSON.stringify(collectState()));
+          setStatus("브라우저에 작업 상태를 저장했습니다.");
+        });
+
+        document.querySelector("[data-export-json]").addEventListener("click", () => {
+          download(
+            "aqua-detail-page-studio.json",
+            new Blob([JSON.stringify(collectState(), null, 2)], { type: "application/json" }),
+          );
+          setStatus("JSON 내보내기가 완료되었습니다.");
+        });
+
+        document.querySelector("[data-export-html]").addEventListener("click", exportStandaloneHtml);
+
+        document.querySelector("[data-reset]").addEventListener("click", (event) => {
+          if (!resetArmed) {
+            resetArmed = true;
+            event.currentTarget.textContent = "한 번 더 누르면 초기화";
+            setStatus("초기화하려면 5초 안에 버튼을 한 번 더 누르세요.");
+            window.setTimeout(() => {
+              resetArmed = false;
+              event.currentTarget.textContent = "초기화";
+            }, 5000);
+            return;
+          }
+          localStorage.removeItem(storageKey);
+          window.location.reload();
+        });
+      })();
+    </script>
+  </body>
+</html>
