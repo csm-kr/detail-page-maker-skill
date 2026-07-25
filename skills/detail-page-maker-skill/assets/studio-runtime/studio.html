@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detail Page Studio</title>
+    <link rel="stylesheet" href="studio.css" />
+  </head>
+  <body>
+    <div class="studio-shell">
+      <header class="topbar">
+        <div class="product-brand">
+          <div class="brand-mark">DP</div>
+          <div>
+            <strong>Detail Page Studio</strong>
+            <span id="projectName">프로젝트 불러오는 중</span>
+          </div>
+        </div>
+        <div class="project-state">
+          <span id="revisionBadge" class="state-chip">REV</span>
+          <span id="phaseBadge" class="state-chip state-chip-accent">준비 중</span>
+          <span id="saveState" class="save-state">연결 중</span>
+        </div>
+        <div class="top-actions">
+          <button id="openJobs" class="button button-quiet" type="button">
+            작업 센터 <span id="jobCount" class="count">0</span>
+          </button>
+          <button id="newRevision" class="button button-quiet" type="button" hidden>
+            새 개정판
+          </button>
+          <button id="themeToggle" class="button button-square" type="button" aria-label="테마 전환">
+            밝기
+          </button>
+        </div>
+      </header>
+
+      <aside class="stage-rail" aria-label="Studio 단계">
+        <p class="rail-label">제작 흐름</p>
+        <nav id="stageNav" role="tablist" aria-label="Studio 작업 단계">
+          <button class="stage-button is-active" type="button" role="tab" aria-selected="true" aria-controls="assetsView" data-view="assets">
+            <span class="stage-index">01</span>
+            <span>
+              <strong>에셋 검수</strong>
+              <small>등록·생성·승인</small>
+            </span>
+            <span class="stage-lock" aria-hidden="true"></span>
+          </button>
+          <button class="stage-button" type="button" role="tab" aria-selected="false" aria-controls="motionView" data-view="motion">
+            <span class="stage-index">02</span>
+            <span>
+              <strong>GIF 편집</strong>
+              <small>레이어·타임라인</small>
+            </span>
+            <span class="stage-lock" aria-hidden="true"></span>
+          </button>
+          <button class="stage-button" type="button" role="tab" aria-selected="false" aria-controls="assemblyView" data-view="assembly">
+            <span class="stage-index">03</span>
+            <span>
+              <strong>상세페이지 조립</strong>
+              <small>승인 버전 잠금</small>
+            </span>
+            <span class="stage-lock" aria-hidden="true"></span>
+          </button>
+          <button class="stage-button" type="button" role="tab" aria-selected="false" aria-controls="htmlView" data-view="html">
+            <span class="stage-index">04</span>
+            <span>
+              <strong>HTML 편집</strong>
+              <small>레이아웃·카피</small>
+            </span>
+            <span class="stage-lock" aria-hidden="true"></span>
+          </button>
+          <button class="stage-button" type="button" role="tab" aria-selected="false" aria-controls="qaView" data-view="qa">
+            <span class="stage-index">05</span>
+            <span>
+              <strong>최종 QA</strong>
+              <small>97점 게시 게이트</small>
+            </span>
+            <span class="stage-lock" aria-hidden="true"></span>
+          </button>
+        </nav>
+        <div class="rail-note">
+          <strong>단방향 승인 흐름</strong>
+          <p>조립 뒤 에셋과 GIF는 읽기 전용입니다. 교체는 새 개정판에서 진행합니다.</p>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <section id="assetsView" class="view is-active" role="tabpanel" data-view-panel="assets">
+          <header class="view-header">
+            <div>
+              <p class="view-kicker">조립 전 승인 게이트</p>
+              <h1>에셋을 하나씩 완성하고 승인합니다.</h1>
+            </div>
+            <div class="header-actions">
+              <button id="uploadAsset" class="button button-secondary" type="button">이미지 등록</button>
+              <button id="requestAssetGeneration" class="button button-primary" type="button">이미지 생성</button>
+            </div>
+          </header>
+          <div id="assetReadOnlyNotice" class="lock-notice" hidden>
+            이 개정판은 조립됐습니다. 에셋은 승인 근거 확인만 가능하며 교체하려면 새 개정판을 만드세요.
+          </div>
+          <div class="asset-workbench">
+            <aside class="asset-library">
+              <div class="pane-heading">
+                <div>
+                  <strong>에셋 라이브러리</strong>
+                  <span id="assetSummary">0개</span>
+                </div>
+                <button id="refreshProject" class="text-button" type="button">새로고침</button>
+              </div>
+              <div id="assetList" class="asset-list"></div>
+            </aside>
+            <div class="compare-workspace">
+              <div class="compare-toolbar">
+                <div class="segmented" role="group" aria-label="비교 방식">
+                  <button type="button" class="is-active" data-compare="side">나란히</button>
+                  <button type="button" data-compare="overlay">겹치기</button>
+                  <button type="button" data-compare="difference">차이 강조</button>
+                </div>
+                <label class="zoom-control">
+                  확대
+                  <input id="compareZoom" type="range" min="70" max="220" value="100" />
+                </label>
+              </div>
+              <div id="compareCanvas" class="compare-canvas">
+                <div class="empty-state">
+                  <strong>검수할 에셋을 선택하세요.</strong>
+                  <p>원본과 현재 후보를 같은 확대율로 비교합니다.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="motionView" class="view" role="tabpanel" data-view-panel="motion">
+          <header class="view-header">
+            <div>
+              <p class="view-kicker">HyperFrames 원본 편집</p>
+              <h1>GIF 안의 요소를 레이어 단위로 다룹니다.</h1>
+            </div>
+            <button id="requestMotionRender" class="button button-primary" type="button">재렌더 요청</button>
+          </header>
+          <div id="motionReadOnlyNotice" class="lock-notice" hidden>
+            조립된 개정판입니다. GIF 레이어와 타임라인은 읽기 전용입니다.
+          </div>
+          <div class="motion-workbench">
+            <aside class="layer-pane">
+              <div class="pane-heading">
+                <div>
+                  <strong>레이어</strong>
+                  <span id="layerSummary">선택 없음</span>
+                </div>
+              </div>
+              <div id="layerList" class="layer-list"></div>
+            </aside>
+            <div class="motion-stage">
+              <div id="motionCanvas" class="motion-canvas">
+                <div class="empty-state">
+                  <strong>GIF 또는 HyperFrames 에셋을 선택하세요.</strong>
+                  <p>제품·텍스트·도형·FX를 독립 레이어로 표시합니다.</p>
+                </div>
+              </div>
+              <div class="timeline">
+                <div class="timeline-controls">
+                  <button id="motionPlay" class="button button-square" type="button">재생</button>
+                  <span id="timecode">00:00.00</span>
+                  <select id="promptScope" aria-label="프롬프트 수정 범위">
+                    <option value="layer">선택 레이어</option>
+                    <option value="group">선택 그룹</option>
+                    <option value="scene">장면 전체</option>
+                  </select>
+                </div>
+                <input id="timelineScrubber" type="range" min="0" max="1000" value="0" />
+                <div id="timelineTracks" class="timeline-tracks"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="assemblyView" class="view" role="tabpanel" data-view-panel="assembly">
+          <header class="view-header">
+            <div>
+              <p class="view-kicker">승인 버전 스냅샷</p>
+              <h1>조립할 에셋과 해시를 마지막으로 확인합니다.</h1>
+            </div>
+            <button id="lockAssembly" class="button button-primary" type="button">상세페이지 조립 확정</button>
+          </header>
+          <div class="assembly-grid">
+            <div class="gate-panel">
+              <div class="pane-heading">
+                <div>
+                  <strong>필수 에셋</strong>
+                  <span id="assemblySummary">검사 중</span>
+                </div>
+              </div>
+              <div id="assemblyAssets" class="gate-list"></div>
+            </div>
+            <div class="assembly-preview">
+              <iframe id="assemblyFrame" src="/project/html/index.html" title="상세페이지 조립 미리보기"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section id="htmlView" class="view" role="tabpanel" data-view-panel="html">
+          <header class="view-header">
+            <div>
+              <p class="view-kicker">승인 에셋을 유지한 HTML 편집</p>
+              <h1>배치와 카피를 인터랙티브하게 다듬습니다.</h1>
+            </div>
+            <div class="header-actions">
+              <button id="undoHtml" class="button button-quiet" type="button" disabled>실행 취소</button>
+              <button id="redoHtml" class="button button-quiet" type="button" disabled>다시 실행</button>
+              <button id="createCheckpoint" class="button button-secondary" type="button">체크포인트</button>
+              <button id="toggleHtmlEdit" class="button button-primary" type="button">편집 모드</button>
+            </div>
+          </header>
+          <div class="html-toolbar">
+            <div class="segmented" role="group" aria-label="HTML 화면 폭">
+              <button type="button" class="is-active" data-html-width="800">800</button>
+              <button type="button" data-html-width="390">390</button>
+              <button type="button" data-html-width="320">320</button>
+            </div>
+            <label class="toggle-line">
+              <input id="viewportOnly" type="checkbox" />
+              이 화면에만 수정
+            </label>
+            <span id="selectedHtmlLayer" class="selection-label">레이어를 선택하세요.</span>
+          </div>
+          <div class="html-canvas-shell">
+            <iframe id="htmlFrame" src="/project/html/index.html" title="HTML 인터랙티브 편집"></iframe>
+          </div>
+        </section>
+
+        <section id="qaView" class="view" role="tabpanel" data-view-panel="qa">
+          <header class="view-header">
+            <div>
+              <p class="view-kicker">게시 전 최종 게이트</p>
+              <h1>97점 이상과 하드 실패 0건을 확인합니다.</h1>
+            </div>
+            <button id="requestFinalQa" class="button button-primary" type="button">Codex 최종 QA 요청</button>
+          </header>
+          <div class="qa-layout">
+            <div class="score-panel">
+              <span class="score-label">상용 점수</span>
+              <strong id="qaScore">-</strong>
+              <span id="qaStatus">아직 검사하지 않음</span>
+            </div>
+            <div class="qa-gates">
+              <div class="pane-heading">
+                <div>
+                  <strong>게시 게이트</strong>
+                  <span>모두 통과해야 게시 가능</span>
+                </div>
+              </div>
+              <div id="qaGateList" class="gate-list"></div>
+            </div>
+            <div class="export-panel">
+              <button id="exportDraft" class="button button-secondary" type="button">검토용 초안</button>
+              <button id="exportProject" class="button button-secondary" type="button">Studio 프로젝트 묶음</button>
+              <button id="approveFinal" class="button button-secondary" type="button">최종 사용자 승인</button>
+              <button id="exportPublish" class="button button-primary" type="button">게시용 단일 HTML</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside id="inspector" class="inspector">
+        <div class="inspector-heading">
+          <div>
+            <span>INSPECTOR</span>
+            <strong id="inspectorTitle">선택 없음</strong>
+          </div>
+          <span id="inspectorState" class="state-dot" aria-label="선택 상태"></span>
+        </div>
+        <div id="inspectorBody" class="inspector-body">
+          <div class="empty-inspector">
+            에셋이나 HTML 레이어를 선택하면 속성과 프롬프트 수정 범위가 표시됩니다.
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <dialog id="uploadDialog" class="dialog">
+      <form id="uploadForm" method="dialog">
+        <div class="dialog-heading">
+          <div>
+            <span>새 에셋</span>
+            <h2>이미지 또는 GIF 등록</h2>
+          </div>
+          <button class="dialog-close" type="button" data-close-dialog="uploadDialog">닫기</button>
+        </div>
+        <label>에셋 이름<input name="name" required placeholder="예: 블루쿠션 확대" /></label>
+        <label>역할<input name="role" required placeholder="예: heel-cushion" /></label>
+        <label>파일<input name="file" type="file" required accept="image/*,video/mp4" /></label>
+        <label class="toggle-line"><input name="required" type="checkbox" checked /> 조립 필수 에셋</label>
+        <div class="dialog-actions">
+          <button class="button button-quiet" type="button" data-close-dialog="uploadDialog">취소</button>
+          <button class="button button-primary" type="submit">등록하고 QA 요청</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="promptDialog" class="dialog dialog-wide">
+      <form id="promptForm" method="dialog">
+        <div class="dialog-heading">
+          <div>
+            <span>프롬프트 수정</span>
+            <h2 id="promptDialogTitle">새 후보 만들기</h2>
+          </div>
+          <button class="dialog-close" type="button" data-close-dialog="promptDialog">닫기</button>
+        </div>
+        <div class="prompt-context">
+          <span>수정 범위</span>
+          <strong id="promptContextLabel">선택 에셋</strong>
+          <p id="promptLockSummary">제품 형태·비율·재질·로고·부품 위치는 잠깁니다.</p>
+        </div>
+        <label>원하는 변화<textarea name="prompt" rows="6" required placeholder="무엇을 유지하고 무엇을 바꿀지 구체적으로 작성하세요."></textarea></label>
+        <label>범위
+          <select name="scope">
+            <option value="asset">선택 에셋</option>
+            <option value="layer">선택 레이어</option>
+            <option value="group">선택 그룹</option>
+            <option value="scene">장면 전체</option>
+          </select>
+        </label>
+        <div class="confirmation-box">
+          <label class="toggle-line">
+            <input name="confirmed" type="checkbox" required />
+            원본을 덮어쓰지 않고 후보 한 개를 새 버전으로 만드는 요청임을 확인했습니다.
+          </label>
+        </div>
+        <div class="dialog-actions">
+          <button class="button button-quiet" type="button" data-close-dialog="promptDialog">취소</button>
+          <button class="button button-primary" type="submit">요청 대기열에 등록</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="revisionDialog" class="dialog dialog-wide">
+      <form id="revisionForm" method="dialog">
+        <div class="dialog-heading">
+          <div>
+            <span>잠긴 버전 보존</span>
+            <h2>새 개정판 만들기</h2>
+          </div>
+          <button class="dialog-close" type="button" data-close-dialog="revisionDialog">닫기</button>
+        </div>
+        <p class="dialog-copy">선택한 에셋과 이를 사용하는 GIF·HTML 섹션만 다시 승인 대상으로 계산합니다.</p>
+        <div id="revisionAssetList" class="revision-asset-list"></div>
+        <label>변경 이유<textarea name="reason" rows="3" required placeholder="예: 블루쿠션 인쇄 방향 교정"></textarea></label>
+        <label class="toggle-line">
+          <input name="confirmed" type="checkbox" required />
+          현재 조립본은 변경하지 않고 새 개정판에서 작업합니다.
+        </label>
+        <div class="dialog-actions">
+          <button class="button button-quiet" type="button" data-close-dialog="revisionDialog">취소</button>
+          <button class="button button-primary" type="submit">영향 범위 확인 후 생성</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="jobsDialog" class="dialog dialog-wide">
+      <div class="dialog-heading">
+        <div>
+          <span>BACKGROUND JOBS</span>
+          <h2>작업 센터</h2>
+        </div>
+        <button class="dialog-close" type="button" data-close-dialog="jobsDialog">닫기</button>
+      </div>
+      <div id="jobList" class="job-list"></div>
+    </dialog>
+
+    <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+    <script type="module" src="studio.js"></script>
+  </body>
+</html>

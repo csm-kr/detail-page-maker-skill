@@ -1,4 +1,0 @@
-interface:
-  display_name: "상업 상세페이지 메이커"
-  short_description: "공급처 URL에서 수정 가능한 상업 HTML 상세페이지 제작"
-  default_prompt: "Use $detail-page-maker-skill to turn a supplier URL into an evidence-based editable commercial HTML detail page."

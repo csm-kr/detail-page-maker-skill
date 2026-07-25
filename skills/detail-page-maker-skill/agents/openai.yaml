@@ -1,0 +1,4 @@
+interface:
+  display_name: "상업 상세페이지 Studio"
+  short_description: "공급처 URL에서 승인형 이미지·GIF·HTML 상세페이지 제작"
+  default_prompt: "Use $detail-page-maker-skill to create a product project from a supplier URL, review every generated asset for product consistency, and assemble an editable commercial HTML detail page only from user-approved versions."

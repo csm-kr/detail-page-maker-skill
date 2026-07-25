@@ -492,7 +492,7 @@ Behance 원본 공통 문법과 320·360·390·768·800px Browser Harness QA에�
 - GIF 8개는 유지하되 제품 뒤집기, 쿠션 전후, 에어홀 흐름, 굽힘, 사이즈 선택, 삽입, 구성, 소재 비교로 질문을 분리한다.
 - `Flux2-Klein_00355_.png`를 사용자 승격 SSOT로 기록한다.
 - 통풍 효과는 앞꿈치·중족부 에어홀에서만 시작하고 블루쿠션에는 바람·광선·통풍 입자를 금지한다.
-- 메인 `SKILL.md`는 실행 흐름과 하드 게이트만 남기고 제품 동일성, HyperFrames GIF, 한글 카피, Behance 분석, 사용자 피드백을 `references/`로 분리한다.
+- 설치 스킬의 `skills/detail-page-maker-skill/SKILL.md`는 실행 흐름과 하드 게이트만 남기고 제품 동일성, HyperFrames GIF, 한글 카피, Behance 분석, 사용자 피드백을 스킬 내부 `references/`로 분리한다.
 
 ## 16. 기능성 인솔 44358530 확장 미디어 프로토타입
 
@@ -542,7 +542,7 @@ Behance 원본 공통 문법과 320·360·390·768·800px Browser Harness QA에�
 - [완료] Browser Harness 320·360·390·768·800px에서 overflow·경계 밖 요소·잘린 텍스트·깨진 이미지 0을 확인했다.
 - [완료] HTML validator 0, GIF 8개 currentSrc, FAQ 4/4 open, 제품 인쇄 텍스트 오버레이 0을 확인했다.
 - [완료] Studio 수정 모드에서 편집 텍스트 90개와 이미지 17개가 활성화되는 것을 확인했다.
-- [완료] 이번 피드백을 `SKILL.md`, 네 개의 분리 규약, `commetial-detail-page.md`, `study-desing-skill.md`에 반영했다.
+- [완료] 이번 피드백을 당시 기준 스킬 문서와 네 개의 분리 규약, `commetial-detail-page.md`, `study-desing-skill.md`에 반영했다. 현재 설치 진입점은 `skills/detail-page-maker-skill/SKILL.md`다.
 
 ### 2026-07-25 노바페이스 commercial-final v10 완료
 
@@ -578,3 +578,19 @@ Behance 원본 공통 문법과 320·360·390·768·800px Browser Harness QA에�
 - [완료] master v11 800×800·15fps·43.2초와 게시 GIF 9개 800×800·12fps·58프레임을 다시 렌더링했다.
 - [완료] HyperFrames strict 오류·경고 0, contrast 34/34, HTML validator 0, JSON 4개 파싱 0, 320·360·390·767·800px overflow·경계 밖·잘린 텍스트 0을 확인했다.
 - [완료] 최종 결과는 **98/100·하드 실패 0개**로 승인한다.
+
+## 17. 2026-07-26 Detail Page Studio v2 첫 실행형 구조
+
+- [완료] 설치 단위를 `skills/detail-page-maker-skill/` 하나로 정리하고 루트의 중복 스킬 진입점을 제거했다.
+- [완료] `npx skills add csm-kr/detail-page-maker-skill --full-depth`로 발견되는 단일 스킬 안에 `SKILL.md`, `agents/`, `scripts/`, `references/`, `assets/`를 모두 포함했다.
+- [완료] Node.js 22+와 HyperFrames 설치 상태를 확인하는 `doctor`, 공급처 URL로 프로젝트를 만드는 `new`, 로컬 Studio를 여는 `start` 명령을 구현했다.
+- [완료] 기본 프로젝트 위치를 `Documents/DetailPageStudio/projects/<상품명>-<상품번호>/`로 고정했다.
+- [완료] 에셋 검수 → GIF 레이어 편집 → 조립 잠금 → HTML 편집 → 최종 QA의 다섯 작업면을 하나의 `studio.html`로 통합했다.
+- [완료] 제품 동일성 하드 실패 차단, 사용자 승인, 에셋 버전·해시 잠금, 의존성 기반 개정판, 97점 게시 게이트를 서버 불변식으로 구현했다.
+- [완료] 원본·후보 나란히 보기, 투명도 겹치기, 차이 강조, 동기 스크롤 확대, GIF 동시 재시작과 QA MP4 동일 시점 탐색을 구현했다.
+- [완료] HyperFrames 레이어의 텍스트·x/y·크기·투명도·폰트·색을 조정해 새 후보 렌더 작업으로 보내는 속성 패널을 구현했다.
+- [완료] HTML 안정 layer ID, 320·390·800px 오버라이드, 자동 저장, 세션 undo/redo, 이름 있는 체크포인트를 구현했다.
+- [완료] QA 전 검토용 초안, QA 97점·하드 실패 0건·사용자 승인 뒤 게시용 단일 HTML, 전체 Studio 프로젝트 묶음을 분리했다.
+- [완료] 도메인·런타임 회귀 테스트 7개와 Browser Harness 화면 검수를 통과했다.
+- [완료] 기존 상용 규약·Behance 분석·한글 카피·제품 동일성·HyperFrames·사용자 피드백·도매꾹 계약을 설치 스킬 내부 `references/`로 복제해 스킬 폴더만으로 학습 메모를 재사용하게 했다.
+- [보존] 기존 `prototypes/`, `videos/`, `research/`, `tests/` 산출물은 삭제·이동하지 않고 설치 스킬 탐지에서 제외했다. 물리적 `lab/` 이동은 기존 상대 경로를 깨뜨릴 수 있으므로 별도 마이그레이션으로 남긴다.
