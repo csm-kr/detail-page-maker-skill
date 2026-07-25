@@ -1,0 +1,54 @@
+<template>
+  <style>
+    @font-face { font-family:"Noto Sans KR"; src:local("Noto Sans KR"); font-weight:100 900; }
+    @font-face { font-family:"Malgun Gothic"; src:local("Malgun Gothic"); font-weight:100 900; }
+    * { box-sizing:border-box; }
+    #adapt-root { position:relative; width:800px; height:800px; overflow:hidden; color:#242019; font-family:"Noto Sans KR","Malgun Gothic",sans-serif; background:#f5f0e8; }
+    .ad-orb { position:absolute; left:-120px; bottom:-100px; width:520px; height:520px; border-radius:50%; background:radial-gradient(circle,rgba(255,122,26,.18),rgba(255,122,26,0) 70%); }
+    .ad-head { position:absolute; left:54px; top:46px; }
+    .ad-kicker { margin:0 0 8px; color:#b54f10; font-size:17px; font-weight:900; letter-spacing:.14em; }
+    .ad-title { margin:0; font-size:45px; font-weight:950; line-height:1.12; letter-spacing:-.055em; }
+    .ad-board { position:absolute; left:54px; top:198px; width:692px; height:420px; border:1px solid rgba(36,32,25,.11); border-radius:34px; background:#fffaf2; box-shadow:0 24px 60px rgba(64,48,31,.1); }
+    .ad-line { position:absolute; left:76px; right:76px; top:132px; height:6px; border-radius:999px; background:#e7ded2; }
+    .ad-progress { width:0; height:100%; border-radius:inherit; background:#d95f13; box-shadow:0 0 18px rgba(217,95,19,.3); }
+    .ad-point { position:absolute; top:108px; width:54px; height:54px; display:grid; place-items:center; transform:translateX(-50%); border-radius:50%; background:#fffaf2; border:4px solid #d9d0c4; color:#746a5f; font-size:17px; font-weight:950; }
+    #ad-point-a{left:76px} #ad-point-b{left:346px} #ad-point-c{left:616px}
+    .ad-point.active { border-color:#d95f13; background:#d95f13; color:#181612; }
+    .ad-card { position:absolute; top:202px; width:174px; min-height:132px; padding:20px; border-radius:24px; background:#f0e9df; }
+    #ad-card-a{left:36px} #ad-card-b{left:259px} #ad-card-c{right:36px}
+    .ad-card strong { display:block; font-size:22px; font-weight:950; letter-spacing:-.03em; }
+    .ad-card span { display:block; margin-top:8px; color:#6d6359; font-size:16px; line-height:1.4; font-weight:780; }
+    .ad-stop { position:absolute; left:112px; right:112px; top:648px; height:70px; display:flex; align-items:center; justify-content:center; gap:12px; border-radius:22px; color:#8e322a; background:#f2ded9; border:1px solid rgba(197,76,61,.2); font-size:19px; font-weight:900; }
+    .ad-stop b { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; color:#fffaf2; background:#c54c3d; }
+    .ad-note { position:absolute; left:54px; right:54px; bottom:42px; margin:0; text-align:center; color:#70665b; font-size:15px; font-weight:750; }
+  </style>
+  <div id="adapt-root" data-composition-id="insole-adaptation-motion" data-start="0" data-duration="5.2" data-width="800" data-height="800">
+    <div id="ad-orb" class="ad-orb" data-layout-allow-overflow aria-hidden="true"></div>
+    <header class="ad-head"><p class="ad-kicker">ADAPT GRADUALLY</p><h1 class="ad-title">첫날부터 오래 신기보다,<br>착화 시간을 천천히 늘리세요</h1></header>
+    <section class="ad-board">
+      <div class="ad-line"><div id="ad-progress" class="ad-progress"></div></div>
+      <div id="ad-point-a" class="ad-point">01</div><div id="ad-point-b" class="ad-point">→</div><div id="ad-point-c" class="ad-point">14</div>
+      <div id="ad-card-a" class="ad-card"><strong>첫 사용</strong><span>1–2시간부터<br>시작</span></div>
+      <div id="ad-card-b" class="ad-card"><strong>중간</strong><span>상태를 보며<br>점차 늘리기</span></div>
+      <div id="ad-card-c" class="ad-card"><strong>약 2주</strong><span>공급처가 안내한<br>적응 기간</span></div>
+    </section>
+    <div id="ad-stop" class="ad-stop"><b>!</b>통증이나 이상이 있으면 사용을 중단하세요</div>
+    <p class="ad-note">적응 속도는 개인에 따라 다를 수 있습니다.</p>
+  </div>
+  <script>
+    window.__timelines=window.__timelines||{};
+    const tl=gsap.timeline({paused:true});
+    tl.fromTo(".ad-head>*",{opacity:0,y:20},{opacity:1,y:0,duration:.46,stagger:.08,ease:"power3.out"},.1)
+      .fromTo(".ad-board",{opacity:0,scale:.95},{opacity:1,scale:1,duration:.56,ease:"power3.out"},.52)
+      .fromTo(".ad-card",{opacity:0,y:18},{opacity:1,y:0,duration:.4,stagger:.32,ease:"power3.out"},.92)
+      .to("#ad-point-a",{backgroundColor:"#d95f13",borderColor:"#d95f13",color:"#181612",duration:.32},1.12)
+      .to("#ad-progress",{width:"50%",duration:1.02,ease:"power2.inOut"},1.48)
+      .to("#ad-point-b",{backgroundColor:"#d95f13",borderColor:"#d95f13",color:"#181612",duration:.32},2.35)
+      .to("#ad-progress",{width:"100%",duration:1.02,ease:"power2.inOut"},2.62)
+      .to("#ad-point-c",{backgroundColor:"#d95f13",borderColor:"#d95f13",color:"#181612",duration:.32},3.52)
+      .fromTo("#ad-stop",{opacity:0,y:16},{opacity:1,y:0,duration:.46,ease:"back.out(1.45)"},3.72)
+      .fromTo("#ad-orb",{opacity:.3,scale:.84},{opacity:.82,scale:1.08,duration:1.05,ease:"sine.inOut"},3.9)
+      .to("#ad-stop",{scale:1.025,duration:.35,yoyo:true,repeat:1,ease:"power2.inOut"},4.48);
+    window.__timelines["insole-adaptation-motion"]=tl; tl.seek(0);
+  </script>
+</template>

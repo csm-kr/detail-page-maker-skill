@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0",
+  "product_id": "44358530",
+  "working_title": "신는 순간이 아니라, 신기 전에 완성하는 깔창",
+  "status": "supplier_and_market_research_complete",
+  "target": {
+    "primary": "기성 깔창을 넣어도 내 신발과 발 모양에 맞는지 확신하기 어려워, 과정과 사이즈를 먼저 확인하고 구매하려는 사람",
+    "purchase_questions": ["Q-001", "Q-002", "Q-003", "Q-004", "Q-005", "Q-006"]
+  },
+  "primary_appeal": {
+    "headline": "꺼내서 바로 신지 마세요. 내 발 모양에 맞춰 한 번 더 완성하세요.",
+    "support": "재단하고, 30~40초 데우고, 신발 안에서 5분",
+    "evidence_ids": ["FACT-005", "FACT-006", "FACT-007", "FACT-008"]
+  },
+  "story_arc": [
+    {
+      "stage": "question",
+      "copy_intent": "깔창은 다 비슷해 보이지만, 발 모양과 신발 내부는 같지 않다는 구매 질문을 말풍선으로 보여준다."
+    },
+    {
+      "stage": "difference",
+      "copy_intent": "이 제품의 차이는 의학적 효과가 아니라 사용자가 재단·가열·착화로 최종 형태를 만든다는 점이다.",
+      "evidence_ids": ["FACT-005", "FACT-006", "FACT-007"]
+    },
+    {
+      "stage": "process",
+      "copy_intent": "재단→30~40초 가열→5분 착화를 독립 모션 세 장으로 분리해 실수 지점을 줄인다.",
+      "evidence_ids": ["FACT-005", "FACT-006", "FACT-007", "FACT-008"]
+    },
+    {
+      "stage": "proof",
+      "copy_intent": "성형 전후 옆면 곡선, EVA와 라이크라, S~XL 표를 제품 가까이에서 확인한다.",
+      "evidence_ids": ["FACT-003", "FACT-009"]
+    },
+    {
+      "stage": "real_use",
+      "copy_intent": "운동화에 넣는 실제 장면과 출근·산책 같은 일상 신발 맥락을 번갈아 보여준다."
+    },
+    {
+      "stage": "adaptation",
+      "copy_intent": "첫 1~2시간부터 약 2주 동안 서서히 늘리는 안내와 통증 시 중단 조건을 구매 전에 공개한다.",
+      "evidence_ids": ["FACT-011", "FACT-013", "FACT-014"]
+    }
+  ],
+  "imagegen_scene_plan": [
+    {
+      "id": "GEN-001",
+      "role": "hero",
+      "question": "무엇이 다른 제품인가?",
+      "scene": "차콜 스튜디오에서 오렌지 EVA 바디와 블랙 패턴 상판의 깔창 한 쌍, 흰 운동화, 부드러운 열의 그라데이션",
+      "requires_product_reference": true
+    },
+    {
+      "id": "GEN-002",
+      "role": "problem_context",
+      "question": "왜 바로 넣지 않는가?",
+      "scene": "현관 벤치 위 서로 다른 두 운동화와 기존 얇은 깔창, 선택을 망설이는 손",
+      "requires_product_reference": false
+    },
+    {
+      "id": "GEN-003",
+      "role": "material_macro",
+      "question": "어떤 소재가 보이는가?",
+      "scene": "오렌지 EVA 표면과 블랙 라이크라 원단의 초근접 매크로, 사실적인 섬유와 벌집 질감",
+      "requires_product_reference": true
+    },
+    {
+      "id": "GEN-004",
+      "role": "trim_workspace",
+      "question": "재단은 어떻게 준비하는가?",
+      "scene": "기존 신발 깔창, 가위, 오렌지 깔창이 정돈된 탑뷰 작업대",
+      "requires_product_reference": true
+    },
+    {
+      "id": "GEN-005",
+      "role": "heat_workspace",
+      "question": "가열 장면은 어떻게 보이는가?",
+      "scene": "700~800W 드라이기와 깔창을 안전하게 놓은 밝은 작업대, 손은 가장자리만 잡음",
+      "requires_product_reference": true
+    },
+    {
+      "id": "GEN-006",
+      "role": "five_minute_fit",
+      "question": "5분 동안 무엇을 하는가?",
+      "scene": "깔창을 넣은 흰 운동화를 신고 자연스럽게 서 있는 하체 중심 장면",
+      "requires_product_reference": true
+    },
+    {
+      "id": "GEN-007",
+      "role": "daily_use",
+      "question": "어떤 일상에 연결되는가?",
+      "scene": "지하철 플랫폼을 걷는 스니커즈 중심의 절제된 라이프스타일 장면",
+      "requires_product_reference": true
+    },
+    {
+      "id": "GEN-008",
+      "role": "care",
+      "question": "사용 후 어떻게 보관하는가?",
+      "scene": "직사광선이 닿지 않는 신발장 안, 운동화와 깔창을 정돈한 차분한 정물",
+      "requires_product_reference": true
+    }
+  ],
+  "motion_plan": [
+    {"id": "MOTION-001", "role": "form_difference", "claim": "사용자가 최종 형태를 완성", "evidence_ids": ["FACT-005", "FACT-006", "FACT-007"]},
+    {"id": "MOTION-002", "role": "trim", "claim": "열 성형 전에 기존 깔창을 대고 재단", "evidence_ids": ["FACT-005"]},
+    {"id": "MOTION-003", "role": "heat", "claim": "700~800W 기준 30~40초 골고루 가열", "evidence_ids": ["FACT-006"]},
+    {"id": "MOTION-004", "role": "fit", "claim": "신발에 넣고 착화한 뒤 5분", "evidence_ids": ["FACT-007"]},
+    {"id": "MOTION-005", "role": "profile", "claim": "열 성형 전후 옆면 곡선 변화", "evidence_ids": ["FACT-007"]},
+    {"id": "MOTION-006", "role": "size", "claim": "S~XL 권장 신발 치수와 아치 높이", "evidence_ids": ["FACT-009"]},
+    {"id": "MOTION-007", "role": "adaptation", "claim": "첫 1~2시간부터 약 2주간 서서히 적응", "evidence_ids": ["FACT-011", "FACT-013"]}
+  ],
+  "hard_exclusions": [
+    "평발 교정",
+    "족저근막염 개선",
+    "무릎·허리·목 통증 해결",
+    "충격 완화 또는 압력 분산 보장",
+    "20kg 하중 성능",
+    "모든 신발·모든 발에 맞음",
+    "즉시 편안함",
+    "1~2년 수명 보장"
+  ]
+}

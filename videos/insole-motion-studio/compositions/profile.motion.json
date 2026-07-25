@@ -1,0 +1,1 @@
+{"duration":5.2,"assertions":[{"kind":"appearsBy","selector":"#pr-side","bySec":2.4},{"kind":"before","a":"#pr-before-tag","b":"#pr-after-tag"},{"kind":"staysInFrame","selector":".pr-stage"},{"kind":"keepsMoving","withinSelector":"#profile-root","maxStaticSec":1.4}]}

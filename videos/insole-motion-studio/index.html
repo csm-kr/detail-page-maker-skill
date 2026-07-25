@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, height=800" />
+    <title>랩몬스터 기능성 인솔 모션 스튜디오</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { width: 800px; height: 800px; margin: 0; overflow: hidden; background: #181612; }
+      #root { position: relative; width: 800px; height: 800px; overflow: hidden; }
+      .stage-fill { position: absolute; inset: 0; background: #181612; }
+      .clip { position: absolute; inset: 0; width: 800px; height: 800px; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="insole-motion-studio" data-start="0" data-duration="36.4" data-width="800" data-height="800">
+      <div class="stage-fill" aria-hidden="true"></div>
+      <section id="form-slot" class="clip" data-composition-id="insole-form-motion" data-composition-src="compositions/form.html" data-start="0" data-duration="5.2" data-track-index="1"></section>
+      <section id="trim-slot" class="clip" data-composition-id="insole-trim-motion" data-composition-src="compositions/trim.html" data-start="5.2" data-duration="5.2" data-track-index="1"></section>
+      <section id="heat-slot" class="clip" data-composition-id="insole-heat-motion" data-composition-src="compositions/heat.html" data-start="10.4" data-duration="5.2" data-track-index="1"></section>
+      <section id="fit-slot" class="clip" data-composition-id="insole-fit-motion" data-composition-src="compositions/fit.html" data-start="15.6" data-duration="5.2" data-track-index="1"></section>
+      <section id="profile-slot" class="clip" data-composition-id="insole-profile-motion" data-composition-src="compositions/profile.html" data-start="20.8" data-duration="5.2" data-track-index="1"></section>
+      <section id="size-slot" class="clip" data-composition-id="insole-size-motion" data-composition-src="compositions/size.html" data-start="26" data-duration="5.2" data-track-index="1"></section>
+      <section id="adapt-slot" class="clip" data-composition-id="insole-adaptation-motion" data-composition-src="compositions/adaptation.html" data-start="31.2" data-duration="5.2" data-track-index="1"></section>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["insole-motion-studio"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

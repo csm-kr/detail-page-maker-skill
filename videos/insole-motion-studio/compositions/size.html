@@ -1,0 +1,52 @@
+<template>
+  <style>
+    @font-face { font-family:"Noto Sans KR"; src:local("Noto Sans KR"); font-weight:100 900; }
+    @font-face { font-family:"Malgun Gothic"; src:local("Malgun Gothic"); font-weight:100 900; }
+    * { box-sizing:border-box; }
+    #size-root { position:relative; width:800px; height:800px; overflow:hidden; color:#f5f0e8; font-family:"Noto Sans KR","Malgun Gothic",sans-serif; background:#181612; }
+    .si-glow { position:absolute; right:-90px; top:40px; width:440px; height:440px; border-radius:50%; background:radial-gradient(circle,rgba(255,122,26,.18),rgba(255,122,26,0) 70%); }
+    .si-head { position:absolute; left:54px; top:46px; }
+    .si-kicker { margin:0 0 8px; color:#ff9a51; font-size:17px; font-weight:900; letter-spacing:.14em; }
+    .si-title { margin:0; font-size:45px; font-weight:950; line-height:1.12; letter-spacing:-.055em; }
+    .si-board { position:absolute; left:54px; top:190px; width:692px; height:480px; padding:30px 32px; border:1px solid rgba(245,240,232,.14); border-radius:34px; background:#242019; box-shadow:0 26px 68px rgba(0,0,0,.25); }
+    .si-header,.si-row { display:grid; grid-template-columns:68px 1fr 104px; align-items:center; gap:18px; }
+    .si-header { height:35px; color:#a99f92; font-size:14px; font-weight:900; letter-spacing:.07em; }
+    .si-row { height:90px; border-top:1px solid rgba(245,240,232,.09); }
+    .si-size { font-size:30px; font-weight:950; color:#f5f0e8; }
+    .si-range { position:relative; height:46px; }
+    .si-range::before { content:""; position:absolute; left:0; right:0; top:0; height:15px; border-radius:999px; background:rgba(245,240,232,.11); }
+    .si-bar { width:0; height:15px; border-radius:inherit; background:#ff7a1a; box-shadow:0 0 17px rgba(255,122,26,.38); }
+    .si-range-label { position:absolute; left:0; top:25px; color:#d7ccbe; font-size:15px; font-weight:850; }
+    .si-arch { justify-self:end; text-align:right; }
+    .si-arch strong { display:block; font-size:24px; font-weight:950; font-variant-numeric:tabular-nums; }
+    .si-arch span { display:block; margin-top:4px; color:#a99f92; font-size:13px; font-weight:850; }
+    .si-note { position:absolute; left:54px; right:54px; bottom:52px; margin:0; text-align:center; color:#bfb5a7; font-size:15px; font-weight:750; }
+  </style>
+  <div id="size-root" data-composition-id="insole-size-motion" data-start="0" data-duration="5.2" data-width="800" data-height="800">
+    <div id="si-glow" class="si-glow" data-layout-allow-overflow aria-hidden="true"></div>
+    <header class="si-head"><p class="si-kicker">SIZE GUIDE</p><h1 class="si-title">신발 호수와 아치 높이,<br>두 기준을 함께 보세요</h1></header>
+    <section class="si-board">
+      <div class="si-header"><span>SIZE</span><span>신발 권장 범위</span><span style="text-align:right">아치 높이</span></div>
+      <div class="si-row"><b class="si-size">S</b><div class="si-range"><div id="si-bar-s" class="si-bar"></div><span class="si-range-label">225–235mm · 기준 230</span></div><div class="si-arch"><strong>2.8cm</strong><span>공급처 표기</span></div></div>
+      <div class="si-row"><b class="si-size">M</b><div class="si-range"><div id="si-bar-m" class="si-bar"></div><span class="si-range-label">240–250mm · 기준 245</span></div><div class="si-arch"><strong>3.0cm</strong><span>공급처 표기</span></div></div>
+      <div class="si-row"><b class="si-size">L</b><div class="si-range"><div id="si-bar-l" class="si-bar"></div><span class="si-range-label">255–265mm · 기준 260</span></div><div class="si-arch"><strong>3.2cm</strong><span>공급처 표기</span></div></div>
+      <div class="si-row"><b class="si-size">XL</b><div class="si-range"><div id="si-bar-xl" class="si-bar"></div><span class="si-range-label">270–280mm · 기준 275</span></div><div class="si-arch"><strong>3.5cm</strong><span>공급처 표기</span></div></div>
+    </section>
+    <p class="si-note">제품을 재단하기 전, 기존 깔창과 실제 신발 내부 길이를 함께 확인하세요.</p>
+  </div>
+  <script>
+    window.__timelines=window.__timelines||{};
+    const tl=gsap.timeline({paused:true});
+    tl.fromTo(".si-head>*",{opacity:0,y:20},{opacity:1,y:0,duration:.46,stagger:.08,ease:"power3.out"},.1)
+      .fromTo(".si-board",{opacity:0,y:18},{opacity:1,y:0,duration:.55,ease:"power3.out"},.52)
+      .fromTo(".si-row",{opacity:0,x:-18},{opacity:1,x:0,duration:.42,stagger:.22,ease:"power3.out"},.9)
+      .to("#si-bar-s",{width:"74%",duration:.62,ease:"power2.out"},1.18)
+      .to("#si-bar-m",{width:"80%",duration:.62,ease:"power2.out"},1.55)
+      .to("#si-bar-l",{width:"88%",duration:.62,ease:"power2.out"},1.92)
+      .to("#si-bar-xl",{width:"96%",duration:.62,ease:"power2.out"},2.29)
+      .fromTo(".si-arch strong",{opacity:0,scale:.75},{opacity:1,scale:1,duration:.32,stagger:.18,ease:"back.out(1.7)"},2.45)
+      .fromTo("#si-glow",{opacity:.35,scale:.86},{opacity:.85,scale:1.08,duration:1.2,ease:"sine.inOut"},3.35)
+      .to(".si-board",{boxShadow:"0 26px 78px rgba(255,122,26,.12)",duration:.55,yoyo:true,repeat:1},4.1);
+    window.__timelines["insole-size-motion"]=tl; tl.seek(0);
+  </script>
+</template>

@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "product_id": "44358530",
+  "selection_rule": "제품만의 행동 차이와 공급처 증거가 동시에 보이는 소구를 우선",
+  "candidates": [
+    {
+      "id": "APPEAL-001",
+      "rank": 1,
+      "title": "꺼내서 바로 신는 깔창이 아니라, 내 발 모양에 맞춰 한 번 더 완성하는 깔창",
+      "evidence_ids": ["FACT-005", "FACT-006", "FACT-007", "FACT-008"],
+      "status": "approved_as_primary",
+      "copy_guardrail": "치료·교정·통증 개선으로 확장하지 않고 열 성형 과정과 형태 변화만 말한다."
+    },
+    {
+      "id": "APPEAL-002",
+      "rank": 2,
+      "title": "재단→30~40초 가열→5분 착화, 세 단계로 읽히는 자가 성형",
+      "evidence_ids": ["FACT-005", "FACT-006", "FACT-007"],
+      "status": "approved",
+      "copy_guardrail": "드라이기 출력과 성형 조건을 생략하지 않는다."
+    },
+    {
+      "id": "APPEAL-003",
+      "rank": 3,
+      "title": "S부터 XL까지 신발 치수 구간과 아치 높이를 함께 확인",
+      "evidence_ids": ["FACT-009"],
+      "status": "approved",
+      "copy_guardrail": "발 길이만으로 맞음을 보장하지 않고 신발 내부 여유와 기존 깔창 비교를 함께 안내한다."
+    },
+    {
+      "id": "APPEAL-004",
+      "rank": 4,
+      "title": "EVA 바디와 라이크라 상판, 보이는 두 소재",
+      "evidence_ids": ["FACT-003"],
+      "status": "approved",
+      "copy_guardrail": "흡수력·통기성·항균·내구 성능을 정량 보장하지 않는다."
+    },
+    {
+      "id": "APPEAL-005",
+      "rank": 5,
+      "title": "처음 1~2시간부터, 약 2주 동안 천천히 적응",
+      "evidence_ids": ["FACT-011", "FACT-013"],
+      "status": "approved_as_safety_content",
+      "copy_guardrail": "즉시 편안함이나 누구에게나 맞는다는 표현 대신 적응 안내와 중단 조건을 함께 쓴다."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"duration":5.2,"assertions":[{"kind":"appearsBy","selector":"#he-number","bySec":1.2},{"kind":"before","a":"#he-watt","b":"#he-guide-b"},{"kind":"staysInFrame","selector":".he-meter"},{"kind":"keepsMoving","withinSelector":"#heat-root","maxStaticSec":1.2}]}

@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "product_id": "44358530",
+  "source_url": "https://domeggook.com/44358530?from=lstGen",
+  "validated_capture": "../../tests/dmk-extractor-44358530-20260725",
+  "assets": [
+    {
+      "id": "SOURCE-THUMB",
+      "path": "assets/source/supplier-thumbnail.png",
+      "role": "listing_thumbnail",
+      "observed": "오렌지 EVA 바디와 패턴 원단 상판, 네 가지 색 예시가 함께 보이는 상품 대표 이미지",
+      "production_use": "identity_reference_and_source_evidence"
+    },
+    {
+      "id": "SOURCE-FORM",
+      "path": "assets/source/supplier-before-after.png",
+      "role": "shape_change_evidence",
+      "observed": "열 성형 전후의 옆면 곡선과 발자국 자국 비교",
+      "production_use": "claim_evidence_only"
+    },
+    {
+      "id": "SOURCE-MATERIAL",
+      "path": "assets/source/supplier-materials.png",
+      "role": "material_evidence",
+      "observed": "오렌지 EVA 바디와 라이크라 상판 표기",
+      "production_use": "claim_evidence_only"
+    },
+    {
+      "id": "SOURCE-TRIM",
+      "path": "assets/source/supplier-trim-guide.png",
+      "role": "trim_instruction",
+      "observed": "열 성형 전에 기존 깔창을 대고 밀착 가이드라인에 맞춰 자르는 방법",
+      "production_use": "instruction_evidence"
+    },
+    {
+      "id": "SOURCE-HEAT",
+      "path": "assets/source/supplier-heat-colors.png",
+      "role": "heat_instruction_and_color_examples",
+      "observed": "700~800W 드라이기 30~40초, 착화 5분, 브라운·레드·퍼플·블랙 색 예시",
+      "production_use": "instruction_evidence"
+    },
+    {
+      "id": "SOURCE-SIZE",
+      "path": "assets/source/supplier-size-table.png",
+      "role": "size_evidence",
+      "observed": "S~XL의 권장 신발 치수 구간과 아치 높이",
+      "production_use": "fact_evidence"
+    },
+    {
+      "id": "SOURCE-CAUTION",
+      "path": "assets/source/supplier-cautions-info.png",
+      "role": "safety_and_product_info",
+      "observed": "적응 안내, 사용 중단 조건, 보관법, 제품명·원산지·재질",
+      "production_use": "safety_evidence"
+    },
+    {
+      "id": "SOURCE-GIF-HEAT",
+      "path": "assets/source/supplier-heat-demo.gif",
+      "role": "actual_heat_demo",
+      "observed": "드라이기로 깔창을 데우는 공급처 실사용 장면",
+      "production_use": "actual_process_reference"
+    },
+    {
+      "id": "SOURCE-GIF-BEND",
+      "path": "assets/source/supplier-heat-bend-demo.gif",
+      "role": "actual_heat_handling_demo",
+      "observed": "열을 가한 뒤 깔창의 변화를 손으로 확인하는 공급처 장면",
+      "production_use": "actual_process_reference"
+    },
+    {
+      "id": "SOURCE-GIF-INSERT",
+      "path": "assets/source/supplier-shoe-insert.gif",
+      "role": "actual_insertion_demo",
+      "observed": "완성한 깔창을 운동화 안에 넣는 공급처 장면",
+      "production_use": "actual_process_reference"
+    }
+  ]
+}

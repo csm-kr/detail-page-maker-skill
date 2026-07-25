@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "project": "insole-motion-studio",
+  "format": {
+    "width": 800,
+    "height": 800,
+    "fps": 15,
+    "duration_each_sec": 5.2,
+    "master_duration_sec": 36.4
+  },
+  "assets": [
+    {"id": "product-pair", "path": "assets/insole-pair-v1.png", "role": "product SSOT cutout"},
+    {"id": "product-side", "path": "assets/insole-side-v1.png", "role": "product SSOT side cutout"},
+    {"id": "trim-context", "path": "assets/trim-workspace-v1.png", "role": "ImageGen context only"},
+    {"id": "heat-context", "path": "assets/heat-workspace-v1.png", "role": "ImageGen context only"},
+    {"id": "fit-context", "path": "assets/five-minute-fit-v1.png", "role": "ImageGen context only"}
+  ],
+  "compositions": [
+    {"id": "insole-form-motion", "file": "compositions/form.html", "message": "재단과 열성형으로 사용자가 마지막 형태를 완성", "rules": ["svg-path-draw", "ambient-glow-bloom", "spring-pop-entrance"]},
+    {"id": "insole-trim-motion", "file": "compositions/trim.html", "message": "기존 깔창을 대고 먼저 재단", "rules": ["svg-path-draw", "control-target-sync", "nudge-curve"]},
+    {"id": "insole-heat-motion", "file": "compositions/heat.html", "message": "700–800W 기준 30–40초 고르게 가열", "rules": ["counting-dynamic-scale", "svg-path-draw", "ambient-glow-bloom"]},
+    {"id": "insole-fit-motion", "file": "compositions/fit.html", "message": "신발 안에서 5분 착화", "rules": ["stat-bars-and-fills", "control-target-sync", "ambient-glow-bloom"]},
+    {"id": "insole-profile-motion", "file": "compositions/profile.html", "message": "열성형 전후 측면 형태 변화", "rules": ["svg-path-draw", "scale-swap-transition", "ambient-glow-bloom"]},
+    {"id": "insole-size-motion", "file": "compositions/size.html", "message": "네 사이즈 범위와 아치 높이 비교", "rules": ["stat-bars-and-fills", "control-target-sync", "waterfall-entry"]},
+    {"id": "insole-adaptation-motion", "file": "compositions/adaptation.html", "message": "처음 1–2시간부터 약 2주 적응", "rules": ["svg-path-draw", "waterfall-entry", "ambient-glow-bloom"]}
+  ]
+}

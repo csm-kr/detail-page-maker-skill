@@ -46,3 +46,12 @@
 
 - [도매꾹 23824901 commercial-tight v2 프로토타입](issues/22-prototype-domeggook-23824901-commercial-tight-v2.md)은 13섹션 HTML, 별도 Studio, ImageGen 소재 5종, 역할이 다른 HyperFrames GIF 5종, SVG 말풍선, 단일 HTML 내보내기와 5개 폭 Browser Harness QA를 마쳤다.
 - 최종 판정은 `completed`, commercial-tight v2 `98/100`, 하드 실패 `0개`다.
+
+## 2026-07-25 기능성 깔창 확장 프로토타입
+
+- [도매꾹 기능성 깔창 확장 미디어 프로토타입](issues/23-prototype-functional-insole-expanded-media.md) —도매꾹 `44358530`의 성형형 인솔을 선택해 공급처 근거, 확장 ImageGen 장면, 역할이 다른 6개 이상 GIF, 15개 이상 섹션, Studio와 skill 학습 갱신을 한 번에 검증한다.
+
+## 2026-07-25 기능성 깔창 완료
+
+- [도매꾹 기능성 깔창 확장 미디어 프로토타입](issues/23-prototype-functional-insole-expanded-media.md)은 ImageGen 8장, HyperFrames GIF 7개, 실제 시연 GIF 3개, 20개 섹션과 독립 Studio를 구현했다.
+- 5개 반응형 폭, GIF 10/10, HyperFrames strict, HTML validator를 통과했고 `98/100`, 하드 실패 `0개`로 완료했다.

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detail Page Studio · 44358530</title>
+    <style>
+      :root { color-scheme: dark; --panel:#151410; --line:#343028; --paper:#f5f0e8; --orange:#ff7a1a; }
+      * { box-sizing: border-box; }
+      html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#0d0c0a; color:#eee7dd; font-family:"Noto Sans KR","Malgun Gothic",sans-serif; }
+      button,input { font:inherit; }
+      .app { display:grid; grid-template-columns:300px 1fr; width:100%; height:100%; }
+      aside { position:relative; z-index:4; padding:22px; overflow:auto; border-right:1px solid var(--line); background:var(--panel); box-shadow:18px 0 44px rgba(0,0,0,.25); }
+      .brand { display:flex; align-items:center; gap:12px; margin-bottom:24px; }
+      .brand-mark { display:grid; place-items:center; width:42px; height:42px; border-radius:14px; background:var(--orange); color:#151410; font-weight:950; }
+      .brand strong { display:block; font-size:16px; } .brand span { display:block; margin-top:3px; color:#a9a094; font-size:12px; }
+      .group { padding:17px 0; border-top:1px solid var(--line); }
+      .group h2 { margin:0 0 12px; color:#a9a094; font-size:12px; letter-spacing:.12em; }
+      .button-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+      button,.link-button { min-height:40px; padding:0 12px; border:1px solid #413c32; border-radius:12px; background:#24211b; color:#f1eae0; cursor:pointer; font-size:13px; font-weight:800; }
+      button:hover,.link-button:hover { border-color:#6c6252; background:#2d2922; }
+      button.primary { border-color:var(--orange); background:var(--orange); color:#171511; }
+      button.wide,.link-button.wide { display:flex; align-items:center; justify-content:center; width:100%; margin-top:8px; text-decoration:none; }
+      label { display:block; margin:10px 0 6px; color:#bcb2a4; font-size:12px; font-weight:750; }
+      input[type="text"] { width:100%; height:39px; padding:0 11px; border:1px solid #413c32; border-radius:10px; outline:none; background:#0f0e0c; color:#eee7dd; font-size:12px; }
+      input[type="text"]:focus { border-color:var(--orange); }
+      input[type="color"] { width:100%; height:42px; padding:4px; border:1px solid #413c32; border-radius:10px; background:#0f0e0c; }
+      .hint { margin:10px 0 0; color:#8e8579; font-size:11px; line-height:1.5; }
+      .status { position:sticky; bottom:0; margin-top:20px; padding:12px; border:1px solid #3b372f; border-radius:12px; background:#1c1a16; color:#bdb3a5; font-size:11px; line-height:1.45; }
+      .workspace { position:relative; overflow:auto; background:radial-gradient(circle at 50% 0%,#302b23,#11100d 58%); }
+      .canvas-shell { width:880px; min-height:100%; margin:0 auto; padding:40px; }
+      iframe { display:block; width:800px; height:17000px; border:0; background:#f5f0e8; box-shadow:0 30px 90px rgba(0,0,0,.5); }
+      .selected { color:#ff9a51; }
+      @media (max-width:1000px) { .app{grid-template-columns:260px 1fr}.canvas-shell{margin-left:0} }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside>
+        <div class="brand">
+          <div class="brand-mark">DP</div>
+          <div><strong>Detail Page Studio</strong><span>Domeggook 44358530 · prototype</span></div>
+        </div>
+
+        <section class="group">
+          <h2>EDIT</h2>
+          <div class="button-grid">
+            <button id="toggleEdit" type="button" class="primary">텍스트 수정 켜기</button>
+            <button id="save" type="button">로컬 저장</button>
+            <button id="reset" type="button">초기화</button>
+            <button id="replay" type="button">GIF 다시 재생</button>
+          </div>
+          <p class="hint">주황 점선은 텍스트, 파란 선은 교체 가능한 이미지입니다.</p>
+        </section>
+
+        <section class="group">
+          <h2>SELECTED IMAGE</h2>
+          <div id="selectedLabel" class="hint">미리보기에서 이미지를 선택하세요.</div>
+          <label for="imageSrc">이미지 경로</label>
+          <input id="imageSrc" type="text" placeholder="assets/generated/..." />
+          <label for="imageAlt">대체 텍스트</label>
+          <input id="imageAlt" type="text" placeholder="이미지 설명" />
+          <button id="applyImage" type="button" class="wide">선택 이미지 적용</button>
+        </section>
+
+        <section class="group">
+          <h2>THEME</h2>
+          <label for="accent">강조색</label>
+          <input id="accent" type="color" value="#ff7a1a" />
+        </section>
+
+        <section class="group">
+          <h2>EXPORT</h2>
+          <button id="exportHtml" type="button" class="wide primary">수정본 HTML 내보내기</button>
+          <a class="link-button wide" href="index.html" target="_blank" rel="noreferrer">원본 크기로 열기</a>
+          <p class="hint">내보낸 HTML은 현재 폴더의 styles.css·app.js·assets 경로를 그대로 사용합니다.</p>
+        </section>
+
+        <div id="status" class="status">미리보기를 불러오는 중입니다.</div>
+      </aside>
+
+      <main class="workspace">
+        <div class="canvas-shell">
+          <iframe id="preview" src="index.html" title="기능성 인솔 상세페이지 미리보기"></iframe>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const preview = document.querySelector("#preview");
+      const toggleEdit = document.querySelector("#toggleEdit");
+      const status = document.querySelector("#status");
+      const srcInput = document.querySelector("#imageSrc");
+      const altInput = document.querySelector("#imageAlt");
+      const selectedLabel = document.querySelector("#selectedLabel");
+      let editing = false;
+      let selectedImageIndex = -1;
+
+      function post(type, payload = {}) {
+        preview.contentWindow.postMessage({ type, ...payload }, "*");
+      }
+
+      function setStatus(message) {
+        status.textContent = message;
+      }
+
+      toggleEdit.addEventListener("click", () => {
+        editing = !editing;
+        toggleEdit.textContent = editing ? "텍스트 수정 끄기" : "텍스트 수정 켜기";
+        toggleEdit.classList.toggle("primary", !editing);
+        post("DETAIL_SET_EDITING", { enabled: editing });
+        setStatus(editing ? "수정 모드입니다. 텍스트를 바로 클릭하거나 이미지를 선택하세요." : "미리보기 모드입니다.");
+      });
+
+      document.querySelector("#save").addEventListener("click", () => post("DETAIL_SAVE"));
+      document.querySelector("#replay").addEventListener("click", () => post("DETAIL_REPLAY_GIFS"));
+      document.querySelector("#reset").addEventListener("click", () => {
+        if (confirm("로컬에 저장한 수정 내용을 모두 초기화할까요?")) post("DETAIL_RESET");
+      });
+
+      document.querySelector("#accent").addEventListener("input", (event) => {
+        post("DETAIL_SET_ACCENT", { value: event.target.value });
+      });
+
+      document.querySelector("#applyImage").addEventListener("click", () => {
+        if (selectedImageIndex < 0) {
+          setStatus("먼저 수정 모드에서 이미지를 선택하세요.");
+          return;
+        }
+        post("DETAIL_SET_IMAGE", {
+          index: selectedImageIndex,
+          src: srcInput.value.trim(),
+          alt: altInput.value.trim(),
+        });
+        setStatus(`이미지 #${selectedImageIndex + 1}을 적용했습니다. 로컬 저장을 눌러 유지하세요.`);
+      });
+
+      document.querySelector("#exportHtml").addEventListener("click", () => {
+        const documentCopy = preview.contentDocument.documentElement.cloneNode(true);
+        documentCopy.querySelector("body")?.classList.remove("is-editing");
+        documentCopy.querySelectorAll("[contenteditable]").forEach((node) => node.removeAttribute("contenteditable"));
+        const output = "<!doctype html>\n" + documentCopy.outerHTML;
+        const blob = new Blob([output], { type: "text/html;charset=utf-8" });
+        const anchor = document.createElement("a");
+        anchor.href = URL.createObjectURL(blob);
+        anchor.download = "detail-page-44358530-edited.html";
+        anchor.click();
+        URL.revokeObjectURL(anchor.href);
+        setStatus("현재 수정 상태를 HTML로 내보냈습니다.");
+      });
+
+      window.addEventListener("message", (event) => {
+        const message = event.data || {};
+        if (message.type === "DETAIL_READY") {
+          preview.style.height = `${preview.contentDocument.documentElement.scrollHeight}px`;
+          setStatus(`${message.sectionCount}개 섹션 · 수정 텍스트 ${message.editableCount}개 · 이미지 ${message.imageCount}개 준비됨`);
+        }
+        if (message.type === "DETAIL_SAVED") setStatus(`로컬 저장 완료 · ${new Date(message.savedAt).toLocaleTimeString("ko-KR")}`);
+        if (message.type === "DETAIL_IMAGE_SELECTED") {
+          selectedImageIndex = message.index;
+          srcInput.value = message.src;
+          altInput.value = message.alt;
+          selectedLabel.innerHTML = `<span class="selected">${message.assetId || `이미지 #${message.index + 1}`}</span> 선택됨`;
+        }
+      });
+    </script>
+  </body>
+</html>
