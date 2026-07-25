@@ -3,11 +3,11 @@
   "source_project": "../../../videos/domeggook-60851997-motion",
   "renderer": "HyperFrames 0.7.71",
   "master": {
-    "file": "novaface-insole-commercial-master-v9.mp4",
-    "duration_seconds": 38.4,
-    "fps": 15,
-    "bytes": 14527915,
-    "sha256": "f1677670f54a5a393e2986d69614746a03658556ff83d309487b2180f52cff5f"
+    "file": "../../../videos/domeggook-60851997-motion/renders/novaface-insole-commercial-master-v10.mp4",
+    "duration_seconds": 43.2,
+    "fps": 30,
+    "bytes": 18046776,
+    "sha256": "7c7ee11634653489a0a646ed683f6f1fad46333be60083f99515a83e6bcd6d94"
   },
   "gif_profile": {
     "width": 800,
@@ -20,8 +20,8 @@
   },
   "qa": {
     "checked_at": "2026-07-25",
-    "contact_sheet": "../../qa/hyperframes-contact-v9.png",
-    "method": "각 장면의 시작·중간·마지막 프레임을 8×3 접촉 시트로 비교",
+    "contact_sheet": "../../qa/v10-gif-contact.png",
+    "method": "각 장면의 시작·중간·마지막 프레임을 9×3 접촉 시트로 비교",
     "result": "PASS",
     "first_frame_claim_visible": true,
     "comparison_states_explicit": true,
@@ -33,64 +33,77 @@
     "blue_cushion_airflow_forbidden": true,
     "airflow_origin": "forefoot_and_midfoot_air_holes_only",
     "korean_orphan_wraps": 0,
-    "product_identity_failures": 0
+    "product_identity_failures": 0,
+    "minimum_status_label_px": 18,
+    "size_260_click_feedback": true,
+    "left_right_arch_mirror_gate": true,
+    "factory_print_long_axis_gate": true
   },
   "clips": [
     {
       "file": "top-bottom-reveal.gif",
       "role": "윗면 → 뒤집기 → 아랫면",
-      "bytes": 12492417,
-      "sha256": "a7cdacbf5ca925f4ac7b8b64f814c8d95bba0999de41962bbe92dd2f92b6cb65",
-      "source_asset": "../commercial/surface-top-studio-v3.png + ../commercial/surface-bottom-studio-v3.png"
+      "bytes": 12444183,
+      "sha256": "3b6f4352cf2810a9dfabed24d1f615c08099cd798df962df127d0baa0913f1e9",
+      "source_asset": "../commercial/surface-top-studio-v4.png + ../commercial/surface-bottom-studio-v3.png"
     },
     {
       "file": "cell-scan.gif",
       "role": "발이 닿기 전 → 블루쿠션이 닿을 때",
-      "bytes": 9164200,
-      "sha256": "7cd83c49b11b657d58d21f783e67e939bd7c814b82fdcc5b029dd5ae08a0c15a",
+      "bytes": 9190087,
+      "sha256": "07148b3962b26921a46a514fcfd05b7d7ec185a35e33561fa8945c2882622028",
       "source_asset": "../commercial/cushion-impact-v4.png"
     },
     {
       "file": "perforation-path.gif",
       "role": "공기 유입 → 에어홀 통과",
-      "bytes": 9366537,
-      "sha256": "244312a46c99ab99ba800eb4d281a9be493b6999894176200ba3bd63e415d2a5",
-      "source_asset": "../commercial/ventilation-airflow-v5.png",
+      "bytes": 8489554,
+      "sha256": "03e95f06cf521fdab5fb342e44361fd4b1be373ef2b587c55407d4c5c2ed74fc",
+      "source_asset": "../commercial/ventilation-airflow-v6.png",
       "hard_gate": "블루쿠션에서는 바람·빛줄기가 시작되지 않음"
     },
     {
       "file": "flex-photo-sequence.gif",
       "role": "발의 움직임을 따르는 PU 곡선",
-      "bytes": 10916309,
-      "sha256": "d80185eba4d7502b2ff05628493766f33119d3344d1be2569d7e0d8541cd97ac",
-      "source_asset": "../commercial/flex-hand-v5.png"
+      "bytes": 11858109,
+      "sha256": "599b46f79088f99b03dd7feba40015a6fe7139d4e9b521b179e39764b5a9774f",
+      "source_asset": "../commercial/flex-hand-v7.png"
     },
     {
       "file": "size-selector.gif",
       "role": "발길이 255mm → 260 선택",
-      "bytes": 942404,
-      "sha256": "7abc08b820dc7006a73542bead7f07b926820da66d279df06188fc10198d6e13"
+      "bytes": 996592,
+      "sha256": "b592e1e7a9878f6e9660c4ae88170b96021d77eb7c08555eacf8ab88e6399331",
+      "interaction_gate": "커서가 260 카드 내부에 도착한 뒤 눌림·리플·반발이 순서대로 보임"
     },
     {
       "file": "shoe-insertion-guide.gif",
       "role": "기존 깔창을 빼고 → 뒤꿈치부터 넣기",
-      "bytes": 12048834,
-      "sha256": "da019b9fbe930b3f78c0c2b10ddd860fb70cd5a1831936564aaf0ea66cf0b4e3",
+      "bytes": 12508408,
+      "sha256": "cdecd585524653809c222034e3b96db4aaa7943bf7f4617298c4efb51a7f5d50",
       "source_asset": "../commercial/shoe-insertion-v4.png"
     },
     {
       "file": "one-pair-contents.gif",
       "role": "좌우 한 세트 구성",
-      "bytes": 11120426,
-      "sha256": "cbfe0f1bb742abbed39363d9118ccfc6b09f3f10a05314fc2010093806580969",
+      "bytes": 11150631,
+      "sha256": "31f3e284c54efb04dd06ba35c42200bccbf8056dd9a38e967fabca5eae3fd889",
       "source_asset": "../commercial/hero-underside-pair-v2.png"
     },
     {
       "file": "material-cross-section.gif",
       "role": "에어메시 윗면 ↔ 고탄성 PU 아랫면, 좌우 끝 상태 비교",
-      "bytes": 3797857,
-      "sha256": "5398d805e0e3cf2b9acaacf3ffbfc2215936619e2d5a031e442fc3ec8df75842",
-      "source_asset": "../commercial/surface-top-studio-v3.png + ../commercial/surface-bottom-studio-v3.png"
+      "bytes": 4053877,
+      "sha256": "5463d6173386262c267b12f6833e1c7893052248a7d29f60b4e51b3d7e11bede",
+      "source_asset": "../commercial/surface-top-studio-v4.png + ../commercial/surface-bottom-studio-v3.png"
+    },
+    {
+      "file": "comfort-step.gif",
+      "role": "착화 뒤 한결 편안한 걸음을 제안하는 마감 모션",
+      "bytes": 8809427,
+      "sha256": "72b9dbe6cdf538d09b6f5fa659d8e648bfc65cde2ad09fb667db04595c99ba2e",
+      "source_asset": "../commercial/comfort-step-v1.png",
+      "claim_gate": "의료 효능·통증 개선·정량 수치 없이 편안한 착화감을 제안"
     }
   ]
 }

@@ -14,9 +14,9 @@
       "identity_checks": ["air_cell", "air_hole", "blue_cushion", "pair"]
     },
     {
-      "file": "surface-top-studio-v3.png",
+      "file": "surface-top-studio-v4.png",
       "role": "upper surface comparison",
-      "identity_checks": ["gray_air_mesh", "gray_heel_patch", "no_blue_cushion_on_upper"]
+      "identity_checks": ["gray_air_mesh", "gray_heel_patch", "no_blue_cushion_on_upper", "identical_outer_contour", "mirrored_medial_arch"]
     },
     {
       "file": "surface-bottom-studio-v3.png",
@@ -24,19 +24,19 @@
       "identity_checks": ["air_cell", "air_hole", "blue_cushion_position", "factory_print_embedded"]
     },
     {
-      "file": "ventilation-airflow-v5.png",
+      "file": "ventilation-airflow-v6.png",
       "role": "airflow effect",
-      "identity_checks": ["airflow_originates_only_from_air_holes", "air_cell", "solid_blue_cushion", "factory_print_embedded"]
+      "identity_checks": ["airflow_originates_only_from_air_holes", "air_cell", "solid_blue_cushion", "factory_print_embedded", "SPORTS_spelling", "print_aligned_to_long_axis"]
     },
     {
-      "file": "heel-macro-v3.png",
+      "file": "heel-macro-v4.png",
       "role": "heel component macro",
-      "identity_checks": ["blue_cushion_position", "air_cell_border", "factory_print_embedded"]
+      "identity_checks": ["blue_cushion_position", "air_cell_border", "factory_print_embedded", "SPORTS_spelling", "wide_two_line_print"]
     },
     {
-      "file": "flex-hand-v5.png",
+      "file": "flex-hand-v7.png",
       "role": "flexibility scene",
-      "identity_checks": ["lower_surface", "blue_cushion_position", "air_cell_border", "factory_print_embedded"]
+      "identity_checks": ["lower_surface", "blue_cushion_position", "air_cell_border", "factory_print_embedded", "SPORTS_spelling", "print_aligned_to_long_axis"]
     },
     {
       "file": "shoe-insertion-v4.png",
@@ -49,9 +49,9 @@
       "identity_checks": ["blue_cushion_position", "ZOOM SPORTS", "air_cell", "air_hole"]
     },
     {
-      "file": "usecase-military-v1.png",
+      "file": "usecase-military-v2.png",
       "role": "military boot use-case background",
-      "identity_checks": ["unbranded_footwear", "no_insole_reconstruction"]
+      "identity_checks": ["unbranded_footwear", "boots_actively_worn", "both_feet_inside_boots", "no_empty_boots"]
     },
     {
       "file": "usecase-work-v1.png",
@@ -82,9 +82,34 @@
       "file": "finale-shoe-lineup-bg-v1.png",
       "role": "four-footwear finale background",
       "identity_checks": ["four_distinct_contexts", "unbranded_footwear", "html_copy_safe_space"]
+    },
+    {
+      "file": "comfort-step-v1.png",
+      "role": "comfort closing motion background",
+      "identity_checks": ["footwear_actively_worn", "grounded_pressure_wave", "no_medical_claim", "html_copy_safe_space"]
     }
   ],
   "deprecated": [
+    {
+      "file": "surface-top-studio-v3.png",
+      "reason": "left and right upper surfaces repeated the medial arch on the same side"
+    },
+    {
+      "file": "usecase-military-v1.png",
+      "reason": "military boots were staged empty on the floor instead of actively worn"
+    },
+    {
+      "file": "heel-macro-v3.png",
+      "reason": "v10 tightened the wide two-line print and long-axis alignment"
+    },
+    {
+      "file": "flex-hand-v5.png",
+      "reason": "v10 tightened the SPORTS spelling and long-axis factory-print alignment"
+    },
+    {
+      "file": "ventilation-airflow-v5.png",
+      "reason": "v10 tightened the SPORTS spelling and long-axis factory-print alignment"
+    },
     {
       "file": "flex-hand-v2.png",
       "reason": "blue cushion position did not match SSOT"
@@ -115,7 +140,7 @@
     }
   ],
   "commercial_gates": {
-    "generated_asset_count_for_v9": 12,
+    "generated_asset_count_for_v10": 18,
     "factory_print_policy": "제품 각인·인쇄는 최종 이미지 픽셀에 포함하고 HTML 또는 HyperFrames 텍스트 오버레이로 대체하지 않는다.",
     "consumer_surface_terms": ["윗면", "아랫면"],
     "comparison_motion": "두 상태를 좌우 끝에서 각각 홀드한 뒤 50:50으로 정리한다."

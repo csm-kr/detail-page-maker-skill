@@ -268,8 +268,21 @@ h1, h2, h3 { text-wrap: balance; }
 .use-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 42px; }
 .use-grid article { position: relative; min-height: 480px; overflow: hidden; border: 1px solid rgba(14, 42, 80, .08); border-radius: 30px; background: #0a1830; box-shadow: 0 20px 45px rgba(20, 53, 94, .16); }
 .use-grid article::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3, 12, 31, .03) 28%, rgba(3, 12, 31, .9) 100%); pointer-events: none; }
-.use-grid article > img { width: 100%; height: 100%; min-height: 480px; object-fit: cover; transition: transform .35s ease; }
-.use-grid article:hover > img { transform: scale(1.025); }
+.use-grid article > .use-scene { width: 100%; height: 100%; min-height: 480px; object-fit: cover; transition: transform .35s ease; }
+.use-grid article:hover > .use-scene { transform: scale(1.025); }
+.use-product {
+  position: absolute;
+  z-index: 3;
+  top: 18px;
+  right: 18px;
+  width: 118px;
+  height: 118px;
+  min-height: 0;
+  border: 2px solid rgba(255, 255, 255, .72);
+  border-radius: 25px;
+  object-fit: cover;
+  box-shadow: 0 16px 35px rgba(2, 13, 34, .35);
+}
 .use-copy { position: absolute; z-index: 2; left: 25px; right: 25px; bottom: 26px; color: #fff; }
 .use-grid span { color: #82c7ff; font-size: 13px; font-weight: 950; letter-spacing: .1em; }
 .use-grid h3 { margin: 9px 0 7px; color: #fff; font-size: 34px; letter-spacing: -.045em; }
@@ -284,10 +297,11 @@ h1, h2, h3 { text-wrap: balance; }
 .voice-cards span { color: #89c8ff; font-size: 11px; font-weight: 950; letter-spacing: .11em; }
 .voice-cards p { margin: 58px 0 0; color: #fff; font-size: 18px; line-height: 1.55; font-weight: 800; }
 .voice-tags { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px; margin-top: 32px; }
-.voice-tags span { padding: 10px 15px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; color: #c9ddf6; font-size: 13px; font-weight: 800; }
+.voice-tags span { padding: 10px 15px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; color: #d9e8f8; font-size: 14px; font-weight: 850; }
 
 .contents { padding: 82px 42px; }
 .contents-copy { padding: 0 12px 34px; }
+.product-print-proof { display: inline-flex; margin: 0 0 14px; padding: 8px 12px; border: 1px solid rgba(132, 201, 255, .46); border-radius: 999px; color: #9bd2ff; font-size: 14px; font-weight: 950; letter-spacing: .11em; }
 .contents-copy h2 { margin: 0; font-size: 52px; line-height: 1.08; letter-spacing: -.06em; font-weight: 950; }
 .contents-copy > p:last-child { margin: 18px 0 0; color: #bed0e5; font-size: 17px; line-height: 1.6; font-weight: 650; }
 .contents > img { width: 100%; border-radius: 38px; box-shadow: 0 28px 68px rgba(0, 0, 0, .3); }
@@ -311,6 +325,19 @@ h1, h2, h3 { text-wrap: balance; }
 
 .finale { height: 1050px; overflow: hidden; background: #07142c; }
 .finale-media { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: auto; object-fit: contain; object-position: center bottom; }
+.finale-product {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 346px;
+  width: 370px;
+  height: 370px;
+  border: 2px solid rgba(116, 190, 255, .42);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 18px rgba(34, 126, 255, .08), 0 28px 74px rgba(0, 0, 0, .36);
+  transform: translateX(-50%);
+}
 .finale-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3, 9, 26, .08), rgba(3, 9, 26, .02) 40%, rgba(3, 9, 26, .5)); }
 .finale-copy { position: absolute; z-index: 2; left: 54px; right: 54px; top: 86px; text-align: center; }
 .finale-copy h2 { margin: 0; font-size: 58px; line-height: 1.1; letter-spacing: -.065em; font-weight: 950; }
@@ -394,11 +421,12 @@ h1, h2, h3 { text-wrap: balance; }
   .size-gif { border-radius: 24px; }
   .use-cases { padding-bottom: 58px; }
   .use-grid { grid-template-columns: 1fr; gap: 12px; padding: 0 18px; }
-  .use-grid article, .use-grid article > img { min-height: 440px; }
+  .use-grid article, .use-grid article > .use-scene { min-height: 440px; }
   .use-grid article { border-radius: 24px; }
   .use-copy { left: 22px; right: 22px; bottom: 23px; }
   .use-grid h3 { font-size: 30px; }
   .use-grid p { font-size: 15px; }
+  .use-product { top: 14px; right: 14px; width: 108px; height: 108px; min-height: 0; border-radius: 21px; }
   .voice { padding: 76px 24px; }
   .voice-mark { font-size: 120px; }
   .voice h2 { font-size: 35px; }
@@ -419,6 +447,7 @@ h1, h2, h3 { text-wrap: balance; }
   .finale-copy { left: 24px; right: 24px; top: 46px; }
   .finale-copy h2 { font-size: 39px; }
   .finale-copy > p:not(.eyebrow) { font-size: 15px; }
+  .finale-product { top: 260px; width: 274px; height: 274px; }
 }
 
 @media (max-width: 340px) {

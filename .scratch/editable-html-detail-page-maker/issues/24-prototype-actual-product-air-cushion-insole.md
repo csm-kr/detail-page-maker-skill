@@ -49,19 +49,23 @@
 - 2026-07-25: 공개 용어를 `윗면 / 아랫면`으로 통일하고 재질 비교 분할선을 좌우 끝까지 이동하도록 다시 렌더링했다.
 - 2026-07-25: 정적·동적 삽입 중복을 한 섹션으로 합쳐 17개 섹션으로 마감하고 FAQ 4개를 모두 펼쳤다.
 - 2026-07-25: HyperFrames strict 0, 대비 35/35, 320~800px overflow·outside·clipping 0, HTML validator 0, Studio 편집 텍스트 90개·이미지 17개를 확인했다.
+- 2026-07-25: commercial-final v10에서 좌우 윗면의 동일 외곽·거울 대칭 아치, `ZOOM SPORTS` 철자·장축, 에어홀 전용 통풍, 260 클릭 피드백, 착화된 군화, 사용 장면 4종과 제품 인셋, 착화 후 보행 이펙트를 완료했다.
+- 2026-07-25: 18개 섹션, 이미지 23개, GIF 9개, 편집 텍스트 96개로 마감했다. HyperFrames strict 오류·경고 0, contrast 32/32, HTML validator 0, 실제 CSS 320·360·390·767·800px overflow 0을 확인했다.
 
 ## Answer
 
-노바페이스 `발편한 기능성깔창`의 실제품·사용자 승격 SSOT를 기준으로 윗면·아랫면·에어셀·에어홀·블루쿠션을 잠그고, 신규 ImageGen 소재 12장과 HyperFrames GIF 8개를 결합한 수정 가능한 HTML을 완성했다.
+노바페이스 `발편한 기능성깔창`의 실제품·사용자 승격 SSOT를 기준으로 윗면·아랫면·에어셀·에어홀·블루쿠션을 잠그고, 좌우 거울 대칭 아치·제품 장축 인쇄·착화 행동까지 보강한 ImageGen 소재와 HyperFrames GIF 9개를 결합한 수정 가능한 HTML을 완성했다.
 
 - 공개 페이지: `prototypes/domeggook-60851997/detail-page/index.html`
 - 편집 Studio: `prototypes/domeggook-60851997/detail-page/studio.html`
 - 구조화 카피: `prototypes/domeggook-60851997/detail-page/content.json`
-- 최종 MP4: `videos/domeggook-60851997-motion/renders/novaface-insole-commercial-master-v9.mp4`
-- 최종 QA: `prototypes/domeggook-60851997/qa/commercial-final-v9.md`
-- 판정: **97.5/100, 하드 실패 0개**
+- 최종 MP4: `videos/domeggook-60851997-motion/renders/novaface-insole-commercial-master-v10.mp4`
+- 최종 QA: `prototypes/domeggook-60851997/qa/commercial-final-v10.md`
+- 판정: **98/100, 하드 실패 0개**
 
 ## Comments
+
+- 2026-07-25: commercial-final v10 수정 라운드를 재개했다. 좌우 윗면의 아치 구조를 동일 외곽·거울 대칭으로 교정하고, `ZOOM SPORTS` 철자·장축 얼라인, GIF 최소 글자 크기·굵기, 260 클릭 피드백, 착화된 군화 장면, 사용 장면 4종과 실제 제품의 동시 노출, 착화 후 편안함 전환 이펙트를 강화된 QA 게이트로 검증한다.
 
 - 2026-07-25: 이전 QA 이후 사용자 피드백을 반영해 작업을 다시 열었다. Behance 신규 10건의 내부 25%·50%·75% 구간과 GIF 수를 분석하고, 스킬을 제품 동일성·모션·한글 카피·사용자 피드백 게이트로 분리한다.
 - 2026-07-25: 구멍이 없는 블루쿠션에서 통풍 효과가 나오는 오류를 발견했다. 기존 통풍 소재를 폐기하고 앞꿈치·중족부 에어홀에서만 바람이 시작되는 ImageGen v4와 HyperFrames 경로로 교체한다.
@@ -70,3 +74,5 @@
 - 2026-07-25: 제품 위 흰색 `ZOOM SPORTS` 오버레이를 실제 인쇄가 포함된 ImageGen 소재로 교체하고, 군화·작업화·운동화·일상화의 별도 장면 4개와 추가 배경을 포함한 신규 이미지 10장 이상을 제작하기 위해 다시 열었다.
 - 2026-07-25: 소재 비교 GIF는 중앙 왕복을 금지하고 윗면·아랫면을 좌우 끝까지 명확히 이동하며 비교하도록 수정한다. 삽입 장면은 중복 두 섹션을 하나로 합치고 FAQ는 전부 펼친다.
 - 2026-07-25: v9 QA에서 신규 12개 소재의 역할 분리, GIF 8개 실재생, 제품 인쇄 오버레이 0, 5개 폭 무결성을 확인하고 티켓을 해결 처리했다.
+- 2026-07-25: v10 QA에서 좌우 아치, 제품 인쇄 장축, 작은 GIF 라벨, 260 클릭, 착화 군화, 4종 사용 장면+제품, 편안한 보행 장면을 모두 통과하고 다시 해결 처리했다.
+- 2026-07-25: 말풍선·꼬리·텍스트·GIF 박스의 위치까지 수정하는 레이어형 Studio는 issue 25로 분리했다.

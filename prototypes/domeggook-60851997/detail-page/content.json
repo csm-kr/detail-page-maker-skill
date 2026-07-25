@@ -71,6 +71,12 @@
       "id": "CLAIM-FLEX",
       "copy": "고탄성 PU가 발의 움직임을 따라 유연하게 휘어집니다.",
       "evidence": "supplier-and-ssot"
+    },
+    {
+      "id": "CLAIM-COMFORT",
+      "copy": "매일 신는 신발에 한결 편안한 걸음을 더해보세요.",
+      "evidence": "supplier-product-positioning",
+      "restriction": "의료 효능·통증 개선·정량 효과로 확장하지 않음"
     }
   ],
   "problem_questions": [
@@ -81,7 +87,8 @@
   "appeal_messages": [
     "오래 서 있는 날에도 발바닥을 포근하게 받쳐줘요.",
     "에어홀로 신발 속 답답함을 덜어줘요.",
-    "발길이에 맞춰 고르니 사이즈 선택이 쉬워요."
+    "발길이에 맞춰 고르니 사이즈 선택이 쉬워요.",
+    "군화·작업화·운동화·일상화에 한 켤레를 더해보세요."
   ],
   "sizes_mm": [
     230,
@@ -92,10 +99,11 @@
     280
   ],
   "composition": {
-    "section_count": 17,
-    "gif_count": 8,
-    "imagegen_asset_count": 12,
-    "editable_text_nodes": 90,
+    "section_count": 18,
+    "gif_count": 9,
+    "imagegen_asset_count": 18,
+    "editable_text_nodes": 96,
+    "editable_image_nodes": 23,
     "html": "index.html",
     "studio": "studio.html",
     "styles": "styles.css",
@@ -109,6 +117,7 @@
     "flex-photo-sequence.gif",
     "size-selector.gif",
     "shoe-insertion-guide.gif",
-    "one-pair-contents.gif"
+    "one-pair-contents.gif",
+    "comfort-step.gif"
   ]
 }
