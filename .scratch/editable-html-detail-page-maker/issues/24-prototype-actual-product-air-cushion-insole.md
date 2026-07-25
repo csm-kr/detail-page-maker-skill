@@ -59,11 +59,16 @@
 - 공개 페이지: `prototypes/domeggook-60851997/detail-page/index.html`
 - 편집 Studio: `prototypes/domeggook-60851997/detail-page/studio.html`
 - 구조화 카피: `prototypes/domeggook-60851997/detail-page/content.json`
-- 최종 MP4: `videos/domeggook-60851997-motion/renders/novaface-insole-commercial-master-v10.mp4`
-- 최종 QA: `prototypes/domeggook-60851997/qa/commercial-final-v10.md`
+- 최종 MP4: `videos/domeggook-60851997-motion/renders/novaface-insole-commercial-master-v11.mp4`
+- 최종 QA: `prototypes/domeggook-60851997/qa/commercial-final-v11.md`
+- ImageGen 교정 프롬프트: `prototypes/domeggook-60851997/research/imagegen-v11-correction-prompts.md`
 - 판정: **98/100, 하드 실패 0개**
 
 ## Comments
+
+- 2026-07-26: v11에서 흰 PU 양각 `SPORTS`, 블루쿠션 `ZOOM SPORTS`, 제품 장축 정렬, U자 굽힘 곡선, 255mm→260 화살표 시각 중심, 사이즈 하단 여백, 사용 장면 인셋 제거, HTML-GIF 타이포 동기화를 완료했다. HyperFrames strict 오류·경고 0, contrast 34/34, 5개 폭 overflow·잘림 0, HTML validator·JSON 파싱 오류 0, GIF 9개 실재생을 확인하고 98/100·하드 실패 0개로 다시 해결했다.
+
+- 2026-07-26: 사용자 후속 QA에 따라 v11 교정 작업을 재개했다. 공개 화면의 `STORTS`·`ZZOOM/ZZOM` 오표기 전수 제거, 제품 장축을 따르는 `ZOOM SPORTS` 정렬, 아래로 볼록한 유연성 곡선, 255mm 화살표와 하단 여백, 사용 장면 제품 인셋 제거, HTML과 동일 계열의 GIF 타이포그래피를 재검증한다.
 
 - 2026-07-25: commercial-final v10 수정 라운드를 재개했다. 좌우 윗면의 아치 구조를 동일 외곽·거울 대칭으로 교정하고, `ZOOM SPORTS` 철자·장축 얼라인, GIF 최소 글자 크기·굵기, 260 클릭 피드백, 착화된 군화 장면, 사용 장면 4종과 실제 제품의 동시 노출, 착화 후 편안함 전환 이펙트를 강화된 QA 게이트로 검증한다.
 

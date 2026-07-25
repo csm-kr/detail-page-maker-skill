@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1",
   "product_id": "domeggook-60851997",
-  "updated_at": "2026-07-25",
+  "updated_at": "2026-07-26",
   "ssot_priority": [
     "사용자가 직접 수정하고 SSOT로 승격한 제품 참조 이미지",
     "사용자가 제공한 실제품 다각도 촬영본",
@@ -72,9 +72,16 @@
     "air_cell": "에어셀",
     "air_hole": "에어홀",
     "blue_heel_component": "블루쿠션",
-    "visible_product_print": "ZOOM SPORTS"
+    "visible_product_print": "ZOOM SPORTS",
+    "white_body_emboss": "SPORTS"
   },
   "imagegen_policy": {
+    "spelling_hard_gates": [
+      "blue cushion print must preserve exact ZOOM SPORTS",
+      "white PU body emboss must preserve exact SPORTS",
+      "STORTS, ZZOM and ZZOOM are hard failures",
+      "factory print must follow the product part's long axis"
+    ],
     "allowed": [
       "실제품 참조를 조건으로 한 상용 제품 장면",
       "제품 없는 배경과 공기 흐름·빛·파동 같은 장식 효과",

@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1",
   "product_id": "domeggook-60851997",
-  "updated_at": "2026-07-25",
+  "updated_at": "2026-07-26",
   "reference_ssot": [
     "../product-ssot/source/real-product-raw/Flux2-Klein_00355_.png",
     "../product-ssot/source/real-product-raw/normalized-ref/",
@@ -9,9 +9,9 @@
   ],
   "accepted": [
     {
-      "file": "hero-underside-pair-v2.png",
+      "file": "hero-underside-pair-v3.png",
       "role": "hero and underside overview",
-      "identity_checks": ["air_cell", "air_hole", "blue_cushion", "pair"]
+      "identity_checks": ["air_cell", "air_hole", "blue_cushion", "pair", "white_body_emboss_exact_SPORTS"]
     },
     {
       "file": "surface-top-studio-v4.png",
@@ -19,9 +19,9 @@
       "identity_checks": ["gray_air_mesh", "gray_heel_patch", "no_blue_cushion_on_upper", "identical_outer_contour", "mirrored_medial_arch"]
     },
     {
-      "file": "surface-bottom-studio-v3.png",
+      "file": "surface-bottom-studio-v4.png",
       "role": "lower surface comparison",
-      "identity_checks": ["air_cell", "air_hole", "blue_cushion_position", "factory_print_embedded"]
+      "identity_checks": ["air_cell", "air_hole", "blue_cushion_position", "factory_print_embedded", "white_body_emboss_exact_SPORTS"]
     },
     {
       "file": "ventilation-airflow-v6.png",
@@ -29,14 +29,14 @@
       "identity_checks": ["airflow_originates_only_from_air_holes", "air_cell", "solid_blue_cushion", "factory_print_embedded", "SPORTS_spelling", "print_aligned_to_long_axis"]
     },
     {
-      "file": "heel-macro-v4.png",
+      "file": "heel-macro-v5.png",
       "role": "heel component macro",
-      "identity_checks": ["blue_cushion_position", "air_cell_border", "factory_print_embedded", "SPORTS_spelling", "wide_two_line_print"]
+      "identity_checks": ["blue_cushion_position", "air_cell_border", "factory_print_embedded", "SPORTS_spelling", "wide_two_line_print", "print_aligned_to_insole_long_axis"]
     },
     {
-      "file": "flex-hand-v7.png",
+      "file": "flex-hand-v8.png",
       "role": "flexibility scene",
-      "identity_checks": ["lower_surface", "blue_cushion_position", "air_cell_border", "factory_print_embedded", "SPORTS_spelling", "print_aligned_to_long_axis"]
+      "identity_checks": ["lower_surface", "blue_cushion_position", "air_cell_border", "factory_print_embedded", "exact_ZOOM_spelling", "SPORTS_spelling", "print_aligned_to_long_axis"]
     },
     {
       "file": "shoe-insertion-v4.png",
@@ -91,6 +91,22 @@
   ],
   "deprecated": [
     {
+      "file": "hero-underside-pair-v2.png",
+      "reason": "white PU body emboss read STORTS instead of SPORTS"
+    },
+    {
+      "file": "surface-bottom-studio-v3.png",
+      "reason": "white PU body emboss read STORTS instead of SPORTS"
+    },
+    {
+      "file": "heel-macro-v4.png",
+      "reason": "factory print block did not follow the insole long axis closely enough"
+    },
+    {
+      "file": "flex-hand-v7.png",
+      "reason": "blue cushion factory print could read ZZOOM instead of exact ZOOM"
+    },
+    {
       "file": "surface-top-studio-v3.png",
       "reason": "left and right upper surfaces repeated the medial arch on the same side"
     },
@@ -140,7 +156,9 @@
     }
   ],
   "commercial_gates": {
-    "generated_asset_count_for_v10": 18,
+    "generated_asset_count_for_v11": 18,
+    "spelling_hard_gate": "public assets must contain exact ZOOM SPORTS on the blue cushion and exact SPORTS on the white PU emboss; STORTS, ZZOM and ZZOOM are forbidden",
+    "factory_print_alignment": "the print baseline must follow the long axis of the blue cushion and insole",
     "factory_print_policy": "제품 각인·인쇄는 최종 이미지 픽셀에 포함하고 HTML 또는 HyperFrames 텍스트 오버레이로 대체하지 않는다.",
     "consumer_surface_terms": ["윗면", "아랫면"],
     "comparison_motion": "두 상태를 좌우 끝에서 각각 홀드한 뒤 50:50으로 정리한다."

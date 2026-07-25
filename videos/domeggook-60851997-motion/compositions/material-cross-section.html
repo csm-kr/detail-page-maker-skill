@@ -1,8 +1,8 @@
 <template>
   <style>
-    @font-face { font-family: "Malgun Gothic"; src: local("Malgun Gothic"); font-weight: 100 900; }
+    @font-face { font-family: "Detail Sans"; src: local("Pretendard"), local("Noto Sans KR"), local("Malgun Gothic"); font-weight: 100 950; }
     * { box-sizing: border-box; }
-    #mt-root { position: relative; width: 800px; height: 800px; overflow: hidden; background: #f3f8ff; color: #10203a; font-family: "Malgun Gothic", sans-serif; }
+    #mt-root { position: relative; width: 800px; height: 800px; overflow: hidden; background: #f3f8ff; color: #10203a; font-family: "Detail Sans", sans-serif; font-synthesis: weight; }
     .mt-half { position: absolute; top: 0; bottom: 0; overflow: hidden; }
     .mt-half img { position: absolute; top: 0; width: 800px; height: 800px; object-fit: cover; }
     .mt-left { left: 0; width: 78%; }
@@ -11,9 +11,10 @@
     .mt-right img { right: 0; }
     .mt-divider { position: absolute; z-index: 4; left: 50%; top: 0; width: 5px; height: 100%; background: #fff; box-shadow: 0 0 24px rgba(28,120,255,.8); }
     .mt-copy { position: absolute; z-index: 6; left: 34px; top: 34px; width: 566px; padding: 22px 25px 24px; border-radius: 25px; background: rgba(255,255,255,.97); box-shadow: 0 18px 48px rgba(21,63,115,.14); }
-    .mt-copy p { margin: 0 0 8px; color: #155acb; font-size: 18px; font-weight: 950; letter-spacing: .07em; }
-    .mt-copy h1 { margin: 0; font-size: 40px; line-height: 1.14; letter-spacing: -.055em; font-weight: 950; }
+    .mt-copy p { margin: 0 0 8px; color: #155acb; font-size: 20px; font-weight: 950; letter-spacing: .07em; }
+    .mt-copy h1 { margin: 0; font-size: 44px; line-height: 1.4; letter-spacing: -.06em; font-weight: 950; }
     .mt-copy h1 span { display: block; white-space: nowrap; }
+    .mt-copy h1 span + span { margin-top: 4px; }
     .mt-label { position: absolute; z-index: 6; bottom: 38px; min-width: 240px; padding: 15px 19px; border-radius: 18px; font-size: 19px; font-weight: 950; text-align: center; box-shadow: 0 14px 34px rgba(8,31,66,.2); }
     .mt-label small { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 950; letter-spacing: .09em; opacity: .82; }
     .mt-label-left { left: 34px; background: #fff; color: #10203a; }
@@ -22,7 +23,7 @@
   </style>
   <div id="mt-root" data-composition-id="actual-material-cross-section" data-start="0" data-duration="4.8" data-width="800" data-height="800">
     <div class="mt-half mt-left"><img src="assets/surface-top-studio-v4.png" alt="" data-layout-allow-overflow /></div>
-    <div class="mt-half mt-right"><img src="assets/surface-bottom-studio-v3.png" alt="" data-layout-allow-overflow /></div>
+    <div class="mt-half mt-right"><img src="assets/surface-bottom-studio-v4.png" alt="" data-layout-allow-overflow /></div>
     <div class="mt-divider"></div>
     <div class="mt-travel" aria-hidden="true"></div>
     <div class="mt-copy">

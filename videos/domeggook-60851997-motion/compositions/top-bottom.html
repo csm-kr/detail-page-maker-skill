@@ -1,8 +1,8 @@
 <template>
   <style>
-    @font-face { font-family: "Malgun Gothic"; src: local("Malgun Gothic"); font-weight: 100 900; }
+    @font-face { font-family: "Detail Sans"; src: local("Pretendard"), local("Noto Sans KR"), local("Malgun Gothic"); font-weight: 100 950; }
     * { box-sizing: border-box; }
-    #tb-root { position: relative; width: 800px; height: 800px; overflow: hidden; perspective: 1100px; background: #061127; color: #fff; font-family: "Malgun Gothic", sans-serif; }
+    #tb-root { position: relative; width: 800px; height: 800px; overflow: hidden; perspective: 1100px; background: #061127; color: #fff; font-family: "Detail Sans", sans-serif; font-synthesis: weight; }
     .tb-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-style: preserve-3d; }
     #tb-bottom { opacity: 0; }
     .tb-vignette { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,10,28,.16), rgba(4,10,28,.02) 42%, rgba(4,10,28,.94)); }
@@ -12,15 +12,16 @@
     .tb-step.active { background: #fff; color: #10203a; }
     .tb-arrow { color: #72baff; font-size: 19px; font-weight: 950; }
     .tb-copy { position: absolute; z-index: 4; left: 44px; right: 44px; bottom: 42px; }
-    .tb-copy p { margin: 0 0 10px; color: #e1f2ff; font-size: 20px; font-weight: 950; letter-spacing: .07em; }
-    .tb-copy h1 { margin: 0; font-size: 54px; line-height: 1.08; letter-spacing: -.06em; font-weight: 950; text-shadow: 0 4px 24px rgba(0,0,0,.42); }
+    .tb-copy p { display: inline-flex; margin: 0 0 12px; padding: 7px 11px; border-radius: 10px; background: rgba(4,12,32,.82); color: #fff; font-size: 21px; font-weight: 950; letter-spacing: .07em; }
+    .tb-copy h1 { margin: 0; font-size: 58px; line-height: 1.4; letter-spacing: -.065em; font-weight: 950; text-shadow: 0 4px 24px rgba(0,0,0,.42); }
     .tb-copy h1 span { display: block; }
+    .tb-copy h1 span + span { margin-top: 4px; }
     .tb-state { display: inline-flex; align-items: center; gap: 9px; margin-top: 20px; padding: 13px 18px; border-radius: 999px; background: #176bff; color: #fff; font-size: 18px; font-weight: 950; box-shadow: 0 12px 34px rgba(0,0,0,.24); }
     .tb-state b { color: #fff; }
   </style>
   <div id="tb-root" data-composition-id="actual-top-bottom" data-start="0" data-duration="4.8" data-width="800" data-height="800">
     <img id="tb-top" class="tb-media" src="assets/surface-top-studio-v4.png" alt="" data-layout-allow-overflow />
-    <img id="tb-bottom" class="tb-media" src="assets/surface-bottom-studio-v3.png" alt="" data-layout-allow-overflow />
+    <img id="tb-bottom" class="tb-media" src="assets/surface-bottom-studio-v4.png" alt="" data-layout-allow-overflow />
     <div class="tb-vignette"></div>
     <div class="tb-brand">NOVAFACE</div>
     <div class="tb-steps">
