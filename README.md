@@ -4,7 +4,23 @@
 
 생성된 이미지와 GIF를 바로 조립하지 않고 제품 동일성 QA와 사용자 승인을 거친 버전만 최종 HTML에 사용합니다.
 
-## 설치
+## Git 주소부터 한 번에 설치
+
+```powershell
+git clone https://github.com/csm-kr/detail-page-maker-skill.git
+cd detail-page-maker-skill
+powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
+```
+
+설치 상태만 빠르게 다시 검사할 때는 다음 명령을 사용합니다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1 -QuickTest
+```
+
+전체 설명은 [`docs/setup/quick-start.md`](docs/setup/quick-start.md)를 참고하세요.
+
+## 스킬만 설치
 
 ```powershell
 npx skills add csm-kr/detail-page-maker-skill --full-depth
