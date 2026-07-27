@@ -42,4 +42,4 @@ Status: completed
 - HyperFrames check 오류·경고 0, 대비 42/42
 - 320·360·390·768·800px overflow·깨진 이미지 0
 - commercial-tight v3 `98/100`, 하드 실패 `0개`
-- Browser Harness: `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\functional-insole-prototype-qa-20260725`
+- Browser Harness recording ID: `functional-insole-prototype-qa-20260725`

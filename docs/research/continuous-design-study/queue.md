@@ -1,7 +1,7 @@
 # 정기 디자인 학습 검토 큐
 
 갱신 시각: 2026-07-25 07:25:46 +09:00
-Browser Harness 녹화: `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\scheduled-design-study-refresh`
+Browser Harness 녹화 ID: `scheduled-design-study-refresh`
 
 이 파일은 후보와 검토 가설만 갱신한다. 상용 HTML, 상품 사실, 영구 규약은 자동 수정하지 않는다.
 

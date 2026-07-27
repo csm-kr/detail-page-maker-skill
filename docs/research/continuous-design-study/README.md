@@ -5,7 +5,8 @@
 - 실행 스크립트: [`../../../scripts/refresh-design-study.ps1`](../../../scripts/refresh-design-study.ps1)
 - 예약 설치: [`../../../scripts/install-design-study-task.ps1`](../../../scripts/install-design-study-task.ps1)
 - 실행 주기: 매주 월요일 09:30, Asia/Seoul
-- 갱신 결과: `queue.md`, `state.json`
+- 갱신 결과: `queue.md`, `state.json` (`recording_id`만 저장하고 컴퓨터별 절대
+  경로는 저장하지 않음)
 - 실패 기록: `last-error.md`
 
 예약 작업은 후보 URL·분류·검토 가설만 갱신한다. 상용 HTML, 상품 사실,

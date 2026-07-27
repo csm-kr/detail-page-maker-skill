@@ -115,6 +115,10 @@ try {
   }
 
   $payload = $markerLine.Substring('__DESIGN_REFRESH_JSON__'.Length) | ConvertFrom-Json
+  $recordingId = ([string]$payload.recording_path) -replace '^.*[\\/]', ''
+  if ([string]::IsNullOrWhiteSpace($recordingId)) {
+    $recordingId = 'scheduled-design-study-refresh'
+  }
   $now = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId(
     [DateTimeOffset]::UtcNow,
     'Korea Standard Time'
@@ -149,7 +153,7 @@ try {
     '# 정기 디자인 학습 검토 큐'
     ''
     "갱신 시각: $($now.ToString('yyyy-MM-dd HH:mm:ss zzz'))"
-    "Browser Harness 녹화: ``$($payload.recording_path)``"
+    "Browser Harness 녹화 ID: ``$recordingId``"
     ''
     '이 파일은 후보와 검토 가설만 갱신한다. 상용 HTML, 상품 사실, 영구 규약은 자동 수정하지 않는다.'
     ''
@@ -181,7 +185,7 @@ try {
   $state = [ordered]@{
     schema_version = '1.0'
     last_run_kst = $now.ToString('o')
-    recording_path = [string]$payload.recording_path
+    recording_id = $recordingId
     behance_count = $projects.Count
     behance_projects = $projects
     taste = $payload.taste
@@ -196,7 +200,7 @@ try {
 
   Write-Output "updated=$queuePath"
   Write-Output "candidates=$($projects.Count)"
-  Write-Output "recording=$($payload.recording_path)"
+  Write-Output "recording_id=$recordingId"
 }
 catch {
   $now = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId(

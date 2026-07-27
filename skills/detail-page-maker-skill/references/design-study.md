@@ -223,7 +223,7 @@
 - source_file: `projects/domeggook-43314131/detail-page/index.html`
 - source_file_sha256_before: `BAC6BCA37C3D8D8C71EEF9C7AC95BE481922B0938C5A1CD0C51BA08112B5068E`
 - source_file_sha256_after: `475DA4758B9F521D83FFE80AA337F887C53EA7C1AC803B5A452F9D151BA5DE60`
-- browser_recording_path: `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\detail-page-exp001-final-qa`
+- browser_recording_id: `detail-page-exp001-final-qa`
 - target_url: `http://127.0.0.1:4174/projects/domeggook-43314131/detail-page/index.html`
 
 #### Fixed conditions
@@ -293,7 +293,7 @@
 - source_file: `projects/domeggook-43314131/detail-page/index.html`
 - source_file_sha256_before: `C17D3A58A7C1AB9BBBB7A4232DD35C87A995290DD3589491E923206BB6F04D41`
 - source_file_sha256_after: `701829B4A3803F05B9A333BA015975387C817C0287CDF2BF9DD771254E6EDB74`
-- browser_recording_path: `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\detail-page-finalization-baseline`
+- browser_recording_id: `detail-page-finalization-baseline`
 - target_url: `http://127.0.0.1:4174/projects/domeggook-43314131/detail-page/index.html`
 
 #### Fixed conditions
@@ -419,7 +419,7 @@
 - evaluator:
 - source_file:
 - source_file_sha256:
-- browser_recording_path:
+- browser_recording_id:
 - target_url:
 - browser_title:
 - browser_version:
@@ -607,7 +607,7 @@
 - 변경 전: `.eyebrow` 12개, 숫자형 섹션·모드·포인트 라벨 반복, 구매자 텍스트 em dash 1개, 편집 텍스트 76개
 - 변경 후: 의미 있는 `.eyebrow` 4개, `ceil(10/3)=4` 상한 통과, 숫자형 메타 라벨 0개, em dash·en dash 0개, 편집 텍스트 68개
 - 유지한 것: 제품·치수·기능·근거 캡션·섹션 순서·ImageGen 자산·GIF 4개·HTML 저장 기능
-- 브라우저 증거: `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\dimension-gap-and-taste-final`, `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\taste-edit-mode-final-dom`
+- 브라우저 증거 ID: `dimension-gap-and-taste-final`, `taste-edit-mode-final-dom`
 - 결과: 390px overflow 0, 잘린 편집 텍스트 0, 깨진 이미지 0, 68/68 편집 모드 전환, 기존 rubric 97/100 유지
 - 판정: 총점 상승이 없어 영구 규칙 승격은 `held`다. 다만 현재 상품에서는 정보 손실 없이 장식 밀도가 줄어든 상태를 유지한다.
 - 되돌림: 제거한 영문 눈썹과 숫자 라벨만 복원하고 제품·근거·모션은 건드리지 않는다.
@@ -645,7 +645,7 @@
 - 320·360·390·768·800px 가로 overflow 0, 깨진 이미지 0, 첫 제목 2줄
 - 16개 섹션, h1 1개, 편집 항목 117개, GIF 3개
 - 단일 HTML 31,287,338바이트, 이미지 16개 `data:` URL 내장, 재오픈 후 overflow 0
-- Browser Harness 녹화: `C:\Users\csm81\.config\browser-harness\agent-workspace\recordings\aqua-detail-studio-qa-20260725`
+- Browser Harness 녹화 ID: `aqua-detail-studio-qa-20260725`
 
 ### 배운 점
 
