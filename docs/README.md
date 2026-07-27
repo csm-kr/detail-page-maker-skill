@@ -5,6 +5,7 @@
 - [`CONTEXT.md`](CONTEXT.md): 도메인 glossary
 - [`PLAN.md`](PLAN.md): 통합 계획과 결정 이력
 - [`STRUCTURE.md`](STRUCTURE.md): 폴더 경계, 보존·삭제 정책과 마이그레이션 결과
+- [`issues/`](issues/README.md): 명세, 작업 이슈와 Wayfinder 지도
 - [`references/`](references/README.md): 재사용 가능한 제작 규약
 - [`research/`](research/README.md): 상품 비종속 연구와 원본 증거
 - [`contracts/`](contracts/): 데이터·추출 계약

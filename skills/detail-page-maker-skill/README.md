@@ -40,6 +40,7 @@ node scripts/detail-page.mjs new `
 | `references/gif-guide.md` | GIF 제작과 프로젝트 학습 누적 |
 | `references/approval-guide.md` | 옆 승인 세션 필수 게이트 |
 | `references/studio-workflow.md` | Studio v1 승인·편집·개정판 |
+| `references/learning-loop.md` | 프로젝트 회고·이슈·재검증·스킬 승격 |
 | `references/portable-install.md` | 다른 컴퓨터 설치·진단·E2E |
 
 ## 스킬 폴더 구조
@@ -89,6 +90,7 @@ detail-page-maker-skill/
 │  ├─ korean-copy-typography.md
 │  ├─ public-output-policy.md
 │  ├─ studio-workflow.md
+│  ├─ learning-loop.md
 │  ├─ novaface-insole-learnings.md
 │  ├─ portable-install.md
 │  ├─ user-feedback-quality-gates.md

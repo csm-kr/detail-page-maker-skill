@@ -38,3 +38,4 @@ Wayfinder uses one map file with one child file per decision ticket.
 
 - [`editable-html-detail-page-maker`](issues/editable-html-detail-page-maker/map.md)
 - [`detail-page-studio-v2`](issues/detail-page-studio-v2/map.md)
+- [`repository-maintenance`](issues/repository-maintenance/map.md)

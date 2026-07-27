@@ -69,4 +69,4 @@
 
 ## 후속 개선
 
-말풍선·꼬리·텍스트·GIF·이미지 박스의 위치·크기·정렬을 직접 조정하는 레이어형 Studio는 현재 광고 승인과 분리했다. [`레이어 편집 Studio 이슈`](../../../docs/issues/editable-html-detail-page-maker/issues/25-build-layer-editable-detail-page-studio.md)에서 스냅·안전영역·뷰포트별 오버라이드·undo/redo를 검토한다.
+말풍선·꼬리·텍스트·GIF·이미지 박스의 위치·크기·정렬을 직접 조정하는 레이어형 Studio는 현재 광고 승인과 분리했다. 후속 검토는 프로젝트의 [`planning/LEARNINGS.md`](../planning/LEARNINGS.md)에 남기고, 저장소 이슈 `editable-html-detail-page-maker/25`에서 스냅·안전영역·뷰포트별 오버라이드·undo/redo를 추적한다.

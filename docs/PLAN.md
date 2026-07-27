@@ -594,5 +594,5 @@ Behance 원본 공통 문법과 320·360·390·768·800px Browser Harness QA에�
 - [완료] 도메인·런타임 회귀 테스트 7개와 Browser Harness 화면 검수를 통과했다.
 - [완료] 기존 상용 규약·Behance 분석·한글 카피·제품 동일성·HyperFrames·사용자 피드백·도매꾹 계약을 설치 스킬 내부 `references/`로 복제해 스킬 폴더만으로 학습 메모를 재사용하게 했다.
 - [완료] 기존 `projects/` 결과를 독립 프로젝트로 전환하고 프로젝트 전용
-  `videos/`와 공급처 증거 번들을 각 프로젝트의 `hyperframes/`, `evidence/`로
+  구 루트 모션 폴더와 공급처 증거 번들을 각 프로젝트의 `hyperframes/`, `evidence/`로
   이동했다. 공용 연구와 코드 회귀 테스트만 저장소 루트에 남긴다.

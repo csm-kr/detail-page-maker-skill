@@ -44,11 +44,41 @@ Git 동작을 위한 `.gitignore`와 로컬 도구 디렉터리 같은 숨김 �
 정리 과정에서 내용이 바이트 단위로 같은 BIO ORTO 캡처 7개만 삭제했다. Git에서
 복구할 수 있다.
 
-다음 항목은 재생성 가능하지만 이번 변경에서는 사용자 로컬 상태를 보존했다.
+2026-07-27 기준 크기 감사 결과는 다음과 같다.
 
-- `.agents/`: 로컬 설치된 스킬 복사본
-- `.artifacts/`: 로컬 검사·설치 산출물
-- 프로젝트 내부의 HyperFrames `snapshots/`와 중간 렌더
+- `projects/`: 약 848 MiB
+- `docs/`: 약 16 MiB
+- `.agents/`: 약 6.8 MiB
+- 1 MiB보다 큰 파일 중 동일 hash 그룹 85개, 추가 복사본 98개
+- 중복 복사본을 모두 없앴을 때의 이론상 절감량: 약 222.2 MiB
 
-프로젝트 중간 렌더는 최종 manifest와 QA 보고서가 참조할 수 있으므로 별도 보존
-정책과 hash 검증 없이 일괄 삭제하지 않는다.
+대용량 중복의 대부분은 `assets/` 원본, HyperFrames 입력·렌더, 게시용
+`detail-page/assets/`를 각각 자기완결 상태로 보존한 의도적인 복사본이다. Git은
+hard link를 보존하지 않고, 이 파일들은 manifest와 QA 보고서가 참조하므로
+경로를 바꾸지 않은 채 중복 파일만 삭제할 수 없다.
+
+### 지금 지워도 되는 로컬 항목
+
+- `.agents/`: `skills/` 정본에서 다시 설치할 수 있는 로컬 복사본. 현재 Codex가
+  사용 중일 수 있어 이번 정리에서는 보존하고 Git에서 제외했다.
+- `.artifacts/`: 재생성 가능한 검사·설치 산출물. Git에서 제외한다.
+
+### 보존 정책을 만든 뒤 정리할 후보
+
+- HyperFrames `snapshots/`와 선택되지 않은 중간 렌더
+- 노바페이스 `v8`~`v10` MP4처럼 최종판 이전의 렌더
+- source → motion → publication 사이의 동일 이미지 복사본
+
+이 후보는 먼저 현재 최종판, 참조 manifest, QA hash, 복구 위치를 기록한
+archive manifest를 만든 뒤 정리한다. 프로젝트 자기완결성과 재현성을 깨는
+공용 asset store 도입은 현재 하지 않는다.
+
+## `skills/`와 `.agents/skills/`
+
+| 경로 | 성격 | 수정·버전 관리 |
+| --- | --- | --- |
+| `skills/detail-page-maker-skill/` | 배포할 스킬의 정본 source | 여기서 수정하고 테스트·커밋 |
+| `.agents/skills/detail-page-maker-skill/` | 이 컴퓨터에서 실행 중인 설치 복사본 | 직접 수정하지 않고 source에서 재설치 |
+
+즉 `.agents/skills/`를 삭제해도 source는 사라지지 않지만, 재설치 전까지 로컬
+Codex에서 해당 스킬을 사용할 수 없을 수 있다.

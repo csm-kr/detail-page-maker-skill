@@ -55,6 +55,24 @@ test("새 프로젝트는 목록에 나타나고 외부 파일 의존성이 없�
     const report = await validateProjectIsolation(created.projectRoot);
     assert.equal(report.ok, true);
 
+    const learningsPath = path.join(
+      created.projectRoot,
+      "planning",
+      "LEARNINGS.md",
+    );
+    await rm(learningsPath);
+    const missingLearnings = await validateProjectIsolation(
+      created.projectRoot,
+    );
+    assert.equal(missingLearnings.ok, false);
+    assert.equal(
+      missingLearnings.issues.some(
+        (issue) => issue.reason === "PROJECT_LEARNINGS_REQUIRED",
+      ),
+      true,
+    );
+    await writeFile(learningsPath, "# Project learnings\n", "utf8");
+
     await writeFile(
       path.join(created.projectRoot, "research", "bad-path.json"),
       '{"source":"../../../shared/file.json"}\n',

@@ -232,8 +232,8 @@
 - viewport: 800×1200, 360×900
 - device_scale_factor: 1
 - reduced_motion: 일반 모션과 `reduce`를 각각 검증
-- before capture: `.artifacts/exp001-before-800.png`, `.artifacts/exp001-before-360.png`
-- after capture: `.artifacts/exp001-after-800.png`, `.artifacts/exp001-after-360.png`
+- before capture: 과거 로컬 비교 캡처(현재 저장소 미포함)
+- after capture: 과거 로컬 비교 캡처(현재 저장소 미포함)
 
 #### 검증
 
@@ -301,9 +301,9 @@
 - content/assets: 동일
 - viewport: 800×1200
 - device_scale_factor: 1
-- before capture: `.artifacts/final-v1-before-exp003-800.png`
-- clean-state capture: `.artifacts/exp003-clean-800.png`
-- dirty-state capture: `.artifacts/exp003-dirty-800.png`
+- before capture: 과거 로컬 비교 캡처(현재 저장소 미포함)
+- clean-state capture: 과거 로컬 비교 캡처(현재 저장소 미포함)
+- dirty-state capture: 과거 로컬 비교 캡처(현재 저장소 미포함)
 
 #### 검증
 

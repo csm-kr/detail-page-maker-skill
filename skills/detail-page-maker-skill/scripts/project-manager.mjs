@@ -97,6 +97,20 @@ export async function listProjects(projectsRoot) {
 export async function validateProjectIsolation(projectRoot) {
   const root = path.resolve(projectRoot);
   const issues = [];
+  const requiredProjectFiles = [
+    ["README.md", "PROJECT_README_REQUIRED"],
+    ["planning/LEARNINGS.md", "PROJECT_LEARNINGS_REQUIRED"],
+  ];
+  for (const [relativePath, reason] of requiredProjectFiles) {
+    if (!(await exists(path.join(root, relativePath)))) {
+      issues.push({
+        file: relativePath,
+        reference: "missing",
+        reason,
+      });
+    }
+  }
+
   const statePath = path.join(root, "project.json");
   if (!(await exists(statePath))) {
     issues.push({

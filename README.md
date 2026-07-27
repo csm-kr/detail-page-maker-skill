@@ -6,6 +6,34 @@
 [`projects/`](projects/README.md), 설치 가능한 스킬 정본은
 [`skills/detail-page-maker-skill/`](skills/detail-page-maker-skill/)에 있습니다.
 
+저장소를 변경하는 에이전트는 먼저 [`docs/RULES.md`](docs/RULES.md),
+[`docs/CONTEXT.md`](docs/CONTEXT.md), [`docs/ISSUE.md`](docs/ISSUE.md)를 읽습니다.
+
+## 폴더 역할
+
+| 경로 | 역할 |
+| --- | --- |
+| [`docs/`](docs/README.md) | 규칙, 이슈, 장기 연구, 재사용 reference와 계획 |
+| [`projects/`](projects/README.md) | 상품별 근거·연구·자산·모션·QA·HTML의 자기완결 단위 |
+| [`skills/`](skills/README.md) | 설치 가능한 스킬 정본 |
+| [`scripts/`](scripts/README.md) | 설치와 정기 연구 갱신 진입점 |
+| [`tests/`](tests/README.md) | 스킬·Studio 회귀 테스트 |
+| [`config/`](config/README.md) | 저장소 workspace 설정 |
+
+`.agents/`는 로컬에 설치된 스킬 복사본이며 Git 정본이 아닙니다. 수정은
+`skills/`에서 하고 설치본은 다시 설치해 갱신합니다.
+
+## 한 프로젝트의 전체 흐름
+
+```text
+공급처 근거 → 제품 SSOT → 기획 → 이미지·GIF 승인 → HTML → 최종 QA
+→ planning/LEARNINGS.md 회고 → 공용 후보 이슈 → 재검증 → 스킬 갱신
+```
+
+상품 고유 자료는 해당 `projects/<project-id>/`에 남깁니다. 여러 상품에 재사용할
+후보만 [`docs/issues/`](docs/ISSUE.md)에서 검증하고, 다른 프로젝트나 회귀 테스트를
+통과한 뒤 [`docs/references/`](docs/references/README.md)와 설치 스킬에 승격합니다.
+
 생성된 이미지와 GIF는 `pending`에 먼저 저장하고 Studio v1에서 사용자가 개별
 승인한 파일만 최종 HTML에 사용합니다.
 
