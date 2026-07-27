@@ -4,6 +4,10 @@
 
 - `supplier_url`: {{SUPPLIER_URL}}
 - `status`: DRAFT
+- `planning_phase`: `PARALLEL_DRAFT_WITH_G0`
+- `g0_dependency`: `pending`
+- `provisional_claims`: []
+- `blocked_until_g0`: []
 - `taste_skill_checked`: no
 
 ## Design Read

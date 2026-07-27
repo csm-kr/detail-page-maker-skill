@@ -20,12 +20,30 @@
 
 | 게이트 | 승인 대상 | 다음 단계 |
 |---|---|---|
-| `G0 SOURCE_SSOT` | 공급처 원본, 실제품 사진, 제품 사실 SSOT | 상업 기획 |
+| `G0 SOURCE_SSOT` | 공급처 원본, 실제품 사진, 제품 사실 SSOT | G1 기획 확정 |
 | `G1 COMMERCIAL_PLAN` | 고객 문제, 제품 답, 선택 이유, 주장 경계, 페이지 카드 | 이미지 생성 |
 | `G2 IMAGE_ASSETS` | God Tibo 후보, 제품 동일성, 무노이즈 QA | GIF·조립 |
 | `G3 GIF_MOTION` | HyperFrames 미리보기, 첫·중간·마지막, manifest | 조립 |
 | `G4 ASSEMBLED_HTML` | 고객 화면, 카피, 섹션 순서, 반응형 | 최종 QA |
 | `G5 PUBLISH` | 최종 QA, 공개 파일, 제품정보, 사용자 결정 | 게시 |
+
+## G0·G1 병렬 작업 계약
+
+제작 세션은 G0와 G1의 준비 작업을 병렬로 진행한다. G0가 `pending`인 동안 G1은
+동종 제품·공개 후기·`MARKET_PAIN`, 구매 질문, 서사와 디자인 초안을 작성할 수
+있다. 이때 `planning/APPROVALS.md`와 기획 파일에 다음을 기록한다.
+
+```text
+preparation_status: parallel_draft
+g0_dependency: pending
+provisional_claims: [...]
+blocked_until_g0: [...]
+decision: held
+```
+
+승인 결정은 `G0 → G1` 순서를 지킨다. G0 승인 전에는 G1을 `approved`로 기록하거나
+G2 이미지 생성을 시작하지 않는다. G0에서 제품 사실·구성·규격·SSOT가 바뀌면
+영향받는 G1 제품 답, 선택 이유, 주장-증거 체인과 해시를 갱신한 뒤 G1을 검토한다.
 
 ## 승인 요청 묶음
 

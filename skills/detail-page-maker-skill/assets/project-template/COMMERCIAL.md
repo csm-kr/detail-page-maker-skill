@@ -4,6 +4,11 @@
 
 - `supplier_url`: {{SUPPLIER_URL}}
 - `status`: DRAFT
+- `planning_phase`: `PARALLEL_DRAFT_WITH_G0`
+- `g0_dependency`: `pending`
+- `provisional_claims`: []
+- `blocked_until_g0`: []
+- `market_evidence`:
 - `guide`: `detail-page-maker-skill/references/commercial.md`
 
 ## Core Problem and Answer
@@ -44,8 +49,9 @@
 
 ## G1 Approval
 
+- `prerequisite_gate`: `G0 SOURCE_SSOT`
 - `reviewer_session`:
 - `artifact_sha256`:
-- `decision`: pending
+- `decision`: held
 - `user_confirmation`: pending
 - `findings`:

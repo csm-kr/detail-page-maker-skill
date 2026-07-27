@@ -30,10 +30,13 @@
 ## 기본 실행 경로
 
 ```text
-공급처 원본
-→ 제품 SSOT
-→ COMMERCIAL·DESIGN·BUYER-JOURNEY
-→ 옆 승인 세션: 기획 승인
+공급처 원본·실제품 입력
+├─ G0 트랙: 제품 사실·SSOT 후보·미확인 항목
+└─ G1 초안 트랙: 동종 제품·공개 후기·MARKET_PAIN
+                  ·COMMERCIAL·DESIGN·BUYER-JOURNEY
+→ G0 SOURCE_SSOT 승인
+→ 제품 답·선택 이유·주장-증거 연결 확정
+→ G1 COMMERCIAL_PLAN 승인
 → God Tibo 이미지 배치 4개
 → generated/pending/image 저장
 → 옆 승인 세션: 에셋 승인

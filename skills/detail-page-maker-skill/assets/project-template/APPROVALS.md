@@ -15,6 +15,7 @@
 
 - `artifact_paths`:
 - `artifact_sha256`:
+- `preparation_status`:
 - `reviewer_session`:
 - `decision`: pending
 - `decided_at`:
@@ -26,6 +27,7 @@
 
 - `artifact_paths`:
 - `artifact_sha256`:
+- `preparation_status`: in_progress
 - `reviewer_session`:
 - `decision`: pending
 - `decided_at`:
@@ -37,8 +39,12 @@
 
 - `artifact_paths`:
 - `artifact_sha256`:
+- `preparation_status`: parallel_draft
+- `g0_dependency`: pending
+- `provisional_claims`: []
+- `blocked_until_g0`: []
 - `reviewer_session`:
-- `decision`: pending
+- `decision`: held
 - `decided_at`:
 - `findings`:
 - `required_changes`:

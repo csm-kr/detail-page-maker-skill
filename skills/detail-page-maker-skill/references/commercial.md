@@ -3,11 +3,20 @@
 상세페이지가 `고객의 실제 문제 → 우리 제품의 답 → 선택 이유 → 직접 증거`로
 읽히게 만드는 상업 기획 계약이다.
 
-## 필수 입력
+## 병렬 초안 시작 입력
 
 - 공급처 원문과 수집 시각
-- 승인된 제품 SSOT
+- 제품 정체를 구분할 수 있는 SSOT 후보와 G0 미확인 항목
 - 확인된 후기 또는 명확히 구분된 시장 고민
+- 동종 제품 3개 이상과 공개 후기 원문
+
+G0 진행 중에도 위 입력으로 시장 조사, 고객 문제, 구매 질문, 구매 서사와 디자인
+초안을 만든다. 제품 답과 공개 주장은 `provisional`로 두고 미확인 사실을 채워
+넣지 않는다.
+
+## G1 승인 필수 입력
+
+- 승인된 제품 SSOT
 - 판매 구성·옵션·규격·주의사항
 - `claim_id → component_id → fact_id → evidence_asset_id → section_id`
 
@@ -16,6 +25,10 @@
 프로젝트 `planning/COMMERCIAL.md`에 다음을 기록한다.
 
 ```text
+planning_phase
+g0_dependency
+provisional_claims
+blocked_until_g0
 core_problem
 product_answer
 core_promise
@@ -25,6 +38,11 @@ blocked_claims
 review_provenance
 proof_assets
 ```
+
+`planning_phase: PARALLEL_DRAFT_WITH_G0`에서는 `MARKET_PAIN`, 고객 질문과
+친근한 문제 후킹을 먼저 발전시킨다. G0 승인 뒤 `product_answer`,
+`reasons_to_buy[3..5]`, 주장-증거 연결과 공개 카피를 확정하고
+`planning_phase: READY_FOR_G1_REVIEW`로 바꾼다.
 
 각 선택 이유는 다음 다섯 항목을 가진다.
 
@@ -79,7 +97,7 @@ blocked_expansion
 
 ## 승인 게이트
 
-이미지 생성 전에 옆 승인 세션이 다음을 승인해야 한다.
+G0 승인 뒤, 이미지 생성 전에 옆 승인 세션이 다음을 승인해야 한다.
 
 1. 고객 문제가 실제 근거나 정직한 기획 질문에 기반한다.
 2. 제품 답이 승인 사실과 일치한다.

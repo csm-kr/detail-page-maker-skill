@@ -1,6 +1,6 @@
 ---
 name: detail-page-maker-skill
-description: 공급처 상품 URL과 실제 제품 자료에서 제품 사실 SSOT, COMMERCIAL·DESIGN·BUYER-JOURNEY 기획, God Tibo 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만든다. 신규 이미지·GIF를 pending에서 시작해 Studio v1에서 사용자가 개별 승인·반려하고 approved 에셋만 조립·QA·게시해야 할 때 사용한다.
+description: 공급처 상품 URL과 실제 제품 자료에서 G0 제품 SSOT와 G1 시장·상업 기획을 병렬 준비하고, 순차 승인 뒤 God Tibo 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만든다. 신규 이미지·GIF를 pending에서 시작해 Studio v1에서 사용자가 개별 승인·반려하고 approved 에셋만 조립·QA·게시해야 할 때 사용한다.
 ---
 
 # Detail Page Maker
@@ -56,8 +56,12 @@ node scripts/detail-page.mjs new `
 ## 절대 게이트
 
 1. 공급처 원문·locator와 실제품 사진으로 제품 SSOT를 잠근다.
-2. `COMMERCIAL.md`, `DESIGN.md`, `BUYER-JOURNEY.md`, `GIF.md`,
-   `APPROVALS.md`를 작성하고 G0~G5를 순서대로 승인받는다.
+2. G0 SSOT 트랙과 G1 시장·상업 기획 초안을 병렬로 진행한다. G0 진행 중에도 동종
+   제품 3개 이상과 공개 후기를 조사하고 `COMMERCIAL.md`, `DESIGN.md`,
+   `BUYER-JOURNEY.md`, `GIF.md`, `APPROVALS.md`를 초안으로 작성한다. 제품 답,
+   선택 이유, 주장-증거 연결은 `provisional`로 표시하고 G0 승인 뒤 확정한다.
+   최종 승인은 `G0 → G1 → G2 → G3 → G4 → G5` 순서를 지키며 G1 승인 전에는
+   이미지 생성을 시작하지 않는다.
 3. 고객 문제를 `우리 제품의 답 → 선택 이유 3~5개 → 직접 증거`로 연결한다.
 4. 공개 주장마다
    `claim_id → component_id → fact_id → evidence_asset_id → section_id`를 고정한다.
