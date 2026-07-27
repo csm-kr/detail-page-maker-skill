@@ -3,7 +3,7 @@
 현재 사용자용 Studio는 세 작업면만 제공한다. 제작·자동 QA·옆 승인 세션 검토는
 Studio 밖에서 준비하고, Studio는 사용자 결정과 편집·출력을 단순하게 유지한다.
 
-기준 구현은 `prototypes/domeggook-60851997/detail-page/studio.html`이다. 활성 CLI는
+기준 구현은 `projects/domeggook-60851997/detail-page/studio.html`이다. 활성 CLI는
 `scripts/studio-v1-server.mjs`만 시작한다. Studio v2의 Inspector, 복잡한 상태
 머신과 일곱 단계 작업 센터는 폐기하고 과거 자료로만 보존한다.
 

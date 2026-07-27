@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "product_id": "44358530",
+  "researched_at": "2026-07-25",
+  "sources": [
+    {
+      "id": "MV-001",
+      "class": "OWN_REVIEW",
+      "name": "인포벨 동일 제품 공개 리뷰",
+      "url": "https://infobellmall.com/review_widgets/widget.html?product_no=3002",
+      "identity_check": "제품명, 자가 열 성형 방식, 이미지의 제품 외형과 옵션 구성이 도매꾹 44358530과 일치",
+      "observed_review_count": 1,
+      "paraphrase": "타 제품보다 가격 부담이 있다는 의견과 함께 발에 밀착되는 느낌을 긍정적으로 평가",
+      "author_identifiers_removed": true,
+      "use_limit": "한 건뿐이므로 전체 고객 만족도나 성능 보장에 사용하지 않음"
+    },
+    {
+      "id": "MV-002",
+      "class": "SUPPLIER_SAFETY_FRICTION",
+      "name": "도매꾹 44358530 사용·주의 안내",
+      "url": "https://domeggook.com/44358530?from=lstGen",
+      "observed": [
+        "열 성형 전에 사이즈 재단이 필요함",
+        "발이 피로하지 않을 때 성형해야 함",
+        "처음에는 1~2시간부터 시작하고 약 2주 적응 기간을 안내함",
+        "통증이나 이상이 느껴지면 사용 중지를 안내함"
+      ],
+      "planning_use": "구매자가 실제로 궁금해할 재단, 성형 타이밍, 초기 적응을 문제 해결 서사의 질문으로 사용"
+    },
+    {
+      "id": "MV-003",
+      "class": "COMPETITOR_REFERENCE_ONLY",
+      "name": "쿠팡 동일 제품으로 보이는 페이지",
+      "url": "https://www.coupang.com/vp/products/6509656090?itemId=14594105176",
+      "capture_bundle": "evidence/competitor-capture.md",
+      "capture_status": "PARTIAL_REVIEW_TAB_NOT_FOUND",
+      "production_rights": "research_reference_only",
+      "planning_use": "후기 근거로 사용하지 않고 상품 동일성 교차 확인에만 사용"
+    }
+  ],
+  "purchase_questions": [
+    {
+      "id": "Q-001",
+      "question": "기성 깔창처럼 바로 넣는 건가요?",
+      "answer_scope": "열 성형 전 재단과 3단계 과정",
+      "evidence_ids": ["FACT-005", "FACT-006", "FACT-007"]
+    },
+    {
+      "id": "Q-002",
+      "question": "어디까지 잘라야 하나요?",
+      "answer_scope": "기존 깔창을 템플릿으로 사용하고 가이드라인을 따라 재단",
+      "evidence_ids": ["FACT-005"]
+    },
+    {
+      "id": "Q-003",
+      "question": "가열은 얼마나 해야 하나요?",
+      "answer_scope": "700~800W 풍량 기준 30~40초",
+      "evidence_ids": ["FACT-006"]
+    },
+    {
+      "id": "Q-004",
+      "question": "처음부터 하루 종일 신어도 되나요?",
+      "answer_scope": "첫 1~2시간부터 서서히 늘리고 약 2주 적응",
+      "evidence_ids": ["FACT-011"]
+    },
+    {
+      "id": "Q-005",
+      "question": "내 신발 호수는 어떤 사이즈인가요?",
+      "answer_scope": "S~XL 신발 치수 구간과 아치 높이",
+      "evidence_ids": ["FACT-009"]
+    },
+    {
+      "id": "Q-006",
+      "question": "통증이 생기면 계속 적응해야 하나요?",
+      "answer_scope": "통증이나 이상이 느껴지면 사용 중지",
+      "evidence_ids": ["FACT-013"]
+    }
+  ],
+  "safe_problem_statement": "기성 깔창은 넣는 순간 끝나지만, 발 모양과 신발 내부는 사람마다 다르다. 이 제품의 차이는 효과를 약속하는 데 있지 않고, 재단하고 가열하고 신어서 사용자가 최종 형태를 완성하는 과정에 있다."
+}

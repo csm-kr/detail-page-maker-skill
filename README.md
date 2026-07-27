@@ -2,6 +2,10 @@
 
 공급처 상품 URL에서 제품 사실 SSOT, ImageGen 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만드는 설치형 Codex 스킬입니다.
 
+저장소 규칙과 설계 문서는 [`docs/`](docs/README.md), 완성 상품은
+[`projects/`](projects/README.md), 설치 가능한 스킬 정본은
+[`skills/detail-page-maker-skill/`](skills/detail-page-maker-skill/)에 있습니다.
+
 생성된 이미지와 GIF는 `pending`에 먼저 저장하고 Studio v1에서 사용자가 개별
 승인한 파일만 최종 HTML에 사용합니다.
 
@@ -15,13 +19,13 @@ Windows 설치 스크립트는 Taste·HyperFrames·Browser Harness 스킬을
 ```powershell
 git clone https://github.com/csm-kr/detail-page-maker-skill.git
 cd detail-page-maker-skill
-powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
 ```
 
 설치 상태만 빠르게 다시 검사할 때는 다음 명령을 사용합니다.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1 -QuickTest
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -QuickTest
 ```
 
 전체 설명은 [`docs/setup/quick-start.md`](docs/setup/quick-start.md)를 참고하세요.
@@ -67,6 +71,13 @@ node skills/detail-page-maker-skill/scripts/detail-page.mjs doctor
 node skills/detail-page-maker-skill/scripts/e2e.mjs
 ```
 
+저장소가 관리하는 독립 프로젝트를 조회·검사합니다.
+
+```powershell
+node skills/detail-page-maker-skill/scripts/detail-page.mjs list
+node skills/detail-page-maker-skill/scripts/detail-page.mjs validate
+```
+
 새 상품 프로젝트를 만듭니다.
 
 ```powershell
@@ -85,30 +96,39 @@ http://127.0.0.1:8896/studio.html
 
 ```powershell
 node skills/detail-page-maker-skill/scripts/detail-page.mjs start `
-  --project "C:\Users\<사용자>\Documents\DetailPageStudio\projects\<상품명>-<상품번호>"
+  --project "projects\<상품명>-<상품번호>"
 ```
 
 ## 기본 저장 위치
 
-상품 프로젝트는 스킬 소스와 분리해 사용자 문서 폴더에 저장합니다.
+복제한 저장소에서 실행하면 `config/workspace.json`에 따라 프로젝트를
+`projects/`에 저장합니다.
+
+```text
+detail-page-maker/
+└─ projects/
+   └─ <상품명>-<상품번호>/
+```
+
+스킬 폴더만 전역 설치해 다른 위치에서 실행할 때는 기존 기본값을 사용합니다.
 
 ```text
 C:\Users\<사용자>\Documents\DetailPageStudio\projects\<상품명>-<상품번호>\
 ```
 
-현재 사용자 계정의 예:
-
-```text
-C:\Users\csm81\Documents\DetailPageStudio\projects\노바페이스-발편한-기능성깔창-60851997\
-```
-
-Studio v1의 승인 원장과 HTML 편집 상태는 이 상품 프로젝트 안에 저장됩니다. 외부 클라우드 데이터베이스는 사용하지 않습니다.
+`DETAIL_PAGE_PROJECTS_ROOT` 환경 변수나 `--root`로 위치를 바꿀 수 있습니다.
+Studio v1의 승인 원장, HTML, 공급처 증거, 이미지·GIF와 HyperFrames 원본은 상품
+프로젝트 안에 저장합니다. 프로젝트는 다른 프로젝트나 저장소 루트의 파일 경로를
+참조하지 않습니다.
 
 ## 프로젝트 폴더 구성
 
 ```text
 <상품명>-<상품번호>/
 ├─ project.json
+├─ README.md
+├─ evidence/                 공급처·시장 근거 번들
+├─ research/                 프로젝트 전용 조사
 ├─ asset/
 │  ├─ input/                 실제 촬영·공급처 원본
 │  ├─ ssot/                  제품 절대 기준 자산

@@ -14,6 +14,7 @@ const PLANNING_FILES = [
   "BUYER-JOURNEY.md",
   "GIF.md",
   "APPROVALS.md",
+  "LEARNINGS.md",
 ];
 
 async function requestJson(baseUrl, pathname, body) {

@@ -14,7 +14,7 @@ if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
   $ProjectRoot = Split-Path -Parent $PSScriptRoot
 }
 $resolvedRoot = [System.IO.Path]::GetFullPath($ProjectRoot)
-$researchDir = Join-Path $resolvedRoot 'research\continuous-design-study'
+$researchDir = Join-Path $resolvedRoot 'docs\research\continuous-design-study'
 $queuePath = Join-Path $researchDir 'queue.md'
 $statePath = Join-Path $researchDir 'state.json'
 $errorPath = Join-Path $researchDir 'last-error.md'
@@ -174,7 +174,7 @@ try {
     '- [ ] 서로 다른 우수 사례 3개 이상에서 같은 규칙이 재현되는가'
     '- [ ] 현재 상품 A/B에서 점수를 높이고 하드 실패가 없는가'
     ''
-    '통과한 규칙만 `study-desing-skill.md`에 `candidate`로 기록한다.'
+    '통과한 규칙만 `docs/references/design-study.md`에 `candidate`로 기록한다.'
     ''
   ) -join "`n"
 

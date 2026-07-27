@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "id": "domeggook-43314131",
+  "name": "줄리앤커터 만능채칼",
+  "supplierUrl": "https://domeggook.com/43314131?from=popular100",
+  "productId": "43314131",
+  "phase": "published",
+  "currentRevisionId": "rev-001",
+  "createdAt": "2026-07-27T04:02:28.344Z",
+  "updatedAt": "2026-07-27T04:02:28.344Z",
+  "assets": {},
+  "jobs": {},
+  "modelSsot": {
+    "status": "pending",
+    "assetId": null,
+    "version": null,
+    "path": null,
+    "sha256": null,
+    "approvedBy": null,
+    "approvedAt": null
+  },
+  "revisions": [
+    {
+      "id": "rev-001",
+      "number": 1,
+      "status": "working",
+      "parentRevisionId": null,
+      "reason": "초기 제작",
+      "createdAt": "2026-07-27T04:02:28.344Z",
+      "assetSelections": {},
+      "affectedAssetIds": [],
+      "affectedSectionIds": [],
+      "assembly": null
+    }
+  ],
+  "html": {
+    "entry": "detail-page/index.html",
+    "layerState": {},
+    "viewportOverrides": {},
+    "sections": [],
+    "checkpoints": []
+  },
+  "finalQa": {
+    "status": "passed",
+    "score": 97,
+    "hardFailures": [],
+    "warnings": [],
+    "userApproved": true,
+    "reportPath": null
+  },
+  "studioVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "isolation": "self-contained",
+    "externalFileDependencies": false,
+    "pathPolicy": "project-relative-only",
+    "adoptedLegacyProject": true
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "schema_version": "1.0",
+  "product_id": "23824901",
+  "source_url": "https://domeggook.com/23824901?from=popular100",
+  "source_bundle": "evidence/supplier-bundle",
+  "captured_at": "2026-07-25T00:34:34.191391+00:00",
+  "human_reviewed_at": "2026-07-25",
+  "publication_status": "planning_only_pending_final_claim_review",
+  "facts": [
+    {
+      "id": "FACT-001",
+      "field": "product_name",
+      "value": "아이스 쿨패치",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-002",
+      "field": "listing_title",
+      "value": "KC인증 1팩(2매입) 붙이는 아이스 쿨패치 쿨팩 시원한패치 여름용품 쿨링패치",
+      "status": "confirmed_from_marketplace",
+      "publishable": false,
+      "reason": "마켓 등록 제목이며 KC 표현은 시험성적서 원본 번호 확인 전 자동 승격하지 않는다.",
+      "locator": "evidence/supplier-bundle/page.json"
+    },
+    {
+      "id": "FACT-003",
+      "field": "quantity",
+      "value": 2,
+      "unit": "매입",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-004",
+      "field": "materials",
+      "value": ["하이드로겔", "PE"],
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-005",
+      "field": "size",
+      "value": {"width_cm": 5, "height_cm": 12},
+      "qualifier": "약",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-02.png; detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-006",
+      "field": "minimum_age",
+      "value": 36,
+      "unit": "개월 이상",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "publication_copy": "만 3세 이상",
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-007",
+      "field": "importer",
+      "value": "(주) 제이케이엔터테인먼트",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-008",
+      "field": "origin",
+      "value": "중국",
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-009",
+      "field": "use_steps",
+      "value": ["포장 파우치 개봉", "투명 보호 필름 제거", "깨끗하고 물기 없는 원하는 부위에 부착"],
+      "status": "confirmed_from_supplier",
+      "publishable": true,
+      "locator": "detail/assets/detail-08.png; detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-010",
+      "field": "visible_structure",
+      "value": ["파란색 직사각형 하이드로겔", "흰색 테두리", "투명 보호 필름", "표면 격자 무늬"],
+      "status": "human_verified_visual_observation",
+      "publishable": true,
+      "locator": "thumbnail/thumbnail.png; detail/assets/detail-02.png; detail/assets/detail-08.png"
+    },
+    {
+      "id": "FACT-011",
+      "field": "cooler_preparation",
+      "value": "더 시원한 사용감을 원할 경우 냉장고에 약 1~2시간 보관 후 사용하도록 안내",
+      "status": "supplier_guidance",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-012",
+      "field": "freezer_prohibition",
+      "value": "냉동실 보관 금지",
+      "status": "supplier_safety_guidance",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-013",
+      "field": "medical_disclaimer",
+      "value": "의약품이 아니며 해열 보조용으로만 사용",
+      "status": "supplier_safety_guidance",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-014",
+      "field": "skin_guidance",
+      "value": [
+        "같은 부위에 장시간 연속 사용하지 않는다.",
+        "상처·습진 등 이상이 있는 부위에는 사용하지 않는다.",
+        "사용 중 가려움·발진·붉어짐이 나타나면 즉시 중단한다.",
+        "임산부·수유부·피부가 민감한 사람은 사용 전 전문가와 상담한다.",
+        "얼굴 부위에는 장시간 부착을 권장하지 않는다."
+      ],
+      "status": "supplier_safety_guidance",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-015",
+      "field": "storage_guidance",
+      "value": [
+        "직사광선과 고온다습한 장소를 피한다.",
+        "어린이의 손이 닿지 않는 곳에 보관한다.",
+        "남은 제품은 밀봉해 보관한다."
+      ],
+      "status": "supplier_safety_guidance",
+      "publishable": true,
+      "locator": "detail/assets/detail-09.png"
+    },
+    {
+      "id": "FACT-016",
+      "field": "supplier_test_document",
+      "value": "공급처 상세에 2026-05-19~2026-05-29 KATRI 시험성적서 이미지와 어린이제품 공통안전기준 관련 불검출 표가 제시됨",
+      "status": "supplier_document_image_not_independently_verified",
+      "publishable": false,
+      "required_action": "시험성적서 원본 번호·의뢰자·시료명·적용 범위 확인",
+      "locator": "detail/assets/detail-04.png"
+    }
+  ],
+  "supplier_claims": [
+    {
+      "id": "CLAIM-001",
+      "claim": "붙이는 순간 약 -5°C의 즉각 쿨링",
+      "status": "supplier_claim_unverified",
+      "publishable": false,
+      "required_evidence": "측정 환경·대조군·반복 수가 포함된 온도 시험"
+    },
+    {
+      "id": "CLAIM-002",
+      "claim": "피부 온도 36.2°C에서 26.1°C로 약 10.1°C 감소",
+      "status": "supplier_claim_unverified",
+      "publishable": false,
+      "required_evidence": "측정 방법과 시험 원본"
+    },
+    {
+      "id": "CLAIM-003",
+      "claim": "최대 8시간 냉감 지속",
+      "status": "supplier_claim_unverified",
+      "publishable": false,
+      "required_evidence": "지속 시간 시험과 종료 기준"
+    },
+    {
+      "id": "CLAIM-004",
+      "claim": "무향·무자극·저자극",
+      "status": "supplier_claim_unverified",
+      "publishable": false,
+      "required_evidence": "성분표와 인체적용 피부 자극 시험 원본"
+    },
+    {
+      "id": "CLAIM-005",
+      "claim": "기존 자사 제품보다 크기 33%, 젤 용량 40% 증가",
+      "status": "supplier_internal_comparison_unverified",
+      "publishable": false,
+      "required_evidence": "동일 기준의 이전 제품 사양과 측정 자료"
+    },
+    {
+      "id": "CLAIM-006",
+      "claim": "열을 내리거나 발열을 치료한다.",
+      "status": "prohibited_medical_claim",
+      "publishable": false,
+      "action": "판매 카피에서 완전 제외"
+    }
+  ],
+  "review_summary": {
+    "supplier_visible_review_count": 7,
+    "supplier_captured_review_count": 7,
+    "complete": true,
+    "meaningful_product_use_review_count": 1,
+    "note": "나머지는 배송·일반 만족 또는 빈 후기이며 냉감·접착·자극 성능 근거로 사용하지 않는다."
+  }
+}

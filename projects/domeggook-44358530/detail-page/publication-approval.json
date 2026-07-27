@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "product_id": "44358530",
+  "approved_at": "2026-07-25",
+  "status": "approved_commercial_project",
+  "qa_score": 98,
+  "hard_failures": 0,
+  "approved_surfaces": [
+    "editable local HTML project",
+    "studio preview",
+    "commercial design review"
+  ],
+  "pending_before_marketplace_publish": [
+    "판매 시점의 실제 옵션 재확인",
+    "판매가·배송·반품 정보 입력",
+    "판매 채널 정책에 맞춘 최종 고지 검토"
+  ],
+  "prohibited_expansions": [
+    "질환 치료·예방·개선 또는 교정",
+    "충격 흡수·압력 분산·피로 감소의 정량 성능",
+    "모든 신발·모든 발 호환",
+    "즉시 편안함",
+    "1–2년 수명 보장"
+  ]
+}

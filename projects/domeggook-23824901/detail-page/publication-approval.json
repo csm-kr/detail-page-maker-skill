@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "product_id": "23824901",
+  "status": "approved",
+  "approved_at": "2026-07-25",
+  "rubric": "commercial-tight-v2",
+  "score": 98,
+  "hard_failures": 0,
+  "artifacts": {
+    "detail_page": "index.html",
+    "studio": "studio.html",
+    "standalone": "qa/export/cool-patch-detail-page-standalone.html",
+    "hyperframes_project": "hyperframes/projects/cool-patch-motion-studio",
+    "qa_report": "qa/commercial-tight-v2-report.md"
+  },
+  "browser_qa": {
+    "widths": [320, 360, 390, 768, 800],
+    "overflow_failures": 0,
+    "broken_images": 0,
+    "missing_alt": 0,
+    "min_editable_font_px": 14,
+    "gif_count": 5,
+    "gif_motion_verified": 5
+  },
+  "studio_qa": {
+    "copy_keys": 116,
+    "image_keys": 13,
+    "standalone_bytes": 39857084,
+    "standalone_data_images": 13,
+    "standalone_gifs": 5,
+    "standalone_broken_images": 0
+  },
+  "claim_review": {
+    "blocked_claim_count": 8,
+    "unverified_certification_badges": 0,
+    "medical_claims": 0
+  }
+}

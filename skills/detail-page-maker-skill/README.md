@@ -9,6 +9,8 @@
 powershell -ExecutionPolicy Bypass -File scripts/setup-local.ps1 -NoProject
 node scripts/detail-page.mjs doctor
 node scripts/e2e.mjs
+node scripts/detail-page.mjs list
+node scripts/detail-page.mjs validate
 node scripts/detail-page.mjs new `
   --name "상품명" `
   --supplier-url "https://supplier.example/item/123456"
@@ -16,6 +18,11 @@ node scripts/detail-page.mjs new `
 
 에이전트는 `SKILL.md → guide.md → workflow.md` 순서로 읽고 현재 작업에 필요한 전문
 가이드만 추가로 읽는다.
+
+상위 경로에서 `config/workspace.json`을 발견하면 새 프로젝트를 해당 설정의
+`projects/`에 만들고, 없으면 사용자 문서 폴더를 사용한다. 각 프로젝트는 근거,
+이미지·GIF, HyperFrames 원본, QA와 HTML을 자기 폴더 안에 보존하며 외부 파일
+경로를 참조하지 않는다.
 
 설치 스크립트는 Taste, HyperFrames와 Browser Harness 스킬을 이 폴더의
 `.agents/skills/`에 설치한다. 다른 프로젝트나 사용자 전역 스킬을 덮어쓰지 않는다.
@@ -55,6 +62,7 @@ detail-page-maker-skill/
 │  │  ├─ COMMERCIAL.md
 │  │  ├─ DESIGN.md
 │  │  ├─ GIF.md
+│  │  ├─ LEARNINGS.md
 │  │  └─ index.html
 │  ├─ studio-v1-runtime/
 │  │  ├─ app.js
@@ -85,7 +93,7 @@ detail-page-maker-skill/
 │  ├─ portable-install.md
 │  ├─ user-feedback-quality-gates.md
 │  ├─ behance-commercial-analysis.md
-│  └─ study-design-skill.md
+│  └─ design-study.md
 └─ scripts/
    ├─ detail-page.mjs
    ├─ e2e.mjs
@@ -104,11 +112,14 @@ planning/
 ├─ DESIGN.md
 ├─ BUYER-JOURNEY.md
 ├─ GIF.md
-└─ APPROVALS.md
+├─ APPROVALS.md
+└─ LEARNINGS.md
 ```
 
 GIF를 사용하지 않는 프로젝트도 `GIF.md`를 유지하고 사용하지 않은 이유를 기록한다.
 모든 프로젝트는 `APPROVALS.md`에 옆 승인 세션의 게이트 결정을 기록한다.
+종료할 때 `LEARNINGS.md`에서 상품 한정 학습과 공용 후보를 분리하고, 공용 후보는
+다른 프로젝트 또는 회귀 테스트로 재검증한 뒤에만 스킬 규약으로 승격한다.
 
 `assets/studio-v1-runtime/`만 현재 CLI가 새 프로젝트에 복사하는 활성 편집기다.
 `assets/studio-runtime/`과 확장 서버·도메인은 God Tibo, 제품 SSOT와 회귀 검사가

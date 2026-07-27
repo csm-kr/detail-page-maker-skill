@@ -28,6 +28,16 @@ God Tibo와 HyperFrames는 결과를 생성할 뿐 승인하지 않는다. 에�
 ## 2. 폴더
 
 ```text
+<project>/
+├── project.json
+├── evidence/
+├── research/
+├── hyperframes/
+│   ├── projects/
+│   └── renders/
+└── asset/
+    ...
+
 asset/
 ├── input/
 ├── ssot/
@@ -46,6 +56,10 @@ asset/
 │   └── gif/
 └── deprecated/
 ```
+
+각 프로젝트의 파일 경로는 프로젝트 루트를 넘지 않는다. 공급처 번들, 시장 근거와
+HyperFrames 원본도 프로젝트 안에 저장한다. 공용 실행 도구는 스킬이 제공하지만
+프로젝트 데이터는 다른 프로젝트나 저장소 루트 폴더에 의존하지 않는다.
 
 ### `input/`
 
@@ -173,7 +187,7 @@ Studio에서 새 이미지로 교체할 때도 `generated/approved` 경로만 �
 
 ## 7. 노바페이스 전환 규칙
 
-`prototypes/domeggook-60851997/assets/`는 Studio v1 승인 게이트를 도입하기 전에
+`projects/domeggook-60851997/assets/`는 Studio v1 승인 게이트를 도입하기 전에
 사용자가 확정한 현재 페이지의 동결 자산이다. 119MB를 복제하거나 경로를 급히
 이동해 HyperFrames 원본과 기존 편집 상태를 깨지 않는다.
 

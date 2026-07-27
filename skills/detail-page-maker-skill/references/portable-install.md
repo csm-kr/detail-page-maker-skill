@@ -94,6 +94,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\setup-local.ps1 `
   -SupplierUrl "https://domeggook.com/상품번호"
 ```
 
+상위 폴더에서 `config/workspace.json`을 발견하면 해당 설정의 `projectsRoot`에
+프로젝트를 만들고, 단독 설치 환경에서는
+`Documents/DetailPageStudio/projects`를 사용한다. 생성된 프로젝트는 다른
+프로젝트나 저장소 루트의 파일 경로를 참조하지 않는다.
+
 Codex를 다시 시작하고 다음처럼 요청한다.
 
 ```text

@@ -13,7 +13,7 @@ Windows PowerShell에서 아래 세 줄만 실행합니다.
 ```powershell
 git clone https://github.com/csm-kr/detail-page-maker-skill.git
 cd detail-page-maker-skill
-powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
 ```
 
 스크립트가 다음 작업을 순서대로 처리합니다.
@@ -33,7 +33,7 @@ powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
 설치를 바꾸지 않고 현재 컴퓨터가 실행 가능한지만 빠르게 확인합니다.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1 -QuickTest
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -QuickTest
 ```
 
 Quick Test는 필수 명령, 상세페이지 CLI 진단, 11개 로컬 의존 스킬과
@@ -47,15 +47,18 @@ Quick Test는 필수 명령, 상세페이지 CLI 진단, 11개 로컬 의존 스
 전달합니다.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1 `
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 `
   -ProductName "노바페이스 발편한 기능성깔창" `
   -SupplierUrl "https://domeggook.com/60851997?from=lstGen"
 ```
 
-프로젝트 데이터는 기본적으로 다음 위치에 저장됩니다.
+복제한 저장소에서 실행하면 프로젝트 데이터는 다음 위치에 저장됩니다.
 
 ```text
-C:\Users\<사용자>\Documents\DetailPageStudio\projects
+<저장소>\projects
 ```
+
+스킬 폴더만 전역 설치해 다른 위치에서 실행하면
+`C:\Users\<사용자>\Documents\DetailPageStudio\projects`를 사용합니다.
 
 Studio 종료는 실행 중인 PowerShell 창에서 `Ctrl+C`를 누릅니다.

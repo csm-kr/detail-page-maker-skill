@@ -39,6 +39,12 @@ test("새 프로젝트부터 승인·잠금·내보내기·개정판까지 실�
     assert.match(buyerJourney, /## Core Promise/);
     assert.match(buyerJourney, /Pain Recognition/);
     assert.match(buyerJourney, /Decision Recap/);
+    const learnings = await readFile(
+      path.join(created.projectRoot, "planning", "LEARNINGS.md"),
+      "utf8",
+    );
+    assert.match(learnings, /## Learning template/);
+    assert.match(learnings, /scope.*project-only/);
     const commercialPlan = await readFile(
       path.join(created.projectRoot, "planning", "COMMERCIAL.md"),
       "utf8",

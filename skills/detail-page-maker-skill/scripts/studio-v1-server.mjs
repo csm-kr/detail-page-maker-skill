@@ -342,9 +342,9 @@ function openBrowser(url) {
 }
 
 async function resolvePageDirectory(projectRoot) {
-  const prototypeDirectory = path.join(projectRoot, "detail-page");
-  if (await exists(path.join(prototypeDirectory, "studio.html"))) {
-    return prototypeDirectory;
+  const legacyPageDirectory = path.join(projectRoot, "detail-page");
+  if (await exists(path.join(legacyPageDirectory, "studio.html"))) {
+    return legacyPageDirectory;
   }
   return path.join(projectRoot, "html");
 }

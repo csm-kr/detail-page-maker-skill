@@ -1,0 +1,213 @@
+{
+  "schema_version": "1.0",
+  "product_id": "43314131",
+  "campaign_direction": {
+    "name": "Precision Green",
+    "palette": ["#173e34", "#0b2922", "#dfff5a", "#f4f1e8"],
+    "design_intent": "스테인레스 도구의 정밀함과 신선한 식재료의 에너지를 대비시키는 편집형 상업 상세페이지"
+  },
+  "assets": [
+    {
+      "asset": "product-cutout.png",
+      "kind": "generated-cutout",
+      "source_roles": ["identity-primary", "identity-detail"],
+      "source_paths": [
+        "assets/product-cutout.png",
+        "assets/supplier-dual-blade-evidence.png",
+        "assets/supplier-storage-evidence.png"
+      ],
+      "generation_mode": "built-in-imagegen-edit-with-references",
+      "chroma_source": "product-cutout-chroma.png",
+      "prohibited_mutations": [
+        "silhouette",
+        "handle",
+        "hanging-loop",
+        "head-frame",
+        "blade-count",
+        "blade-placement",
+        "side-protrusions",
+        "material-color"
+      ],
+      "status": "supplier-reference-v1-selected",
+      "replacement_gate": "사용자 다각도 실사진 SSOT 도착 시 제품 동일성 강화 버전으로 교체"
+    },
+    {
+      "asset": "ingredient-still-life.png",
+      "kind": "imagegen-scene-reference",
+      "sha256": "29393aa58c2db488a0ab4fb2763ea5f11f0302e5655522fba93783ed736b18f5",
+      "generation_mode": "built-in-imagegen",
+      "scene_state": "감자·오이·당근이 가장자리를 이루고 중앙에 HTML 카피 여백을 둔 문제 제기 배경",
+      "product_identity_role": "none-background-only",
+      "prohibited_content": [
+        "generated product",
+        "generated tool",
+        "baked text",
+        "brand logo"
+      ]
+    },
+    {
+      "asset": "use-peel.jpg",
+      "kind": "supplier-evidence-crop",
+      "source_path": "assets/supplier-dual-blade-evidence.png",
+      "source_sha256": "7c79ff7c64743a40278e657ad1f8f3f2565860b27ab82fc11f36cda8cdfdaefc",
+      "visible_fact": "peeling"
+    },
+    {
+      "asset": "use-slice.jpg",
+      "kind": "supplier-evidence-crop",
+      "source_path": "assets/supplier-dual-blade-evidence.png",
+      "source_sha256": "7c79ff7c64743a40278e657ad1f8f3f2565860b27ab82fc11f36cda8cdfdaefc",
+      "visible_fact": "thin-slicing"
+    },
+    {
+      "asset": "use-julienne.jpg",
+      "kind": "supplier-evidence-crop",
+      "source_path": "assets/supplier-dual-blade-evidence.png",
+      "source_sha256": "7c79ff7c64743a40278e657ad1f8f3f2565860b27ab82fc11f36cda8cdfdaefc",
+      "visible_fact": "julienne-cutting"
+    },
+    {
+      "asset": "use-motion-start.png",
+      "kind": "imagegen-reference-keyframe",
+      "sha256": "31e01b68f0c0e4eed2f2a77e0eddc55d340b66d9d8d9d40f922905323b9fa7c0",
+      "source_paths": [
+        "assets/product-cutout.png",
+        "assets/supplier-dual-blade-evidence.png"
+      ],
+      "generation_mode": "built-in-imagegen-edit-with-references",
+      "scene_state": "오이 슬라이스 시작 전",
+      "identity_gate": "제품 실루엣·손잡이·고리·헤드 프레임·커터 수와 배치를 유지"
+    },
+    {
+      "asset": "use-motion-end.png",
+      "kind": "imagegen-reference-keyframe",
+      "sha256": "08df94cd36562223b59a045a7ef46f1931e5fd19d4241a32de682af678692d3b",
+      "source_paths": [
+        "assets/use-motion-start.png",
+        "assets/product-cutout.png",
+        "assets/supplier-dual-blade-evidence.png"
+      ],
+      "generation_mode": "built-in-imagegen-edit-with-references",
+      "scene_state": "얇은 오이 슬라이스 생성 후",
+      "identity_gate": "시작 프레임의 카메라·손·조명·제품 구조를 유지"
+    },
+    {
+      "asset": "use-slice-motion.gif",
+      "kind": "hyperframes-gif",
+      "sha256": "b846ecb6035534190b3a34c385f8c0242937dd212fb234a7e0905a50368af46e",
+      "source_paths": [
+        "assets/use-motion-start.png",
+        "assets/use-motion-end.png",
+        "hyperframes/projects/use-demo-motion/index.html"
+      ],
+      "render": "800x600 · 4s · 15fps · infinite loop",
+      "claim": "얇게 썰기 사용 전후의 연출 시각화"
+    },
+    {
+      "asset": "dual-blade-function.gif",
+      "kind": "hyperframes-gif",
+      "sha256": "76d6fa07878463251b850478ffb07ecc54a66a00b11b6eb4dcbc6f351b7307d6",
+      "source_paths": [
+        "assets/product-cutout.png",
+        "assets/supplier-dual-blade-evidence.png",
+        "hyperframes/projects/dual-blade-motion/index.html"
+      ],
+      "render": "800x720 · 4s · 15fps · infinite loop",
+      "claim": "껍질 제거·얇게 썰기 커터와 채썰기 커터의 실제 위치"
+    },
+    {
+      "asset": "dimension-guide.gif",
+      "kind": "hyperframes-gif",
+      "sha256": "387b14346e0a39bf63f092b104e3391c62e269d9119b1b67917b5d3fbbbefcd1",
+      "source_paths": [
+        "assets/product-dimension-base-v2.png",
+        "assets/supplier-spec-evidence.png",
+        "hyperframes/projects/dimension-guide-motion/index.html"
+      ],
+      "render": "800x900 · 4.2s · 15fps · infinite loop",
+      "claim": "가로 7.2cm, 헤드 높이 5.3cm, 손잡이 길이 10.05cm, 고리 2cm의 측정 구간. 가로 치수선은 제품 상단과 분리"
+    },
+    {
+      "asset": "potato-eye-start.png",
+      "kind": "imagegen-reference-keyframe",
+      "sha256": "063a9ad937620b32138ca9fd87a3311cd2cc3e3cd1094c30a529f7d8dc840c78",
+      "source_paths": [
+        "assets/potato-eye-action-source.png",
+        "assets/supplier-storage-evidence.png"
+      ],
+      "generation_mode": "built-in-imagegen-edit-with-references",
+      "scene_state": "오른쪽 제거 돌기가 감자 눈 위에 떠 있는 시작 상태",
+      "identity_gate": "공급처 원본의 오른쪽 돌기 위치와 접촉 방향을 유지"
+    },
+    {
+      "asset": "potato-eye-contact.png",
+      "kind": "imagegen-reference-keyframe",
+      "sha256": "29e635d2ac7e9ff09726fe69ddcf5d85ce5b386cba0bf73389c9aa680ef70682",
+      "source_paths": [
+        "assets/potato-eye-action-source.png",
+        "assets/supplier-storage-evidence.png"
+      ],
+      "generation_mode": "built-in-imagegen-edit-with-references",
+      "scene_state": "같은 방향에서 오른쪽 제거 돌기가 감자 눈에 닿은 상태",
+      "identity_gate": "공급처 원본의 돌기 구조와 감자 눈 접촉 방향을 유지"
+    },
+    {
+      "asset": "potato-eye-motion.gif",
+      "kind": "hyperframes-gif",
+      "sha256": "f9ef436d61388f87131af65c8d0f0e3c8869b3240a358ebd766749143a1bedf6",
+      "source_paths": [
+        "assets/potato-eye-start.png",
+        "assets/potato-eye-contact.png",
+        "hyperframes/projects/potato-eye-motion/index.html"
+      ],
+      "render": "800x800 · 4s · 15fps · infinite loop",
+      "claim": "오른쪽 제거 돌기가 감자 눈에 닿는 위치와 사용 흐름",
+      "qa": "점, 안내선 끝과 강조 원 중심을 동일 좌표로 고정"
+    },
+    {
+      "asset": "supplier-dual-blade-evidence.png",
+      "kind": "supplier-evidence",
+      "sha256": "7c79ff7c64743a40278e657ad1f8f3f2565860b27ab82fc11f36cda8cdfdaefc",
+      "source_path": "assets/supplier-dual-blade-evidence.png",
+      "visible_facts": [
+        "껍질 제거·얇게 썰기 커터 위치",
+        "채썰기 커터 위치"
+      ],
+      "allowed_uses": [
+        "fact-verification",
+        "identity-comparison"
+      ]
+    },
+    {
+      "asset": "supplier-spec-evidence.png",
+      "kind": "supplier-evidence",
+      "sha256": "410534aec19ffd32096195585b5b2e9e870e8aa8b5c74b0c0325372e129cd07c",
+      "source_path": "assets/supplier-spec-evidence.png",
+      "visible_facts": [
+        "제품명",
+        "치수",
+        "재질",
+        "원산지",
+        "수입원"
+      ],
+      "allowed_uses": [
+        "fact-verification",
+        "purchase-information"
+      ]
+    },
+    {
+      "asset": "supplier-storage-evidence.png",
+      "kind": "supplier-evidence",
+      "sha256": "0cf70bb2ecd1ae737e5cdc75c9cf3431384cd719506b7d50a0e49ba6329570c3",
+      "source_path": "assets/supplier-storage-evidence.png",
+      "visible_facts": [
+        "손잡이 끝 고리",
+        "측면 돌출 구조"
+      ],
+      "allowed_uses": [
+        "fact-verification",
+        "identity-comparison"
+      ]
+    }
+  ]
+}

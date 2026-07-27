@@ -7,6 +7,7 @@
 - `BUYER-JOURNEY.md`: buyer questions, page jobs, and reading order
 - `GIF.md`: motion decisions and evidence
 - `APPROVALS.md`: independent approval gates
+- `LEARNINGS.md`: project-only learnings and shared-rule candidates
 
 ## Source
 

@@ -3,7 +3,7 @@
 상태: 영구 메모리 / 제작·수정·검수 시 필수 참조
 적용 범위: 쿠팡·스마트스토어·오픈마켓용 세로형 상품 상세페이지
 연구 근거:
-[`research/behance-detail-page-design-grammar.md`](../../../research/behance-detail-page-design-grammar.md)
+[`behance-commercial-analysis.md`](behance-commercial-analysis.md)
 
 ## 0. 이 문서의 목적
 

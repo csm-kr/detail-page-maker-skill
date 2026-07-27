@@ -22,6 +22,8 @@ description: 공급처 상품 URL과 실제 제품 자료에서 제품 사실 SS
 5. 기능성 깔창은
    [`novaface-insole-learnings.md`](references/novaface-insole-learnings.md),
    설치·E2E는 [`portable-install.md`](references/portable-install.md)를 읽는다.
+6. 프로젝트 종료와 공용 규칙 승격은
+   [`learning-loop.md`](references/learning-loop.md)를 읽는다.
 
 ## 로컬 의존 스킬
 
@@ -39,12 +41,17 @@ description: 공급처 상품 URL과 실제 제품 자료에서 제품 사실 SS
 powershell -ExecutionPolicy Bypass -File scripts/setup-local.ps1 -NoProject
 node scripts/detail-page.mjs doctor
 node scripts/e2e.mjs
+node scripts/detail-page.mjs list
+node scripts/detail-page.mjs validate
 node scripts/detail-page.mjs new `
   --name "상품명" `
   --supplier-url "https://supplier.example/item/123456"
 ```
 
 기존 프로젝트는 `node scripts/detail-page.mjs start --project "<project-path>"`로 연다.
+저장소 프로젝트 목록은 `list`, 외부 파일 경로 의존성은 `validate`로 검사한다.
+`config/workspace.json`이 발견되면 해당 `projectsRoot`를 사용하고, 없으면 사용자
+문서 폴더를 사용한다.
 
 ## 절대 게이트
 
@@ -62,6 +69,10 @@ node scripts/detail-page.mjs new `
    않고 승인본만 조립한다.
 8. GIF 하나는 주장 하나·부품 하나·상태 변화 하나만 설명한다.
 9. 고객 HTML에서 프롬프트·파일명·해시·QA·승인 상태를 제거한다.
+10. 각 프로젝트는 근거·자산·HyperFrames 원본·QA·HTML을 자기 폴더 안에 보존하고
+    다른 프로젝트나 저장소 공용 폴더를 파일 의존성으로 참조하지 않는다.
+11. 한 프로젝트의 학습은 먼저 `planning/LEARNINGS.md`에 기록한다. 다른 프로젝트
+    또는 회귀 테스트로 재검증하기 전에는 공용 스킬 규약으로 승격하지 않는다.
 
 ## Studio v1
 
@@ -80,4 +91,6 @@ SSOT와 회귀 검사가 사용하는 확장 도메인·서버·런타임은 지
 - HyperFrames `check --strict` 오류·경고가 0건이다.
 - 320·360·390·768·800px 오버플로·잘림이 0건이다.
 - Taste pre-flight, 상용 QA 97점 이상과 G5 사용자 승인을 기록했다.
-- 게시용 단일 HTML, Studio 프로젝트 묶음과 GIF 학습 기록을 만들었다.
+- 게시용 단일 HTML, Studio 프로젝트 묶음, GIF 기록과 `LEARNINGS.md`를 만들었다.
+- 공용 후보는 검증 이슈 또는 다음 검증 계획에 연결했고 상품 한정 학습은 프로젝트
+  안에 유지했다.

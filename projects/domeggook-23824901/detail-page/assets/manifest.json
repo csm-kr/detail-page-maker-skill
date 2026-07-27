@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "product_id": "23824901",
+  "groups": {
+    "supplier_evidence": [
+      "supplier-thumbnail.png",
+      "supplier-size-and-product.png",
+      "supplier-use-steps.png",
+      "supplier-info-and-cautions.png"
+    ],
+    "approved_product_ssot": [
+      "cool-patch-front-v3.png",
+      "cool-patch-peel-half-v1.png"
+    ],
+    "imagegen_context_and_decoration": [
+      "hero-gel-background-v1.png",
+      "use-stadium-v1.png",
+      "prep-clean-dry-skin-v1.png",
+      "prep-fridge-background-v1.png",
+      "gel-macro-v1.png"
+    ],
+    "hyperframes_gifs": [
+      "cool-patch-problem.gif",
+      "cool-patch-prep.gif",
+      "cool-patch-peel.gif",
+      "cool-patch-dimension.gif",
+      "cool-patch-care.gif"
+    ],
+    "gif_posters": [
+      "cool-patch-problem-poster.png",
+      "cool-patch-prep-poster.png",
+      "cool-patch-peel-poster.png",
+      "cool-patch-dimension-poster.png",
+      "cool-patch-care-poster.png"
+    ]
+  },
+  "motion_contract": {
+    "dimensions": "800x800",
+    "duration_seconds_each": 5.2,
+    "fps": 15,
+    "loop": "infinite",
+    "source_master": "hyperframes/projects/cool-patch-motion-studio/renders/cool-patch-motion-studio.mp4",
+    "source_master_sha256": "EF16B21B647F502CE8C53B47652F3D9524C704A9DCEF51A2F22E4E69C2DA0CFE"
+  },
+  "verified_gif_sha256": {
+    "cool-patch-problem.gif": "1635AB87E50D549ED7FE2204BC6D128E9002436CF240A220A9399979A691F354",
+    "cool-patch-prep.gif": "3DEE78B7CE29BAF74753EFF74D5952F9F3D7C9562BD992647C6BB05DF5027968",
+    "cool-patch-peel.gif": "626E8F2739EFB1CB199F1365B2EA8DAD9CDB03039311AA0115705920CCDCFD38",
+    "cool-patch-dimension.gif": "75B334A21293E1D50ECD85EFE69450A4DFB697CDE02E7A233929F834F5584BB5",
+    "cool-patch-care.gif": "6435F53CF6C15983705FBE60F7F390F3B5F3CF915DE75ACEB97D089B16663BB6"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "source_url": "https://domeggook.com/60851997?from=lstGen",
+  "captured_at": "2026-07-25",
+  "capture_bundle": "../evidence/supplier-bundle",
+  "capture_manifest_sha256": "d438dbc7293447bcdc3ff844e8cd6999aad4bad9be1d4b331ed9133ca948008a",
+  "facts": [
+    {
+      "field": "supplier_title",
+      "value": "기능성 깔창 에어쿠션 충격완화 군인 군화 운동화 쫀쫀깔창 키높이인솔",
+      "source": "../evidence/supplier-bundle/page.json",
+      "use": "metadata_only"
+    },
+    {
+      "field": "detail_product_name",
+      "value": "기능성 충격 완화 아치깔창",
+      "source": "../evidence/supplier-bundle/detail/detail-page.png",
+      "use": "fact"
+    },
+    {
+      "field": "material",
+      "value": "고탄성 PU(폴리우레탄) + 에어메시천",
+      "source": "../evidence/supplier-bundle/detail/detail-page.png",
+      "use": "fact"
+    },
+    {
+      "field": "sizes_mm",
+      "value": [230, 240, 250, 260, 270, 280],
+      "source": "../evidence/supplier-bundle/detail/detail-page.png",
+      "use": "fact"
+    },
+    {
+      "field": "size_rule",
+      "value": "5mm 단위는 상위 사이즈 선택 (예: 255 → 260)",
+      "source": "../evidence/supplier-bundle/detail/detail-page.png",
+      "use": "fact"
+    },
+    {
+      "field": "origin",
+      "value": "중국 OEM",
+      "source": "../evidence/supplier-bundle/detail/detail-page.png",
+      "use": "fact"
+    },
+    {
+      "field": "public_reviews",
+      "value": {
+        "visible_count": 7,
+        "captured_count": 7,
+        "average_rating": 5.0,
+        "text_examples": [
+          "쿠션이너무좋아 발이편해요",
+          "잘 수령해서 사용하고 있습니다",
+          "좋아요"
+        ]
+      },
+      "source": "../evidence/supplier-bundle/reviews/reviews.json",
+      "use": "voice_only",
+      "caution": "표본이 매우 작아 효능이나 만족도를 일반화하지 않는다."
+    }
+  ],
+  "blocked_claims": [
+    "충격을 흡수하거나 완화한다는 효능",
+    "통증·족저근막염·피로를 예방하거나 줄인다는 표현",
+    "압력 분산, 발목 보호, 발 건강 개선",
+    "항균·세균 차단·탈취·흡습·속건",
+    "하루 종일 편안함",
+    "변형 방지·복원력·내구성",
+    "키높이 수치",
+    "정확한 두께·무게·치수"
+  ],
+  "visually_observable_structure": [
+    "회색 에어메시 상면",
+    "흰색 PU 입체 셀 하면",
+    "전족부와 중족부의 다수 타공",
+    "파란색 뒤꿈치 부품",
+    "손으로 접힌 실제품 촬영 장면"
+  ]
+}

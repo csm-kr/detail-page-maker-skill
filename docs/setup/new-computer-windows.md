@@ -7,10 +7,10 @@ private 저장소 접근 권한이 있는 PowerShell에서 다음 세 줄을 실
 ```powershell
 git clone https://github.com/csm-kr/detail-page-maker-skill.git
 cd detail-page-maker-skill
-powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
 ```
 
-루트의 `setup-windows.ps1`은 실제 설치 로직을 복제하지 않는다. 받은 스킬 폴더의
+`scripts/setup-windows.ps1`은 실제 설치 로직을 복제하지 않는다. 받은 스킬 폴더의
 `skills/detail-page-maker-skill/scripts/setup-local.ps1`을 그대로 호출한다.
 
 설치 스크립트가 처리하는 범위:
@@ -106,11 +106,14 @@ powershell -ExecutionPolicy Bypass -File `
   -SupplierUrl "https://domeggook.com/60851997"
 ```
 
-기본 저장 위치:
+복제한 저장소에서 실행할 때의 기본 저장 위치:
 
 ```text
-C:\Users\<사용자>\Documents\DetailPageStudio\projects\<상품명>-<상품번호>\
+<저장소>\projects\<상품명>-<상품번호>\
 ```
+
+전역 설치한 스킬을 다른 폴더에서 실행할 때는
+`C:\Users\<사용자>\Documents\DetailPageStudio\projects`를 사용한다.
 
 Studio v1 기본 주소:
 
@@ -136,7 +139,7 @@ Studio v1에서 사용자가 승인한 파일만 최종 HTML에 사용된다.
 
 ```powershell
 git pull
-powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1 -NoProject
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -NoProject
 ```
 
 스킬 설치 방식:
@@ -148,8 +151,9 @@ powershell -ExecutionPolicy Bypass -File `
   -NoProject
 ```
 
-상품 프로젝트는 스킬 폴더 밖의 `Documents\DetailPageStudio\projects`에 저장되므로
-스킬 업데이트로 삭제되지 않는다.
+복제한 저장소의 상품 프로젝트는 `projects/`에, 전역 설치형 프로젝트는
+`Documents\DetailPageStudio\projects`에 저장된다. 두 경우 모두 프로젝트는
+자기 폴더 안의 증거·자산·HyperFrames 원본만 참조한다.
 
 ## 문제 해결
 

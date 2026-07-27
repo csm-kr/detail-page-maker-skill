@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, mkdtemp, rm } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -17,6 +17,10 @@ const REQUIRED_DIRECTORIES = [
   "asset/output/page",
   "asset/output/gif",
   "asset/deprecated",
+  "evidence",
+  "research",
+  "hyperframes/projects",
+  "hyperframes/renders",
 ];
 
 test("Studio v1 새 프로젝트는 승인 상태별 Asset 폴더를 만든다", async () => {
@@ -35,6 +39,11 @@ test("Studio v1 새 프로젝트는 승인 상태별 Asset 폴더를 만든다",
         access(path.join(created.projectRoot, directory)),
       ),
     );
+    const state = JSON.parse(
+      await readFile(path.join(created.projectRoot, "project.json"), "utf8"),
+    );
+    assert.equal(state.workspace.isolation, "self-contained");
+    assert.equal(state.workspace.externalFileDependencies, false);
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });
   }

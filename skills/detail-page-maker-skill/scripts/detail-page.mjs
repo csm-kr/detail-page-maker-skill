@@ -2,7 +2,15 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { createProject, defaultProjectsRoot } from "./new-project.mjs";
+import {
+  adoptProject,
+  createProject,
+  defaultProjectsRoot,
+} from "./new-project.mjs";
+import {
+  listProjects,
+  validateProjectIsolation,
+} from "./project-manager.mjs";
 import { startStudioV1Server } from "./studio-v1-server.mjs";
 
 const CURRENT_SKILL_ROOT = path.resolve(
@@ -108,7 +116,11 @@ function printHelp() {
 
 Commands:
   doctor
+  list [--root <projects 폴더>] [--json]
+  validate [--project <프로젝트 폴더> | --root <projects 폴더>] [--json]
   new --name <상품명> --supplier-url <URL> [--root <폴더>] [--no-start]
+  adopt --project <기존 프로젝트 폴더> --name <상품명> --supplier-url <URL>
+        [--product-id <ID>] [--phase <단계>] [--score <점수>]
   start --project <프로젝트 폴더> [--port 8896] [--no-open]
 
 Default projects root:
@@ -177,6 +189,52 @@ async function main() {
     await doctor();
     return;
   }
+  if (command === "list") {
+    const root = path.resolve(args.root || defaultProjectsRoot());
+    const projects = await listProjects(root);
+    if (args.json === true) {
+      console.log(JSON.stringify({ root, projects }, null, 2));
+      return;
+    }
+    console.log(`Projects root: ${root}`);
+    if (projects.length === 0) {
+      console.log("관리 중인 프로젝트가 없습니다.");
+      return;
+    }
+    for (const project of projects) {
+      console.log(
+        `${project.id}\t${project.phase}\t${project.name}\t${project.path}`,
+      );
+    }
+    return;
+  }
+  if (command === "validate") {
+    const targets = args.project
+      ? [path.resolve(args.project)]
+      : (await listProjects(
+          path.resolve(args.root || defaultProjectsRoot()),
+        )).map((project) => project.path);
+    const reports = await Promise.all(
+      targets.map((projectRoot) => validateProjectIsolation(projectRoot)),
+    );
+    const ok = reports.every((report) => report.ok);
+    if (args.json === true) {
+      console.log(JSON.stringify({ ok, reports }, null, 2));
+    } else {
+      for (const report of reports) {
+        console.log(
+          `${report.ok ? "PASS" : "FAIL"} ${report.projectRoot}${
+            report.issues.length ? ` (${report.issues.length} issues)` : ""
+          }`,
+        );
+        for (const issue of report.issues) {
+          console.log(`  ${issue.file}: ${issue.reference}`);
+        }
+      }
+    }
+    if (!ok) process.exitCode = 1;
+    return;
+  }
   if (command === "new") {
     if (!args.name || !args["supplier-url"]) {
       throw new Error(
@@ -197,6 +255,24 @@ async function main() {
       });
       console.log(`Detail Page Studio v1: ${started.url}`);
     }
+    return;
+  }
+  if (command === "adopt") {
+    if (!args.project || !args.name || !args["supplier-url"]) {
+      throw new Error(
+        "adopt 명령에는 --project, --name, --supplier-url이 필요합니다.",
+      );
+    }
+    const adopted = await adoptProject({
+      projectRoot: args.project,
+      name: args.name,
+      supplierUrl: args["supplier-url"],
+      productId: args["product-id"] || "",
+      phase: args.phase || "final_qa",
+      score: args.score ?? null,
+      htmlEntry: args["html-entry"] || "detail-page/index.html",
+    });
+    console.log(`Project adopted: ${adopted.projectRoot}`);
     return;
   }
   if (command === "start") {
