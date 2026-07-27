@@ -4,6 +4,7 @@ import {
   cp,
   mkdir,
   readFile,
+  rename,
   rm,
   stat,
   writeFile,
@@ -16,6 +17,7 @@ import {
   DomainError,
   approveAssetVersion,
   approveFinalQa,
+  approveModelSsot,
   createCheckpoint,
   createJob,
   createRevision,
@@ -25,13 +27,22 @@ import {
   recordFinalQa,
   registerAssetVersion,
   saveHtmlLayer,
+  startDetailPageReview,
+  updateSupplierSource,
   updateJobState,
 } from "./studio-domain.mjs";
 import { createProjectStore } from "./project-store.mjs";
+import {
+  buildDetailPageReview,
+  publicOutputViolations,
+} from "./studio-detail-page-review.mjs";
+import { cloneProductionRoadmap } from "../assets/studio-runtime/studio-roadmap.js";
 
 const MIME_BY_EXTENSION = {
   ".css": "text/css; charset=utf-8",
   ".gif": "image/gif",
+  ".heic": "image/heic",
+  ".heif": "image/heif",
   ".html": "text/html; charset=utf-8",
   ".ico": "image/x-icon",
   ".jpeg": "image/jpeg",
@@ -46,6 +57,8 @@ const MIME_BY_EXTENSION = {
 };
 
 const EXTENSION_BY_MIME = {
+  "image/heic": ".heic",
+  "image/heif": ".heif",
   "image/gif": ".gif",
   "image/jpeg": ".jpg",
   "image/png": ".png",
@@ -53,6 +66,20 @@ const EXTENSION_BY_MIME = {
   "image/webp": ".webp",
   "video/mp4": ".mp4",
 };
+
+const PRODUCT_SSOT_MIME_TYPES = new Set([
+  "image/heic",
+  "image/heif",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
+const PRODUCT_SSOT_WRITE_PHASES = new Set([
+  "asset_production",
+  "asset_review",
+  "assembly_ready",
+]);
 
 function runtimeRoot() {
   return path.resolve(
@@ -98,6 +125,33 @@ function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
 }
 
+function assertCustomerOutputPolicy(html, state) {
+  const layerValues = [
+    ...Object.values(state.html?.layerState || {}),
+    ...Object.values(state.html?.viewportOverrides || {}).flatMap((value) =>
+      Object.values(value || {}),
+    ),
+  ];
+  const editedText = layerValues
+    .map((value) => value?.text)
+    .filter((value) => typeof value === "string")
+    .join(" ");
+  const violations = [
+    ...new Set([
+      ...publicOutputViolations(html),
+      ...publicOutputViolations(`<main>${editedText}</main>`),
+    ]),
+  ];
+  if (violations.length) {
+    throw new DomainError(
+      "PUBLIC_OUTPUT_METADATA_EXPOSED",
+      "고객 화면에 제작자용 메타데이터가 남아 있습니다.",
+      409,
+      violations,
+    );
+  }
+}
+
 function parseDataUrl(dataUrl) {
   const match = String(dataUrl || "").match(
     /^data:([^;,]+)(?:;charset=[^;,]+)?;base64,([a-z0-9+/=\s]+)$/i,
@@ -111,6 +165,498 @@ function parseDataUrl(dataUrl) {
   return {
     mime: match[1].toLowerCase(),
     buffer: Buffer.from(match[2].replace(/\s/g, ""), "base64"),
+  };
+}
+
+function safeDisplayName(value, fallback) {
+  const name = String(value || "")
+    .normalize("NFKC")
+    .replace(/[\u0000-\u001f\u007f]/g, "")
+    .trim()
+    .slice(0, 240);
+  return name || fallback;
+}
+
+async function readProductManifest(projectRoot) {
+  const manifestPath = resolveInside(
+    projectRoot,
+    "product/product-manifest.json",
+  );
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  if (manifest.schemaVersion !== 1) {
+    throw new DomainError(
+      "PRODUCT_MANIFEST_UNSUPPORTED",
+      `지원하지 않는 product manifest schema: ${manifest.schemaVersion}`,
+      500,
+    );
+  }
+  manifest.ssot = Array.isArray(manifest.ssot) ? manifest.ssot : [];
+  return manifest;
+}
+
+async function readProductionRoadmap(projectRoot) {
+  const fallback = cloneProductionRoadmap();
+  const roadmapPath = resolveInside(
+    projectRoot,
+    "planning/commercial-roadmap.json",
+  );
+  let projectRoadmap;
+  try {
+    projectRoadmap = JSON.parse(await readFile(roadmapPath, "utf8"));
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return attachMotionPreviewReviews(projectRoot, fallback);
+    }
+    throw new DomainError(
+      "PRODUCTION_ROADMAP_INVALID",
+      `프로젝트 commercial roadmap을 읽을 수 없습니다: ${error.message}`,
+      500,
+    );
+  }
+  if (
+    projectRoadmap.schemaVersion !== 1 ||
+    (projectRoadmap.pages && !Array.isArray(projectRoadmap.pages)) ||
+    (projectRoadmap.gifs && !Array.isArray(projectRoadmap.gifs)) ||
+    (projectRoadmap.assets && !Array.isArray(projectRoadmap.assets))
+  ) {
+    throw new DomainError(
+      "PRODUCTION_ROADMAP_UNSUPPORTED",
+      "planning/commercial-roadmap.json의 schemaVersion 또는 배열 형식이 올바르지 않습니다.",
+      500,
+    );
+  }
+  const mergedRoadmap = {
+    ...fallback,
+    ...projectRoadmap,
+    gate: {
+      ...fallback.gate,
+      ...(projectRoadmap.gate || {}),
+    },
+    groups: projectRoadmap.groups || fallback.groups,
+    assets: projectRoadmap.assets || fallback.assets,
+    pages: projectRoadmap.pages || fallback.pages,
+    gifs: projectRoadmap.gifs || fallback.gifs,
+  };
+  return attachMotionPreviewReviews(projectRoot, mergedRoadmap);
+}
+
+async function writeProductManifest(projectRoot, manifest) {
+  const manifestPath = resolveInside(
+    projectRoot,
+    "product/product-manifest.json",
+  );
+  const tempPath = `${manifestPath}.${process.pid}.${Date.now()}.${randomUUID()}.tmp`;
+  try {
+    await writeFile(tempPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+    await rename(tempPath, manifestPath);
+  } catch (error) {
+    await rm(tempPath, { force: true }).catch(() => undefined);
+    throw error;
+  }
+}
+
+async function writeProjectJsonAtomic(projectRoot, relativePath, value) {
+  const targetPath = resolveInside(projectRoot, relativePath);
+  const tempPath = `${targetPath}.${process.pid}.${Date.now()}.${randomUUID()}.tmp`;
+  await mkdir(path.dirname(targetPath), { recursive: true });
+  try {
+    await writeFile(tempPath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+    await rename(tempPath, targetPath);
+  } catch (error) {
+    await rm(tempPath, { force: true }).catch(() => undefined);
+    throw error;
+  }
+}
+
+async function readMotionPreviewRoadmap(projectRoot) {
+  const relativePath = "hyperframes/gif-roadmap.json";
+  try {
+    const roadmap = JSON.parse(
+      await readFile(resolveInside(projectRoot, relativePath), "utf8"),
+    );
+    return {
+      ...roadmap,
+      schemaVersion: roadmap.schemaVersion || 1,
+      gifs: Array.isArray(roadmap.gifs) ? roadmap.gifs : [],
+    };
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return { schemaVersion: 1, gifs: [] };
+    }
+    throw new DomainError(
+      "MOTION_ROADMAP_INVALID",
+      `HyperFrames GIF 로드맵을 읽을 수 없습니다: ${error.message}`,
+      500,
+    );
+  }
+}
+
+async function attachMotionPreviewReviews(projectRoot, roadmap) {
+  const motionRoadmap = await readMotionPreviewRoadmap(projectRoot);
+  return {
+    ...roadmap,
+    previewReviews: Object.fromEntries(
+      (motionRoadmap?.gifs || []).map((gif) => [
+        gif.id,
+        {
+          status: gif.status || "planned",
+          feedback: gif.previewFeedback || "",
+          approvedAt: gif.previewApprovedAt || null,
+          approvedBy: gif.previewApprovedBy || null,
+        },
+      ]),
+    ),
+  };
+}
+
+async function updateMotionPreviewReview(
+  projectRoot,
+  { gifId, decision, feedback = "" },
+) {
+  const productionRoadmap = await readProductionRoadmap(projectRoot);
+  const productionGif = productionRoadmap.gifs.find((gif) => gif.id === gifId);
+  if (!productionGif) {
+    throw new DomainError(
+      "MOTION_PREVIEW_NOT_FOUND",
+      `GIF 프리뷰를 찾을 수 없습니다: ${gifId}`,
+      404,
+    );
+  }
+  const roadmap = await readMotionPreviewRoadmap(projectRoot);
+  let gif = roadmap.gifs.find((item) => item.id === gifId);
+  if (!gif) {
+    gif = {
+      number: productionGif.number,
+      id: productionGif.id,
+      outputAssetId: productionGif.outputAssetId,
+      name: productionGif.name,
+      status: "planned",
+      project: `hyperframes/projects/${productionGif.id}`,
+    };
+    roadmap.gifs.push(gif);
+  }
+  const now = new Date().toISOString();
+  if (decision === "approved") {
+    gif.status = "preview_approved";
+    gif.previewFeedback = "";
+    gif.previewApprovedAt = now;
+    gif.previewApprovedBy = "user";
+  } else {
+    const note = String(feedback || "").trim();
+    if (note.length < 2) {
+      throw new DomainError(
+        "MOTION_PREVIEW_FEEDBACK_REQUIRED",
+        "변경할 내용을 두 글자 이상 적어 주세요.",
+      );
+    }
+    gif.status = "changes_requested";
+    gif.previewFeedback = note.slice(0, 1000);
+    gif.previewApprovedAt = null;
+    gif.previewApprovedBy = null;
+  }
+  await writeProjectJsonAtomic(
+    projectRoot,
+    "hyperframes/gif-roadmap.json",
+    roadmap,
+  );
+  return {
+    id: gif.id,
+    status: gif.status,
+    feedback: gif.previewFeedback || "",
+    approvedAt: gif.previewApprovedAt || null,
+  };
+}
+
+async function registerProductSsotFiles(projectRoot, files) {
+  if (!Array.isArray(files) || files.length === 0) {
+    throw new DomainError(
+      "PRODUCT_SSOT_FILES_REQUIRED",
+      "등록할 실제품 사진을 한 장 이상 선택해 주세요.",
+    );
+  }
+  if (files.length > 20) {
+    throw new DomainError(
+      "PRODUCT_SSOT_FILE_LIMIT_EXCEEDED",
+      "실제품 사진은 한 번에 최대 20장까지 등록할 수 있습니다.",
+      413,
+    );
+  }
+
+  let totalBytes = 0;
+  const prepared = files.map((file, index) => {
+    const parsed = parseDataUrl(file?.dataUrl);
+    if (!PRODUCT_SSOT_MIME_TYPES.has(parsed.mime)) {
+      throw new DomainError(
+        "PRODUCT_SSOT_FILE_TYPE_UNSUPPORTED",
+        `실제품 원본으로 지원하지 않는 파일 형식입니다: ${parsed.mime}`,
+      );
+    }
+    if (parsed.buffer.length === 0) {
+      throw new DomainError(
+        "PRODUCT_SSOT_FILE_EMPTY",
+        "빈 실제품 사진은 등록할 수 없습니다.",
+      );
+    }
+    if (parsed.buffer.length > 25 * 1024 * 1024) {
+      throw new DomainError(
+        "PRODUCT_SSOT_FILE_TOO_LARGE",
+        "실제품 사진 한 장은 25MB 이하여야 합니다.",
+        413,
+      );
+    }
+    totalBytes += parsed.buffer.length;
+    return {
+      ...parsed,
+      originalFileName: safeDisplayName(
+        file?.fileName,
+        `실제품-사진-${index + 1}`,
+      ),
+    };
+  });
+  if (totalBytes > 80 * 1024 * 1024) {
+    throw new DomainError(
+      "PRODUCT_SSOT_BATCH_TOO_LARGE",
+      "실제품 사진 전체 용량은 한 번에 80MB 이하여야 합니다.",
+      413,
+    );
+  }
+
+  const manifest = await readProductManifest(projectRoot);
+  if (manifest.ssotLock?.status === "locked") {
+    throw new DomainError(
+      "PRODUCT_SSOT_LOCKED",
+      `${manifest.ssotLock.revisionId || "현재 개정판"}에 잠긴 제품 SSOT에는 사진을 추가할 수 없습니다.`,
+      409,
+    );
+  }
+  const uploadedAt = new Date().toISOString();
+  const variantColor = manifest.metadata?.variant?.color || null;
+  const createdDirectories = [];
+  const items = prepared.map((file) => {
+    const id = `ssot-user-${randomUUID().slice(0, 12)}`;
+    const relativePath = toPosix(
+      path.join(
+        "product",
+        "ssot",
+        "user",
+        id,
+        `original${EXTENSION_BY_MIME[file.mime]}`,
+      ),
+    );
+    return {
+      id,
+      originalFileName: file.originalFileName,
+      path: relativePath,
+      sha256: sha256(file.buffer),
+      mime: file.mime,
+      sizeBytes: file.buffer.length,
+      provenance: "user-captured-same-sku",
+      role: "identity-primary",
+      allowedUse: "reference-only",
+      referencePurpose: "product-identity",
+      requiresDerivedAsset: true,
+      identityStatus: "pending-review",
+      variantColor,
+      uploadedAt,
+    };
+  });
+
+  try {
+    for (let index = 0; index < items.length; index += 1) {
+      const filePath = resolveInside(projectRoot, items[index].path);
+      const directory = path.dirname(filePath);
+      await mkdir(directory, { recursive: true });
+      createdDirectories.push(directory);
+      await writeFile(filePath, prepared[index].buffer);
+    }
+    manifest.ssot.push(...items);
+    await writeProductManifest(projectRoot, manifest);
+    return items;
+  } catch (error) {
+    for (const directory of createdDirectories.reverse()) {
+      await rm(directory, { recursive: true, force: true }).catch(
+        () => undefined,
+      );
+    }
+    throw error;
+  }
+}
+
+function requiredIdentityText(value, fieldName, maxLength = 120) {
+  const text = safeDisplayName(value, "");
+  if (!text) {
+    throw new DomainError(
+      "PRODUCT_SSOT_IDENTITY_REQUIRED",
+      `${fieldName}을(를) 입력해 주세요.`,
+    );
+  }
+  return text.slice(0, maxLength);
+}
+
+function normalizeSupplierConflict(value) {
+  if (!value || typeof value !== "object") return null;
+  const observedLabelText = safeDisplayName(value.observedLabelText, "");
+  if (!observedLabelText) return null;
+  return {
+    source: safeDisplayName(value.source, "supplier-bundle"),
+    observedLabelText,
+    decision: "excluded-from-product-identity-reference",
+    reason: safeDisplayName(
+      value.reason,
+      "사용자가 직접 촬영한 동일 SKU 원본과 라벨 문구가 다릅니다.",
+    ),
+  };
+}
+
+async function lockProductSsot(projectRoot, body, currentRevisionId) {
+  if (body?.confirmedByUser !== true) {
+    throw new DomainError(
+      "PRODUCT_SSOT_CONFIRMATION_REQUIRED",
+      "실제품 사진에서 라벨과 색상을 확인한 뒤 잠가 주세요.",
+    );
+  }
+
+  const labelText = requiredIdentityText(body.labelText, "제품 라벨 문구", 80);
+  const variantColor = requiredIdentityText(body.variantColor, "제품 색상", 40);
+  const revisionId = requiredIdentityText(
+    body.revisionId || currentRevisionId,
+    "개정판",
+    40,
+  ).toLowerCase();
+  if (revisionId !== String(currentRevisionId || "").toLowerCase()) {
+    throw new DomainError(
+      "PRODUCT_SSOT_REVISION_MISMATCH",
+      `현재 개정판 ${currentRevisionId}에서만 제품 SSOT를 잠글 수 있습니다.`,
+      409,
+    );
+  }
+
+  const manifest = await readProductManifest(projectRoot);
+  if (manifest.ssotLock?.status === "locked") {
+    const sameDecision =
+      manifest.ssotLock.labelText === labelText &&
+      manifest.ssotLock.variantColor === variantColor &&
+      manifest.ssotLock.revisionId === revisionId;
+    if (!sameDecision) {
+      throw new DomainError(
+        "PRODUCT_SSOT_LOCK_CONFLICT",
+        "이미 다른 동일성 결정으로 잠긴 제품 SSOT입니다.",
+        409,
+      );
+    }
+    return {
+      created: false,
+      lock: manifest.ssotLock,
+      items: manifest.ssot,
+    };
+  }
+  if (manifest.ssot.length === 0) {
+    throw new DomainError(
+      "PRODUCT_SSOT_EMPTY",
+      "잠글 실제품 사진을 먼저 등록해 주세요.",
+      409,
+    );
+  }
+
+  const itemVerification = await Promise.all(
+    manifest.ssot.map(async (item) => {
+      const buffer = await readFile(resolveInside(projectRoot, item.path));
+      const actualSha256 = sha256(buffer);
+      if (actualSha256 !== item.sha256) {
+        throw new DomainError(
+          "PRODUCT_SSOT_HASH_MISMATCH",
+          `등록 후 변경된 실제품 사진이 있습니다: ${item.originalFileName}`,
+          409,
+        );
+      }
+      return {
+        id: item.id,
+        originalFileName: item.originalFileName,
+        path: item.path,
+        sha256: actualSha256,
+        verified: true,
+      };
+    }),
+  );
+
+  const lockedAt = new Date().toISOString();
+  const qaReportPath = toPosix(
+    path.join(
+      "qa",
+      "reports",
+      `product-ssot-identity-review-${safeIdentifier(revisionId, "revision")}.json`,
+    ),
+  );
+  const supplierConflict = normalizeSupplierConflict(body.supplierConflict);
+  const lock = {
+    status: "locked",
+    revisionId,
+    labelText,
+    variantColor,
+    lockedAt,
+    lockedBy: "local-user",
+    basis: "user-confirmed-user-captured-same-sku",
+    itemIds: manifest.ssot.map((item) => item.id),
+    qaReportPath,
+    ...(supplierConflict ? { supplierConflict } : {}),
+  };
+  const report = {
+    schemaVersion: 1,
+    reportType: "product-ssot-identity-review",
+    status: "passed",
+    revisionId,
+    lockedAt,
+    decision: {
+      labelText,
+      variantColor,
+      basis: lock.basis,
+      confirmedBy: "local-user",
+      notes: safeDisplayName(body.notes, ""),
+    },
+    items: itemVerification,
+    hardFailures: [],
+    warnings: supplierConflict
+      ? [
+          {
+            code: "SUPPLIER_LABEL_CONFLICT",
+            ...supplierConflict,
+          },
+        ]
+      : [],
+  };
+
+  manifest.metadata = manifest.metadata || {};
+  manifest.metadata.identityLabelText = labelText;
+  manifest.metadata.variant = {
+    ...(manifest.metadata.variant || {}),
+    color: variantColor,
+    status: "user-confirmed",
+  };
+  manifest.ssot = manifest.ssot.map((item) => ({
+    ...item,
+    identityStatus: "locked",
+    identityLabelText: labelText,
+    variantColor,
+    lockedAt,
+    lockRevisionId: revisionId,
+    qaReportPath,
+  }));
+  manifest.ssotLock = lock;
+
+  try {
+    await writeProjectJsonAtomic(projectRoot, qaReportPath, report);
+    await writeProductManifest(projectRoot, manifest);
+  } catch (error) {
+    await rm(resolveInside(projectRoot, qaReportPath), { force: true }).catch(
+      () => undefined,
+    );
+    throw error;
+  }
+
+  return {
+    created: true,
+    lock,
+    items: manifest.ssot,
   };
 }
 
@@ -189,6 +735,44 @@ async function persistJobFile(projectRoot, job) {
     `${JSON.stringify(job, null, 2)}\n`,
     "utf8",
   );
+}
+
+function startGodTiboBatchWorker({
+  studioUrl,
+  jobIds,
+  concurrency,
+  size,
+}) {
+  const scriptPath = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "god-tibo-batch-worker.mjs",
+  );
+  const child = spawn(
+    process.execPath,
+    [
+      scriptPath,
+      "--studio-url",
+      studioUrl,
+      "--jobs",
+      jobIds.join(","),
+      "--concurrency",
+      String(concurrency),
+      "--size",
+      size,
+      "--provider",
+      "private-codex",
+    ],
+    {
+      detached: true,
+      windowsHide: true,
+      stdio: "ignore",
+    },
+  );
+  child.on("error", (error) => {
+    console.error(`god-tibo-imagen 실행기 시작 실패: ${error.message}`);
+  });
+  child.unref();
+  return child.pid || null;
 }
 
 function currentSelection(state, assetId) {
@@ -356,6 +940,13 @@ export async function startStudioServer({
   await access(path.join(root, "project.json"));
   const store = createProjectStore(root);
   const clients = new Set();
+  let productManifestQueue = Promise.resolve();
+
+  function queueProductManifest(operation) {
+    const queued = productManifestQueue.then(operation);
+    productManifestQueue = queued.catch(() => undefined);
+    return queued;
+  }
 
   function publish(event, state) {
     const payload = `event: project\ndata: ${JSON.stringify({
@@ -402,13 +993,385 @@ export async function startStudioServer({
         return;
       }
 
+      if (
+        request.method === "POST" &&
+        pathname === "/api/project/source"
+      ) {
+        const body = await readJsonBody(request);
+        const result = await mutate("project.source_updated", body, (state) =>
+          updateSupplierSource(state, body),
+        );
+        sendJson(response, 200, result.result);
+        return;
+      }
+
       if (request.method === "GET" && pathname === "/api/assets") {
         sendJson(response, 200, projectSummary(await store.load()).assetList);
         return;
       }
 
+      if (
+        request.method === "GET" &&
+        pathname === "/api/production-roadmap"
+      ) {
+        sendJson(response, 200, await readProductionRoadmap(root));
+        return;
+      }
+
+      const motionPreviewApprovalMatch = pathname.match(
+        /^\/api\/motion-previews\/([^/]+)\/approve$/,
+      );
+      if (request.method === "POST" && motionPreviewApprovalMatch) {
+        const body = await readJsonBody(request);
+        if (body.confirmedByUser !== true) {
+          throw new DomainError(
+            "USER_CONFIRMATION_REQUIRED",
+            "사용자 확인 후 GIF 프리뷰를 승인할 수 있습니다.",
+            409,
+          );
+        }
+        sendJson(
+          response,
+          200,
+          await updateMotionPreviewReview(root, {
+            gifId: decodeURIComponent(motionPreviewApprovalMatch[1]),
+            decision: "approved",
+          }),
+        );
+        return;
+      }
+
+      const motionPreviewFeedbackMatch = pathname.match(
+        /^\/api\/motion-previews\/([^/]+)\/feedback$/,
+      );
+      if (request.method === "POST" && motionPreviewFeedbackMatch) {
+        const body = await readJsonBody(request);
+        if (body.confirmedByUser !== true) {
+          throw new DomainError(
+            "USER_CONFIRMATION_REQUIRED",
+            "사용자 확인 후 GIF 변경 요청을 저장할 수 있습니다.",
+            409,
+          );
+        }
+        sendJson(
+          response,
+          200,
+          await updateMotionPreviewReview(root, {
+            gifId: decodeURIComponent(motionPreviewFeedbackMatch[1]),
+            decision: "changes_requested",
+            feedback: body.feedback,
+          }),
+        );
+        return;
+      }
+
+      if (request.method === "GET" && pathname === "/api/product/ssot") {
+        await productManifestQueue;
+        const manifest = await readProductManifest(root);
+        sendJson(response, 200, {
+          count: manifest.ssot.length,
+          items: manifest.ssot,
+          lock: manifest.ssotLock || null,
+        });
+        return;
+      }
+
       if (request.method === "GET" && pathname === "/api/jobs") {
         sendJson(response, 200, Object.values((await store.load()).jobs));
+        return;
+      }
+
+      if (
+        request.method === "POST" &&
+        pathname === "/api/product/ssot/register"
+      ) {
+        const state = await store.load();
+        if (!PRODUCT_SSOT_WRITE_PHASES.has(state.phase)) {
+          throw new DomainError(
+            "ASSET_STAGE_LOCKED",
+            "조립된 버전에는 실제품 사진을 추가할 수 없습니다. 새 개정판을 만들어 주세요.",
+            409,
+          );
+        }
+        const body = await readJsonBody(request, 120 * 1024 * 1024);
+        const items = await queueProductManifest(() =>
+          registerProductSsotFiles(root, body.files),
+        );
+        sendJson(response, 201, {
+          count: items.length,
+          items,
+        });
+        return;
+      }
+
+      if (
+        request.method === "POST" &&
+        pathname === "/api/product/ssot/lock"
+      ) {
+        const state = await store.load();
+        if (!PRODUCT_SSOT_WRITE_PHASES.has(state.phase)) {
+          throw new DomainError(
+            "ASSET_STAGE_LOCKED",
+            "조립된 버전에서는 제품 SSOT를 잠글 수 없습니다. 새 개정판을 만들어 주세요.",
+            409,
+          );
+        }
+        const body = await readJsonBody(request);
+        const result = await queueProductManifest(() =>
+          lockProductSsot(root, body, state.currentRevisionId),
+        );
+        sendJson(response, result.created ? 201 : 200, {
+          lock: result.lock,
+          items: result.items,
+        });
+        return;
+      }
+
+      if (
+        request.method === "POST" &&
+        pathname === "/api/product/ssot/generation-jobs"
+      ) {
+        const body = await readJsonBody(request);
+        await productManifestQueue;
+        const manifest = await readProductManifest(root);
+        const state = await store.load();
+        if (manifest.ssotLock?.status !== "locked") {
+          throw new DomainError(
+            "PRODUCT_SSOT_LOCK_REQUIRED",
+            "실제품 사진의 라벨과 색상을 잠근 뒤 에셋 제작을 요청해 주세요.",
+            409,
+          );
+        }
+        if (manifest.ssotLock.revisionId !== state.currentRevisionId) {
+          throw new DomainError(
+            "PRODUCT_SSOT_REVISION_MISMATCH",
+            "현재 개정판에 잠긴 제품 SSOT가 필요합니다.",
+            409,
+          );
+        }
+        const name = requiredIdentityText(body.name, "에셋 이름", 120);
+        const role = safeIdentifier(
+          requiredIdentityText(body.role, "에셋 역할", 80),
+          "product-asset",
+        );
+        const prompt = String(body.prompt || "").trim().slice(0, 4000);
+        if (!prompt) {
+          throw new DomainError(
+            "PRODUCT_ASSET_PROMPT_REQUIRED",
+            "제작할 장면과 용도를 입력해 주세요.",
+          );
+        }
+        const payload = {
+          type: "imagegen.generate.product-ssot",
+          assetId: null,
+          scope: `product-ssot:${role}`,
+          prompt,
+          sourceRefs: manifest.ssot.map((item) => item.path),
+          target: {
+            name,
+            role,
+            kind: "image",
+            required: true,
+          },
+          confirmedByUser: body.confirmedByUser,
+        };
+        const result = await mutate("job.created", payload, (current) =>
+          createJob(current, payload),
+        );
+        await persistJobFile(root, result.result);
+        sendJson(response, 201, result.result);
+        return;
+      }
+
+      if (
+        request.method === "POST" &&
+        pathname === "/api/product/ssot/batch-generation-jobs"
+      ) {
+        const body = await readJsonBody(request);
+        await productManifestQueue;
+        const manifest = await readProductManifest(root);
+        const state = await store.load();
+        if (manifest.ssotLock?.status !== "locked") {
+          throw new DomainError(
+            "PRODUCT_SSOT_LOCK_REQUIRED",
+            "실제품 사진의 라벨과 색상을 잠근 뒤 전체 에셋 제작을 요청해 주세요.",
+            409,
+          );
+        }
+        if (manifest.ssotLock.revisionId !== state.currentRevisionId) {
+          throw new DomainError(
+            "PRODUCT_SSOT_REVISION_MISMATCH",
+            "현재 개정판에 잠긴 제품 SSOT가 필요합니다.",
+            409,
+          );
+        }
+        if (!Array.isArray(body.targets) || body.targets.length === 0) {
+          throw new DomainError(
+            "PRODUCT_ASSET_TARGETS_REQUIRED",
+            "한 개 이상의 에셋 제작 대상을 선택해 주세요.",
+          );
+        }
+        if (body.targets.length > 40) {
+          throw new DomainError(
+            "PRODUCT_ASSET_TARGETS_LIMIT",
+            "한 번에 최대 40개 에셋까지 제작할 수 있습니다.",
+          );
+        }
+        const modelLock =
+          state.modelSsot?.status === "locked" ? state.modelSsot : null;
+        const modelAsset = modelLock
+          ? state.assets[modelLock.assetId]
+          : null;
+        const modelVersion = modelAsset?.versions.find(
+          (version) => version.number === Number(modelLock?.version),
+        );
+        const modelLockIsValid =
+          Boolean(modelLock) &&
+          Boolean(modelVersion) &&
+          modelVersion.path === modelLock.path &&
+          modelVersion.sha256 === modelLock.sha256;
+        if (
+          body.targets.some((target) => target.requiresModel === true) &&
+          !modelLockIsValid
+        ) {
+          throw new DomainError(
+            "MODEL_SSOT_REQUIRED",
+            "착용·사용 예시를 만들기 전에 모델 후보를 비교하고 한 명을 모델 SSOT로 승인해 주세요.",
+            409,
+          );
+        }
+        const provider = ["queue", "god-tibo-imagen"].includes(
+          body.execution?.provider,
+        )
+          ? body.execution.provider
+          : "queue";
+        const requestedConcurrency = Number(body.execution?.concurrency || 4);
+        const concurrency = Number.isInteger(requestedConcurrency)
+          ? Math.min(4, Math.max(1, requestedConcurrency))
+          : 4;
+        const allowedSizes = new Set([
+          "1024x1024",
+          "1024x1536",
+          "1536x1024",
+          "2048x1152",
+          "2160x3840",
+          "3840x2160",
+        ]);
+        const size = allowedSizes.has(body.execution?.size)
+          ? body.execution.size
+          : "1024x1536";
+        const autoStart =
+          provider === "god-tibo-imagen" &&
+          body.execution?.autoStart === true;
+        const batchId = `batch-${randomUUID()}`;
+        const seenRoles = new Set();
+        const payloads = body.targets.map((target) => {
+          const name = requiredIdentityText(target.name, "에셋 이름", 120);
+          const role = safeIdentifier(
+            requiredIdentityText(target.role, "에셋 역할", 80),
+            "product-asset",
+          );
+          const prompt = String(target.prompt || "").trim().slice(0, 4000);
+          if (!prompt) {
+            throw new DomainError(
+              "PRODUCT_ASSET_PROMPT_REQUIRED",
+              `${name}의 제작 장면과 용도를 입력해 주세요.`,
+            );
+          }
+          if (seenRoles.has(role)) {
+            throw new DomainError(
+              "PRODUCT_ASSET_ROLE_DUPLICATED",
+              `중복된 에셋 역할입니다: ${role}`,
+            );
+          }
+          seenRoles.add(role);
+          const requiresModel = target.requiresModel === true;
+          const requestedSourceMode = String(target.sourceMode || "").trim();
+          const sourceMode = requiresModel
+            ? "product-and-model-ssot"
+            : new Set([
+                  "product-ssot",
+                  "scene-reference",
+                  "model-candidate",
+                ]).has(requestedSourceMode)
+              ? requestedSourceMode
+              : "product-ssot";
+          const sourceRefs =
+            sourceMode === "scene-reference" ||
+            sourceMode === "model-candidate"
+              ? []
+              : [
+                  ...manifest.ssot.map((item) => item.path),
+                  ...(requiresModel ? [modelVersion.path] : []),
+                ];
+          return {
+            type: "imagegen.generate.product-ssot",
+            assetId: null,
+            scope: `product-ssot:${role}`,
+            prompt,
+            sourceRefs,
+            target: {
+              name,
+              role,
+              kind: "image",
+              required: target.required !== false,
+              roadmapId: String(target.roadmapId || role).slice(0, 120),
+              group: String(target.group || "").slice(0, 80),
+              purpose: String(target.purpose || "").slice(0, 500),
+              pageNumbers: Array.isArray(target.pageNumbers)
+                ? target.pageNumbers
+                    .map(Number)
+                    .filter(
+                      (number) =>
+                        Number.isInteger(number) &&
+                        number >= 1 &&
+                      number <= 14,
+                    )
+                : [],
+              sourceMode,
+              requiresModel,
+              dependencies: requiresModel ? [modelLock.assetId] : [],
+            },
+            executor: {
+              provider,
+              concurrency,
+              size,
+              batchId,
+            },
+            confirmedByUser: body.confirmedByUser,
+          };
+        });
+        const result = await mutate(
+          "jobs.batch_created",
+          {
+            count: payloads.length,
+            targets: payloads.map((payload) => payload.target),
+          },
+          (current) => payloads.map((payload) => createJob(current, payload)),
+        );
+        await Promise.all(
+          result.result.map((job) => persistJobFile(root, job)),
+        );
+        const runnerPid = autoStart
+          ? startGodTiboBatchWorker({
+              studioUrl: new URL("/", url).href,
+              jobIds: result.result.map((job) => job.id),
+              concurrency,
+              size,
+            })
+          : null;
+        sendJson(response, 201, {
+          batchId,
+          count: result.result.length,
+          jobs: result.result,
+          execution: {
+            provider,
+            concurrency,
+            size,
+            autoStarted: Boolean(runnerPid),
+            runnerPid,
+          },
+        });
         return;
       }
 
@@ -425,6 +1388,19 @@ export async function startStudioServer({
       if (request.method === "POST" && pathname === "/api/assets/register") {
         const body = await readJsonBody(request);
         const parsed = parseDataUrl(body.dataUrl);
+        const requestedProvenance = String(body.provenance || "").trim();
+        const provenance = new Set([
+          "imagegen-derived",
+          "hyperframes-derived",
+          "generated-derived",
+        ]).has(requestedProvenance)
+          ? requestedProvenance
+          : String(body.prompt || "").trim()
+            ? "imagegen-derived"
+            : Array.isArray(body.layers) && body.layers.length > 0
+              ? "hyperframes-derived"
+              : "raw-upload-reference";
+        const referenceOnly = provenance === "raw-upload-reference";
         const extension =
           EXTENSION_BY_MIME[parsed.mime] ||
           path.extname(body.fileName || "").toLowerCase() ||
@@ -441,7 +1417,9 @@ export async function startStudioServer({
         const relativePath = toPosix(
           path.join(
             "assets",
-            current.assets[assetId] ? "candidates" : "source",
+            referenceOnly && !current.assets[assetId]
+              ? "source"
+              : "candidates",
             assetId,
             `v${nextVersion}${extension}`,
           ),
@@ -469,19 +1447,28 @@ export async function startStudioServer({
           sourceRefs: body.sourceRefs || [],
           prompt: body.prompt || "",
           layers: body.layers || [],
+          provenance,
+          allowedUse: referenceOnly
+            ? "reference-only"
+            : "final-consumable",
+          derivedFrom: body.derivedFrom || body.sourceRefs || [],
         };
         const result = await mutate("asset.registered", payload, (state) => {
           const registered = registerAssetVersion(state, payload);
-          const qaJob = createJob(state, {
-            type: "qa.visual",
-            assetId,
-            version: registered.version.number,
-            scope: "asset",
-            confirmedByUser: true,
-          });
+          const qaJob = referenceOnly
+            ? null
+            : createJob(state, {
+                type: "qa.visual",
+                assetId,
+                version: registered.version.number,
+                scope: "asset",
+                confirmedByUser: true,
+              });
           return { registered, qaJob };
         });
-        await persistJobFile(root, result.result.qaJob);
+        if (result.result.qaJob) {
+          await persistJobFile(root, result.result.qaJob);
+        }
         sendJson(response, 201, {
           asset: result.result.registered.asset,
           version: result.result.registered.version,
@@ -494,15 +1481,41 @@ export async function startStudioServer({
       if (request.method === "POST" && assetJobMatch) {
         const assetId = assetJobMatch[1];
         const body = await readJsonBody(request);
+        const executor =
+          body.executor?.provider === "god-tibo-imagen"
+            ? {
+                provider: "god-tibo-imagen",
+                concurrency: 1,
+                size: body.executor.size || "1024x1536",
+              }
+            : body.executor?.provider === "queue"
+              ? {
+                  provider: "queue",
+                  concurrency: 1,
+                  size: body.executor.size || "1024x1536",
+                }
+              : null;
         const payload = {
           ...body,
           assetId,
+          executor,
           confirmedByUser: body.confirmedByUser === true,
         };
         const result = await mutate("job.created", payload, (state) =>
           createJob(state, payload),
         );
         await persistJobFile(root, result.result);
+        if (
+          executor?.provider === "god-tibo-imagen" &&
+          body.executor?.autoStart === true
+        ) {
+          startGodTiboBatchWorker({
+            studioUrl: new URL("/", url).href,
+            jobIds: [result.result.id],
+            concurrency: 1,
+            size: executor.size,
+          });
+        }
         sendJson(response, 201, result.result);
         return;
       }
@@ -560,6 +1573,59 @@ export async function startStudioServer({
         return;
       }
 
+      if (
+        request.method === "POST" &&
+        pathname === "/api/model/ssot/approve"
+      ) {
+        const body = await readJsonBody(request);
+        const result = await mutate(
+          "model.ssot_approved",
+          body,
+          (state) => approveModelSsot(state, body),
+        );
+        sendJson(response, 200, result.result);
+        return;
+      }
+
+      if (
+        request.method === "POST" &&
+        pathname === "/api/detail-page/start"
+      ) {
+        const body = await readJsonBody(request);
+        const state = await store.load();
+        const roadmap = await readProductionRoadmap(root);
+        const review = buildDetailPageReview({ state, roadmap });
+        const payload = {
+          ...body,
+          sections: review.sections,
+        };
+        startDetailPageReview(structuredClone(state), payload);
+        await mkdir(resolveInside(root, "html"), { recursive: true });
+        await mkdir(resolveInside(root, "planning"), { recursive: true });
+        await writeFile(
+          resolveInside(root, "html/index.html"),
+          review.html,
+          "utf8",
+        );
+        await writeFile(
+          resolveInside(root, "planning/commercial-max-page-specs.json"),
+          `${JSON.stringify(review.specs, null, 2)}\n`,
+          "utf8",
+        );
+        const result = await mutate(
+          "detail_page.review_started",
+          body,
+          (currentState) => startDetailPageReview(currentState, payload),
+        );
+        await writeFile(
+          resolveInside(root, ".studio/lock.json"),
+          `${JSON.stringify(result.result.assembly, null, 2)}\n`,
+          "utf8",
+        );
+        sendJson(response, 201, result.result);
+        return;
+      }
+
       if (request.method === "POST" && pathname === "/api/assembly/lock") {
         const body = await readJsonBody(request);
         const result = await mutate("assembly.locked", body, (state) =>
@@ -611,6 +1677,9 @@ export async function startStudioServer({
 
       if (request.method === "POST" && pathname === "/api/qa/final") {
         const body = await readJsonBody(request);
+        const state = await store.load();
+        const html = await buildSingleHtml(root, state, { draft: true });
+        assertCustomerOutputPolicy(html, state);
         const result = await mutate("qa.final_recorded", body, (state) =>
           recordFinalQa(state, body),
         );
@@ -630,6 +1699,7 @@ export async function startStudioServer({
       if (request.method === "POST" && pathname === "/api/export/draft") {
         const state = await store.load();
         const html = await buildSingleHtml(root, state, { draft: true });
+        assertCustomerOutputPolicy(html, state);
         const filePath = resolveInside(
           root,
           `exports/drafts/${safeIdentifier(state.name, "detail-page")}-${state.currentRevisionId}-draft.html`,
@@ -657,6 +1727,7 @@ export async function startStudioServer({
           );
         }
         const html = await buildSingleHtml(root, state, { draft: false });
+        assertCustomerOutputPolicy(html, state);
         const filePath = resolveInside(
           root,
           `exports/published/${safeIdentifier(state.name, "detail-page")}-${state.currentRevisionId}.html`,

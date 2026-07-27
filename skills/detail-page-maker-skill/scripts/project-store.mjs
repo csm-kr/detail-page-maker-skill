@@ -3,8 +3,10 @@ import {
   mkdir,
   readFile,
   rename,
+  rm,
   writeFile,
 } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 
 export function createProjectStore(projectRoot) {
@@ -25,9 +27,26 @@ export function createProjectStore(projectRoot) {
 
   async function persist(state) {
     await mkdir(studioDir, { recursive: true });
-    const tempPath = `${statePath}.${process.pid}.${Date.now()}.tmp`;
-    await writeFile(tempPath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
-    await rename(tempPath, statePath);
+    const body = `${JSON.stringify(state, null, 2)}\n`;
+    const tempPath = `${statePath}.${process.pid}.${Date.now()}.${randomUUID()}.tmp`;
+    await writeFile(tempPath, body, "utf8");
+    try {
+      for (const delayMs of [0, 5, 15, 30]) {
+        try {
+          if (delayMs > 0) {
+            await new Promise((resolve) => setTimeout(resolve, delayMs));
+          }
+          await rename(tempPath, statePath);
+          return;
+        } catch (error) {
+          if (!["EPERM", "EACCES", "EBUSY"].includes(error?.code)) throw error;
+        }
+      }
+      // Windows에서 읽기 핸들이 대상 파일을 잠근 경우의 제한적 폴백이다.
+      await writeFile(statePath, body, "utf8");
+    } finally {
+      await rm(tempPath, { force: true }).catch(() => undefined);
+    }
   }
 
   async function appendEvent(type, payload, state) {

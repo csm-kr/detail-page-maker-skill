@@ -16,6 +16,27 @@ const ASSET_EDIT_PHASES = new Set([
   "assembly_ready",
 ]);
 
+const FINAL_CONSUMABLE_PROVENANCE = new Set([
+  "imagegen-derived",
+  "hyperframes-derived",
+  "generated-derived",
+  "legacy-derived",
+]);
+
+export function isFinalConsumableVersion(version) {
+  if (!version) return false;
+  if (version.allowedUse === "reference-only") return false;
+  if (version.allowedUse === "final-consumable") return true;
+  if (FINAL_CONSUMABLE_PROVENANCE.has(version.provenance)) return true;
+
+  // schemaVersion 1 프로젝트의 기존 생성 에셋은 provenance 필드가 없다.
+  // 프롬프트나 편집 가능한 레이어가 남아 있는 버전만 파생 결과로 호환한다.
+  return Boolean(
+    String(version.prompt || "").trim() ||
+      (Array.isArray(version.layers) && version.layers.length > 0),
+  );
+}
+
 function timestamp(value) {
   return value || new Date().toISOString();
 }
@@ -98,7 +119,10 @@ function refreshAssemblyReadiness(state) {
       const version = asset.versions.find(
         (item) => item.number === versionNumber,
       );
-      return Boolean(version?.approval?.decision === "approved");
+      return Boolean(
+        isFinalConsumableVersion(version) &&
+          version?.approval?.decision === "approved",
+      );
     });
   const pendingJobs = Object.values(state.jobs).some((job) =>
     ["queued", "running"].includes(job.status),
@@ -131,6 +155,15 @@ export function createInitialProject({
     updatedAt: now,
     assets: {},
     jobs: {},
+    modelSsot: {
+      status: "pending",
+      assetId: null,
+      version: null,
+      path: null,
+      sha256: null,
+      approvedBy: null,
+      approvedAt: null,
+    },
     revisions: [
       {
         id: revisionId,
@@ -162,6 +195,60 @@ export function createInitialProject({
     },
   };
 }
+
+export function updateSupplierSource(
+  state,
+  { supplierUrl, confirmedByUser, updatedAt },
+) {
+  if (confirmedByUser !== true) {
+    throw new DomainError(
+      "USER_CONFIRMATION_REQUIRED",
+      "공급처 URL을 확인해 주세요.",
+      409,
+    );
+  }
+  if (!ASSET_EDIT_PHASES.has(state.phase) || activeRevision(state).assembly) {
+    throw new DomainError(
+      "SUPPLIER_SOURCE_LOCKED",
+      "상세페이지 제작이 시작된 프로젝트의 공급처 URL은 변경할 수 없습니다.",
+      409,
+    );
+  }
+  let parsed;
+  try {
+    parsed = new URL(
+      requireValue(
+        String(supplierUrl || "").trim(),
+        "SUPPLIER_URL_REQUIRED",
+        "공급처 URL이 필요합니다.",
+      ),
+    );
+  } catch {
+    throw new DomainError(
+      "SUPPLIER_URL_INVALID",
+      "http 또는 https 형식의 공급처 URL을 입력해 주세요.",
+    );
+  }
+  if (!["http:", "https:"].includes(parsed.protocol)) {
+    throw new DomainError(
+      "SUPPLIER_URL_INVALID",
+      "http 또는 https 형식의 공급처 URL을 입력해 주세요.",
+    );
+  }
+  const now = timestamp(updatedAt);
+  state.supplierUrl = parsed.href;
+  const domeggookProductId = parsed.hostname.endsWith("domeggook.com")
+    ? parsed.pathname.match(/\/(\d{5,})\/?$/)?.[1]
+    : null;
+  if (domeggookProductId) state.productId = domeggookProductId;
+  state.updatedAt = now;
+  return {
+    supplierUrl: state.supplierUrl,
+    productId: state.productId,
+    updatedAt: now,
+  };
+}
+
 export function registerAssetVersion(
   state,
   {
@@ -178,6 +265,9 @@ export function registerAssetVersion(
     sourceRefs = [],
     prompt = "",
     layers = [],
+    provenance = "legacy-derived",
+    allowedUse = null,
+    derivedFrom = [],
     createdAt,
   },
 ) {
@@ -202,6 +292,10 @@ export function registerAssetVersion(
       versions: [],
     };
     state.assets[id] = asset;
+  } else if (dependencies.length > 0) {
+    asset.dependencies = [
+      ...new Set([...(asset.dependencies || []), ...dependencies]),
+    ];
   }
   const number =
     asset.versions.reduce((max, version) => Math.max(max, version.number), 0) +
@@ -222,6 +316,13 @@ export function registerAssetVersion(
     mime: mime || "application/octet-stream",
     sourceRefs: [...new Set(sourceRefs)],
     prompt,
+    provenance,
+    allowedUse:
+      allowedUse ||
+      (provenance === "raw-upload-reference"
+        ? "reference-only"
+        : "final-consumable"),
+    derivedFrom: [...new Set(derivedFrom)],
     lockedProductFields: [
       "shape",
       "ratio",
@@ -259,6 +360,8 @@ export function createJob(
     scope = "asset",
     prompt = "",
     sourceRefs = [],
+    target = null,
+    executor = null,
     confirmedByUser,
     createdAt,
   },
@@ -281,6 +384,8 @@ export function createJob(
     scope,
     prompt,
     sourceRefs: [...new Set(sourceRefs)],
+    target: target ? { ...target } : null,
+    executor: executor ? { ...executor } : null,
     confirmedByUser: true,
     status: "queued",
     createdAt: now,
@@ -380,6 +485,8 @@ export function approveAssetVersion(
     decision,
     approvedBy = "local-user",
     note = "",
+    userOverride = false,
+    overrideReason = "",
     decidedAt,
   },
 ) {
@@ -394,19 +501,40 @@ export function approveAssetVersion(
     );
   }
   if (decision === "approved") {
-    if (target.qa.status !== "passed") {
+    if (!isFinalConsumableVersion(target)) {
+      throw new DomainError(
+        "REFERENCE_ONLY_ASSET",
+        "업로드 원본은 참조 전용입니다. 이 원본을 기반으로 ImageGen 파생 에셋을 만든 뒤 승인해 주세요.",
+        409,
+      );
+    }
+    const override = userOverride === true;
+    if (override && approvedBy !== "local-user") {
+      throw new DomainError(
+        "USER_OVERRIDE_ACTOR_INVALID",
+        "사용자 직접 채택은 로컬 사용자만 기록할 수 있습니다.",
+        409,
+      );
+    }
+    if (target.qa.status !== "passed" && !override) {
       throw new DomainError(
         "QA_NOT_PASSED",
         "Codex 시각 QA를 통과한 에셋만 승인할 수 있습니다.",
         409,
       );
     }
-    if (target.qa.hardFailures.length > 0) {
+    if (target.qa.hardFailures.length > 0 && !override) {
       throw new DomainError(
         "IDENTITY_HARD_FAILURE",
         "제품 동일성 하드 실패가 있어 승인할 수 없습니다.",
         409,
         target.qa.hardFailures,
+      );
+    }
+    if (override && !String(overrideReason || "").trim()) {
+      throw new DomainError(
+        "USER_OVERRIDE_REASON_REQUIRED",
+        "사용자 판단으로 채택하는 이유를 기록해 주세요.",
       );
     }
   }
@@ -416,6 +544,13 @@ export function approveAssetVersion(
     approvedBy,
     note,
     decidedAt: now,
+    override:
+      decision === "approved" && userOverride === true
+        ? {
+            applied: true,
+            reason: String(overrideReason).trim(),
+          }
+        : null,
   };
   target.status =
     decision === "approved"
@@ -423,9 +558,88 @@ export function approveAssetVersion(
       : decision === "rejected"
         ? "rejected"
         : "review_ready";
+  if (decision === "approved") {
+    for (const versionItem of asset.versions) {
+      if (
+        versionItem.number !== target.number &&
+        versionItem.status === "approved"
+      ) {
+        versionItem.status = "superseded";
+      }
+    }
+    activeRevision(state).assetSelections[assetId] = target.number;
+  }
   state.updatedAt = now;
   refreshAssemblyReadiness(state);
   return target;
+}
+
+export function approveModelSsot(
+  state,
+  {
+    assetId,
+    version,
+    approvedBy = "local-user",
+    note = "",
+    confirmedByUser,
+    approvedAt,
+  },
+) {
+  assertAssetEditing(state);
+  if (confirmedByUser !== true) {
+    throw new DomainError(
+      "USER_CONFIRMATION_REQUIRED",
+      "모델 SSOT는 사용자가 직접 확인한 뒤 승인해야 합니다.",
+      409,
+    );
+  }
+  const asset = assetById(state, assetId);
+  if (!String(asset.role || "").startsWith("model-candidate-")) {
+    throw new DomainError(
+      "MODEL_CANDIDATE_REQUIRED",
+      "모델 후보 에셋만 모델 SSOT로 승인할 수 있습니다.",
+      409,
+    );
+  }
+  const target = assetVersion(asset, version);
+  if (!isFinalConsumableVersion(target)) {
+    throw new DomainError(
+      "REFERENCE_ONLY_MODEL",
+      "업로드 원본은 모델 SSOT로 직접 잠글 수 없습니다. ImageGen으로 파생한 모델 후보를 승인해 주세요.",
+      409,
+    );
+  }
+  if (
+    target.qa.status !== "passed" ||
+    target.qa.hardFailures.length > 0
+  ) {
+    throw new DomainError(
+      "MODEL_QA_NOT_PASSED",
+      "파일·신체 구조 QA를 통과한 모델 후보만 모델 SSOT로 승인할 수 있습니다.",
+      409,
+      target.qa.hardFailures,
+    );
+  }
+  const now = timestamp(approvedAt);
+  approveAssetVersion(state, {
+    assetId,
+    version,
+    decision: "approved",
+    approvedBy,
+    note: note || "모델 얼굴·체형·헤어·피부톤·의상 승인",
+    decidedAt: now,
+  });
+  state.modelSsot = {
+    status: "locked",
+    assetId: asset.id,
+    version: target.number,
+    path: target.path,
+    sha256: target.sha256,
+    approvedBy,
+    approvedAt: now,
+  };
+  state.updatedAt = now;
+  return state.modelSsot;
 }
 
 export function calculateAffected(state, changedAssetIds) {
@@ -485,6 +699,10 @@ export function lockAssembly(
     const version = asset.versions.find(
       (item) => item.number === versionNumber,
     );
+    if (!isFinalConsumableVersion(version)) {
+      failures.push(`${asset.name}: 업로드 원본은 참조 전용`);
+      continue;
+    }
     if (version?.approval?.decision !== "approved") {
       failures.push(`${asset.name}: 사용자 미승인`);
     }
@@ -534,6 +752,52 @@ export function lockAssembly(
   state.phase = "html_editing";
   state.updatedAt = now;
   return revision.assembly;
+}
+
+export function startDetailPageReview(
+  state,
+  {
+    approvedBy = "local-user",
+    confirmedByUser,
+    lockedAt,
+    sections = [],
+  },
+) {
+  if (
+    !Array.isArray(sections) ||
+    sections.length < 8 ||
+    sections.length > 14
+  ) {
+    throw new DomainError(
+      "DETAIL_PAGE_SECTION_COUNT_INVALID",
+      "상세페이지 검토본은 중복 없는 8~14개 섹션이어야 합니다.",
+      409,
+    );
+  }
+  const assembly = lockAssembly(state, {
+    approvedBy,
+    confirmedByUser,
+    lockedAt,
+  });
+  state.html.entry = "html/index.html";
+  state.html.sections = sections.map((section) => ({
+    id: requireValue(
+      section.id,
+      "DETAIL_PAGE_SECTION_ID_REQUIRED",
+      "상세페이지 장 ID가 필요합니다.",
+    ),
+    number: Number(section.number),
+    name: section.name || section.id,
+    assetIds: Array.isArray(section.assetIds) ? [...section.assetIds] : [],
+    claimId: section.claimId || `claim-${section.id}`,
+  }));
+  state.updatedAt = assembly.lockedAt;
+  return {
+    assembly,
+    phase: state.phase,
+    pageCount: state.html.sections.length,
+    entry: state.html.entry,
+  };
 }
 
 export function createRevision(
@@ -756,6 +1020,15 @@ export function projectSummary(state) {
   });
   return {
     ...state,
+    modelSsot: state.modelSsot || {
+      status: "pending",
+      assetId: null,
+      version: null,
+      path: null,
+      sha256: null,
+      approvedBy: null,
+      approvedAt: null,
+    },
     activeRevision: revision,
     assetList: assets,
     permissions: {

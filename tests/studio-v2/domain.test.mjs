@@ -9,6 +9,7 @@ import {
   recordAssetQa,
   recordFinalQa,
   registerAssetVersion,
+  startDetailPageReview,
 } from "../../skills/detail-page-maker-skill/scripts/studio-domain.mjs";
 
 function project() {
@@ -80,6 +81,69 @@ test("제품 동일성 하드 실패가 있으면 사용자 승인도 차단한�
   );
 });
 
+test("업로드 원본은 참조 전용이며 ImageGen 파생 전에는 승인할 수 없다", () => {
+  const state = project();
+  const version = registerAssetVersion(state, {
+    assetId: "user-upload-reference",
+    name: "사용자 촬영 원본",
+    role: "user-upload-reference",
+    required: true,
+    versionPath: "assets/source/user-upload-reference/v1.png",
+    sha256: "reference".padEnd(64, "0"),
+    mime: "image/png",
+    provenance: "raw-upload-reference",
+    allowedUse: "reference-only",
+  }).version;
+  recordAssetQa(state, {
+    assetId: "user-upload-reference",
+    version: version.number,
+    status: "passed",
+    score: 99,
+  });
+
+  assert.throws(
+    () =>
+      approveAssetVersion(state, {
+        assetId: "user-upload-reference",
+        version: version.number,
+        decision: "approved",
+        approvedBy: "local-user",
+        userOverride: true,
+        overrideReason: "직접 촬영한 정확한 원본",
+      }),
+    (error) => error.code === "REFERENCE_ONLY_ASSET",
+  );
+});
+
+test("비교 중인 이전 버전을 승인하면 현재 개정판의 채택 버전이 된다", () => {
+  const state = project();
+  register(state, "hero");
+  register(state, "hero");
+  assert.equal(state.revisions[0].assetSelections.hero, 2);
+  passAndApprove(state, "hero", 1);
+  assert.equal(state.revisions[0].assetSelections.hero, 1);
+});
+
+test("사용자는 QA 대기 버전도 사유를 남겨 직접 채택할 수 있다", () => {
+  const state = project();
+  register(state, "hero");
+  register(state, "hero");
+  const approved = approveAssetVersion(state, {
+    assetId: "hero",
+    version: 1,
+    decision: "approved",
+    approvedBy: "local-user",
+    userOverride: true,
+    overrideReason: "실물 플랫레이에서는 엄지홀이 안쪽으로 접혀 보이지 않음",
+  });
+  assert.equal(state.revisions[0].assetSelections.hero, 1);
+  assert.equal(approved.approval.override.applied, true);
+  assert.equal(
+    approved.approval.override.reason,
+    "실물 플랫레이에서는 엄지홀이 안쪽으로 접혀 보이지 않음",
+  );
+});
+
 test("필수 에셋이 모두 승인되기 전에는 조립을 잠글 수 없다", () => {
   const state = project();
   register(state, "hero");
@@ -102,6 +166,29 @@ test("조립 뒤 에셋은 읽기 전용이며 직접 새 버전을 등록할 �
     () => register(state, "hero"),
     (error) => error.code === "ASSET_STAGE_LOCKED",
   );
+});
+
+test("상세페이지 제작 시작은 에셋을 잠그고 근거 기반 12개 섹션 검토 단계로 이동한다", () => {
+  const state = project();
+  register(state, "hero");
+  passAndApprove(state, "hero");
+  const sections = Array.from({ length: 12 }, (_, index) => ({
+    id: `page-${index + 1}`,
+    number: index + 1,
+    name: `${index + 1}장`,
+    assetIds: ["hero"],
+  }));
+
+  const result = startDetailPageReview(state, {
+    confirmedByUser: true,
+    sections,
+  });
+
+  assert.equal(result.pageCount, 12);
+  assert.equal(result.entry, "html/index.html");
+  assert.equal(state.phase, "html_editing");
+  assert.equal(state.html.sections.length, 12);
+  assert.equal(state.revisions[0].assembly.assets.hero.version, 1);
 });
 
 test("새 개정판은 변경 에셋과 의존 에셋만 다시 연다", () => {

@@ -2,7 +2,13 @@
 
 공급처 상품 URL에서 제품 사실 SSOT, ImageGen 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만드는 설치형 Codex 스킬입니다.
 
-생성된 이미지와 GIF를 바로 조립하지 않고 제품 동일성 QA와 사용자 승인을 거친 버전만 최종 HTML에 사용합니다.
+생성된 이미지와 GIF는 `pending`에 먼저 저장하고 Studio v1에서 사용자가 개별
+승인한 파일만 최종 HTML에 사용합니다.
+
+기획·디자인·HTML 최종 QA에는 `design-taste-frontend`를 필수로 사용합니다.
+Windows 설치 스크립트는 Taste·HyperFrames·Browser Harness 스킬을
+`skills/detail-page-maker-skill/.agents/skills/`에 로컬 설치하며, 다른 프로젝트와
+사용자 전역 스킬을 변경하지 않습니다.
 
 ## Git 주소부터 한 번에 설치
 
@@ -20,13 +26,32 @@ powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1 -QuickTest
 
 전체 설명은 [`docs/setup/quick-start.md`](docs/setup/quick-start.md)를 참고하세요.
 
-## 스킬만 설치
+## Codex에 스킬 폴더 하나만 설치
 
 ```powershell
-npx skills add csm-kr/detail-page-maker-skill --full-depth
+npx skills add `
+  https://github.com/csm-kr/detail-page-maker-skill/tree/main/skills/detail-page-maker-skill `
+  --skill detail-page-maker-skill `
+  --agent codex `
+  --global `
+  --yes `
+  --copy
+
+$codexRoot = if ($env:CODEX_HOME) {
+  $env:CODEX_HOME
+} else {
+  Join-Path $env:USERPROFILE ".codex"
+}
+$skillRoot = Join-Path $codexRoot "skills\detail-page-maker-skill"
+
+powershell -ExecutionPolicy Bypass -File `
+  (Join-Path $skillRoot "scripts\setup-local.ps1") `
+  -NoProject
 ```
 
-설치 후 Codex에서 다음과 같이 요청할 수 있습니다.
+첫 명령은 이 저장소에서 `detail-page-maker-skill` 폴더만 설치합니다. 두 번째 명령은
+필요한 외부 스킬을 받은 폴더 내부에 설치하고 `doctor`와 E2E를 실행합니다. 설치 후
+Codex를 다시 시작하고 다음과 같이 요청합니다.
 
 ```text
 $detail-page-maker-skill로 이 공급처 상품의 새 Studio 프로젝트를 만들어줘:
@@ -39,6 +64,7 @@ https://domeggook.com/상품번호
 
 ```powershell
 node skills/detail-page-maker-skill/scripts/detail-page.mjs doctor
+node skills/detail-page-maker-skill/scripts/e2e.mjs
 ```
 
 새 상품 프로젝트를 만듭니다.
@@ -76,39 +102,44 @@ C:\Users\<사용자>\Documents\DetailPageStudio\projects\<상품명>-<상품번�
 C:\Users\csm81\Documents\DetailPageStudio\projects\노바페이스-발편한-기능성깔창-60851997\
 ```
 
-Studio의 모든 승인, 개정판과 HTML 편집 상태는 이 상품 프로젝트 안에 저장됩니다. 외부 클라우드 데이터베이스는 사용하지 않습니다.
+Studio v1의 승인 원장과 HTML 편집 상태는 이 상품 프로젝트 안에 저장됩니다. 외부 클라우드 데이터베이스는 사용하지 않습니다.
 
 ## 프로젝트 폴더 구성
 
 ```text
 <상품명>-<상품번호>/
-├─ project.json              전체 상태·승인·현재 개정판
-├─ product/
-│  ├─ supplier/              공급처 원문과 근거
-│  ├─ ssot/                  실제품 사진과 제품 사실 SSOT
-│  └─ product-manifest.json
-├─ assets/
-│  ├─ source/                원본 이미지
-│  ├─ candidates/            ImageGen·재생성 후보
-│  ├─ approved/              승인 에셋
-│  └─ asset-manifest.json
+├─ project.json
+├─ asset/
+│  ├─ input/                 실제 촬영·공급처 원본
+│  ├─ ssot/                  제품 절대 기준 자산
+│  ├─ generated/
+│  │  ├─ pending/
+│  │  │  ├─ image/
+│  │  │  └─ gif/
+│  │  ├─ approved/
+│  │  │  ├─ image/
+│  │  │  └─ gif/
+│  │  └─ rejected/
+│  │     ├─ image/
+│  │     └─ gif/
+│  ├─ output/
+│  │  ├─ page/
+│  │  └─ gif/
+│  ├─ deprecated/
+│  ├─ asset-manifest.json
+│  └─ approval-ledger.ndjson
 ├─ hyperframes/
 │  ├─ projects/              수정 가능한 모션 원본
 │  └─ renders/               MP4·GIF 렌더 결과
 ├─ html/
-│  └─ index.html             편집 중인 상세페이지
+│  ├─ studio.html            Studio v1
+│  ├─ index.html             편집 중인 상세페이지
+│  └─ app.js                 편집·저장·단일 HTML 출력
 ├─ qa/
 │  ├─ reports/               QA 보고서
 │  └─ captures/              검수 캡처
 ├─ revisions/                개정판 기록
-├─ exports/
-│  ├─ drafts/                검토용 HTML
-│  └─ published/             게시용 단일 HTML
-└─ .studio/
-   ├─ jobs/                  ImageGen·HyperFrames 작업 요청
-   ├─ checkpoints/           이름 있는 체크포인트
-   ├─ events.ndjson          변경 이력
-   └─ lock.json              조립 잠금 기록
+└─ planning/                 기획·GIF·승인 기록
 ```
 
 ## 저장 위치 변경
@@ -131,17 +162,18 @@ D:\DetailPageProjects\<상품명>-<상품번호>\
 ## Studio 작업 순서
 
 1. 공급처 원문과 실제품 사진을 등록해 제품 사실 SSOT를 고정합니다.
-2. ImageGen 이미지와 HyperFrames GIF 후보를 만듭니다.
-3. 원본·후보 비교와 Codex 시각 QA를 수행합니다.
-4. 사용자가 필수 에셋을 개별 승인합니다.
-5. 승인 버전과 SHA-256을 조립 잠금에 기록합니다.
-6. 조립 뒤 에셋과 GIF는 읽기 전용으로 유지하고 HTML만 편집합니다.
-7. 상용 QA 97점 이상, 하드 실패 0건과 사용자 최종 승인 뒤 게시용 HTML을 내보냅니다.
+2. `design-taste-frontend`로 상품별 Design Read와 `VARIANCE / MOTION / DENSITY`를 정하고 pre-flight 보고서를 만듭니다.
+3. ImageGen 이미지와 HyperFrames GIF 후보를 `asset/generated/pending`에 만듭니다.
+4. 원본·후보 비교와 독립 시각 QA를 수행합니다.
+5. Studio v1의 `에셋 승인`에서 사용자가 각 파일을 승인하거나 반려합니다.
+6. 승인 파일은 `approved`, 반려 파일은 `rejected`로 이동하고 SHA-256을 기록합니다.
+7. 조립 뒤 에셋과 GIF는 읽기 전용으로 유지하고 HTML만 편집합니다.
+8. Taste 최종 pre-flight, 상용 QA 97점 이상, 하드 실패 0건과 사용자 최종 승인 뒤 게시용 HTML을 내보냅니다.
 
-Studio는 브라우저에서 ImageGen API를 직접 호출하지 않습니다. 작업 센터에 생성 요청을 등록한 뒤 Codex에 다음과 같이 요청합니다.
+Studio v1은 브라우저에서 ImageGen API를 직접 호출하지 않습니다. Codex에 다음과 같이 요청합니다.
 
 ```text
-Studio 작업 센터에 등록된 ImageGen과 HyperFrames 작업을 처리하고 QA해줘.
+이 프로젝트의 다음 ImageGen과 HyperFrames 에셋을 만들고 pending에 저장한 뒤 QA해줘.
 ```
 
 ## 저장소
@@ -149,5 +181,7 @@ Studio 작업 센터에 등록된 ImageGen과 HyperFrames 작업을 처리하고
 - GitHub: <https://github.com/csm-kr/detail-page-maker-skill>
 - 공개 범위: Private
 - 설치 스킬: [`skills/detail-page-maker-skill/`](skills/detail-page-maker-skill/)
-- Studio 제품 명세: [`docs/studio/product-spec.md`](docs/studio/product-spec.md)
-- Studio 아키텍처: [`docs/studio/architecture.md`](docs/studio/architecture.md)
+- Studio v1 계약: [`skills/detail-page-maker-skill/references/studio-workflow.md`](skills/detail-page-maker-skill/references/studio-workflow.md)
+- Asset 상태 계약: [`skills/detail-page-maker-skill/references/asset-management.md`](skills/detail-page-maker-skill/references/asset-management.md)
+- 확장 Studio 지원 모듈은 God Tibo·제품 SSOT·회귀 검사가 사용하며, 사용자 기본
+  화면은 Studio v1입니다.

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{PRODUCT_NAME}} Studio v1</title>
+    <link rel="stylesheet" href="studio-v1.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside>
+        <div class="brand">
+          <div class="brand-mark">DP</div>
+          <div>
+            <strong>{{PRODUCT_NAME}}</strong>
+            <span>수정 가능한 커머셜 HTML · Studio v1</span>
+          </div>
+        </div>
+
+        <nav class="workflow-nav" aria-label="Studio 작업 단계">
+          <button type="button" data-studio-view="edit" class="active">
+            <span>01</span>상세 편집
+          </button>
+          <button type="button" data-studio-view="approval">
+            <span>02</span>에셋 승인
+          </button>
+          <button type="button" data-studio-view="output">
+            <span>03</span>최종 출력
+          </button>
+        </nav>
+
+        <div data-side-panel="edit">
+          <section class="group">
+            <h2>편집</h2>
+            <div class="button-grid">
+              <button id="toggleEdit" type="button" class="primary">수정 모드 켜기</button>
+              <button id="save" type="button">로컬 저장</button>
+              <button id="reset" type="button">초기화</button>
+              <button id="replay" type="button">GIF 다시 재생</button>
+            </div>
+            <p class="hint">문구를 직접 클릭하고 승인된 이미지 경로를 선택해 교체합니다.</p>
+          </section>
+
+          <section class="group">
+            <h2>섹션 순서</h2>
+            <div class="section-row">
+              <select id="sectionSelect" aria-label="순서를 바꿀 섹션"></select>
+              <button id="toggleSection" type="button" title="섹션 표시 전환">보기</button>
+            </div>
+            <div class="button-grid section-actions">
+              <button id="moveUp" type="button">위로</button>
+              <button id="moveDown" type="button">아래로</button>
+            </div>
+          </section>
+
+          <section class="group">
+            <h2>선택한 이미지</h2>
+            <div id="selectedLabel" class="hint">수정 모드에서 이미지를 선택해 주세요.</div>
+            <label for="imageSrc">승인된 이미지 경로</label>
+            <input id="imageSrc" type="text" placeholder="../asset/generated/approved/..." />
+            <label for="imageAlt">대체 텍스트</label>
+            <input id="imageAlt" type="text" placeholder="구매자에게 필요한 이미지 설명" />
+            <label for="imageFile">로컬 이미지 미리보기</label>
+            <input id="imageFile" type="file" accept="image/*" />
+            <button id="applyImage" type="button" class="wide">선택 이미지에 적용</button>
+          </section>
+
+          <section class="group">
+            <h2>테마</h2>
+            <label for="accent">강조색</label>
+            <input id="accent" type="color" value="#176bff" />
+          </section>
+
+          <section class="group">
+            <h2>캔버스 높이</h2>
+            <label class="height-auto" for="autoHeight">
+              <input id="autoHeight" type="checkbox" checked />
+              내용에 자동으로 딱 맞춤
+            </label>
+            <div class="height-input">
+              <input id="pageHeight" type="number" min="360" max="100000" step="20" value="1200" aria-label="미리보기 높이" />
+              <span>px</span>
+            </div>
+            <div class="height-buttons">
+              <button id="heightMinus" type="button">−100</button>
+              <button id="heightFit" type="button" class="primary">딱 맞춤</button>
+              <button id="heightPlus" type="button">+100</button>
+            </div>
+            <p id="heightMeasure" class="height-measure">실제 내용 높이를 계산하는 중입니다.</p>
+          </section>
+        </div>
+
+        <div data-side-panel="approval" hidden>
+          <section class="group approval-guide">
+            <h2>승인 원칙</h2>
+            <strong>원본과 후보를 보고 한 장씩 결정합니다.</strong>
+            <p>신규 이미지와 GIF는 pending에서 시작합니다. 승인 전에는 최종 출력에 사용할 수 없습니다.</p>
+          </section>
+          <section class="group">
+            <h2>보기</h2>
+            <div class="filter-grid" role="group" aria-label="에셋 상태 필터">
+              <button type="button" data-asset-filter="pending" class="active">승인 대기</button>
+              <button type="button" data-asset-filter="approved">승인</button>
+              <button type="button" data-asset-filter="rejected">반려</button>
+            </div>
+          </section>
+          <section class="group asset-summary">
+            <h2>현재 상태</h2>
+            <dl>
+              <div><dt>대기</dt><dd id="pendingAssetCount">0</dd></div>
+              <div><dt>승인</dt><dd id="approvedAssetCount">0</dd></div>
+              <div><dt>반려</dt><dd id="rejectedAssetCount">0</dd></div>
+            </dl>
+          </section>
+        </div>
+
+        <div data-side-panel="output" hidden>
+          <section class="group">
+            <h2>최종 출력 게이트</h2>
+            <div id="outputGate" class="gate-card waiting">
+              에셋 승인 상태를 확인하는 중입니다.
+            </div>
+            <button id="exportHtml" type="button" class="wide primary" disabled>에셋 포함 단일 HTML 다운로드</button>
+            <a class="link-button wide" href="index.html" target="_blank" rel="noreferrer">상세페이지만 새 창으로</a>
+            <p class="hint">pending 필수 에셋이 0개일 때만 게시용 단일 HTML을 만들 수 있습니다.</p>
+          </section>
+        </div>
+
+        <div id="status" class="status">Studio v1을 준비하는 중입니다.</div>
+      </aside>
+
+      <main class="workspace" data-workspace="edit">
+        <div class="canvas-toolbar" role="group" aria-label="미리보기 너비">
+          <button type="button" data-width="800">800</button>
+          <button type="button" data-width="430">430</button>
+          <button type="button" data-width="360" class="primary">360</button>
+        </div>
+        <div class="canvas-shell">
+          <iframe id="preview" src="index.html" title="{{PRODUCT_NAME}} 상세페이지 미리보기"></iframe>
+        </div>
+      </main>
+
+      <main class="review-workspace" data-workspace="approval" hidden>
+        <header class="workspace-header">
+          <div>
+            <p>ASSET APPROVAL</p>
+            <h1>승인 대기 이미지·GIF</h1>
+            <span>제품 SSOT와 구조, 문자, 방향, 주장 연결을 확인한 뒤 결정합니다.</span>
+          </div>
+          <button id="refreshAssets" type="button">새로고침</button>
+        </header>
+        <div id="assetReviewGrid" class="asset-review-grid" aria-live="polite"></div>
+      </main>
+
+      <main class="output-workspace" data-workspace="output" hidden>
+        <div class="output-card">
+          <p>FINAL OUTPUT</p>
+          <h1>승인된 에셋만 조립합니다.</h1>
+          <span>승인 대기 파일이 남아 있으면 내보내기가 잠깁니다. 반려본은 새 버전으로 다시 생성해 pending에 등록하세요.</span>
+          <div id="outputSummary" class="output-summary"></div>
+        </div>
+      </main>
+    </div>
+    <script src="studio-v1.js"></script>
+  </body>
+</html>

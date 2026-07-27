@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "installScope": "skill-folder",
+  "localSkillDirectory": ".agents/skills",
+  "skills": [
+    {
+      "name": "browser-harness",
+      "source": "browser-harness skill",
+      "group": "browser"
+    },
+    {
+      "name": "design-taste-frontend",
+      "source": "Leonxlnx/taste-skill",
+      "group": "taste"
+    },
+    {
+      "name": "hyperframes",
+      "source": "heygen-com/hyperframes",
+      "group": "hyperframes"
+    },
+    {
+      "name": "hyperframes-animation",
+      "source": "heygen-com/hyperframes",
+      "group": "hyperframes"
+    },
+    {
+      "name": "hyperframes-cli",
+      "source": "heygen-com/hyperframes",
+      "group": "hyperframes"
+    },
+    {
+      "name": "hyperframes-core",
+      "source": "heygen-com/hyperframes",
+      "group": "hyperframes"
+    },
+    {
+      "name": "hyperframes-creative",
+      "source": "heygen-com/hyperframes",
+      "group": "hyperframes"
+    },
+    {
+      "name": "hyperframes-keyframes",
+      "source": "heygen-com/hyperframes",
+      "group": "hyperframes"
+    },
+    {
+      "name": "hyperframes-registry",
+      "source": "heygen-com/hyperframes",
+      "group": "hyperframes"
+    },
+    {
+      "name": "media-use",
+      "source": "heygen-com/hyperframes",
+      "group": "hyperframes"
+    },
+    {
+      "name": "motion-graphics",
+      "source": "heygen-com/hyperframes",
+      "group": "hyperframes"
+    }
+  ]
+}

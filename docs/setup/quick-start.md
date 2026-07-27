@@ -20,9 +20,9 @@ powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
 
 1. Node.js, Codex CLI, GitHub CLI, uv, FFmpeg 설치 확인
 2. GitHub와 Codex 로그인 확인
-3. Browser Harness와 HyperFrames 설치
-4. `detail-page-maker-skill`을 Codex 전역 스킬로 등록
-5. CLI·Studio 자동 테스트
+3. Browser Harness, HyperFrames와 필수 `design-taste-frontend` 설치
+4. 외부 스킬을 `detail-page-maker-skill/.agents/skills/`에 로컬 등록
+5. CLI·Studio v1 승인 상태 E2E
 6. 공급처 URL을 받아 첫 상품 프로젝트 생성
 
 비공개 저장소를 복제하기 위한 GitHub 인증과 Codex 로그인은 보안상 사용자가
@@ -36,9 +36,10 @@ powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
 powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1 -QuickTest
 ```
 
-Quick Test는 필수 명령, 상세페이지 CLI 진단, Studio 테스트, 스킬 탐색을
-검사합니다. 하나라도 실패하면 종료 코드가 `0`이 아니므로 자동화에서도 바로
-실패를 감지할 수 있습니다.
+Quick Test는 필수 명령, 상세페이지 CLI 진단, 11개 로컬 의존 스킬과
+`프로젝트 생성 → pending 잠금 → 사용자 승인 → READY` E2E를 검사합니다. 실제
+공급처, ImageGen과 사용자 프로젝트는 변경하지 않습니다. 하나라도 실패하면 종료
+코드가 `0`이 아니므로 자동화에서도 바로 실패를 감지할 수 있습니다.
 
 ## 상품 정보까지 한 번에 전달
 

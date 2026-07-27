@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-studio-project="{{PROJECT_KEY}}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -31,22 +31,23 @@
       }
     </style>
   </head>
-  <body>
-    <main>
-      <section class="hero" data-section-id="hero">
+  <body data-export-name="{{EXPORT_FILENAME}}">
+    <main id="detailPage">
+      <section class="hero" data-section="hero">
         <p class="eyebrow" data-layer-id="hero-brand" data-edit>{{PRODUCT_NAME}}</p>
         <h1 data-layer-id="hero-title" data-edit>승인된 에셋으로 첫 화면을 조립합니다.</h1>
         <p data-layer-id="hero-body" data-edit>제품 사실과 사용자 승인이 준비되면 이 작업 화면이 상업 상세페이지로 바뀝니다.</p>
       </section>
-      <section data-section-id="asset-proof">
+      <section data-section="asset-proof">
         <h2 data-layer-id="proof-title" data-edit>제품을 보여 줄 에셋을 먼저 완성해 주세요.</h2>
         <p data-layer-id="proof-body" data-edit>이미지와 GIF를 개별 검수한 뒤 승인된 버전만 여기에 배치할 수 있습니다.</p>
         <div class="placeholder" data-layer-id="proof-media">승인 에셋 자리</div>
       </section>
-      <section data-section-id="source">
+      <section data-section="source">
         <h2 data-layer-id="source-title" data-edit>공급처 기준</h2>
         <p data-layer-id="source-url" data-edit>{{SUPPLIER_URL}}</p>
       </section>
     </main>
+    <script src="app.js"></script>
   </body>
 </html>
