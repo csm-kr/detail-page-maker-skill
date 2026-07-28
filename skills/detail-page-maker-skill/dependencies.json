@@ -14,6 +14,11 @@
       "group": "taste"
     },
     {
+      "name": "god-tibo-gpt-image2-skill",
+      "source": "csm-kr/god-tibo-gpt-image2-skill",
+      "group": "image-generation"
+    },
+    {
       "name": "hyperframes",
       "source": "heygen-com/hyperframes",
       "group": "hyperframes"

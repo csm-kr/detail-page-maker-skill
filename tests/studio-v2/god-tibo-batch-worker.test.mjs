@@ -105,6 +105,7 @@ test("god-tibo 실행기는 선택한 동시성으로 배치 작업을 병렬 �
     const result = await runGodTiboBatch({
       studioUrl: started.url,
       jobIds: batch.payload.jobs.map((job) => job.id),
+      concurrency: 4,
       executeImage: async ({ imagePaths, job, prompt }) => {
         referenceCounts.set(job.target.role, imagePaths.length);
         effectivePrompts.push(prompt);
@@ -164,7 +165,7 @@ test("god-tibo 실행기는 선택한 동시성으로 배치 작업을 병렬 �
       prompt: "직접 참조와 제품 SSOT를 함께 유지",
       sourceRefs: [
         batch.payload.jobs[0].sourceRefs[0],
-        "assets/source/pair-product/v1.png",
+        "asset/input/studio-v2/pair-product/v1.png",
       ],
       target: {
         name: "참조 라우팅 증거",
@@ -182,7 +183,7 @@ test("god-tibo 실행기는 선택한 동시성으로 배치 작업을 병렬 �
       executeImage: async ({ imagePaths }) => {
         assert.match(
           imagePaths[0],
-          /assets[\\/]source[\\/]pair-product[\\/]v1\.png$/,
+          /asset[\\/]input[\\/]studio-v2[\\/]pair-product[\\/]v1\.png$/,
         );
         assert.match(
           imagePaths[1],
@@ -213,7 +214,7 @@ test("god-tibo 실행기는 선택한 동시성으로 배치 작업을 병렬 �
       executeImage: async ({ imagePaths }) => {
         assert.match(
           imagePaths[0],
-          /assets[\\/]candidates[\\/]pair-product[\\/]v1\.png$/,
+          /asset[\\/]generated[\\/]pending[\\/]studio-v2[\\/]pair-product[\\/]v1\.png$/,
         );
         return { dataUrl: ONE_PIXEL_PNG };
       },

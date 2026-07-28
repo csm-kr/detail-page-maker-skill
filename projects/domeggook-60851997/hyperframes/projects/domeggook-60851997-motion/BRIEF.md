@@ -47,4 +47,4 @@
 - `public/gifs/*.gif`
 - `public/posters/*.jpg`
 - `public/renders/*.mp4`
-- 상세페이지 프로젝트의 `assets/gifs`와 `assets/posters`로 복사
+- 상세페이지 프로젝트의 `asset/generated/approved/gif`와 `asset/output/gif/posters`로 복사

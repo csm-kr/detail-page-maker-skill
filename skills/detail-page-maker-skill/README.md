@@ -24,7 +24,7 @@ node scripts/detail-page.mjs new `
 이미지·GIF, HyperFrames 원본, QA와 HTML을 자기 폴더 안에 보존하며 외부 파일
 경로를 참조하지 않는다.
 
-설치 스크립트는 Taste, HyperFrames와 Browser Harness 스킬을 이 폴더의
+설치 스크립트는 Taste, God Tibo GPT Image 2, HyperFrames와 Browser Harness 스킬을 이 폴더의
 `.agents/skills/`에 설치한다. 다른 프로젝트나 사용자 전역 스킬을 덮어쓰지 않는다.
 
 ## 핵심 문서
@@ -35,7 +35,7 @@ node scripts/detail-page.mjs new `
 | `guide.md` | 작업별 문서 라우팅 지도 |
 | `references/workflow.md` | 전체 제작 순서 |
 | `references/commercial.md` | 고객 문제·제품 답·선택 이유 |
-| `references/asset-gen-guide.md` | God Tibo 4개 배치와 무노이즈 이미지 |
+| `references/asset-gen-guide.md` | God Tibo GPT Image 2 기본 8장 배치와 무노이즈 이미지 |
 | `references/asset-management.md` | pending·approved·rejected 자산 수명주기 |
 | `references/gif-guide.md` | GIF 제작과 프로젝트 학습 누적 |
 | `references/approval-guide.md` | 옆 승인 세션 필수 게이트 |
@@ -130,7 +130,8 @@ GIF를 사용하지 않는 프로젝트도 `GIF.md`를 유지하고 사용하지
 ## 기본 품질 게이트
 
 - 확인되지 않은 제품 사실·효능·수치 금지
-- God Tibo 이미지 생성은 최대 4개 병렬 배치
+- 모든 생성형 이미지 제작·편집은 로컬 `god-tibo-gpt-image2-skill`만 사용
+- God Tibo GPT Image 2 이미지 생성은 기본 8장 병렬 배치
 - 자글거림·필름 그레인·센서 노이즈가 보이는 이미지 승인 금지
 - 제작 세션의 자가 승인 금지
 - 승인되지 않은 이미지·GIF의 조립 금지

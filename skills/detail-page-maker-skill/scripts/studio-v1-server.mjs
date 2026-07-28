@@ -12,7 +12,7 @@ import {
 } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const MIME_BY_EXTENSION = {
   ".css": "text/css; charset=utf-8",
@@ -275,11 +275,189 @@ async function gateStatus(projectRoot) {
   const missingRequired = manifest.assets.filter(
     (asset) => asset?.required === true && asset?.status !== "approved",
   );
+  let project = {};
+  try {
+    project = JSON.parse(
+      await readFile(path.join(projectRoot, "project.json"), "utf8"),
+    );
+  } catch {
+    project = {};
+  }
+  const finalQaPassed =
+    project?.finalQa?.status === "passed" &&
+    Number(project?.finalQa?.score || 0) >= 97 &&
+    project?.finalQa?.userApproved === true;
+  const exportAllowed = pendingCount === 0 && missingRequired.length === 0;
   return {
     studioVersion: 1,
     pendingCount,
     missingRequiredCount: missingRequired.length,
-    exportAllowed: pendingCount === 0 && missingRequired.length === 0,
+    exportAllowed,
+    finalQaPassed,
+    finalQaScore: Number(project?.finalQa?.score || 0),
+    userPublishApproved: project?.finalQa?.userApproved === true,
+    coupangWingExportAllowed: exportAllowed && finalQaPassed,
+    coupangWingBlockers: [
+      ...(pendingCount > 0 ? [`승인 대기 에셋 ${pendingCount}개`] : []),
+      ...(missingRequired.length > 0
+        ? [`필수 미승인 에셋 ${missingRequired.length}개`]
+        : []),
+      ...(project?.finalQa?.status === "passed"
+        ? []
+        : ["최종 QA 미통과"]),
+      ...(Number(project?.finalQa?.score || 0) >= 97
+        ? []
+        : ["상용 QA 97점 미만"]),
+      ...(project?.finalQa?.userApproved === true
+        ? []
+        : ["사용자 게시 승인 없음"]),
+    ],
+  };
+}
+
+function normalizeCdnBaseUrl(value) {
+  let parsed;
+  try {
+    parsed = new URL(String(value || "").trim());
+  } catch {
+    throw new StudioV1Error(
+      "CDN_BASE_URL_INVALID",
+      "쿠팡 Wing CDN 기본 주소는 유효한 HTTPS 주소여야 합니다.",
+    );
+  }
+  if (
+    parsed.protocol !== "https:" ||
+    parsed.username ||
+    parsed.password ||
+    parsed.search ||
+    parsed.hash
+  ) {
+    throw new StudioV1Error(
+      "CDN_BASE_URL_INVALID",
+      "CDN 기본 주소는 인증정보·쿼리·해시가 없는 HTTPS 주소여야 합니다.",
+    );
+  }
+  return parsed.href.replace(/\/+$/, "");
+}
+
+function exportTimestamp(now = new Date()) {
+  return now
+    .toISOString()
+    .replace(/\.\d{3}Z$/, "Z")
+    .replaceAll(":", "")
+    .replaceAll("-", "")
+    .replace("T", "-")
+    .replace("Z", "");
+}
+
+async function runCoupangWingExport({
+  projectRoot,
+  pageUrl,
+  cdnBaseUrl,
+  productName,
+}) {
+  const normalizedCdnBaseUrl = normalizeCdnBaseUrl(cdnBaseUrl);
+  const exportId = `coupang-wing-780-webp-${exportTimestamp()}`;
+  const outputRoot = resolveInside(
+    projectRoot,
+    path.join("exports", exportId),
+  );
+  await mkdir(outputRoot, { recursive: false });
+  const exporter = await readFile(
+    new URL("./coupang-wing-export.py", import.meta.url),
+    "utf8",
+  );
+  const recordingName = `${path.basename(projectRoot)}-${exportId}`.replace(
+    /[^a-zA-Z0-9_-]+/g,
+    "-",
+  );
+  const child = spawn("browser-harness", [], {
+    cwd: path.dirname(fileURLToPath(import.meta.url)),
+    env: {
+      ...process.env,
+      WING_PAGE_URL: pageUrl,
+      WING_EXPORT_ROOT: outputRoot,
+      WING_CDN_BASE_URL: normalizedCdnBaseUrl,
+      WING_PRODUCT_NAME: productName,
+      WING_RECORDING_NAME: recordingName,
+    },
+    stdio: ["pipe", "pipe", "pipe"],
+    windowsHide: true,
+  });
+  let stdout = "";
+  let stderr = "";
+  child.stdout.setEncoding("utf8");
+  child.stderr.setEncoding("utf8");
+  child.stdout.on("data", (chunk) => {
+    stdout += chunk;
+    if (stdout.length > 4_000_000) stdout = stdout.slice(-4_000_000);
+  });
+  child.stderr.on("data", (chunk) => {
+    stderr += chunk;
+    if (stderr.length > 4_000_000) stderr = stderr.slice(-4_000_000);
+  });
+  child.stdin.end(exporter);
+  const exitCode = await new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("close", resolve);
+  });
+  if (exitCode !== 0) {
+    await writeFile(
+      path.join(outputRoot, "export-error.log"),
+      `${stdout}\n${stderr}`,
+      "utf8",
+    );
+    throw new StudioV1Error(
+      "COUPANG_WING_EXPORT_FAILED",
+      "쿠팡 Wing WebP 변환에 실패했습니다. export-error.log를 확인하세요.",
+      500,
+    );
+  }
+  const resultLine = stdout
+    .split(/\r?\n/)
+    .reverse()
+    .find((line) => line.startsWith("WING_EXPORT_RESULT "));
+  if (!resultLine) {
+    await writeFile(
+      path.join(outputRoot, "export-error.log"),
+      `${stdout}\n${stderr}`,
+      "utf8",
+    );
+    throw new StudioV1Error(
+      "COUPANG_WING_EXPORT_RESULT_MISSING",
+      "쿠팡 Wing 내보내기 결과를 읽지 못했습니다.",
+      500,
+    );
+  }
+  const result = JSON.parse(
+    resultLine.slice("WING_EXPORT_RESULT ".length),
+  );
+  const relativeOutputRoot = toPosix(
+    path.relative(projectRoot, outputRoot),
+  );
+  const job = {
+    id: exportId,
+    status: "generated",
+    generatedAt: new Date().toISOString(),
+    cdnBaseUrl: normalizedCdnBaseUrl,
+    relativeOutputRoot,
+    result,
+    remoteVerification: "pending",
+  };
+  await mkdir(path.join(projectRoot, ".studio", "jobs"), {
+    recursive: true,
+  });
+  await writeFile(
+    path.join(projectRoot, ".studio", "jobs", `${exportId}.json`),
+    `${JSON.stringify(job, null, 2)}\n`,
+    "utf8",
+  );
+  return {
+    ...result,
+    exportId,
+    relativeOutputRoot,
+    previewUrl: `/${relativeOutputRoot}/preview-local-780.html`,
+    wingHtmlUrl: `/${relativeOutputRoot}/coupang-wing-detail-780.html`,
   };
 }
 
@@ -361,6 +539,7 @@ export async function startStudioV1Server({
     throw new Error(`프로젝트 폴더가 아닙니다: ${root}`);
   }
   const pageDirectory = await resolvePageDirectory(root);
+  let wingExportInProgress = false;
   const server = http.createServer(async (request, response) => {
     try {
       const url = new URL(request.url || "/", `http://${host}`);
@@ -382,6 +561,51 @@ export async function startStudioV1Server({
         sendJson(response, 200, { asset, gate: await gateStatus(root) });
         return;
       }
+      if (
+        request.method === "POST" &&
+        pathname === "/api/v1/exports/coupang-wing"
+      ) {
+        if (wingExportInProgress) {
+          throw new StudioV1Error(
+            "COUPANG_WING_EXPORT_IN_PROGRESS",
+            "쿠팡 Wing 내보내기가 이미 진행 중입니다.",
+            409,
+          );
+        }
+        const gate = await gateStatus(root);
+        if (!gate.coupangWingExportAllowed) {
+          throw new StudioV1Error(
+            "COUPANG_WING_EXPORT_BLOCKED",
+            `쿠팡 Wing 내보내기 잠김: ${gate.coupangWingBlockers.join(", ")}`,
+            409,
+          );
+        }
+        const payload = await readJson(request);
+        let project = {};
+        try {
+          project = JSON.parse(
+            await readFile(path.join(root, "project.json"), "utf8"),
+          );
+        } catch {
+          project = {};
+        }
+        const address = server.address();
+        const actualPort =
+          typeof address === "object" && address ? address.port : port;
+        wingExportInProgress = true;
+        try {
+          const result = await runCoupangWingExport({
+            projectRoot: root,
+            pageUrl: `http://${host}:${actualPort}/index.html`,
+            cdnBaseUrl: payload.cdnBaseUrl,
+            productName: project?.name || path.basename(root),
+          });
+          sendJson(response, 200, { result, gate });
+        } finally {
+          wingExportInProgress = false;
+        }
+        return;
+      }
 
       if (request.method !== "GET" && request.method !== "HEAD") {
         throw new StudioV1Error(
@@ -401,10 +625,20 @@ export async function startStudioV1Server({
         return;
       }
 
-      await serveFile(
-        response,
-        resolveInside(root, pathname.replace(/^\/+/, "")),
+      const projectFile = resolveInside(
+        root,
+        pathname.replace(/^\/+/, ""),
       );
+      if (!(await exists(projectFile))) {
+        sendJson(response, 404, {
+          error: {
+            code: "NOT_FOUND",
+            message: "요청한 Studio 파일을 찾을 수 없습니다.",
+          },
+        });
+        return;
+      }
+      await serveFile(response, projectFile);
     } catch (error) {
       const status = error instanceof StudioV1Error ? error.status : 500;
       sendJson(response, status, {

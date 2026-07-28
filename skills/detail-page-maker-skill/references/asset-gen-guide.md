@@ -5,25 +5,31 @@ God Tibo 이미지 배치 생성, 제품 동일성, 무노이즈 상업 품질�
 ## 기본 실행기
 
 - 실행기: `scripts/god-tibo-batch-worker.mjs`
-- 패키지: `god-tibo-imagen@0.3.1`
-- 기본 provider: `private-codex`
+- 필수 로컬 스킬: `.agents/skills/god-tibo-gpt-image2-skill`
+- 실제 생성 명령: `scripts/tibo-batch.mjs --job <job.json>`
 - 기본 크기: `1024x1536`
-- 한 배치 최대 작업: 4개
-- 기본 동시 워커: 4개
-- 한 작업의 최대 참조 이미지: 5개
+- 한 배치 최대 작업: 8개
+- 기본 동시 워커: 8개
+- 한 작업의 최대 참조 이미지: 16개
 
-12개 자산이면 `4 + 4 + 4` 세 배치로 실행한다. 네 작업은 서로 다른 자산 역할을
-기본으로 하며 같은 프롬프트를 무의미하게 네 번 복제하지 않는다.
+12개 자산이면 `8 + 4` 두 배치로 실행한다. 여덟 작업은 서로 다른 자산 역할을
+기본으로 하며 같은 프롬프트를 무의미하게 여덟 번 복제하지 않는다.
 
 ```powershell
 node scripts/god-tibo-batch-worker.mjs `
   --studio-url "http://127.0.0.1:8896" `
-  --jobs "job-01,job-02,job-03,job-04" `
-  --concurrency 4
+  --jobs "job-01,job-02,job-03,job-04,job-05,job-06,job-07,job-08" `
+  --concurrency 8
 ```
 
-작업 수가 4개보다 적으면 실제 작업 수만큼만 워커를 연다. 동시성은 4를 넘기지
+작업 수가 8개보다 적으면 실제 작업 수만큼만 워커를 연다. 동시성은 8을 넘기지
 않는다.
+
+새 이미지 생성은 `size_mode: "controllable"`과 사용자가 선택한 `target_size`를
+사용한다. 기존 후보 수정은 첫 참조를 Image 1로 두고
+`size_mode: "invariant"`로 원본 W×H와 구도·포즈를 보존한다. 실행 뒤에는 반드시
+God Tibo가 작성한 `manifest.json`의 파일 경로, SHA-256, 응답 ID와 크기 검사를
+확인한다.
 
 ## 배치 단위
 
@@ -59,7 +65,7 @@ Do not hide detail with waxy blur or plastic skin smoothing.
 1. 제품 SSOT와 주장-증거 맵을 잠근다.
 2. 자산마다 `role`, `claim_id`, `component_id`, `sourceRefs`, `prompt`를 기록한다.
 3. Studio에 사용자 확인된 queued job을 만든다.
-4. 최대 4개 job ID를 God Tibo 배치 워커에 전달한다.
+4. 최대 8개 job ID를 God Tibo 배치 워커에 전달한다.
 5. 결과를 새 버전 파일명으로 `asset/generated/pending/image`에 저장하고
    `qaStatus: pending`으로 둔다.
 6. 제품 동일성·카피·무노이즈 QA를 수행한다.
@@ -94,7 +100,7 @@ Do not hide detail with waxy blur or plastic skin smoothing.
 
 ## 승인과 재생성
 
-제작 세션은 생성 결과를 자가 승인하지 않는다. 한 배치의 네 결과는 개별 에셋으로
+제작 세션은 생성 결과를 자가 승인하지 않는다. 한 배치의 여덟 결과는 개별 에셋으로
 QA하고 옆 승인 세션에서 각각 `approved | changes_requested | held` 결정을 받는다.
 
 수정은 기존 파일을 덮지 않고 새 후보 버전을 만든다. 승인 해시 뒤 픽셀이 바뀌면

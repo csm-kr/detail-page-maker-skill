@@ -97,6 +97,13 @@ export async function listProjects(projectsRoot) {
 export async function validateProjectIsolation(projectRoot) {
   const root = path.resolve(projectRoot);
   const issues = [];
+  if (await exists(path.join(root, "assets"))) {
+    issues.push({
+      file: "assets",
+      reference: "project-root/assets",
+      reason: "LEGACY_ASSET_ROOT_FORBIDDEN",
+    });
+  }
   const requiredProjectFiles = [
     ["README.md", "PROJECT_README_REQUIRED"],
     ["planning/LEARNINGS.md", "PROJECT_LEARNINGS_REQUIRED"],

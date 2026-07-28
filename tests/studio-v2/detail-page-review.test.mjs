@@ -28,7 +28,7 @@ function createReadyState() {
     assetId: "hero",
     name: "히어로",
     role: "hero-product",
-    versionPath: "assets/candidates/hero/v1.png",
+    versionPath: "asset/generated/pending/studio-v2/hero/v1.png",
     sha256: "hero".padEnd(64, "0"),
     mime: "image/png",
     prompt: "ImageGen 파생 히어로",

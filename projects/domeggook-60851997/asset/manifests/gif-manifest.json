@@ -1,0 +1,201 @@
+{
+    "schema_version":  "1.5",
+    "source_project":  "hyperframes/projects/domeggook-60851997-motion",
+    "renderer":  "HyperFrames 0.7.74",
+    "master":  {
+                   "file":  "hyperframes/projects/domeggook-60851997-motion/renders/novaface-insole-commercial-master-v18.mp4",
+                   "duration_seconds":  52.8,
+                   "fps":  15,
+                   "bytes":  18408635,
+                   "sha256":  "9f05868ffdba61ac64a756e423d276c533efc51d50221a697c512c513846af44"
+               },
+    "standalone_renders":  [
+                               {
+                                   "file":  "hyperframes/projects/domeggook-60851997-motion/renders/flex-sequence-v23.gif",
+                                   "duration_seconds":  4.8,
+                                   "fps":  15,
+                                   "frames":  72,
+                                   "bytes":  12683849,
+                                   "sha256":  "5233106b95c1198df347de077478b0ed66b0d62d7db3ab6cc3fb643fc0390933"
+                               },
+                               {
+                                   "file":  "hyperframes/projects/domeggook-60851997-motion/renders/air-cell-v19.gif",
+                                   "duration_seconds":  4.8,
+                                   "fps":  15,
+                                   "frames":  72,
+                                   "bytes":  11643272,
+                                   "sha256":  "df559c3eafb5f5c0ffed004371d723d62f50e35f38d286047dbe44dd35d6b1bf"
+                               },
+                               {
+                                   "file":  "hyperframes/projects/domeggook-60851997-motion/renders/arch-support-v20.gif",
+                                   "duration_seconds":  4.8,
+                                   "fps":  15,
+                                   "frames":  72,
+                                   "bytes":  10554540,
+                                   "sha256":  "35c761fbf9da392ee9011e9479315ddeaf4212df309a0ae61eff024c904d0b17"
+                               }
+                           ],
+    "gif_profile":  {
+                        "width":  800,
+                        "height":  800,
+                        "authoring_fps":  15,
+                        "encoded_average_frame_rate":  "50/3",
+                        "duration_seconds":  4.8,
+                        "frames":  72,
+                        "audio":  false,
+                        "loop":  "infinite"
+                    },
+    "qa":  {
+               "checked_at":  "2026-07-27",
+               "contact_sheet":  "hyperframes/projects/domeggook-60851997-motion/snapshots/v23-flex-review/contact-sheet.png",
+               "method":  "v23 flat-before, midpoint-bend, deep-U-after contact-sheet review plus strict HyperFrames runtime/layout/motion/contrast checks",
+               "result":  "PASS",
+               "first_frame_claim_visible":  true,
+               "comparison_states_explicit":  true,
+               "exact_product_print_present":  [
+                                                   "에어홀",
+                                                   "블루쿠션",
+                                                   "유연함"
+                                               ],
+               "blue_cushion_airflow_forbidden":  true,
+               "airflow_origin":  "forefoot_and_midfoot_air_holes_only",
+               "korean_orphan_wraps":  0,
+               "product_identity_failures":  0,
+               "minimum_status_label_px":  18,
+               "size_260_click_feedback":  true,
+               "left_right_arch_mirror_gate":  true,
+               "factory_print_long_axis_gate":  true,
+               "exact_white_body_emboss_STORTS":  true,
+               "forbidden_visible_spellings":  [
+                                                   "SPORTS_on_white_PU",
+                                                   "SIORTS",
+                                                   "ZZOM",
+                                                   "ZZOOM"
+                                               ],
+               "motion_typography_matches_html":  true,
+               "size_arrow_equal_visual_gaps":  true,
+               "size_html_gif_role_separation":  true,
+               "flex_curve_matches_product_contour":  true,
+               "cell_ripple_matches_actual_heel_contact_point":  true,
+               "flex_white_emboss_follows_product_long_axis":  true,
+               "use_case_product_insets_removed":  true,
+               "air_cell_outlines_follow_same_camera_group":  true,
+               "air_cell_only_white_pu_cells_highlighted":  true,
+               "arch_contour_and_product_transform_together":  true,
+               "component_evidence_separated":  [
+                                                    "air_cell",
+                                                    "blue_cushion",
+                                                    "upper_arch_contour"
+                                                ],
+               "flex_print_reading_direction":  "heel_upper_right_to_forefoot_lower_left",
+               "flex_print_two_line_order":  [
+                                                 "ZOOM",
+                                                 "SPORTS"
+                                             ],
+               "flex_curve_avoids_factory_print":  true,
+               "air_cell_trace_count":  6,
+               "air_cell_outlines_follow_visible_grooves":  true,
+               "arch_free_floating_arrows_removed":  true,
+               "arch_heel_pocket_trace":  true,
+               "arch_visible_side_contour_trace":  true,
+               "flex_v23_after_source_pixels_preserved":  true,
+               "flex_v23_real_state_change":  true,
+               "flex_v23_imagegen_states":  [
+                                                "before_flat",
+                                                "mid_bend"
+                                            ],
+               "flex_v23_effect_layers_only":  [
+                                                   "flat_guide",
+                                                   "curve_trace",
+                                                   "two_stage_ripple",
+                                                   "deterministic_particles",
+                                                   "state_meter",
+                                                   "ambient_glow"
+                                               ]
+           },
+    "clips":  [
+                  {
+                      "file":  "top-bottom-reveal.gif",
+                      "role":  "윗면 → 뒤집기 → 아랫면",
+                      "bytes":  14175235,
+                      "sha256":  "9b8f686fccdd53b872e24947238b528ce45ad8674eec77819481c14abc930599",
+                      "source_asset":  "../generated/approved/image/surface-top-studio-v4.png + ../generated/approved/image/surface-bottom-studio-v5.png"
+                  },
+                  {
+                      "file":  "cell-scan.gif",
+                      "role":  "뒤꿈치 접점 → 블루쿠션 강조",
+                      "bytes":  11155545,
+                      "sha256":  "f130386e30dfac1c0673060621cb57d9623a36ac34d0b511665270bd205dc995",
+                      "source_asset":  "../generated/approved/image/cushion-impact-v5.png",
+                      "terminology_gate":  "에어셀 명칭을 사용하지 않고 블루쿠션 전용 증거로만 배치"
+                  },
+                  {
+                      "file":  "air-cell.gif",
+                      "role":  "흰색 PU 아랫면의 다각형 에어셀 여섯 개를 실제 홈에 맞춰 추적",
+                      "bytes":  11643272,
+                      "sha256":  "df559c3eafb5f5c0ffed004371d723d62f50e35f38d286047dbe44dd35d6b1bf",
+                      "source_asset":  "../generated/approved/image/air-cell-macro-v2.png",
+                      "hard_gate":  "여섯 윤곽이 보이는 홈 위에 놓이고 블루쿠션·통풍 효과는 장면에 넣지 않음"
+                  },
+                  {
+                      "file":  "perforation-path.gif",
+                      "role":  "공기 유입 → 에어홀 통과",
+                      "bytes":  8455490,
+                      "sha256":  "17aae23cadf6fcda47f7d0dccee84a93874f9873cf6a1b83b4334b47787ad9e0",
+                      "source_asset":  "../generated/approved/image/ventilation-airflow-v7.png",
+                      "hard_gate":  "블루쿠션에서는 바람·빛줄기가 시작되지 않음"
+                  },
+                  {
+                      "file":  "flex-photo-sequence.gif",
+                      "role":  "Flat BEFORE to 50% bend to deep U-shaped AFTER, with contour trace and explicit shape-state meter",
+                      "bytes":  12683849,
+                      "sha256":  "5233106b95c1198df347de077478b0ed66b0d62d7db3ab6cc3fb643fc0390933",
+                      "source_asset":  "../../evidence/local-import-20260727/root/453fe96f-3cf5-4648-9dd7-f0d517c47f20.png + ../ssot/cutout/actual-bottom-single-v1.png + ../ssot/authoritative/Flux2-Klein_00355_.png -\u003e flex-straight/mid/bent v23",
+                      "hard_gate":  "Preserve ZOOM SPORTS, STORTS, blue heel pad, honeycomb relief, air-hole pattern, and show actual image-state change rather than overlay-only motion"
+                  },
+                  {
+                      "file":  "arch-support.gif",
+                      "role":  "윗면의 뒤꿈치 포켓과 눈에 보이는 측면 굴곡을 제품 윤곽대로 설명",
+                      "bytes":  10554540,
+                      "sha256":  "35c761fbf9da392ee9011e9479315ddeaf4212df309a0ae61eff024c904d0b17",
+                      "source_asset":  "../generated/approved/image/arch-support-keyvisual-v2.png",
+                      "claim_gate":  "임의의 상향 화살표·원형 펄스를 쓰지 않고 보이는 포켓·측면 경계만 추적하며 의료 효능·교정·압력 분산·통증 완화·정량 수치로 확장하지 않음"
+                  },
+                  {
+                      "file":  "size-selector.gif",
+                      "role":  "발길이 255mm → 260 선택",
+                      "bytes":  1268311,
+                      "sha256":  "15a305d4c6b5145fbffc87085b951678d62234d9c74e28bd51f7d62304916d89",
+                      "interaction_gate":  "커서가 260 카드 내부에 도착한 뒤 눌림·리플·반발이 순서대로 보임"
+                  },
+                  {
+                      "file":  "shoe-insertion-guide.gif",
+                      "role":  "기존 깔창을 빼고 → 뒤꿈치부터 넣기",
+                      "bytes":  11969833,
+                      "sha256":  "cb2938f796c1edc534405f6225c1b4facf82f4821c8fa6e4a4ce63208eea14cc",
+                      "source_asset":  "../generated/approved/image/shoe-insertion-v4.png"
+                  },
+                  {
+                      "file":  "one-pair-contents.gif",
+                      "role":  "좌우 한 세트 구성",
+                      "bytes":  12615755,
+                      "sha256":  "b8b72c0a850d61ac3a1e6bae5abfa0c4e504c366dea4a9ed03c9df3559ef715d",
+                      "source_asset":  "../generated/approved/image/hero-underside-pair-v4.png"
+                  },
+                  {
+                      "file":  "material-cross-section.gif",
+                      "role":  "에어메시 윗면 ↔ 고탄성 PU 아랫면, 좌우 끝 상태 비교",
+                      "bytes":  2979410,
+                      "sha256":  "6cf27bd443ad3cc89f71f13a5a98d046fe5aca57acc5501987cb8c8c1c808e0f",
+                      "source_asset":  "../generated/approved/image/surface-top-studio-v4.png + ../generated/approved/image/surface-bottom-studio-v5.png"
+                  },
+                  {
+                      "file":  "comfort-step.gif",
+                      "role":  "착화 뒤 한결 편안한 걸음을 제안하는 마감 모션",
+                      "bytes":  9116630,
+                      "sha256":  "0538009a41785ca575574b7dccc8f2e6109d2f1926b886cb167dfc6de6eab3c5",
+                      "source_asset":  "../generated/approved/image/comfort-step-v1.png",
+                      "claim_gate":  "의료 효능·통증 개선·정량 수치 없이 편안한 착화감을 제안"
+                  }
+              ]
+}

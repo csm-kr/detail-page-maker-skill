@@ -49,12 +49,23 @@ test("새 프로젝트에는 노바페이스 기반 Studio v1 편집기와 승�
     assert.match(studio, /id="assetReviewGrid"/);
     assert.match(studio, /승인 대기 이미지·GIF/);
     assert.match(studio, /id="exportHtml"[^>]*disabled/);
+    assert.match(studio, /id="wingCdnBaseUrl"/);
+    assert.match(studio, /id="exportCoupangWing"[^>]*disabled/);
+    assert.match(studio, /쿠팡 Wing 포맷으로 내보내기/);
+    assert.match(studio, /드래그로 이동하고 휠로 확대·축소/);
     assert.match(studioScript, /\/api\/v1\/assets/);
     assert.match(studioScript, /\/api\/v1\/gate/);
+    assert.match(studioScript, /\/api\/v1\/exports\/coupang-wing/);
     assert.match(studioScript, /confirmedByUser:\s*true/);
     assert.match(app, /DETAIL_READY/);
     assert.match(app, /DETAIL_EXPORT_HTML/);
+    assert.match(app, /DETAIL_OBJECT_SELECTED/);
+    assert.match(app, /DETAIL_OBJECT_CHANGED/);
+    assert.match(app, /addEventListener\("pointerdown"/);
+    assert.match(app, /addEventListener\(\s*"wheel"/);
+    assert.match(app, /objects:\s*objectNodes\(\)/);
     assert.match(index, /id="detailPage"/);
+    assert.match(index, /data-edit-object/);
     assert.match(index, /<script src="app\.js"><\/script>/);
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });
@@ -70,4 +81,21 @@ test("패키지 Studio v1에는 편집과 최종 출력 사이 승인 작업면�
   assert.match(studio, /data-studio-view="output"/);
   assert.match(studio, /id="assetReviewGrid"/);
   assert.match(studio, /승인 전에는 최종 출력에 사용할 수 없습니다/);
+  assert.match(studio, /id="wingCdnBaseUrl"/);
+  assert.match(studio, /id="exportCoupangWing"[^>]*disabled/);
+  assert.match(studio, /780px 완성형 정적·애니메이션 WebP/);
+  assert.match(studio, /드래그로 이동하고 휠로 확대·축소/);
+});
+
+test("Studio v1 요소 편집은 저장·복원·내보내기 계약을 포함한다", async () => {
+  const app = await repositoryFile(
+    "skills/detail-page-maker-skill/assets/studio-v1-runtime/app.js",
+  );
+  assert.match(app, /const OBJECT_SELECTOR = "\[data-edit-image\],\[data-edit-object\]"/);
+  assert.match(app, /style\.setProperty\("translate"/);
+  assert.match(app, /style\.setProperty\("scale"/);
+  assert.match(app, /object !== selectedObject/);
+  assert.match(app, /state\.objects/);
+  assert.match(app, /removeAttribute\("data-edit-object"\)/);
+  assert.match(app, /removeAttribute\("data-object-id"\)/);
 });

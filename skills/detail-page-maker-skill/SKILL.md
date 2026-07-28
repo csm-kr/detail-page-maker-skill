@@ -1,6 +1,6 @@
 ---
 name: detail-page-maker-skill
-description: 공급처 상품 URL과 실제 제품 자료에서 G0 제품 SSOT와 G1 시장·상업 기획을 병렬 준비하고, 순차 승인 뒤 God Tibo 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만든다. 신규 이미지·GIF를 pending에서 시작해 Studio v1에서 사용자가 개별 승인·반려하고 approved 에셋만 조립·QA·게시해야 할 때 사용한다.
+description: 공급처 상품 URL과 실제 제품 자료에서 G0 제품 SSOT와 G1 시장·상업 기획을 병렬 준비하고, 순차 승인 뒤 God Tibo 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만든다. 신규 이미지·GIF를 pending에서 시작해 Studio v1에서 사용자가 개별 승인·반려하고 approved 에셋만 조립·QA·게시하거나, 쿠팡 Wing 전용 780px HTML과 Cloudflare CDN 패키지를 만들어야 할 때 사용한다.
 ---
 
 # Detail Page Maker
@@ -19,10 +19,13 @@ description: 공급처 상품 URL과 실제 제품 자료에서 G0 제품 SSOT�
    [`gif-guide.md`](references/gif-guide.md)를 읽는다.
 4. Studio는 [`studio-workflow.md`](references/studio-workflow.md), 게시 전 검사는
    [`commercial-qa.md`](references/commercial-qa.md)를 읽는다.
-5. 기능성 깔창은
+5. 쿠팡 Wing 전용 HTML을 만들거나 CDN에 게시할 때는
+   [`coupang-wing-html-cdn.md`](references/coupang-wing-html-cdn.md)를 처음부터
+   끝까지 읽고 그 절차를 따른다.
+6. 기능성 깔창은
    [`novaface-insole-learnings.md`](references/novaface-insole-learnings.md),
    설치·E2E는 [`portable-install.md`](references/portable-install.md)를 읽는다.
-6. 프로젝트 종료와 공용 규칙 승격은
+7. 프로젝트 종료와 공용 규칙 승격은
    [`learning-loop.md`](references/learning-loop.md)를 읽는다.
 
 ## 로컬 의존 스킬
@@ -32,6 +35,10 @@ description: 공급처 상품 URL과 실제 제품 자료에서 G0 제품 SSOT�
 디자인·카피·HTML 작업 전에
 `.agents/skills/design-taste-frontend/SKILL.md` 전체를 읽는다. 모션 작업 전에는
 같은 위치의 `hyperframes`, `hyperframes-core`, `hyperframes-animation`을 읽는다.
+모든 생성형 이미지 제작·편집 전에는
+`.agents/skills/god-tibo-gpt-image2-skill/SKILL.md` 전체를 읽고 그 스킬의
+`scripts/tibo-batch.mjs`만 사용한다. 내장 `imagegen` 도구나 다른 이미지 생성
+모델을 우회 경로로 사용하지 않는다.
 누락 시 작업을 진행하지 말고 `scripts/setup-local.ps1`을 실행한다.
 기획과 Taste 최종 pre-flight는 `qa/reports/taste-<revision>.md`에 기록한다.
 
@@ -65,8 +72,14 @@ node scripts/detail-page.mjs new `
 3. 고객 문제를 `우리 제품의 답 → 선택 이유 3~5개 → 직접 증거`로 연결한다.
 4. 공개 주장마다
    `claim_id → component_id → fact_id → evidence_asset_id → section_id`를 고정한다.
-5. God Tibo는 최대 네 작업을 병렬 실행하고 모든 프롬프트에
-   `QUALITY_GATE:CLEAN_COMMERCIAL`을 적용한다.
+   `fact_id`는 검증된 제품 사실 또는 출처가 고정된 `MANUFACTURER_CLAIM` 레코드다.
+   제조사·브랜드 소유자·제조사를 대표하는 사용자가 확인한 기능은 제조사 제공
+   제품 사실로 받아들여 공개할 수 있다. 각 핵심 장점에는 정지 이미지와 전용 GIF를
+   각각 연결한다. 제조사가 주지 않은 온도·비율·시간·시험 조건은 만들지 않는다.
+5. God Tibo GPT Image 2는 기본 8개 `items` 작업을 한 배치로 병렬 실행한다.
+   8개를 넘으면 입력 순서를 보존해 8개씩 나누고, 모든 프롬프트에
+   `QUALITY_GATE:CLEAN_COMMERCIAL`을 적용한다. 생성은 `controllable`과 명시된
+   W×H, 편집은 Image 1 크기를 보존하는 `invariant`를 사용한다.
 6. 모든 신규 이미지·GIF는 `asset/generated/pending/image|gif`에서 시작한다.
    제작 세션의 QA를 사용자 승인으로 간주하지 않는다.
 7. 제품 동일성·무노이즈 QA 실패본은 새 버전으로 생성한다. 기존 파일을 덮어쓰지
@@ -74,7 +87,11 @@ node scripts/detail-page.mjs new `
 8. GIF 하나는 주장 하나·부품 하나·상태 변화 하나만 설명한다.
 9. 고객 HTML에서 프롬프트·파일명·해시·QA·승인 상태를 제거한다.
 10. 각 프로젝트는 근거·자산·HyperFrames 원본·QA·HTML을 자기 폴더 안에 보존하고
-    다른 프로젝트나 저장소 공용 폴더를 파일 의존성으로 참조하지 않는다.
+    다른 프로젝트나 저장소 공용 폴더를 파일 의존성으로 참조하지 않는다. 프로젝트
+    자산 루트는 단수 `asset/` 하나만 사용한다. 프로젝트 루트의 복수형 `assets/`는
+    금지하며 발견 시 `scripts/migrate-legacy-asset-root.mjs`로 해시 보존
+    마이그레이션을 완료한 뒤 작업한다. 스킬 자체의 런타임 리소스 폴더와 Wing 출력
+    패키지 내부의 `assets/`는 이 금지 대상이 아니다.
 11. 한 프로젝트의 학습은 먼저 `planning/LEARNINGS.md`에 기록한다. 다른 프로젝트
     또는 회귀 테스트로 재검증하기 전에는 공용 스킬 규약으로 승격하지 않는다.
 
@@ -82,7 +99,11 @@ node scripts/detail-page.mjs new `
 
 활성 CLI는 `studio-v1-server.mjs`만 시작한다. 작업면은
 `상세 편집 → 에셋 승인 → 최종 출력`이다. pending과 필수 미승인이 0개일 때만
-자립형 HTML을 내보낸다. Studio 승인 클릭만 사용자의 명시적 결정으로 기록한다.
+자립형 HTML을 내보낸다. G5·상용 QA 97점·사용자 게시 승인까지 충족하면 같은
+최종 출력 화면에서 `쿠팡 Wing 포맷으로 내보내기`를 사용할 수 있다. 이 출력은
+각 섹션을 780px 완성형 WebP로 평탄화하고 `<img>`만 세로로 연결한 Wing HTML과
+CDN 업로드 매니페스트를 만든다. Studio 승인 클릭만 사용자의 명시적 결정으로
+기록한다.
 
 복잡한 Studio v2 작업 센터는 사용자 화면으로 실행하지 않는다. God Tibo, 제품
 SSOT와 회귀 검사가 사용하는 확장 도메인·서버·런타임은 지원 라이브러리이므로
@@ -90,7 +111,9 @@ SSOT와 회귀 검사가 사용하는 확장 도메인·서버·런타임은 지
 
 ## 완료 조건
 
-- 제품 동일성 하드 실패, 가짜 후기, 미확인 효능·수치가 0건이다.
+- 제품 동일성 하드 실패, 가짜 후기, 출처 없는 효능과 임의 생성 수치가 0건이다.
+- 제조사 제공 기능은 `MANUFACTURER_CLAIM` 출처·원문·조건을 기록했고, 수치가 없는
+  기능 그래프에는 임의 눈금·온도·시험 결과 문구가 0건이다.
 - pending 필수 에셋과 rejected 경로 참조가 0건이다.
 - HyperFrames `check --strict` 오류·경고가 0건이다.
 - 320·360·390·768·800px 오버플로·잘림이 0건이다.

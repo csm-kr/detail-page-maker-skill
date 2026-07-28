@@ -26,7 +26,7 @@ detail-page-maker-skill/
 ```
 
 `.agents/skills/`는 컴퓨터별 설치 결과라 Git에 올리지 않는다. `skills-lock.json`은
-Taste와 HyperFrames의 설치 출처와 해시를 보존한다. Browser Harness 스킬은 설치된
+Taste, God Tibo GPT Image 2와 HyperFrames의 설치 출처와 해시를 보존한다. Browser Harness 스킬은 설치된
 `browser-harness skill` 명령에서 같은 폴더로 생성한다.
 
 ## 첫 설치
@@ -42,7 +42,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\setup-local.ps1 -NoProject
 1. Git, Node.js, Codex CLI, uv, FFmpeg를 확인하고 필요하면 `winget`으로 설치
 2. GitHub와 Codex 로그인 확인
 3. Browser Harness 실행 도구와 로컬 스킬 설치
-4. Taste와 HyperFrames 스킬을 `.agents/skills/`에 복사
+4. Taste, God Tibo GPT Image 2와 HyperFrames 스킬을 `.agents/skills/`에 복사하고
+   God Tibo 런타임 패키지를 설치
 5. `doctor` 실행
 6. 임시 프로젝트 E2E 실행
 

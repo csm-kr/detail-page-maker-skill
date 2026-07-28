@@ -68,7 +68,8 @@ asset/generated/pending
 허용:
 
 - 카피·타이포·색
-- 위치·크기·정렬·크롭
+- `[data-edit-image]` 이미지·GIF와 `[data-edit-object]`로 명시한 시각 요소의 위치·크기
+- 선택 요소를 포인터로 드래그해 이동하고, 선택한 요소 위 휠로 25~400% 확대·축소
 - 이미지·GIF를 다른 승인 에셋으로 교체
 - 섹션 순서와 표시 여부
 - 자동 높이·수동 높이
@@ -82,8 +83,11 @@ asset/generated/pending
 - 고객 화면에 파일명·프롬프트·해시·승인 상태 노출
 
 저장 키는 DOM 순번 대신 `section ID + layer ID` 또는 `asset ID`를 사용한다.
-사용자가 지정한 수정 HTML을 `localStorage`보다 우선하며, 문구·이미지 변경 뒤
-`ResizeObserver`와 `MutationObserver`로 실제 높이를 다시 계산한다.
+텍스트 내부의 포인터 입력은 텍스트 편집을 우선한다. 휠 확대·축소는 먼저 클릭한
+선택 요소에서만 동작하고, 그 밖에서는 페이지 스크롤을 유지한다. 위치·배율은 요소
+식별자와 함께 로컬 상태에 저장하며 초기화 시 제거한다. 사용자가 지정한 수정 HTML을
+`localStorage`보다 우선하며, 문구·이미지·요소 변형 뒤 `ResizeObserver`와
+`MutationObserver`로 실제 높이를 다시 계산한다.
 
 ## 조립과 개정판
 
@@ -94,16 +98,34 @@ asset/generated/pending
 ## 내보내기
 
 - pending 또는 필수 미승인 에셋이 하나라도 있으면 게시 출력을 잠근다.
-- CSS, 이미지와 GIF를 포함한 자립형 단일 HTML을 만든다.
-- 편집 런타임과 프로젝트 상대 경로를 제거한다.
-- 프로젝트 밖에서 360·800px, 자동 높이와 GIF 재생을 다시 검수한다.
-- `G5 PUBLISH`와 사용자 게시 승인 뒤에만 최종 파일로 표시한다.
+- `단일 HTML 내보내기`는 CSS, 이미지와 GIF를 data URL로 포함한 자립형 HTML을
+  만들고 편집 런타임과 프로젝트 상대 경로를 제거한다. 저장된 위치·배율은 결과에
+  유지한다.
+- `쿠팡 Wing 포맷으로 내보내기`는 G5 통과, 상용 QA 97점 이상, 사용자 게시 승인,
+  pending·필수 미승인 0건을 모두 요구한다.
+- 쿠팡 Wing 내보내기 전에 새 revision의 HTTPS CDN 기본 주소를 입력한다. 주소에는
+  인증정보, query, hash를 넣지 않는다.
+- Studio는 `#detailPage`의 표시 중인 최상위 `section[data-section]`을 순서대로
+  780px 완성형 WebP로 평탄화한다. GIF와 애니메이션 WebP는 애니메이션 WebP로
+  변환하고 프레임 순서·시간·반복을 보존하며, 저장된 위치·배율도 평탄화한다.
+- Wing 패키지는 `exports/coupang-wing-780-webp-YYYYMMDD-HHmmss/`에 만들며
+  `assets/`, `coupang-wing-detail-780.html`, `preview-local-780.html`,
+  `cdn-upload-manifest.json`, `README.md`를 포함한다.
+- Wing 등록본은 `<div align="center">`, `<img width="780">`, `<br>`만 사용한다.
+  텍스트, CSS, SVG, 겹침 레이어는 모두 WebP 안에 합성한다.
+- Studio 내보내기는 로컬 패키지 생성까지만 수행한다. `assets/`를 입력한 CDN
+  revision 경로에 올리고 HTTP·MIME·캐시·SHA-256을 닫힌 검증하기 전에는
+  게시 완료로 표시하지 않는다.
+- 프로젝트 밖에서 일반 HTML은 360·800px와 GIF 재생을, Wing 패키지는 로컬
+  780px 미리보기와 이미지 순서·잘림·애니메이션을 다시 검수한다.
 
 ## 로컬 API
 
 - `GET /api/v1/assets`: pending·approved·rejected 이미지와 GIF 조회
 - `POST /api/v1/assets/decision`: 사용자 확인이 있는 승인·반려 이동
-- `GET /api/v1/gate`: pending·필수 미승인과 내보내기 가능 여부 조회
+- `GET /api/v1/gate`: 일반 내보내기와 쿠팡 Wing 전용 게이트 상태 조회
+- `POST /api/v1/exports/coupang-wing`: HTTPS CDN 기본 주소를 받아 780px WebP와
+  이미지 전용 HTML 패키지 생성
 
 `confirmedByUser: true`가 없거나 대상 경로가 pending이 아니면 상태 전환을
 거절한다. 같은 이름의 대상 파일이 있으면 덮어쓰지 않고 새 버전명을 요구한다.

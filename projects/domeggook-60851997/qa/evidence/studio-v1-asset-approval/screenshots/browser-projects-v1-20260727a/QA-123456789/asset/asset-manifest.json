@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "studioVersion": 1,
+  "defaultGifMethod": "hybrid",
+  "assets": [
+    {
+      "id": "image:01-problem-hybrid-v01.png",
+      "fileName": "01-problem-hybrid-v01.png",
+      "kind": "image",
+      "method": "hybrid",
+      "sourcePath": "asset/generated/pending/image/01-problem-hybrid-v01.png",
+      "relativePath": "asset/generated/approved/image/01-problem-hybrid-v01.png",
+      "status": "approved",
+      "sha256": "3a2e84b2000a9763b6f1fdfe606f6447404cb185522d333135fc4d034feeab3a",
+      "approvedBy": "local-user",
+      "rejectedBy": null,
+      "decidedAt": "2026-07-27T03:13:52.871Z",
+      "note": null
+    }
+  ],
+  "updatedAt": "2026-07-27T03:13:52.871Z"
+}

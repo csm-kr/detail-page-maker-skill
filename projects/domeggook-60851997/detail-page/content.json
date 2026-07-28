@@ -16,6 +16,7 @@
     "raised_structure": "에어셀",
     "ventilation_opening": "에어홀",
     "heel_part": "블루쿠션",
+    "upper_contour": "뒤꿈치 둘레와 안쪽 아치 굴곡",
     "product_print": "ZOOM SPORTS"
   },
   "facts": [
@@ -47,7 +48,7 @@
     {
       "id": "FACT-VISUAL-STRUCTURE",
       "field": "visual_structure",
-      "value": "회색 에어메시 윗면, 흰색 PU 입체 에어셀 아랫면, 앞꿈치·중족부 에어홀, 뒤꿈치 블루쿠션"
+      "value": "회색 에어메시 윗면과 올라온 뒤꿈치 둘레·안쪽 아치 굴곡, 흰색 PU 입체 에어셀 아랫면, 앞꿈치·중족부 에어홀, 뒤꿈치 블루쿠션"
     },
     {
       "id": "FACT-CONTENTS",
@@ -57,9 +58,20 @@
   ],
   "claims": [
     {
-      "id": "CLAIM-CUSHION",
-      "copy": "입체 에어셀과 블루쿠션이 발 아래를 포근하게 받쳐줍니다.",
+      "id": "CLAIM-AIR-CELL",
+      "copy": "흰색 PU 아랫면을 따라 도톰한 다각형 에어셀이 이어집니다.",
       "evidence": "supplier-and-ssot"
+    },
+    {
+      "id": "CLAIM-BLUE-CUSHION",
+      "copy": "뒤꿈치가 닿는 위치에 파란 쿠션 포인트를 한 겹 더했습니다.",
+      "evidence": "supplier-and-ssot"
+    },
+    {
+      "id": "CLAIM-ARCH-SUPPORT",
+      "copy": "올라온 뒤꿈치 둘레와 안쪽 아치 굴곡이 발 아래 곡선을 따라 이어집니다.",
+      "evidence": "supplier-and-ssot",
+      "restriction": "의료 효능·교정·압력 분산·통증 완화·수치 성능으로 확장하지 않음"
     },
     {
       "id": "CLAIM-AIRFLOW",
@@ -88,7 +100,8 @@
     "오래 서 있는 날에도 발바닥을 포근하게 받쳐줘요.",
     "에어홀로 신발 속 답답함을 덜어줘요.",
     "발길이에 맞춰 고르니 사이즈 선택이 쉬워요.",
-    "군화·작업화·운동화·일상화에 한 켤레를 더해보세요."
+    "군화·작업화·운동화·일상화에 한 켤레를 더해보세요.",
+    "뒤꿈치부터 안쪽 아치까지 이어진 입체 굴곡을 확인해 보세요."
   ],
   "sizes_mm": [
     230,
@@ -99,11 +112,11 @@
     280
   ],
   "composition": {
-    "section_count": 18,
-    "gif_count": 9,
-    "imagegen_asset_count": 18,
-    "editable_text_nodes": 96,
-    "editable_image_nodes": 19,
+    "section_count": 19,
+    "gif_count": 11,
+    "imagegen_asset_count": 20,
+    "editable_text_nodes": 97,
+    "editable_image_nodes": 20,
     "html": "index.html",
     "studio": "studio.html",
     "styles": "styles.css",
@@ -114,7 +127,9 @@
     "material-cross-section.gif",
     "perforation-path.gif",
     "cell-scan.gif",
+    "air-cell.gif",
     "flex-photo-sequence.gif",
+    "arch-support.gif",
     "size-selector.gif",
     "shoe-insertion-guide.gif",
     "one-pair-contents.gif",

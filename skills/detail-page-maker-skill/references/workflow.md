@@ -60,7 +60,11 @@ G0 승인 전에는 제품 답, 선택 이유 3~5개, `fact_id`, 직접 증거�
 
 - 실제 공급처 URL 하나를 프로젝트 시작점으로 사용한다.
 - 대표·상세 원본, 수집 시각과 locator를 보존한다.
-- 사진, 제품 사실, 공급처 주장, 가격·MOQ·옵션 같은 변동 정보를 분리한다.
+- 사진, 독립 검증 제품 사실, `MANUFACTURER_CLAIM`, 가격·MOQ·옵션 같은 변동
+  정보를 분리한다.
+- 제조사·브랜드 소유자·제조사를 대표하는 사용자가 확인한 기능 문구는 원문,
+  확인 주체, URL·파일·대화 locator와 시각을 고정해 제조사 제공 제품 사실로
+  등록한다.
 - 로그인·캡차·OCR 추정값은 승인 사실로 올리지 않는다.
 - 도매꾹은 [`domeggook-supplier-extraction.md`](domeggook-supplier-extraction.md)를
   따른다.
@@ -114,15 +118,22 @@ G0 승인 전에는 제품 답, 선택 이유 3~5개, `fact_id`, 직접 증거�
 claim_id → component_id → fact_id → evidence_asset_id → section_id
 ```
 
-직접 근거가 없거나 구조 관찰을 성능 결과로 확장한 주장은 제외한다. 옆 승인 세션과
-사용자가 `G1 COMMERCIAL_PLAN`을 승인하기 전에는 이미지 작업을 시작하지 않는다.
+`fact_id`는 `FACT-*` 또는 `MFR-CLAIM-*`일 수 있다. 제조사 제공 기능은 독립 시험이
+없어도 정성적 장점 카피와 정성적 설명 그래픽으로 공개할 수 있다. 단 제조사가
+제공하지 않은 숫자·단위·비교군·시험 조건은 추가하지 않는다. 나머지 출처 없는
+성능 확장은 제외한다.
+
+핵심 장점마다 `still_evidence_asset_id`와 `motion_evidence_asset_id`를 각각 계획한다.
+GIF는 장점 하나만 설명하고, 제조사 기능의 정성 그래프는 숫자 없는 방향 변화로
+표현한다. 옆 승인 세션과 사용자가 `G1 COMMERCIAL_PLAN`을 승인하기 전에는 이미지
+작업을 시작하지 않는다.
 
 ## 4. 이미지 생성과 G2
 
 [`asset-gen-guide.md`](asset-gen-guide.md)를 따른다.
 
-1. 서로 다른 역할의 queued job을 최대 네 개로 묶는다.
-2. God Tibo 워커 네 개로 병렬 생성한다.
+1. 서로 다른 역할의 queued job을 최대 여덟 개 `items`로 묶는다.
+2. 로컬 `god-tibo-gpt-image2-skill` 워커로 기본 여덟 장을 병렬 생성한다.
 3. 모든 프롬프트에 `QUALITY_GATE:CLEAN_COMMERCIAL`을 적용한다.
 4. 결과를 덮어쓰지 않고 `asset/generated/pending/image`에 새 후보 버전으로 등록한다.
 5. 제품 동일성과 100%·200% 무노이즈 QA를 수행한다.

@@ -759,8 +759,6 @@ function startGodTiboBatchWorker({
       String(concurrency),
       "--size",
       size,
-      "--provider",
-      "private-codex",
     ],
     {
       detached: true,
@@ -769,7 +767,7 @@ function startGodTiboBatchWorker({
     },
   );
   child.on("error", (error) => {
-    console.error(`god-tibo-imagen 실행기 시작 실패: ${error.message}`);
+    console.error(`god-tibo-gpt-image2-skill 실행기 시작 실패: ${error.message}`);
   });
   child.unref();
   return child.pid || null;
@@ -1240,15 +1238,15 @@ export async function startStudioServer({
             409,
           );
         }
-        const provider = ["queue", "god-tibo-imagen"].includes(
-          body.execution?.provider,
-        )
-          ? body.execution.provider
-          : "queue";
-        const requestedConcurrency = Number(body.execution?.concurrency || 4);
+        const requestedProvider = body.execution?.provider;
+        const provider =
+          requestedProvider === "queue"
+            ? "queue"
+            : "god-tibo-gpt-image2-skill";
+        const requestedConcurrency = Number(body.execution?.concurrency || 8);
         const concurrency = Number.isInteger(requestedConcurrency)
-          ? Math.min(4, Math.max(1, requestedConcurrency))
-          : 4;
+          ? Math.min(8, Math.max(1, requestedConcurrency))
+          : 8;
         const allowedSizes = new Set([
           "1024x1024",
           "1024x1536",
@@ -1261,7 +1259,7 @@ export async function startStudioServer({
           ? body.execution.size
           : "1024x1536";
         const autoStart =
-          provider === "god-tibo-imagen" &&
+          provider === "god-tibo-gpt-image2-skill" &&
           body.execution?.autoStart === true;
         const batchId = `batch-${randomUUID()}`;
         const seenRoles = new Set();
@@ -1416,10 +1414,10 @@ export async function startStudioServer({
           ) + 1;
         const relativePath = toPosix(
           path.join(
-            "assets",
+            "asset",
             referenceOnly && !current.assets[assetId]
-              ? "source"
-              : "candidates",
+              ? "input/studio-v2"
+              : "generated/pending/studio-v2",
             assetId,
             `v${nextVersion}${extension}`,
           ),
@@ -1482,9 +1480,11 @@ export async function startStudioServer({
         const assetId = assetJobMatch[1];
         const body = await readJsonBody(request);
         const executor =
-          body.executor?.provider === "god-tibo-imagen"
+          ["god-tibo-gpt-image2-skill", "god-tibo-imagen"].includes(
+            body.executor?.provider,
+          )
             ? {
-                provider: "god-tibo-imagen",
+                provider: "god-tibo-gpt-image2-skill",
                 concurrency: 1,
                 size: body.executor.size || "1024x1536",
               }
@@ -1506,7 +1506,7 @@ export async function startStudioServer({
         );
         await persistJobFile(root, result.result);
         if (
-          executor?.provider === "god-tibo-imagen" &&
+          executor?.provider === "god-tibo-gpt-image2-skill" &&
           body.executor?.autoStart === true
         ) {
           startGodTiboBatchWorker({
