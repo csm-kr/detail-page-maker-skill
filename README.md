@@ -1,6 +1,6 @@
 # Detail Page Maker Skill
 
-공급처 상품 URL에서 제품 사실 SSOT, ImageGen 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만드는 설치형 Codex 스킬입니다.
+공급처 상품 URL에서 제품 사실 SSOT, God Tibo GPT Image 2 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만드는 설치형 Codex 스킬입니다.
 
 저장소 규칙과 설계 문서는 [`docs/`](docs/README.md), 완성 상품은
 [`projects/`](projects/README.md), 설치 가능한 스킬 정본은
@@ -38,7 +38,7 @@
 승인한 파일만 최종 HTML에 사용합니다.
 
 기획·디자인·HTML 최종 QA에는 `design-taste-frontend`를 필수로 사용합니다.
-Windows 설치 스크립트는 Taste·HyperFrames·Browser Harness 스킬을
+Windows 설치 스크립트는 Taste·God Tibo GPT Image 2·HyperFrames·Browser Harness 스킬을
 `skills/detail-page-maker-skill/.agents/skills/`에 로컬 설치하며, 다른 프로젝트와
 사용자 전역 스킬을 변경하지 않습니다.
 
@@ -211,14 +211,16 @@ D:\DetailPageProjects\<상품명>-<상품번호>\
 
 1. 공급처 원문과 실제품 사진을 등록해 제품 사실 SSOT를 고정합니다.
 2. `design-taste-frontend`로 상품별 Design Read와 `VARIANCE / MOTION / DENSITY`를 정하고 pre-flight 보고서를 만듭니다.
-3. ImageGen 이미지와 HyperFrames GIF 후보를 `asset/generated/pending`에 만듭니다.
+3. 로컬 `god-tibo-gpt-image2-skill`로 기본 8장씩 ImageGen 이미지 후보를 만들고,
+   HyperFrames GIF 후보와 함께 `asset/generated/pending`에 저장합니다.
 4. 원본·후보 비교와 독립 시각 QA를 수행합니다.
 5. Studio v1의 `에셋 승인`에서 사용자가 각 파일을 승인하거나 반려합니다.
 6. 승인 파일은 `approved`, 반려 파일은 `rejected`로 이동하고 SHA-256을 기록합니다.
 7. 조립 뒤 에셋과 GIF는 읽기 전용으로 유지하고 HTML만 편집합니다.
 8. Taste 최종 pre-flight, 상용 QA 97점 이상, 하드 실패 0건과 사용자 최종 승인 뒤 게시용 HTML을 내보냅니다.
 
-Studio v1은 브라우저에서 ImageGen API를 직접 호출하지 않습니다. Codex에 다음과 같이 요청합니다.
+Studio v1은 브라우저에서 ImageGen API를 직접 호출하지 않습니다. 설치된
+`god-tibo-gpt-image2-skill`을 통해서만 이미지를 만들며 Codex에 다음과 같이 요청합니다.
 
 ```text
 이 프로젝트의 다음 ImageGen과 HyperFrames 에셋을 만들고 pending에 저장한 뒤 QA해줘.

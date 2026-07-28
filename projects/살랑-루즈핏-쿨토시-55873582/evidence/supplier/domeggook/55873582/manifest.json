@@ -1,0 +1,161 @@
+{
+  "schema_version": "1.0",
+  "artifact_type": "dmk_extractor_snapshot",
+  "product_id": "55873582",
+  "requested_url": "https://domeggook.com/55873582?affid=",
+  "final_url": "https://domeggook.com/55873582?affid=",
+  "captured_at": "2026-07-27T08:47:43.354877+00:00",
+  "browser_mode": "isolated_headless_browser_harness",
+  "gif_summary": {
+    "target_scope": "expanded_seller_product_detail_only",
+    "animated_gif_count": 0,
+    "numbered_frame_count": 0
+  },
+  "review_summary": {
+    "visible_review_count": 1,
+    "captured_review_count": 1,
+    "complete": true
+  },
+  "artifacts": [
+    {
+      "path": "detail/assets/detail-01.png",
+      "kind": "seller_detail_source_asset",
+      "size_bytes": 290738,
+      "sha256": "7991afd496c0085a3faf0965f8eecd9dd87d823fc199ecdb388dc60d1af0bd66",
+      "width_px": 860,
+      "height_px": 860
+    },
+    {
+      "path": "detail/assets/detail-02.png",
+      "kind": "seller_detail_source_asset",
+      "size_bytes": 12601402,
+      "sha256": "6a6018bee8dcd98d442d2ea95cdaf4823d7ce3c643e58e62095a27ffee4d07d2",
+      "width_px": 861,
+      "height_px": 20767
+    },
+    {
+      "path": "detail/detail-page.png",
+      "kind": "assembled_seller_detail_page",
+      "size_bytes": 12891757,
+      "sha256": "5e80c9534ec55ad81230d997b3619343cad8f261d383f2e72a466ec829711630",
+      "width_px": 861,
+      "height_px": 21627
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0001.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0002.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 30084,
+      "sha256": "540693f53e1034ca4161cf969a00f05e19ae04c3ecfb57d28b4b99bf738f156d"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0003.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 211624,
+      "sha256": "ef53b9c921babc8fa39d157fd03405279c41febcdf4d8bc72e87c44da20a2f29"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0004.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 172447,
+      "sha256": "674f3843a648fb351449f5b6bfa89b5b73ce880ccbd1fc4ab47eacf4ce51b412"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0005.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0006.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0007.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0008.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 10103,
+      "sha256": "8c795c1bf5eec4914b4f328ba6a992804ec1bc5824449163eb6c1a5efe625007"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0009.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 96548,
+      "sha256": "2bd58b94e73eb653c939a974bd0917e5f49f4817679fe64ea88ae62e42630639"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0010.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 96548,
+      "sha256": "2bd58b94e73eb653c939a974bd0917e5f49f4817679fe64ea88ae62e42630639"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0011.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 18140,
+      "sha256": "f8ef9c4bf3a3dde5cdfe509a09ac9b8e0bcc44f61adab21ed66956dc7fa689f8"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0012.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 25587,
+      "sha256": "29e0998de9fd37407b2dd8b013f16ccc2a5b454dbd7486ad3cbb2794dfa2f935"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0013.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 53677,
+      "sha256": "c3beb23565b1e59d494231f799406814b7829584c9942ab566f9a2cf98d89774"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/0014.jpg",
+      "kind": "browser_harness_recording",
+      "size_bytes": 158908,
+      "sha256": "cd4c7c757fae040833e940fe1d5d79463942b815a221a51e933604375cf879e7"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/events.jsonl",
+      "kind": "browser_harness_recording",
+      "size_bytes": 4236,
+      "sha256": "2c021d2d8957f0077eec5ed2f3102f9c9ce024095bb79aaeffa9cab157220f44"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-55873582-extract/meta.json",
+      "kind": "browser_harness_recording",
+      "size_bytes": 185,
+      "sha256": "2bc605a4e12ab638ffe0e6f0ef6c08c05e047632f7ebb2f5ca8f44965da3450b"
+    },
+    {
+      "path": "page.json",
+      "kind": "structured_product_page",
+      "size_bytes": 3752,
+      "sha256": "93eb99368334e9eb7966a0319d8e67f79849e681678bb6bcb6e552ac2eae3b54"
+    },
+    {
+      "path": "reviews/reviews.json",
+      "kind": "sanitized_public_reviews",
+      "size_bytes": 687,
+      "sha256": "34bfbb519b97d7630c2a0c2196d8dd4bbff6e171310c4f58c9a6b565af54f4a6"
+    },
+    {
+      "path": "thumbnail/thumbnail.png",
+      "kind": "product_thumbnail",
+      "size_bytes": 730347,
+      "sha256": "ed32a65a866120ffefcedd2abf150ee90d1d254a9899cad1c4a1f07eee7104ac",
+      "width_px": 760,
+      "height_px": 760
+    }
+  ]
+}

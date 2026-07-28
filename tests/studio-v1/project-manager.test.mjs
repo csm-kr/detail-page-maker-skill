@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -11,6 +11,30 @@ import {
   listProjects,
   validateProjectIsolation,
 } from "../../skills/detail-page-maker-skill/scripts/project-manager.mjs";
+
+async function listFiles(rootPath) {
+  let entries;
+
+  try {
+    entries = await readdir(rootPath, { withFileTypes: true });
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return [];
+    }
+    throw error;
+  }
+
+  const files = [];
+  for (const entry of entries) {
+    const entryPath = path.join(rootPath, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await listFiles(entryPath)));
+    } else {
+      files.push(entryPath);
+    }
+  }
+  return files;
+}
 
 test("workspace 설정은 저장소 로컬 projects 루트를 선택한다", async () => {
   const workspace = await mkdtemp(
@@ -105,7 +129,7 @@ test("새 프로젝트는 목록에 나타나고 외부 파일 의존성이 없�
 
 test("저장소는 prototypes 또는 공유 videos 루트를 사용하지 않는다", async () => {
   const repositoryRoot = path.resolve(import.meta.dirname, "../..");
-  await assert.rejects(access(path.join(repositoryRoot, "prototypes")));
-  await assert.rejects(access(path.join(repositoryRoot, "videos")));
+  assert.deepEqual(await listFiles(path.join(repositoryRoot, "prototypes")), []);
+  assert.deepEqual(await listFiles(path.join(repositoryRoot, "videos")), []);
   await access(path.join(repositoryRoot, "projects", "README.md"));
 });

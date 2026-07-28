@@ -1,0 +1,9 @@
+{
+  "name": "sallang-core-gif-016-020-commercial-v03",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "npx --yes hyperframes@latest check",
+    "render": "npx --yes hyperframes@latest render"
+  }
+}

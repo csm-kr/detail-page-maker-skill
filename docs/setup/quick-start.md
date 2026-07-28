@@ -20,7 +20,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
 
 1. Node.js, Codex CLI, GitHub CLI, uv, FFmpeg 설치 확인
 2. GitHub와 Codex 로그인 확인
-3. Browser Harness, HyperFrames와 필수 `design-taste-frontend` 설치
+3. Browser Harness, HyperFrames, 필수 `design-taste-frontend`와
+   `god-tibo-gpt-image2-skill` 설치
 4. 외부 스킬을 `detail-page-maker-skill/.agents/skills/`에 로컬 등록
 5. CLI·Studio v1 승인 상태 E2E
 6. 공급처 URL을 받아 첫 상품 프로젝트 생성
@@ -36,7 +37,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -QuickTest
 ```
 
-Quick Test는 필수 명령, 상세페이지 CLI 진단, 11개 로컬 의존 스킬과
+Quick Test는 필수 명령, 상세페이지 CLI 진단, 12개 로컬 의존 스킬과
 `프로젝트 생성 → pending 잠금 → 사용자 승인 → READY` E2E를 검사합니다. 실제
 공급처, ImageGen과 사용자 프로젝트는 변경하지 않습니다. 하나라도 실패하면 종료
 코드가 `0`이 아니므로 자동화에서도 바로 실패를 감지할 수 있습니다.

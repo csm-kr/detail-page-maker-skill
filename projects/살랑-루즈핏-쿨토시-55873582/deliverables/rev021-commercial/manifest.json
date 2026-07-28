@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "revision": "rev021-commercial",
+  "entrypoint": "index.html",
+  "output_contract": "deliverables/<revision>/index.html",
+  "generated_at": "2026-07-28T05:05:43.707Z",
+  "customer_media": {
+    "image_count": 16,
+    "gif_count": 10
+  },
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 30485,
+      "sha256": "1e713d0528a770d060016f4a2ac2def4374fa682678686b513be6d4edfb7af75"
+    },
+    {
+      "path": "media/gifs/gif-001-thumbhole-direction-hybrid-v01.gif",
+      "bytes": 4955112,
+      "sha256": "d34cf26ee2fc041179ce04ddd44be4cac53e11f11591d4b2a16891a492ca0f29"
+    },
+    {
+      "path": "media/gifs/gif-004-pleat-texture-v01.gif",
+      "bytes": 9350347,
+      "sha256": "968b63b77ca7464513be7c5406c24fd03839ff0752969656f3add816f6fcf397"
+    },
+    {
+      "path": "media/gifs/gif-006-label-placement-v01.gif",
+      "bytes": 6209928,
+      "sha256": "1c173842e304f29331d3e7dad4ff21b878d2bc11fa803e606fe77e2dc42fcbed"
+    },
+    {
+      "path": "media/gifs/gif-007-loose-drape-silhouette-v01.gif",
+      "bytes": 5041179,
+      "sha256": "9cc4cedd31483055556962eeef923214d012bfc364034ed09bc50288b40da5d5"
+    },
+    {
+      "path": "media/gifs/gif-010-folded-storage-form-v01.gif",
+      "bytes": 5259914,
+      "sha256": "bb55e06cce099a9d5383a2957e733d4b88d4a6b064f12f14ea6f3e07692dc9f0"
+    },
+    {
+      "path": "media/gifs/gif-016-loosefit-compare-v03.gif",
+      "bytes": 8121942,
+      "sha256": "04d157b44b8da2ed0e351639f6b6da31e86ade06f5fc802d3724c18cb9648b31"
+    },
+    {
+      "path": "media/gifs/gif-017-cooling-bar-drop-v03.gif",
+      "bytes": 5908741,
+      "sha256": "f807004a5affe6d48608357192546dec5c036d7dc25aa016a9f222c7336ee0b6"
+    },
+    {
+      "path": "media/gifs/gif-018-style-matchcut-v03.gif",
+      "bytes": 8492279,
+      "sha256": "9107bd1176de54b49f25cfbeaaa30e3813a0b8821dd02f8c8d8e0adc8b7be39e"
+    },
+    {
+      "path": "media/gifs/gif-019-howto-no-twist-v03.gif",
+      "bytes": 3319038,
+      "sha256": "393d6787acd2324e7d63b78ddcf0c357314e533c5e647b67a534474b68ca59fa"
+    },
+    {
+      "path": "media/gifs/gif-020-pair-reveal-v03.gif",
+      "bytes": 3317011,
+      "sha256": "47c41cdfb24dc175a9a1b840f18da338d53348c354add5f7a90f7880a154e49e"
+    },
+    {
+      "path": "media/images/cool-material.png",
+      "bytes": 1885868,
+      "sha256": "2263aebbb3dc15f4f6f9350b6125e857f17ebaf14d0db67f5a2b8ee97c53de48"
+    },
+    {
+      "path": "media/images/finale.png",
+      "bytes": 1948348,
+      "sha256": "81cd0cda21f9c9c18bca4fe705243c56001adcb7433132de818a3b07681b71ee"
+    },
+    {
+      "path": "media/images/hand-cover.png",
+      "bytes": 1789960,
+      "sha256": "c04705450c38dc5e732d1d219c3597ad8fffc220dd0ee2db68268242e9b993b4"
+    },
+    {
+      "path": "media/images/hero-portrait.png",
+      "bytes": 1740289,
+      "sha256": "6ed73609d7ca06be2acf0a5c02fd1bcf1fff49172c677d3b31084c51b51ccabd"
+    },
+    {
+      "path": "media/images/howto-finish.png",
+      "bytes": 1846186,
+      "sha256": "28363c2adddd3345cd12f6ef68a461956cfd607d8e47ed6c0648458f67f89e8d"
+    },
+    {
+      "path": "media/images/howto-middle.png",
+      "bytes": 1768224,
+      "sha256": "624be818526c5cdf72362f62faca6614e0d4d99cd2815286d63af21fef489b15"
+    },
+    {
+      "path": "media/images/howto-start.png",
+      "bytes": 2076754,
+      "sha256": "b61aeb57c79b98541612d9dacc8098f6dd54ad1afeefeac53867f83ffbf219ff"
+    },
+    {
+      "path": "media/images/loosefit.png",
+      "bytes": 1780071,
+      "sha256": "8ec35af5ad14ea630c23bba653eb0bfc1be1f7af8fc3a206e493c687afa61231"
+    },
+    {
+      "path": "media/images/pain-hand.png",
+      "bytes": 1940658,
+      "sha256": "1dd46e3128da6a7eeecc7aae60c8d35b176e0d15ea040495de576e2c17afd621"
+    },
+    {
+      "path": "media/images/pain-style.png",
+      "bytes": 1960823,
+      "sha256": "1e21d880497fffe8db15ef6d6cdb799771add532fc80d79f70ca78d28741bf72"
+    },
+    {
+      "path": "media/images/pain-tight.png",
+      "bytes": 1727443,
+      "sha256": "ae24421326f32cb17a87d41f87deaee0b87bca382b19cb870ce264290dcd78f0"
+    },
+    {
+      "path": "media/images/product-answer.png",
+      "bytes": 1822110,
+      "sha256": "8f6358f7851b30a0e3809ba087d1f4b5d516279187139195580eb69919da22ec"
+    },
+    {
+      "path": "media/images/product-pair.png",
+      "bytes": 1983113,
+      "sha256": "f7e77d59107a15a0afdd70428f4b240ae04b34c8f908ab28c5cbfd1dc12467d6"
+    },
+    {
+      "path": "media/images/style-casual.png",
+      "bytes": 2050590,
+      "sha256": "62969d15d4a42a7d7a8e24a0bf08ce51a79cbda604de76e09a739e9c4d4d5e72"
+    },
+    {
+      "path": "media/images/style-dress.png",
+      "bytes": 1765786,
+      "sha256": "44f30d8db5a5d58efa92e180e682757c266769a4d22a3188326b0fc1952a23eb"
+    },
+    {
+      "path": "media/images/style-office.png",
+      "bytes": 1859937,
+      "sha256": "6b3c3deed362077d8431d25ef7cc9a675de1f26831e9c7df299737d9527dab36"
+    },
+    {
+      "path": "qa/browser-harness-report.json",
+      "bytes": 2276,
+      "sha256": "b3b11fd34d19274f7504855ada9465b3bec48194774a843760b68d10f9b0a156"
+    },
+    {
+      "path": "qa/final-report.md",
+      "bytes": 1574,
+      "sha256": "e903164097d8234d17251557862c128dd431e73e4e86af50cb5a9f10fab078fd"
+    },
+    {
+      "path": "qa/viewport-390-bottom.png",
+      "bytes": 240339,
+      "sha256": "e2cfec16a98352abf76eb3f125be96ca50bf96d7bcffa41f585105541502e672"
+    },
+    {
+      "path": "qa/viewport-390-mid.png",
+      "bytes": 251695,
+      "sha256": "d05e716deb76093975a46cd9fb1e94bcac41d806fdbfcc8efb315aa1e6a61e85"
+    },
+    {
+      "path": "qa/viewport-390-top.png",
+      "bytes": 383102,
+      "sha256": "5f7a29a57183279db70b86ce12b024417f016df140f162a7a2a241801d5e9ad8"
+    },
+    {
+      "path": "qa/viewport-800-bottom.png",
+      "bytes": 733634,
+      "sha256": "f27164997073ce443735161563adbd686053dfe298901bcadd920df86a591128"
+    },
+    {
+      "path": "qa/viewport-800-mid.png",
+      "bytes": 505992,
+      "sha256": "ba7dd0d04e627035356440c3a1d0cc5aedfa2d7bafa5f9b630bb7988abead6c0"
+    },
+    {
+      "path": "qa/viewport-800-top.png",
+      "bytes": 712586,
+      "sha256": "0e6fb5052be23486df79351fc7df0ba8f64696f0aa24ca0573520543fdb7bb1e"
+    }
+  ]
+}

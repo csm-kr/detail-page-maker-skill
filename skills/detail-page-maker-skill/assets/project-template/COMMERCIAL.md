@@ -19,6 +19,7 @@
 - `core_promise`:
 - `claim_boundaries`:
 - `blocked_claims`:
+- `manufacturer_claims`:
 
 실제 동일 상품 후기가 아니면 후기 카드·별점·작성자·구매 인증·체험 증언으로
 꾸미지 않는다.
@@ -37,6 +38,8 @@
 - `component_id`:
 - `fact_id`:
 - `evidence_asset_id`:
+- `still_evidence_asset_id`:
+- `motion_evidence_asset_id`:
 - `section_id`:
 - `visual_proof`:
 - `blocked_expansion`:
@@ -46,6 +49,19 @@
 | claim_id | component_id | fact_id | evidence_asset_id | section_id | status |
 |---|---|---|---|---|---|
 |  |  |  |  |  | planned |
+
+## Manufacturer Claim Records
+
+### MFR-CLAIM-01
+
+- `claim_text_exact`:
+- `confirmed_by`:
+- `source_kind`: `manufacturer_page | manufacturer_file | user_confirmed_manufacturer`
+- `source_locator`:
+- `confirmed_at`:
+- `scope_and_conditions`:
+- `numeric_basis`: `supplied | not_supplied`
+- `publishable`: true
 
 ## G1 Approval
 

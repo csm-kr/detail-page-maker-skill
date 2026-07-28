@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "projectRevisionId": "rev-006",
+  "g2RevisionId": "rev-003",
+  "gate": "G2 IMAGE_ASSETS",
+  "status": "qa-pass-pending-user-approval",
+  "userConfirmation": "d08만 2개 같아야 하는데 이거 같게해줘.",
+  "assetId": "D08",
+  "previousVersion": {
+    "version": "v02",
+    "status": "changes_requested",
+    "path": "asset/generated/pending/image/production-rev002-feedback/correction-02-square/frame-001.png",
+    "sha256": "4ab6bb26c531dd30dcab332e89dba9d914fbf41ea6e2c026dc1562d60604e7a7",
+    "finding": "두 토시의 전체 길이·폭·커프 길이와 라벨 상대 위치가 달라 동일한 판매 한 쌍으로 보이지 않음."
+  },
+  "selectedVersion": {
+    "version": "v03",
+    "status": "pending",
+    "path": "asset/generated/pending/image/production-rev003-feedback/correction-05-d08/frame-000.png",
+    "sha256": "328029cf4a73cc94a898f3ac221413e6a935c828505e3b63dd6c9843c93a377b",
+    "width": 1024,
+    "height": 1024,
+    "responseId": "resp_0ccc87f22c375f14016a6757adeab88191b7bfbbefe58d4107",
+    "generatedAt": "2026-07-27T13:07:09.859Z",
+    "qaStatus": "PASS",
+    "finding": "두 토시의 전체 길이·폭·상단 밴딩·긴 손등 커프·엄지 구멍·라벨 위치와 재질을 동일한 한 쌍으로 교정함."
+  },
+  "checks": {
+    "exactSleeveCount": 2,
+    "matchedLength": "PASS",
+    "matchedWidth": "PASS",
+    "matchedUpperElastic": "PASS",
+    "matchedWideCuff": "PASS",
+    "matchedThumbOpening": "PASS",
+    "matchedLabel": "PASS",
+    "exactOutputSize": "PASS",
+    "productIdentity": "PASS"
+  },
+  "productionGeneratedImageCount": 53,
+  "totalImageCountIncludingModelCandidates": 61
+}

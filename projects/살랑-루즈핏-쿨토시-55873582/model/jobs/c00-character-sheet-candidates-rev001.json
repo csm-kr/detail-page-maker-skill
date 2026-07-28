@@ -1,0 +1,9 @@
+{
+  "prompt": "Create a premium commercial character identity sheet for one single fictional adult Korean woman, clearly in her late twenties, for a Korean summer fashion ecommerce campaign. This is not a real person and must not resemble a celebrity. The exact same woman must appear consistently in every view: soft oval face, calm natural dark-brown eyes, straight proportional nose, natural rose-beige lips, neutral-warm realistic skin, subtle everyday makeup, dark black-brown straight long bob touching the collarbones, near-center part, slim-to-average natural build. Wardrobe is identical in every view: plain ivory sleeveless crew-neck top and light-gray wide-leg trousers, no jewelry, no watch, no rings, short clean natural matte nails. Arrange a clean editorial identity board on one uniform light warm-gray studio background with five distinct views of the same person: front face portrait, three-quarter face portrait, left profile portrait, waist-up front view with relaxed hands visible, and full-body front view. Preserve identical facial proportions, hair length, part, color, skin tone, age, body proportions, clothing, and lighting across all five views. Neutral relaxed expression with a very small natural smile. Photorealistic high-end Korean ecommerce casting photography, soft diffused studio light, honest skin texture, clean natural color, center-crop-safe composition. No arm sleeves or product on the character sheet. No text, captions, names, logos, symbols, measurements, borders, watermarks, decorative stickers, extra people, duplicate limbs, malformed hands, extra fingers, beauty-filter plastic skin, glitter, speckle, gritty grain, or harsh micro-contrast.",
+  "detail_level": 3,
+  "workers": 8,
+  "batch_size": 8,
+  "size_mode": "controllable",
+  "target_size": "1536x1024",
+  "output_dir": "../candidates/c00-rev001"
+}

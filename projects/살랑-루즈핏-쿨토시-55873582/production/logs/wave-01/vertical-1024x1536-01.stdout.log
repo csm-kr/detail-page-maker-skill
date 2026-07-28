@@ -1,0 +1,622 @@
+{
+  "schema_version": 2,
+  "created_at": "2026-07-27T12:20:30.126Z",
+  "dry_run": false,
+  "mode": "per_item",
+  "detail_level": 3,
+  "workers": 8,
+  "batch_size": 8,
+  "duration_ms": 189935,
+  "reference_paths": [
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-45c0af96.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-4605aff2.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-45c0af96.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-4605aff2.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ]
+  ],
+  "transmitted_reference_paths": [
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-45c0af96.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-4605aff2.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-45c0af96.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-4605aff2.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ]
+  ],
+  "api_size": [
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto"
+  ],
+  "size": {
+    "mode": "per_item",
+    "items": [
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1536
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1536
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1536
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1536
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1536
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1536
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1536
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1536
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      }
+    ]
+  },
+  "size_invariant": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "padding_color": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "images": [
+    {
+      "index": 0,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\vertical-1024x1536-01\\frame-000.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-45c0af96.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1536 pixels. Compose for the 1024:1536 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset A02 (single-front) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1536. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 3 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nOne exact sleeve displayed vertically on a warm neutral studio surface, front side facing camera, photographed straight-on with the entire length visible and generous editorial breathing room above and below.\n\nMUST SHOW — REQUIRED:\nShow a single sleeve from upper-arm band to hand cuff without crop, including the loose tube width, fine pleats, thumb opening, and one physical label.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 81290,
+      "response_id": "resp_06cd1f1ec5c96fd7016a674c668eb081989dd39872567fa5c8",
+      "revised_prompt": "Create a clean commercial studio product photo for a Korean Coupang detail-page source library asset, final canvas exactly 1024x1536 portrait. Subject: one exact white long loose-fit arm sleeve, front side facing camera, displayed vertically straight-on on a warm neutral studio surface. Show the entire single sleeve from upper-arm elastic band to hand cuff with generous breathing room above and below, centered and safely inside a center-crop-safe area. Preserve the canonical real product identity: relaxed tube silhouette, not compression-tight; fine irregular vertical pleats in thin matte woven fabric; elastic upper-arm band; wide back-of-hand cuff; visible thumb opening; one visible white woven label near the lower section with exact two-line black text reading HELLO over CUTE SLEEVE. Do not add a second sleeve. Do not invent rib knit, sports panels, mesh, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, extra labels, logos, icons, text overlays, badges, or watermarks. Lighting: controlled soft studio lighting, smooth gradients, crisp natural edges, subtle realistic shadow transitions, low-ISO clarity. Texture should preserve meaningful fine structure and material cues with coherent, non-random texture. No speckles, glitter-like noise, film grain, sensor noise, dithering, JPEG artifacts, crunchy sharpening, chaotic micro-contrast, or waxy blur. Warm neutral editorial background only.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "f2e754640d85590c4f25f1f3fb37c229d16fb129aed05f85465685f7e53f44d9",
+      "raw_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1536
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1024,
+        "source_height": 1536,
+        "target_width": 1024,
+        "target_height": 1536,
+        "crop_width": 1024,
+        "crop_height": 1536,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 1,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\vertical-1024x1536-01\\frame-001.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1536 pixels. Compose for the 1024:1536 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset A07 (loose-drape-arm) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1536. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 4 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\n\nMODEL IDENTITY — REQUIRED:\nUse the approved C00-03 fictional Korean woman in her late twenties.\nPreserve her soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob, and center-near part.\nPreserve her slim-to-average natural build, short clean natural nails, and subtle makeup.\nNo watch, bracelet, rings, necklace, visible brand, tattoos, or alternate person.\nThe model sheet controls face, hair, body, skin tone, hands, and overall identity only.\nThe real product references control the sleeves and override any garment detail shown on the model sheet.\n\n\nSCENE — REQUIRED:\nNatural premium side portrait of the approved model in a bright sand-and-ivory summer studio. Her face and one full arm are visible as the exact sleeve runs from above the elbow to the back of the hand with relaxed airy-looking drape.\n\nMUST SHOW — REQUIRED:\nPreserve the approved face and hair, full arm length, correct thumb opening, one label, and visibly loose irregular pleats without implying tested cooling performance.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 88394,
+      "response_id": "resp_08d6e890ed13fea2016a674c66fe408191b19db68de3a3f51d",
+      "revised_prompt": "Create a clean commercial studio photo asset for a Korean Coupang detail page, exact canvas 1024x1536 portrait, composed safely for minimal center crop. Bright sand-and-ivory summer studio background with smooth premium gradients and soft controlled lighting. Natural premium side portrait of the approved fictional Korean woman in her late twenties: soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob with near-center part, slim-to-average natural build, subtle makeup, short clean natural nails. No jewelry, no watch, no brands, no tattoos.\n\nShow her in side portrait, face visible, with one full arm prominently extended and fully inside frame. The exact product on that arm is one white long loose-fit arm sleeve from above the elbow to the back of the hand, airy relaxed drape, long tube silhouette, fine irregular vertical pleats, thin matte woven fabric, elastic upper-arm band, wide back-of-hand cuff, correct thumb opening. Show one visible white woven label on the sleeve with exact two-line black text: \"HELLO\" over \"CUTE SLEEVE\". Preserve the real product identity: no compression fit, no rib knit, no sports panels, no mesh, no zipper, no drawstring, no silicone dots, no extra seams, no extra holes, no extra labels. The sleeve should look softly draped and physically plausible, with visible loose irregular pleats and matte texture.\n\nWardrobe should be minimal neutral summer styling that does not distract, in ivory/light beige tones. Keep focus on face, hair, hand, and the sleeve. No ad copy, no icons, no claims, no watermark, no UI. Quality gate: low-ISO clarity, crisp but natural edges, smooth shadow transitions, coherent real fabric texture, no grain, no speckles, no glitter noise, no crunchy sharpening, no chaotic micro-contrast, no waxy skin smoothing.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "53440534074f30774ac07a27f3c42a2f13b75295194a3498dfdaf1a9789c4165",
+      "raw_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1536
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1024,
+        "source_height": 1536,
+        "target_width": 1024,
+        "target_height": 1536,
+        "crop_width": 1024,
+        "crop_height": 1536,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 2,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\vertical-1024x1536-01\\frame-002.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1536 pixels. Compose for the 1024:1536 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset A08 (daylight-thinness) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1536. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 4 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\n\nMODEL IDENTITY — REQUIRED:\nUse the approved C00-03 fictional Korean woman in her late twenties.\nPreserve her soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob, and center-near part.\nPreserve her slim-to-average natural build, short clean natural nails, and subtle makeup.\nNo watch, bracelet, rings, necklace, visible brand, tattoos, or alternate person.\nThe model sheet controls face, hair, body, skin tone, hands, and overall identity only.\nThe real product references control the sleeves and override any garment detail shown on the model sheet.\n\n\nSCENE — REQUIRED:\nClose natural-light portrait beside a softly glowing summer window. The approved model wears the exact white sleeve while gentle side light honestly reveals the thin fabric, subtle skin-to-fabric boundary, pleats, and cuff construction.\n\nMUST SHOW — REQUIRED:\nKeep the fabric physically thin and white without turning transparent, glowing, icy, blue, wet, or performance-coded; preserve model and sleeve identity.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 99327,
+      "response_id": "resp_0d4e5e9e6af48672016a674c66fa8081999e527eba672c904a",
+      "revised_prompt": "Create a clean commercial product-photo portrait asset for a Korean Coupang detail page, exactly 1024x1536 vertical composition. Compose safely for minimal center crop, keeping face, both forearms/hands, and sleeve details fully inside frame. Scene: close natural-light portrait beside a softly glowing summer window, soft side daylight from one side, airy indoor setting, neutral calm background, no text or graphics.\n\nUse Image 1 as the canonical product identity reference and Images 2-4 only as supporting references. Show the approved fictional Korean woman in her late twenties with a soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob with a near-center part, slim-to-average natural build, short clean natural nails, subtle makeup. No jewelry, watch, tattoos, or visible brands.\n\nShe is wearing the exact product: one pair of white long loose-fit arm sleeves. Preserve the long relaxed tube silhouette, fine irregular vertical pleats, thin matte woven fabric, elastic upper-arm band, wide back-of-hand cuff, and thumb opening. Preserve the product as physically thin and white, but not transparent, not glowing, not icy blue, not wet, and not performance-coded. Honest side light should reveal thinness through subtle skin-to-fabric boundary and gentle translucency cues without transparency. If label is visible, show one white woven label per sleeve with exact two-line black text: HELLO over CUTE SLEEVE.\n\nPose: close portrait from about upper torso to top of head, near a softly glowing window. Model turns slightly toward the light and gently raises one forearm near the window so the sleeve catches side light; the other sleeve is also worn and visible. Keep the relaxed drape and cuff construction clear. Expression calm and natural. Clothing outside the sleeves should be simple neutral sleeveless top, unobtrusive.\n\nStyle and quality: clean commercial photography, controlled natural studio-quality lighting, smooth gradients, crisp but natural edges, clean shadow transitions, low-ISO clarity, physically plausible material texture only. Preserve meaningful fine structure and material cues with coherent non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, chaotic micro-contrast, film grain, sensor noise, chromatic noise, JPEG artifacts, waxy blur, or plastic skin smoothing. No ad copy, badge, watermark, or icons.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "97807487b026fcb3e966c27aef58e88c96a25a45d1e9b7a278f15aa5116efe60",
+      "raw_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1536
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1024,
+        "source_height": 1536,
+        "target_width": 1024,
+        "target_height": 1536,
+        "crop_width": 1024,
+        "crop_height": 1536,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 3,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\vertical-1024x1536-01\\frame-003.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1536 pixels. Compose for the 1024:1536 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset B01 (parked-car-driving) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1536. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 4 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\n\nMODEL IDENTITY — REQUIRED:\nUse the approved C00-03 fictional Korean woman in her late twenties.\nPreserve her soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob, and center-near part.\nPreserve her slim-to-average natural build, short clean natural nails, and subtle makeup.\nNo watch, bracelet, rings, necklace, visible brand, tattoos, or alternate person.\nThe model sheet controls face, hair, body, skin tone, hands, and overall identity only.\nThe real product references control the sleeves and override any garment detail shown on the model sheet.\n\n\nSCENE — REQUIRED:\nBright clean interior of a safely parked car. The approved model is seated naturally with both hands resting on the steering wheel, framed around forearms and hands with a partial calm face, editorial summer daylight, no sense of motion.\n\nMUST SHOW — REQUIRED:\nShow exactly one pair worn correctly, both five-finger hands, back-of-hand cuffs and thumb openings, correct palm contact, no vehicle brand, and no active-driving hazard.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 93701,
+      "response_id": "resp_0468c627e433f4b9016a674c644f748191bb1c080db3168c4b",
+      "revised_prompt": "Create a clean commercial product lifestyle photo asset for a Korean Coupang detail page, exactly 1024x1536 vertical. Bright clean interior of a safely parked car in editorial summer daylight. Use the approved fictional Korean woman in her late twenties: soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob with near-center part, slim-to-average natural build, subtle makeup, short clean natural nails. Frame around forearms and hands on the steering wheel with a partial calm face visible; seated naturally, no motion, no driving hazard, no vehicle brand logos.\n\nProduct is the canonical item: one white pair of long loose-fit arm sleeves worn correctly on both arms. Preserve long relaxed tube silhouette, fine irregular vertical pleats, thin matte woven fabric, elastic upper-arm band, wide back-of-hand cuff, and thumb openings. Show both five-finger hands resting on the wheel with correct palm contact. The sleeves must look loose and airy, not compression sleeves. If any physical label is visible, show one white woven label per sleeve with exact two-line black text: \"HELLO\" over \"CUTE SLEEVE\". Do not add any extra seams, mesh, rib knit, sports panels, zippers, drawstrings, silicone strips, anti-slip dots, extra holes, extra labels, icons, or text.\n\nComposition: compose for 1024:1536 from the start, keep all important product edges, hands, face, and forearms safely inside the center-crop-safe area. Clean modern car interior, neutral upholstery, soft daylight through windows. No advertising copy, watermark, UI, badges, or logos.\n\nQuality: rich detail with coherent non-random texture, preserve meaningful fine fabric structure and matte material cues. Smooth continuous gradients, crisp but natural edges, clean shadow transitions, low-ISO clarity. No film grain, no sensor noise, no chromatic noise, no speckles, no glitter-like noise, no crunchy sharpening, no chaotic micro-contrast, no plastic skin smoothing.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "20c61668bbe49b5374d32fd3bf8f4936efb08397f2a75da7ccdf02b3b1ea9b0c",
+      "raw_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1536
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1024,
+        "source_height": 1536,
+        "target_width": 1024,
+        "target_height": 1536,
+        "crop_width": 1024,
+        "crop_height": 1536,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 4,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\vertical-1024x1536-01\\frame-004.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-4605aff2.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1536 pixels. Compose for the 1024:1536 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset B02 (summer-walk) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1536. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 4 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\n\nMODEL IDENTITY — REQUIRED:\nUse the approved C00-03 fictional Korean woman in her late twenties.\nPreserve her soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob, and center-near part.\nPreserve her slim-to-average natural build, short clean natural nails, and subtle makeup.\nNo watch, bracelet, rings, necklace, visible brand, tattoos, or alternate person.\nThe model sheet controls face, hair, body, skin tone, hands, and overall identity only.\nThe real product references control the sleeves and override any garment detail shown on the model sheet.\n\n\nSCENE — REQUIRED:\nFull upper-body summer lifestyle photograph of the approved model walking slowly along a bright leafy pedestrian path, arms relaxed at her sides, soft open shade, ivory and pale sky-blue palette.\n\nMUST SHOW — REQUIRED:\nPreserve approved face and hair, show both sleeves from above elbow to hand, relaxed loose pleats, correct labels and thumb openings, with no sun-protection or cooling effect graphic.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 189696,
+      "response_id": "resp_08806331c97553c6016a674c653f388191b0549ba8891f01c6",
+      "revised_prompt": "Create a clean commercial summer lifestyle product photo, exactly composed for a 1024×1536 vertical canvas. Full upper-body image of the approved fictional Korean woman in her late twenties walking slowly along a bright leafy pedestrian path in soft open shade, ivory and pale sky-blue palette. Keep the model centered and all important edges safely inside frame for center-crop safety. Preserve her identity: soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob with a near-center part, slim-to-average natural build, subtle makeup, short natural nails. No jewelry, watch, tattoos, or brands.\n\nShe is wearing exactly one white pair of long loose-fit arm sleeves. The sleeves must match the real product references: long relaxed tube silhouette, not tight compression; fine irregular vertical pleats; thin matte woven fabric; elastic upper-arm band; wide back-of-hand cuff; thumb openings; one white woven label per sleeve when visible, with exact two-line black text: “HELLO” over “CUTE SLEEVE”. Preserve the physical construction and proportions from the reference product. Do not invent rib knit, sports panels, mesh, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, extra labels, or any performance graphics.\n\nPose: walking naturally with arms relaxed at her sides so both sleeves are visible from above elbow to hand. Show the loose pleats clearly on both sleeves, with correct thumb openings and at least one visible label rendered accurately if visible. No sun-protection, UV, cooling, airflow, or effect graphics. Outfit should be simple and minimal in light neutral tones that do not distract from the sleeves.\n\nPhotography style: premium e-commerce detail-page source image, controlled lighting, low ISO clarity, smooth gradients, crisp but natural edges, realistic skin and fabric texture, physically plausible textile detail only. No grain, no sensor noise, no speckles, no crunchy sharpening, no chaotic micro-contrast, no plastic skin, no text, no watermark, no UI.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "42cbe537f1f876340dd53f971f6270c0a794a8a2acb1b892a96458ee358c2f04",
+      "raw_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1536
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1024,
+        "source_height": 1536,
+        "target_width": 1024,
+        "target_height": 1536,
+        "crop_width": 1024,
+        "crop_height": 1536,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 5,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\vertical-1024x1536-01\\frame-005.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1536 pixels. Compose for the 1024:1536 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset B03 (grocery-cart) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1536. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 4 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\n\nMODEL IDENTITY — REQUIRED:\nUse the approved C00-03 fictional Korean woman in her late twenties.\nPreserve her soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob, and center-near part.\nPreserve her slim-to-average natural build, short clean natural nails, and subtle makeup.\nNo watch, bracelet, rings, necklace, visible brand, tattoos, or alternate person.\nThe model sheet controls face, hair, body, skin tone, hands, and overall identity only.\nThe real product references control the sleeves and override any garment detail shown on the model sheet.\n\n\nSCENE — REQUIRED:\nBright modern grocery aisle with no visible trademarks or prices. The approved model gently holds a clean cart handle; composition prioritizes forearms and hands with a friendly natural expression and neutral retail lighting.\n\nMUST SHOW — REQUIRED:\nShow exact back-of-hand cuffs, natural palm direction, both thumb openings, normal fingers, one label per sleeve, and no store brand or price text.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 178876,
+      "response_id": "resp_048c2e0532ab4fa1016a674c6563d481918b731367e8643da7",
+      "revised_prompt": "Create a clean commercial product photo asset for a Korean Coupang detail page, exact canvas 1024x1536 portrait. Scene: bright modern grocery aisle with soft neutral retail lighting, no visible trademarks, no prices, no signage text, no UI, no ad copy. Use the approved fictional Korean woman in her late twenties: soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob with a near-center part, slim-to-average natural build, subtle makeup, short clean natural nails, friendly natural expression. No jewelry, watch, tattoo, or brand marks.\n\nComposition: mid shot composed specifically for 1024x1536, center-crop-safe, with emphasis on forearms and hands on a clean grocery cart handle. Keep all important edges, face, both hands, and both sleeves fully inside frame. Natural stance, gentle grip on the cart handle, palms oriented naturally. Show both forearms clearly and prominently, with both thumb openings visible, normal fingers visible, and the back-of-hand cuffs clearly shown.\n\nProduct must exactly match the canonical reference: one pair of white long loose-fit arm sleeves, relaxed tube silhouette, not tight compression sleeves. Thin matte woven fabric with fine irregular vertical pleats, soft drape, elastic upper-arm band, wide back-of-hand cuff, thumb opening. Preserve physical construction faithfully. When labels are visible, show exactly one white woven label per sleeve with two-line black text: \"HELLO\" over \"CUTE SLEEVE\". No extra labels. Labels should be readable but natural. Do not invent rib knit, sports panels, mesh, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or performance graphics.\n\nWardrobe outside the sleeves should be simple and unbranded, minimal neutral sleeveless top. Grocery aisle background softly detailed with shelves and products blurred enough to avoid brands, but still clearly a modern supermarket environment. Clean cart handle, no logo.\n\nImage quality: rich detail, preserve meaningful fine structure and material cues with coherent non-random texture. No speckles, glitter noise, grain, sensor noise, crunchy sharpening, chaotic micro-contrast, halftone, jpeg artifacts, or waxy blur. Smooth gradients, crisp but natural edges, realistic skin and fabric texture, physically plausible shadows. Photorealistic, studio-grade ecommerce style.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "cee852cb90a6b0831d76c75742c7c04fa158a935b03802105a6a60657ba7688d",
+      "raw_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1536
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1024,
+        "source_height": 1536,
+        "target_width": 1024,
+        "target_height": 1536,
+        "crop_width": 1024,
+        "crop_height": 1536,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 6,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\vertical-1024x1536-01\\frame-006.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-45c0af96.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1536 pixels. Compose for the 1024:1536 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset B07 (measurement-flatlay) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1536. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 3 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nOrthographic measurement-ready flat lay of one exact sleeve fully straightened beside a clean unnumbered neutral ruler-like scale bar, warm ivory background, even light and minimal distortion.\n\nMUST SHOW — REQUIRED:\nShow entire sleeve and clear start and end points. Do not generate any number, unit, dimension, arrow label, advertising copy, or measurement claim.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 60658,
+      "response_id": "resp_0261e5b29af14e25016a674c6532dc8191962e696a763eb949",
+      "revised_prompt": "Create a clean commercial product photo asset in exact 1024x1536 portrait composition, orthographic top-down flat lay on a warm ivory background with even studio lighting and minimal distortion. Show one exact white long loose-fit arm sleeve from the canonical reference, fully straightened vertically and entirely visible with clear start and end points, centered safely for crop. Preserve the relaxed tube silhouette, fine irregular vertical pleats, thin matte woven fabric, elastic upper-arm band at the top, wide back-of-hand cuff at the bottom, and thumb opening near the lower cuff area. Preserve one small white woven label on the visible sleeve with exact two-line black text: “HELLO” over “CUTE SLEEVE”. Beside the sleeve place a clean unnumbered neutral ruler-like scale bar, simple and measurement-ready, with no numbers, no units, no arrows, no dimension labels, no advertising copy. Keep the scene crisp, low-noise, natural texture, smooth gradients, natural edges, and soft controlled shadows. Do not add a second sleeve, no extra labels, no mesh, no sports panels, no icons, no logos, no watermarks, no text except the physical product label.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "d39a49606881df063ccb17999a1ebb895099e3864f03d713d471228c5b19f08a",
+      "raw_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1536
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1024,
+        "source_height": 1536,
+        "target_width": 1024,
+        "target_height": 1536,
+        "crop_width": 1024,
+        "crop_height": 1536,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 7,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\vertical-1024x1536-01\\frame-007.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-4605aff2.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1536 pixels. Compose for the 1024:1536 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset C01 (model-editorial-front) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1536. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 4 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\n\nMODEL IDENTITY — REQUIRED:\nUse the approved C00-03 fictional Korean woman in her late twenties.\nPreserve her soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob, and center-near part.\nPreserve her slim-to-average natural build, short clean natural nails, and subtle makeup.\nNo watch, bracelet, rings, necklace, visible brand, tattoos, or alternate person.\nThe model sheet controls face, hair, body, skin tone, hands, and overall identity only.\nThe real product references control the sleeves and override any garment detail shown on the model sheet.\n\n\nSCENE — REQUIRED:\nFront-facing half-body editorial portrait in a white-and-sand summer studio. The approved model looks calmly toward camera with both arms relaxed and the exact sleeve pair worn symmetrically.\n\nMUST SHOW — REQUIRED:\nPreserve face, hair, build, both arms, normal hands, one sleeve per arm, loose pleats, hand cuffs, thumb openings and one label per sleeve.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 161771,
+      "response_id": "resp_061e87ba6423bc95016a674c6665b4819bb2763330a69490c6",
+      "revised_prompt": "Create a clean commercial editorial product photo asset, exactly 1024x1536 vertical. Front-facing half-body portrait in a white-and-sand summer studio with soft controlled lighting and smooth neutral gradients. Use the approved fictional Korean woman in her late twenties: soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob with near-center part, slim-to-average natural build, short clean natural nails, subtle makeup. She looks calmly toward camera. Both arms relaxed and visible, wearing one matching white loose-fit long arm sleeve on each arm symmetrically. Preserve the exact product identity: long relaxed tube silhouette, not compression; thin matte woven fabric; fine irregular vertical pleats; elastic upper-arm band; wide back-of-hand cuff; thumb opening; one white woven label per sleeve visible with exact two-line black text HELLO over CUTE SLEEVE. No extra seams, no sports panels, no mesh, no zippers, no drawstrings, no silicone, no extra holes, no extra labels. Show both normal hands, both arms, face, hair, build, loose pleats, hand cuffs, thumb openings, labels. Keep all important edges safely inside frame and center-crop-safe. White sleeveless top and light neutral bottoms acceptable, but sleeves must match the real product references and override any model-sheet garment details. Quality: low-ISO studio clarity, crisp natural edges, physically plausible fabric texture, no grain, no noise, no speckle, no crunchy sharpening, no text overlays, no watermark.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "d706dd101b4c0eabdb1c92b5ca7bc066919cf3bd0b8d0f671226ffa09b6378e7",
+      "raw_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1536
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1024,
+        "source_height": 1536,
+        "target_width": 1024,
+        "target_height": 1536,
+        "crop_width": 1024,
+        "crop_height": 1536,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    }
+  ],
+  "gif_path": null
+}

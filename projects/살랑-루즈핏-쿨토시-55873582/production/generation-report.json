@@ -1,0 +1,498 @@
+{
+  "schemaVersion": 1,
+  "revisionId": "rev-001",
+  "status": "generated-pending-qa",
+  "generatedAt": "2026-07-27T12:25:52.909Z",
+  "provider": "god-tibo-gpt-image2-skill",
+  "requestedAssetCount": 40,
+  "generatedAssetCount": 40,
+  "sizeChecksPassed": 40,
+  "waves": [
+    {
+      "id": "wave-01",
+      "workerTotal": 16,
+      "jobIds": [
+        "vertical-1024x1536-01",
+        "square-1024x1024-01"
+      ]
+    },
+    {
+      "id": "wave-02",
+      "workerTotal": 16,
+      "jobIds": [
+        "vertical-1024x1536-02",
+        "background-2048x1152-01",
+        "long-hero-2160x3840-01"
+      ]
+    },
+    {
+      "id": "wave-03",
+      "workerTotal": 8,
+      "jobIds": [
+        "landscape-1536x1024-01",
+        "square-1024x1024-02",
+        "vertical-1024x1536-03"
+      ]
+    }
+  ],
+  "jobs": [
+    {
+      "jobId": "landscape-1536x1024-01",
+      "assetCount": 4,
+      "targetSize": "1536x1024",
+      "manifestPath": "asset/generated/pending/image/production-rev001/landscape-1536x1024-01/manifest.json",
+      "status": "generated-pending-qa"
+    },
+    {
+      "jobId": "vertical-1024x1536-01",
+      "assetCount": 8,
+      "targetSize": "1024x1536",
+      "manifestPath": "asset/generated/pending/image/production-rev001/vertical-1024x1536-01/manifest.json",
+      "status": "generated-pending-qa"
+    },
+    {
+      "jobId": "vertical-1024x1536-02",
+      "assetCount": 8,
+      "targetSize": "1024x1536",
+      "manifestPath": "asset/generated/pending/image/production-rev001/vertical-1024x1536-02/manifest.json",
+      "status": "generated-pending-qa"
+    },
+    {
+      "jobId": "vertical-1024x1536-03",
+      "assetCount": 1,
+      "targetSize": "1024x1536",
+      "manifestPath": "asset/generated/pending/image/production-rev001/vertical-1024x1536-03/manifest.json",
+      "status": "generated-pending-qa"
+    },
+    {
+      "jobId": "square-1024x1024-01",
+      "assetCount": 8,
+      "targetSize": "1024x1024",
+      "manifestPath": "asset/generated/pending/image/production-rev001/square-1024x1024-01/manifest.json",
+      "status": "generated-pending-qa"
+    },
+    {
+      "jobId": "square-1024x1024-02",
+      "assetCount": 3,
+      "targetSize": "1024x1024",
+      "manifestPath": "asset/generated/pending/image/production-rev001/square-1024x1024-02/manifest.json",
+      "status": "generated-pending-qa"
+    },
+    {
+      "jobId": "background-2048x1152-01",
+      "assetCount": 6,
+      "targetSize": "2048x1152",
+      "manifestPath": "asset/generated/pending/image/production-rev001/background-2048x1152-01/manifest.json",
+      "status": "generated-pending-qa"
+    },
+    {
+      "jobId": "long-hero-2160x3840-01",
+      "assetCount": 2,
+      "targetSize": "2160x3840",
+      "manifestPath": "asset/generated/pending/image/production-rev001/long-hero-2160x3840-01/manifest.json",
+      "status": "generated-pending-qa"
+    }
+  ],
+  "assets": [
+    {
+      "id": "A01",
+      "role": "pair-flatlay-hero",
+      "path": "asset/generated/pending/image/production-rev001/landscape-1536x1024-01/frame-000.png",
+      "sha256": "5fb16db47fb36496ab7a452dda6d38ad90766309843279f8010283ee0716fc8c",
+      "width": 1536,
+      "height": 1024,
+      "responseId": "resp_033c7304afa90662016a674df9e7408191a947999a98f210cf",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "A03",
+      "role": "single-reverse-label",
+      "path": "asset/generated/pending/image/production-rev001/landscape-1536x1024-01/frame-001.png",
+      "sha256": "16f16d4570ea077d20193d3f7b7005b4d813c45dbd99b19bdd524b84fb21a493",
+      "width": 1536,
+      "height": 1024,
+      "responseId": "resp_0c8aa35f2cc362e3016a674dfac3d481919fbc4597980fb1c5",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "D01",
+      "role": "pair-clean-cutout",
+      "path": "asset/generated/pending/image/production-rev001/landscape-1536x1024-01/frame-002.png",
+      "sha256": "abc07e5a1288ef626219397c07fafb043edafb8eee15db9e9272b3ad2451ba62",
+      "width": 1536,
+      "height": 1024,
+      "responseId": "resp_06026afa9e1097ab016a674dfad0ec8191a38335f6dce3ebcc",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "E07",
+      "role": "pair-wide-banner",
+      "path": "asset/generated/pending/image/production-rev001/landscape-1536x1024-01/frame-003.png",
+      "sha256": "71bde876ec355f1c61a9b0df961307269b12cb607d7e830460a040e8b169fcd4",
+      "width": 1536,
+      "height": 1024,
+      "responseId": "resp_0faa6da64aa00219016a674df95eb08191bc7970ced54f9b1e",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "A02",
+      "role": "single-front",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-01/frame-000.png",
+      "sha256": "f2e754640d85590c4f25f1f3fb37c229d16fb129aed05f85465685f7e53f44d9",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_06cd1f1ec5c96fd7016a674c668eb081989dd39872567fa5c8",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "A07",
+      "role": "loose-drape-arm",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-01/frame-001.png",
+      "sha256": "53440534074f30774ac07a27f3c42a2f13b75295194a3498dfdaf1a9789c4165",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_08d6e890ed13fea2016a674c66fe408191b19db68de3a3f51d",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "A08",
+      "role": "daylight-thinness",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-01/frame-002.png",
+      "sha256": "97807487b026fcb3e966c27aef58e88c96a25a45d1e9b7a278f15aa5116efe60",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_0d4e5e9e6af48672016a674c66fa8081999e527eba672c904a",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "B01",
+      "role": "parked-car-driving",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-01/frame-003.png",
+      "sha256": "20c61668bbe49b5374d32fd3bf8f4936efb08397f2a75da7ccdf02b3b1ea9b0c",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_0468c627e433f4b9016a674c644f748191bb1c080db3168c4b",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "B02",
+      "role": "summer-walk",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-01/frame-004.png",
+      "sha256": "42cbe537f1f876340dd53f971f6270c0a794a8a2acb1b892a96458ee358c2f04",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_08806331c97553c6016a674c653f388191b0549ba8891f01c6",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "B03",
+      "role": "grocery-cart",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-01/frame-005.png",
+      "sha256": "cee852cb90a6b0831d76c75742c7c04fa158a935b03802105a6a60657ba7688d",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_048c2e0532ab4fa1016a674c6563d481918b731367e8643da7",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "B07",
+      "role": "measurement-flatlay",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-01/frame-006.png",
+      "sha256": "d39a49606881df063ccb17999a1ebb895099e3864f03d713d471228c5b19f08a",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_0261e5b29af14e25016a674c6532dc8191962e696a763eb949",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "C01",
+      "role": "model-editorial-front",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-01/frame-007.png",
+      "sha256": "d706dd101b4c0eabdb1c92b5ca7bc066919cf3bd0b8d0f671226ffa09b6378e7",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_061e87ba6423bc95016a674c6665b4819bb2763330a69490c6",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "C02",
+      "role": "model-editorial-three-quarter",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-02/frame-000.png",
+      "sha256": "2f926a60236ea590fc742087e7f94496578d6ab2b07ad4df66def197920368bb",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_026f402819bef6f0016a674d3786e48191a5af25a762c369cb",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "C03",
+      "role": "model-side-drape",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-02/frame-001.png",
+      "sha256": "cc8d7129ebd8f5f37f1457b26cd0110066f597d6d000a3b3816524a4dbff1bc1",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_0f9028e248d0920d016a674d39437c81918f3ea5ef5015bf5a",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "C04",
+      "role": "iced-drink-hand",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-02/frame-002.png",
+      "sha256": "bcdeb29d0f13ddc61c3bcc4834c8347002253b89fe9c293b563d11acb7f601e7",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_0f5e001b9cd25703016a674d37e6cc819181f6a39a28cd1ac9",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "C05",
+      "role": "phone-use-close",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-02/frame-003.png",
+      "sha256": "ecd2150fc95f896bd2c90dc082a2e83776fcacedaed25dd9f8303f56f6fc63ec",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_04b019e92d8cedba016a674d379df081918ce82991861c950c",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "C06",
+      "role": "tote-walk",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-02/frame-004.png",
+      "sha256": "5d06ff2c61c1dab1d9f1c989c3aea7bf2c0c4a3f321f6d980bce543408c20247",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_0150fff5db765ba0016a674d3a3f088198a1ba8d336b43391a",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "C07",
+      "role": "balcony-reading",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-02/frame-005.png",
+      "sha256": "0e5b3c3ee7a78955d0529a44ac8b95ee4d64fef0b11fae543a5c9d352b2637b2",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_0a870b2fa7176c13016a674d3787d4819198bf93e934795908",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "C08",
+      "role": "neutral-full-body",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-02/frame-006.png",
+      "sha256": "2074e52a727e0f989520303a5b8869c9186964b184053d68ce7108b5bb574931",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_07624e3ccef0c176016a674d3cb65081919ab07d4378e9196c",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "D02",
+      "role": "single-front-cutout",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-02/frame-007.png",
+      "sha256": "3a6a0b4dbca9c17497cc466b30f1b754af11061dea11b1310b0c2947c4dbb04a",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_062c6b1af5418af4016a674d38c4d481919805e479f8bc0a68",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "D03",
+      "role": "single-reverse-cutout",
+      "path": "asset/generated/pending/image/production-rev001/vertical-1024x1536-03/frame-000.png",
+      "sha256": "15f837a60772c4dc60351832999a3fd24a5fe5d3efc647c6d87bd152d8a4a583",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_0b675d32c47a6324016a674dfdf788819188b23073e1b15581",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "A04",
+      "role": "pleat-macro",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-01/frame-000.png",
+      "sha256": "778de0b08503f92440f72d0c70aa497b9b2ccae61523d1f28b13a6e5e2b1803b",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_025952886ecabd3d016a674c6205388198a76a75a3d2b6ea8a",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "A05",
+      "role": "thumb-hole-hand-cover",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-01/frame-001.png",
+      "sha256": "4a3d02d672b5de32a8f6e1c409b558a20a5b1b461c2c3c1b59b074c24be2415e",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_0460d26bf60b4ec7016a674c62c4c08191b6aef6972c3bb695",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "A06",
+      "role": "upper-band-seam",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-01/frame-002.png",
+      "sha256": "4684ff4d7ad51085176523a41cd235bfda00760c822c4af132d3bb79ea0cf40d",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_0394780d493a1c15016a674c66deec8191bc8b1fc8d8a45211",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "B05",
+      "role": "folded-pouch",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-01/frame-003.png",
+      "sha256": "fd2f85f4ef29098203c9f4832c023d60f67de54f390006a4b21f4b50daa5bb35",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_00a10d4c9236ebe6016a674c66945881919f77568b8d68b60b",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "B06",
+      "role": "palm-side-structure",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-01/frame-004.png",
+      "sha256": "76a920a4cce5ac665a83f18c171c974003e79864678ab446bd65d7de1a0c8c16",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_065b1edbd51dbbb1016a674c63d350819180a433fde117a107",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "D04",
+      "role": "left-thumb-detail",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-01/frame-005.png",
+      "sha256": "1193e5aaffcf486db2e271814c5378ca6598c80ead91b05b2d5215d5cbd5c6a8",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_0442e66dff46f2bf016a674c64052081918381c4db3b53d67d",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "D05",
+      "role": "right-thumb-detail",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-01/frame-006.png",
+      "sha256": "b3964fc883585c0010d46d12b4e0319f6734746624c91fc94f57859a91f73faf",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_07f3e472c0ad7d7c016a674c61e58c8191b3ce7372f78dfcd2",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "D06",
+      "role": "label-macro-clean",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-01/frame-007.png",
+      "sha256": "9bb5ce7c2ba3598e0b8feb3a7128b37be69f7ec073615cf29b0e40da29aadfb7",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_063846fdce4e5ff5016a674c6388e4819193faf2e21abefe44",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "D07",
+      "role": "seam-macro-clean",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-02/frame-000.png",
+      "sha256": "e9d5db5bb62043c504bea19bf689e3ae21341b1ea3e46286c55c8e0d2ba1810e",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_05468fd5f0be9179016a674dfa9f288191a8130e6c952ea1d7",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "D08",
+      "role": "folded-pair-stack",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-02/frame-001.png",
+      "sha256": "ea31533f84ae30ec9349f0096f7127c310da595f84163f04ee96be00479aafa8",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_058a2370466dbbe9016a674dfaca988191bb77142c2fdaab15",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "E08",
+      "role": "thumbhole-procedure-mid",
+      "path": "asset/generated/pending/image/production-rev001/square-1024x1024-02/frame-002.png",
+      "sha256": "c2648cad4ff752c88bc84d2a31b1167766a7267920b082be1268ddeb8a6a44c1",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_04ce06aad13f9751016a674df7b5d8819194d332d6a9cf20d9",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "B04",
+      "role": "window-desk-background",
+      "path": "asset/generated/pending/image/production-rev001/background-2048x1152-01/frame-000.png",
+      "sha256": "36273fed39a1cfa5bfa41590cee47576a3ab579ce7ede4656f8094a7bd58c377",
+      "width": 2048,
+      "height": 1152,
+      "responseId": "resp_0986215c537c62c6016a674d2bfa3081919becae0a8cac66ff",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "E01",
+      "role": "ivory-paper-background",
+      "path": "asset/generated/pending/image/production-rev001/background-2048x1152-01/frame-001.png",
+      "sha256": "bdd35c29c12f2c255f0b34b066c454333f9859ae772e4fa5f4b2ba52b0ab6585",
+      "width": 2048,
+      "height": 1152,
+      "responseId": "resp_0a5c0fb6e912d7e8016a674d2bdef8819181c4ec5a20402678",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "E02",
+      "role": "summer-blue-shadow-background",
+      "path": "asset/generated/pending/image/production-rev001/background-2048x1152-01/frame-002.png",
+      "sha256": "be77a5a607559647ce4f8f422baa025b85bfb601ca7eb7fd857df703d5126a29",
+      "width": 2048,
+      "height": 1152,
+      "responseId": "resp_0dc500d53ef9d7a1016a674d2bf1a88191ab75c1f06449b338",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "E03",
+      "role": "pale-coral-table-background",
+      "path": "asset/generated/pending/image/production-rev001/background-2048x1152-01/frame-003.png",
+      "sha256": "84b7973766c58f205a427c66b8516b6f2475ff550421433963cdbc2357f959ec",
+      "width": 2048,
+      "height": 1152,
+      "responseId": "resp_049fd4a50ac5b805016a674d2c1d5881988f07610bf36f12b3",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "E04",
+      "role": "parked-car-interior-background",
+      "path": "asset/generated/pending/image/production-rev001/background-2048x1152-01/frame-004.png",
+      "sha256": "748ab3a265ec6325b9be5aaa16f4e50abeb4b4e0fcd40231ab270eb0d4853401",
+      "width": 2048,
+      "height": 1152,
+      "responseId": "resp_07737c3439ba78a4016a674d2c1aa4819a8605fd355730077e",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "E05",
+      "role": "grocery-aisle-background",
+      "path": "asset/generated/pending/image/production-rev001/background-2048x1152-01/frame-005.png",
+      "sha256": "6daac16682f9907ec0e4f7535f52c6af784eaf3ec82bbbeb8a162c6c04501a9b",
+      "width": 2048,
+      "height": 1152,
+      "responseId": "resp_04cdaf95bfc4151a016a674d2c02b48198afd0e307a3210ef7",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "B08",
+      "role": "final-recap-hero",
+      "path": "asset/generated/pending/image/production-rev001/long-hero-2160x3840-01/frame-000.png",
+      "sha256": "3a81c8579cba1fbee66ad9e30b536415d0e3c6a38828412c5bc7bfdbe892acc1",
+      "width": 2160,
+      "height": 3840,
+      "responseId": "resp_0c7ce8da47f8b9a9016a674d36e68c81919d2216b84b4c8e9b",
+      "qaStatus": "pending"
+    },
+    {
+      "id": "E06",
+      "role": "model-product-split-hero",
+      "path": "asset/generated/pending/image/production-rev001/long-hero-2160x3840-01/frame-001.png",
+      "sha256": "62c5aa8c01b2d0d91a4d84b6bb9a5de65a561f572693644583dc3817de4d366d",
+      "width": 2160,
+      "height": 3840,
+      "responseId": "resp_0faadc6935bdf96c016a674d39f0688191a7efb649ffc35006",
+      "qaStatus": "pending"
+    }
+  ]
+}

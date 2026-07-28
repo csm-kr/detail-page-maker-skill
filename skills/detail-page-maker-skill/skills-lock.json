@@ -7,6 +7,12 @@
       "skillPath": "skills/taste-skill/SKILL.md",
       "computedHash": "899b84384f74f540ea5284d9b2e9234e050998b42eacc805410b518d4226c0b3"
     },
+    "god-tibo-gpt-image2-skill": {
+      "source": "csm-kr/god-tibo-gpt-image2-skill",
+      "sourceType": "github",
+      "skillPath": "skills/god-tibo-gpt-image2-skill/SKILL.md",
+      "computedHash": "d56e05684a4104b76d3d1cfd2be598514a695732cf1e7fbb2d284f77d19bc9c3"
+    },
     "hyperframes": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",

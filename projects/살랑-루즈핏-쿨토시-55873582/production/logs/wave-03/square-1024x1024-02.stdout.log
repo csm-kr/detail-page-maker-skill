@@ -1,0 +1,247 @@
+{
+  "schema_version": 2,
+  "created_at": "2026-07-27T12:25:47.439Z",
+  "dry_run": false,
+  "mode": "per_item",
+  "detail_level": 3,
+  "workers": 3,
+  "batch_size": 3,
+  "duration_ms": 92733,
+  "reference_paths": [
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-d63f66f5.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-4605aff2.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ]
+  ],
+  "transmitted_reference_paths": [
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-d63f66f5.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-4605aff2.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ]
+  ],
+  "api_size": [
+    "auto",
+    "auto",
+    "auto"
+  ],
+  "size": {
+    "mode": "per_item",
+    "items": [
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1024
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1024
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1024
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      }
+    ]
+  },
+  "size_invariant": [
+    null,
+    null,
+    null
+  ],
+  "padding_color": [
+    null,
+    null,
+    null
+  ],
+  "images": [
+    {
+      "index": 0,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\square-1024x1024-02\\frame-000.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-d63f66f5.jpg"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1024 pixels. Compose for the 1024:1024 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset D07 (seam-macro-clean) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1024. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 3 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nClean macro of the upper-arm elastic band, edge seam and transition into fine pleated white fabric, neutral studio light with a small whole-sleeve location cue.\n\nMUST SHOW — REQUIRED:\nPreserve observed stitches and material only; no silicone, grip dots, drawstrings, hardware, zipper, mesh, adhesive or invented reinforcement.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 92598,
+      "response_id": "resp_05468fd5f0be9179016a674dfa9f288191a8130e6c952ea1d7",
+      "revised_prompt": "Create a clean commercial studio product photo asset, exactly 1024x1024 composition, for Korean Coupang detail-page source library: '루즈핏 쿨토시' by manufacturer '살랑'. Image 1 is the canonical product identity: one white pair of long loose-fit arm sleeves with relaxed tube silhouette, fine irregular vertical pleats, thin matte woven fabric, elastic upper-arm band, wide back-of-hand cuff, and thumb opening. Supporting refs confirm sleeve shape, fabric, seam behavior, and white woven label text when visible. Scene requested: seam-macro-clean. Show a macro close-up of the upper-arm elastic band, the edge seam, and the transition into the fine pleated white fabric under neutral studio light, with a small whole-sleeve location cue included in-frame. Preserve observed stitches and material only. No silicone, grip dots, drawstrings, hardware, zipper, mesh, adhesive, reinforcement, extra seams, extra holes, or extra labels. No performance icons or text overlays. If any physical label is visible in the small location cue, preserve one white woven label per sleeve with exact two-line black text 'HELLO' over 'CUTE SLEEVE'. Background should be seamless neutral light gray or white studio backdrop, not wood floor. Lighting soft and controlled, smooth gradients, crisp natural edges, clean shadow transitions, low-ISO clarity. Preserve meaningful fine structure and material cues with coherent non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast. Keep essential content centered and center-crop-safe. Final output must look like premium e-commerce macro photography.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "e9d5db5bb62043c504bea19bf689e3ae21341b1ea3e46286c55c8e0d2ba1810e",
+      "raw_size": {
+        "width": 1254,
+        "height": 1254
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1024
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1024
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1254,
+        "source_height": 1254,
+        "target_width": 1024,
+        "target_height": 1024,
+        "crop_width": 1254,
+        "crop_height": 1254,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 1,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\square-1024x1024-02\\frame-001.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-4605aff2.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1024 pixels. Compose for the 1024:1024 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset D08 (folded-pair-stack) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1024. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 3 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nMinimal premium product photograph of the exact pair loosely folded into a soft two-piece stack on warm ivory paper, each sleeve still visually distinguishable, gentle daylight and natural shadows.\n\nMUST SHOW — REQUIRED:\nShow exactly two sleeves, not one or three, with recognizable cuffs, pleats and labels; do not compress into an unrealistic tiny bundle.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 82780,
+      "response_id": "resp_058a2370466dbbe9016a674dfaca988191bb77142c2fdaab15",
+      "revised_prompt": "Create a clean premium commercial product photograph, square 1024x1024 composition, of the exact real product from the references: one pair of white long loose-fit arm sleeves by 살랑, arranged as asset D08 'folded-pair-stack'. Show exactly two sleeves loosely folded into a soft two-piece stack on warm ivory paper, each sleeve still visually distinguishable, not compressed into a tiny bundle. Preserve the long relaxed tube silhouette, fine irregular vertical pleats, thin matte woven fabric, elastic upper-arm band, wide back-of-hand cuff, and thumb opening. Keep one white woven label visible on each sleeve when visible, with exact two-line black text: 'HELLO' over 'CUTE SLEEVE'. No extra seams, holes, panels, rib knit, mesh, zipper, drawstring, silicone, anti-slip dots, or extra labels. Minimal styling, gentle daylight, natural soft shadows, smooth continuous gradients, crisp but natural edges, low-ISO clarity, realistic material texture only. Warm ivory paper background, centered and crop-safe, no text, no badges, no watermark, no UI.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "ea31533f84ae30ec9349f0096f7127c310da595f84163f04ee96be00479aafa8",
+      "raw_size": {
+        "width": 1254,
+        "height": 1254
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1024
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1024
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1254,
+        "source_height": 1254,
+        "target_width": 1024,
+        "target_height": 1024,
+        "crop_width": 1254,
+        "crop_height": 1254,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 2,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\square-1024x1024-02\\frame-002.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-14-62b5cece.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1024 pixels. Compose for the 1024:1024 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset E08 (thumbhole-procedure-mid) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1024. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 4 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\n\nMODEL IDENTITY — REQUIRED:\nUse the approved C00-03 fictional Korean woman in her late twenties.\nPreserve her soft oval face, dark natural eyes, straight nose line, rose-beige lips, neutral-warm skin, black-brown collarbone-length straight long bob, and center-near part.\nPreserve her slim-to-average natural build, short clean natural nails, and subtle makeup.\nNo watch, bracelet, rings, necklace, visible brand, tattoos, or alternate person.\nThe model sheet controls face, hair, body, skin tone, hands, and overall identity only.\nThe real product references control the sleeves and override any garment detail shown on the model sheet.\n\n\nSCENE — REQUIRED:\nInstructional but text-free close-up of the approved model halfway through finding the thumb opening: sleeve already on the forearm, fingers extended naturally, thumb approaching the correct opening, same warm ivory studio setup as the start and end hand frames.\n\nMUST SHOW — REQUIRED:\nShow one anatomically correct hand, five fingers, clear intermediate thumb position, fixed cuff and label, no duplicate hand, no arrow, number, caption or UI.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 91961,
+      "response_id": "resp_04ce06aad13f9751016a674df7b5d8819194d332d6a9cf20d9",
+      "revised_prompt": "Create a square 1024x1024 clean commercial product photo asset for a Korean Coupang detail page. Use Image 1 as the canonical real-product reference and Images 2-4 only as supporting references. Show the approved fictional Korean woman in her late twenties, but frame as a close-up instructional hand/forearm shot in a warm ivory studio setup. Preserve her neutral-warm skin, slim natural hand with short clean natural nails, and only a minimal glimpse of torso if needed. No jewelry, no brands.\n\nMain subject: one white long loose-fit arm sleeve already worn on the forearm, showing the exact product identity: relaxed tube silhouette, fine irregular vertical pleats, thin matte woven fabric, elastic upper-arm band, wide back-of-hand cuff, and thumb opening. Preserve the physical label when visible: one white woven label on the cuff with exact two-line black text: “HELLO” over “CUTE SLEEVE”. No extra seams, no mesh, no compression panels, no extra holes, no extra labels.\n\nScene must depict the midway thumbhole procedure: text-free instructional close-up, one anatomically correct hand only, five fingers visible, fingers extended naturally, thumb approaching the correct thumb opening but not yet fully through. Show a clear intermediate thumb position. The cuff and label stay fixed. No duplicate hand, no arrow, no caption, no UI.\n\nComposition: square 1024x1024 from the start, center-crop-safe. Keep all important product edges, hand, and forearm safely inside frame. Camera angle similar to a top-down or slightly oblique product-demo beauty shot. Warm ivory seamless studio background with soft clean shadows and smooth gradients.\n\nQuality: rich detail, preserve meaningful fine structure and material cues with coherent non-random texture. Crisp but natural edges, low-ISO clarity. No speckles, glitter noise, film grain, sensor noise, chromatic noise, dithering, JPEG artifacts, oversharpening, dirty shadows, waxy blur, plastic skin, or chaotic micro-contrast.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "c2648cad4ff752c88bc84d2a31b1167766a7267920b082be1268ddeb8a6a44c1",
+      "raw_size": {
+        "width": 1254,
+        "height": 1254
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1024
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1024
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1254,
+        "source_height": 1254,
+        "target_width": 1024,
+        "target_height": 1024,
+        "crop_width": 1254,
+        "crop_height": 1254,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    }
+  ],
+  "gif_path": null
+}

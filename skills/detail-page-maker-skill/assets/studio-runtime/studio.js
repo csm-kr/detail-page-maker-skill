@@ -1853,8 +1853,8 @@ function openProductAssetBatchDialog({ groupId = "" } = {}) {
         ? `남은 선행 에셋 ${targets.length}개 중 새로 만들 항목을 선택하세요. 승인 모델과 제품 SSOT가 필요한 장면에는 두 원장이 함께 연결됩니다.`
         : "모델 후보·제품 뷰·배경처럼 지금 만들 수 있는 항목을 먼저 병렬 제작합니다. 사람 장면은 모델 승인 뒤 두 번째 묶음으로 엽니다.";
   const form = $("#productAssetBatchForm");
-  form.elements.executor.value = "god-tibo-imagen";
-  form.elements.concurrency.value = "4";
+  form.elements.executor.value = "god-tibo-gpt-image2-skill";
+  form.elements.concurrency.value = "8";
   form.elements.confirmed.checked = false;
   $("#productAssetBatchDialog").showModal();
 }
@@ -2271,9 +2271,10 @@ async function handleProductAssetBatchRequest(event) {
         })),
         execution: {
           provider: form.elements.executor.value,
-          concurrency: Number(form.elements.concurrency.value || 4),
+          concurrency: Number(form.elements.concurrency.value || 8),
           size: "1024x1536",
-          autoStart: form.elements.executor.value === "god-tibo-imagen",
+          autoStart:
+            form.elements.executor.value === "god-tibo-gpt-image2-skill",
         },
         confirmedByUser: true,
       }),
@@ -2357,7 +2358,7 @@ async function handlePrompt(event) {
         prompt: form.elements.prompt.value.trim(),
         sourceRefs: version.sourceRefs || [],
         executor: {
-          provider: "god-tibo-imagen",
+          provider: "god-tibo-gpt-image2-skill",
           concurrency: 1,
           size: "1024x1536",
           autoStart: true,

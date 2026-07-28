@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "project": "살랑 루즈핏 쿨토시",
+  "batch": "rev020-god-tibo-wear-style-continuity-v01",
+  "reviewedAt": "2026-07-28",
+  "status": "approved_with_exclusions",
+  "ssotManifest": "assets/product-ssot/manifest.json",
+  "items": [
+    {
+      "file": "frame-000.png",
+      "decision": "approved",
+      "roles": ["howto_start"],
+      "reason": "오른손이 상완 밴드 쪽 입구로 들어가고 반대손이 밴드를 잡는 실제 착용 시작 구조가 명확하다."
+    },
+    {
+      "file": "frame-001.png",
+      "decision": "approved",
+      "roles": ["howto_middle"],
+      "reason": "손이 커프를 통과하고 반대손이 소매를 팔 위로 올리는 중간 동작이 연결된다."
+    },
+    {
+      "file": "frame-002.png",
+      "decision": "approved",
+      "roles": ["howto_finish", "dress_style"],
+      "reason": "상단 밴드, 루즈한 몸판, 손등 커프, 엄지홀과 라벨이 실제 착용 완료 구조와 일치한다."
+    },
+    {
+      "file": "frame-003.png",
+      "decision": "approved",
+      "roles": ["casual_style"],
+      "reason": "잠금 모델과 제품 구조가 유지되고 손등 커프가 자연스럽게 착용됐다."
+    },
+    {
+      "file": "frame-004.png",
+      "decision": "rejected",
+      "roles": [],
+      "reason": "실제 제품에 없는 굵은 사선 띠 구조가 몸판 전체를 가로질러 동일성 불합격이다."
+    },
+    {
+      "file": "frame-005.png",
+      "decision": "approved",
+      "roles": ["weekend_style"],
+      "reason": "스트라이프 셔츠 코디에서도 긴 루즈핏, 손등 커프, 엄지홀과 라벨 위치가 유지됐다."
+    },
+    {
+      "file": "frame-006.png",
+      "decision": "rejected",
+      "roles": [],
+      "reason": "제품 형태는 가깝지만 라벨 문자가 흐릿하게 변형되어 최종 광고 소재에서 제외한다."
+    },
+    {
+      "file": "frame-007.png",
+      "decision": "rejected",
+      "roles": [],
+      "reason": "라벨이 손등 커프가 아닌 팔목 위로 이동하고 실제에 없는 분할 커프가 생겼다."
+    }
+  ],
+  "approvedProductFrames": [
+    "frame-000.png",
+    "frame-001.png",
+    "frame-002.png",
+    "frame-003.png",
+    "frame-005.png"
+  ],
+  "continuitySets": {
+    "howto": ["frame-000.png", "frame-001.png", "frame-002.png"],
+    "style": [
+      "../rev019-god-tibo-commercial-product-v01/frame-007.png",
+      "frame-003.png",
+      "frame-005.png"
+    ]
+  }
+}

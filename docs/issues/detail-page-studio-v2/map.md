@@ -1,4 +1,8 @@
-# Detail Page Studio v2
+# Detail Page Studio v2 (Deprecated)
+
+Status: wontfix
+
+활성 작업은 [Studio v1 Asset Approval](../studio-v1-asset-approval/map.md)로 이동했다.
 
 ## Destination
 
@@ -27,6 +31,7 @@
 - 게시 기준은 상용 QA 97점 이상과 하드 실패 0건이다.
 - 구현 계약은 [01 제품 명세](issues/01-document-studio-contract.md), 설치 단위는 [02 설치형 스킬](issues/02-package-installable-skill.md)에 고정했다.
 - 실행 결과는 [03 로컬 서버](issues/03-build-local-studio-server.md), [04 통합 UI](issues/04-build-integrated-studio-ui.md), [05 회귀 QA](issues/05-verify-studio-runtime.md)에 기록했다.
+- 선행 에셋 28개, 모델 SSOT, 최종 14장·GIF 2개의 연결과 승인 게이트는 [06 모델 승인 게이트와 제작 로드맵](issues/06-model-roadmap.md)에 고정했다.
 
 ## Frontier
 
@@ -39,6 +44,7 @@
 - [로컬 Studio 서버와 작업 대기열 구현](issues/03-build-local-studio-server.md)
 - [통합 Studio UI 구현](issues/04-build-integrated-studio-ui.md)
 - [설치·상태·승인·내보내기 QA](issues/05-verify-studio-runtime.md)
+- [모델 승인 게이트와 전체 제작 로드맵](issues/06-model-roadmap.md)
 
 ## Out of scope
 

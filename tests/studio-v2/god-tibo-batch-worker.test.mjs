@@ -119,7 +119,8 @@ test("god-tibo 실행기는 선택한 동시성으로 배치 작업을 병렬 �
 
     assert.equal(result.completed.length, 4);
     assert.equal(result.failed.length, 0);
-    assert.equal(result.concurrency, 4);
+    assert.equal(result.concurrency, 8);
+    assert.equal(result.batchSize, 8);
     assert.equal(maxActive, 4);
     assert.equal(effectivePrompts.length, 4);
     assert.ok(
@@ -228,6 +229,63 @@ test("god-tibo 실행기는 선택한 동시성으로 배치 작업을 병렬 �
         .length,
       2,
     );
+
+    const eightPlusOneBatch = await post(
+      started.url,
+      "/api/product/ssot/batch-generation-jobs",
+      {
+        targets: Array.from({ length: 9 }, (_, index) => ({
+          name: `배치 검증 ${index + 1}`,
+          role: `batch-proof-${index + 1}`,
+          prompt: `서로 다른 상업 장면 ${index + 1}`,
+          sourceMode: "scene-reference",
+          required: false,
+        })),
+        execution: { provider: "queue" },
+        confirmedByUser: true,
+      },
+    );
+    assert.equal(eightPlusOneBatch.response.status, 201);
+    const observedBatchSizes = [];
+    const observedWorkers = [];
+    const chunked = await runGodTiboBatch({
+      studioUrl: started.url,
+      jobIds: eightPlusOneBatch.payload.jobs.map((job) => job.id),
+      executeBatch: async ({
+        items,
+        outputDirectory,
+        workers,
+        sizeMode,
+        targetSize,
+      }) => {
+        observedBatchSizes.push(items.length);
+        observedWorkers.push(workers);
+        assert.equal(sizeMode, "controllable");
+        assert.equal(targetSize, "1024x1536");
+        await mkdir(outputDirectory, { recursive: true });
+        const images = await Promise.all(
+          items.map(async (_, index) => {
+            const savedPath = path.join(outputDirectory, `frame-${index}.png`);
+            await writeFile(
+              savedPath,
+              Buffer.from(ONE_PIXEL_PNG.split(",")[1], "base64"),
+            );
+            return { savedPath };
+          }),
+        );
+        return {
+          manifestPath: path.join(outputDirectory, "manifest.json"),
+          images,
+        };
+      },
+    });
+    assert.equal(chunked.completed.length, 9);
+    assert.equal(chunked.failed.length, 0);
+    assert.equal(chunked.concurrency, 8);
+    assert.equal(chunked.batchSize, 8);
+    assert.equal(chunked.chunksExecuted, 2);
+    assert.deepEqual(observedBatchSizes, [8, 1]);
+    assert.deepEqual(observedWorkers, [8, 8]);
   } finally {
     await closeServer(server);
     const safeTempRoot = path.resolve(os.tmpdir());

@@ -10,7 +10,8 @@
 
 - 기존 스킬의 상품 조사, 근거 관리, 기획, 카피, 제품·모델 동일성, QA 자산을 재사용한다.
 - 최종 산출물의 중심을 `800×2400 PNG 여러 장`에서 `수정 가능한 HTML 상세페이지`로 전환한다.
-- 생성형 시각 자산에는 OpenAI `imagegen`만 사용한다.
+- 생성형 이미지 자산은 로컬 `god-tibo-gpt-image2-skill`의 GPT Image 2
+  8장 배치 실행기로만 제작·편집한다.
 - 제품 작동·효과·사용 전후와 같이 시간 변화가 필요한 장면은 HyperFrames로 제작한다.
 - HyperFrames 결과를 짧은 GIF로 만들어 관련 주장이나 설명 바로 옆에 삽입한다.
 - Behance 작품을 그대로 복제하지 않고, 제품군별 우수 사례에서 구성·밀도·타이포·아트디렉션 문법을 추출한다.
@@ -323,7 +324,7 @@ detail-page-project/
 - Behance `상세페이지` 검색 결과를 품질 표본 풀로 사용한다.
 - Behance 15개 원본 프로젝트 조사에서 구매 질문 중심 서사, 감성·정보·증거 리듬, 카메라 거리와 복제 방지 규칙을 내부 디자인 계약으로 채택한다.
 - AI 디자인은 단일 외부 스킬을 런타임 호출하지 않고 Anthropic·Vercel·DTCG·Playwright·WCAG의 역할별 계약을 내부화한다.
-- 시각 생성 AI 모델은 `imagegen`만 사용한다.
+- 시각 생성 AI 실행 경로는 `god-tibo-gpt-image2-skill`만 사용한다.
 - 실제 상품 장면은 제품 참조 이미지를 ImageGen에 전달해 만든다.
 - 제품 모션은 HyperFrames로 제작한다.
 - HyperFrames가 직접 렌더한 15fps·무음·무한 루프·불투명 GIF를 기본으로 HTML에 삽입한다.

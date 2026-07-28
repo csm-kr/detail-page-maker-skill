@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "provider": "god-tibo-gpt-image2-skill",
+  "providerManifestSchemaVersion": 2,
+  "createdAt": "2026-07-27T11:59:35.526Z",
+  "durationMs": 161022,
+  "jobPath": "model/jobs/c00-character-sheet-candidates-rev001.json",
+  "mode": "shared_prompt",
+  "detailLevel": 3,
+  "workers": 8,
+  "batchSize": 8,
+  "sizeMode": "controllable",
+  "targetWxH": "1536x1024",
+  "rawManifestSha256": "f00d811cca963c355a49ef59c087cd8d514c30991945e9e9b5db2d54a2ec8aab",
+  "warning": "The provider used an unsupported private Codex backend path; the raw warning was preserved in the archived provider manifest.",
+  "contactSheet": "qa/evidence/model-sheet-rev001/candidates-contact.jpg",
+  "candidates": [
+    {
+      "id": "C00-01",
+      "path": "model/candidates/c00-rev001/frame-000.png",
+      "sha256": "39cfa726d647d7332f56288bff53216e2b85329a2ca308660217e5de42243e27",
+      "widthPx": 1536,
+      "heightPx": 1024,
+      "sizeMatches": true,
+      "manualQa": "pass",
+      "recommendationRank": 2,
+      "notes": "다섯 시점, 손과 전신이 모두 보이며 얼굴·헤어 일관성이 높다."
+    },
+    {
+      "id": "C00-02",
+      "path": "model/candidates/c00-rev001/frame-001.png",
+      "sha256": "5084e5668739ccab279c0cf16ae2f7248070ab267483b5b849783d26fcb118ed",
+      "widthPx": 1536,
+      "heightPx": 1024,
+      "sizeMatches": true,
+      "manualQa": "pass",
+      "recommendationRank": 3,
+      "notes": "친근한 인상, 손을 모은 반신과 전신이 있어 실착 장면 참조에 유리하다."
+    },
+    {
+      "id": "C00-03",
+      "path": "model/candidates/c00-rev001/frame-002.png",
+      "sha256": "476d751f07484de54dc7992c138beafcdf56565ed6fa3584fbf7c72e45bcaa64",
+      "widthPx": 1536,
+      "heightPx": 1024,
+      "sizeMatches": true,
+      "manualQa": "pass",
+      "recommendationRank": 1,
+      "notes": "다섯 시점 구성이 가장 정돈되고 얼굴·헤어·체형·손의 일관성이 가장 안정적이다."
+    },
+    {
+      "id": "C00-04",
+      "path": "model/candidates/c00-rev001/frame-003.png",
+      "sha256": "7363514b569d11568128ec0a2dd5f2a3b62b95d7a37a5dac226eb7d9f3dd3094",
+      "widthPx": 1536,
+      "heightPx": 1024,
+      "sizeMatches": true,
+      "manualQa": "pass",
+      "recommendationRank": 4,
+      "notes": "얼굴 시점은 안정적이나 손 참조 면적이 상위 세 후보보다 작다."
+    },
+    {
+      "id": "C00-05",
+      "path": "model/candidates/c00-rev001/frame-004.png",
+      "sha256": "95e8511713b12942702b9500c05b966d00b5bc2f77f35bbce6c0c4f445e3ffb5",
+      "widthPx": 1536,
+      "heightPx": 1024,
+      "sizeMatches": true,
+      "manualQa": "pass-with-note",
+      "recommendationRank": 6,
+      "notes": "인물 일관성은 좋지만 반신 한쪽 손이 가려져 손 참조성이 낮다."
+    },
+    {
+      "id": "C00-06",
+      "path": "model/candidates/c00-rev001/frame-005.png",
+      "sha256": "10242680c740deb720fffb59799459ad2a79cc6089791c9b32596a1d06312ce4",
+      "widthPx": 1536,
+      "heightPx": 1024,
+      "sizeMatches": true,
+      "manualQa": "pass",
+      "recommendationRank": 5,
+      "notes": "다섯 시점의 얼굴 일관성이 좋고 전신 실루엣이 선명하다."
+    },
+    {
+      "id": "C00-07",
+      "path": "model/candidates/c00-rev001/frame-006.png",
+      "sha256": "4c763522ed9da4379221de5d1974cc5f51ea99a18fdf0e38eef360a3c6076069",
+      "widthPx": 1536,
+      "heightPx": 1024,
+      "sizeMatches": true,
+      "manualQa": "pass-with-note",
+      "recommendationRank": 7,
+      "notes": "구성은 깨끗하지만 반신·전신의 손이 작아 엄지홀 장면 참조에는 덜 유리하다."
+    },
+    {
+      "id": "C00-08",
+      "path": "model/candidates/c00-rev001/frame-007.png",
+      "sha256": "bfc27058817fc441a096ad54664a176c6c567be33b8ecae0e52d25558d1121df",
+      "widthPx": 1536,
+      "heightPx": 1024,
+      "sizeMatches": true,
+      "manualQa": "pass-with-note",
+      "recommendationRank": 8,
+      "notes": "얼굴 일관성은 양호하지만 손을 주머니에 넣은 포즈가 포함돼 손 참조성이 가장 낮다."
+    }
+  ],
+  "recommendedCandidateIds": ["C00-03", "C00-01", "C00-02"],
+  "approvalGate": "G2A",
+  "decision": "pending-user-selection"
+}

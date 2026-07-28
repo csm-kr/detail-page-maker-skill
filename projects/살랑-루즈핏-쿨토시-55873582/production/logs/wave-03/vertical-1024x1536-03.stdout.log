@@ -1,0 +1,100 @@
+{
+  "schema_version": 2,
+  "created_at": "2026-07-27T12:25:12.679Z",
+  "dry_run": false,
+  "mode": "per_item",
+  "detail_level": 3,
+  "workers": 1,
+  "batch_size": 1,
+  "duration_ms": 57963,
+  "reference_paths": [
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-d63f66f5.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg"
+    ]
+  ],
+  "transmitted_reference_paths": [
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-d63f66f5.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg"
+    ]
+  ],
+  "api_size": [
+    "auto"
+  ],
+  "size": {
+    "mode": "per_item",
+    "items": [
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1024,
+          "height": 1536
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      }
+    ]
+  },
+  "size_invariant": [
+    null
+  ],
+  "padding_color": [
+    null
+  ],
+  "images": [
+    {
+      "index": 0,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\vertical-1024x1536-03\\frame-000.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-d63f66f5.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\input\\user-real-original\\photo-2026-07-27-fd874f53.jpg"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1024×1536 pixels. Compose for the 1024:1536 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: Create asset D03 (single-reverse-cutout) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 1024x1536. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nReference routing: Image 1 is the canonical real-product reference. Images 2 through 3 are supporting product-angle, label, supplier-crop, or approved C00-03 human-identity references. Product references decide sleeve shape, color, fabric, construction, thumb opening and physical label. The approved model sheet decides only the human face, hair, build, skin tone and hands.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nCatalog-clean vertical reverse-side cutout of one exact sleeve on near-white warm neutral, camera orthographic and fabric construction clearly readable.\n\nMUST SHOW — REQUIRED:\nShow one full reverse side without crop, preserve thumb opening cut, seam direction, loose proportion and observed construction only.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 57858,
+      "response_id": "resp_0b675d32c47a6324016a674dfdf788819188b23073e1b15581",
+      "revised_prompt": "Create a clean commercial catalog cutout product photo on a warm near-white neutral background, exactly composed for 1024x1536 vertical. Show one single white long loose-fit arm sleeve, full length, reverse side, centered and fully inside frame with safe margins for minimal center crop. Use orthographic straight-on product-photography perspective. Preserve the exact product identity from the canonical reference: long relaxed tube silhouette, thin matte woven fabric, fine irregular vertical pleats, elastic upper-arm band at top, wide back-of-hand cuff at bottom, visible thumb opening cut and correct seam direction/construction. This is a reverse-side cutout of one sleeve only, not a pair. No model, no hands, no props, no text overlays. If a physical label is visible, preserve one small white woven label with exact two-line black text 'HELLO' over 'CUTE SLEEVE'; otherwise do not invent extra labels. Keep material cues coherent and realistic with controlled studio lighting, smooth gradients, crisp natural edges, clean soft shadow transition, low-ISO clarity. No speckles, glitter noise, crunchy sharpening, chaotic micro-contrast, film grain, JPEG artifacts, halftone, compression-sleeve styling, mesh, zippers, extra seams, extra holes, icons, or marketing claims.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "15f837a60772c4dc60351832999a3fd24a5fe5d3efc647c6d87bd152d8a4a583",
+      "raw_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "final_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "size_check": {
+        "expected": {
+          "width": 1024,
+          "height": 1536
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1024,
+        "source_height": 1536,
+        "target_width": 1024,
+        "target_height": 1536,
+        "crop_width": 1024,
+        "crop_height": 1536,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    }
+  ],
+  "gif_path": null
+}

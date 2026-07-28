@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "status": "approved-g2a",
+  "modelId": "model-20f-airfit-01",
+  "personType": "synthetic-adult-model",
+  "realPersonReference": false,
+  "identitySpec": {
+    "agePresentation": "20대 중후반",
+    "ethnicityPresentation": "한국인 여성",
+    "build": "슬림과 보통 사이의 자연스러운 체형",
+    "skinTone": "뉴트럴 웜",
+    "face": "부드러운 타원형 얼굴, 자연스러운 눈매, 곧은 코선, 과하지 않은 입술",
+    "hair": "짙은 흑갈색, 쇄골 길이 스트레이트 롱 보브, 가운데에 가까운 가르마",
+    "makeup": "얇은 베이스, 자연스러운 눈썹, 로즈 베이지 립",
+    "nails": "짧고 깨끗한 무광 내추럴 네일",
+    "jewelry": "없음"
+  },
+  "characterSheet": {
+    "assetId": "C00",
+    "status": "approved",
+    "candidateCount": 8,
+    "candidateBatchConcurrency": 8,
+    "jobPath": "model/jobs/c00-character-sheet-candidates-rev001.json",
+    "outputDirectory": "model/candidates/c00-rev001",
+    "candidateManifest": "model/candidates/c00-rev001/manifest.json",
+    "reviewPage": "planning/model-sheet-review.html",
+    "dryRunValidatedAt": "2026-07-27T11:55:17.917Z",
+    "generatedAt": "2026-07-27T11:59:35.526Z",
+    "qaCompletedAt": "2026-07-27T12:03:01.753Z",
+    "recommendedCandidateIds": ["C00-03", "C00-01", "C00-02"],
+    "selectedCandidateId": "C00-03",
+    "selectedCandidateSource": "model/candidates/c00-rev001/frame-002.png",
+    "targetWxH": "1536x1024",
+    "detailLevel": "high",
+    "path": "asset/ssot/model-sheet-c00-03-v01.png",
+    "sha256": "476d751f07484de54dc7992c138beafcdf56565ed6fa3584fbf7c72e45bcaa64",
+    "approvalGate": "G2A",
+    "approvedAt": "2026-07-27T12:13:47.592Z",
+    "approvedBy": "human_user",
+    "userConfirmation": "승인!"
+  },
+  "usage": {
+    "requiredForAssetIds": ["A05", "A07", "A08", "B01", "B02", "B03", "B06", "B08", "C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "D04", "D05", "E06", "E08"],
+    "referencePolicy": "모델이 등장하는 모든 이미지에 승인된 C00 캐릭터 시트만 인간 아이덴티티 참조로 사용한다.",
+    "productReferencePolicy": "쿨토시는 별도로 승인된 product/product-manifest.json SSOT를 함께 사용한다."
+  },
+  "manufacturer": {
+    "name": "살랑",
+    "source": "user-provided",
+    "status": "confirmed"
+  }
+}

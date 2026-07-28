@@ -18,7 +18,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
 1. Git, GitHub CLI, Node.js 22 이상, Codex CLI, uv, FFmpeg 확인
 2. GitHub·Codex 로그인
 3. Browser Harness 실행 도구 설치
-4. Taste·HyperFrames·Browser Harness 스킬을 받은 스킬 폴더 안에 설치
+4. Taste·God Tibo GPT Image 2·HyperFrames·Browser Harness 스킬을 받은 스킬 폴더 안에 설치
 5. 환경 진단
 6. 임시 프로젝트 E2E
 7. 공급처 URL로 첫 Studio 프로젝트 생성
@@ -60,7 +60,7 @@ powershell -ExecutionPolicy Bypass -File `
 <설치된 detail-page-maker-skill>\.agents\skills\
 ```
 
-전역 Taste·HyperFrames 스킬을 따로 설치할 필요가 없다. 설치 출처와 해시는
+전역 Taste·God Tibo GPT Image 2·HyperFrames 스킬을 따로 설치할 필요가 없다. 설치 출처와 해시는
 `skills-lock.json`에 기록된다.
 
 ## E2E 확인
@@ -83,7 +83,7 @@ node (Join-Path $skillRoot "scripts\e2e.mjs")
 성공 기준:
 
 ```text
-11개 로컬 의존 스킬 발견
+12개 로컬 의존 스킬 발견
 → 새 임시 프로젝트 생성
 → COMMERCIAL·DESIGN·BUYER-JOURNEY·GIF·APPROVALS 생성
 → Studio v1 HTTP 200
@@ -130,7 +130,7 @@ $detail-page-maker-skill로 이 공급처 URL의 새 Studio 프로젝트를 만�
 https://domeggook.com/상품번호
 ```
 
-ImageGen·HyperFrames 후보는 프로젝트의 `asset/generated/pending/`에 들어가며,
+God Tibo GPT Image 2·HyperFrames 후보는 프로젝트의 `asset/generated/pending/`에 들어가며,
 Studio v1에서 사용자가 승인한 파일만 최종 HTML에 사용된다.
 
 ## 업데이트

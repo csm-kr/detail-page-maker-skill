@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "reportId": "g3-gif-batch-002-010-rev001",
+  "gate": "G3 GIF_MOTION_BATCH",
+  "result": "PASS_RENDERED_PENDING_USER_REVIEW",
+  "createdAt": "2026-07-27T21:54:45.9543610Z",
+  "scope": {
+    "newGifCount": 9,
+    "existingApprovedGifCount": 1,
+    "totalGifCount": 10,
+    "approvedImageCount": 40
+  },
+  "render": {
+    "engine": "HyperFrames 0.7.76",
+    "composition": "hyperframes/projects/gif-batch-002-010/index.html",
+    "rows": "hyperframes/projects/gif-batch-002-010/rows.json",
+    "batchManifest": "hyperframes/projects/gif-batch-002-010/renders/manifest.json",
+    "completedRows": 9,
+    "failedRows": 0
+  },
+  "checks": [
+    { "id": "strict-check", "result": "PASS", "detail": "lint, runtime, layout, motion warnings and errors are zero" },
+    { "id": "dimensions", "result": "PASS", "detail": "9/9 are 800x800" },
+    { "id": "duration", "result": "PASS", "detail": "9/9 are 3.2 seconds" },
+    { "id": "frames", "result": "PASS", "detail": "9/9 decode to 96 frames" },
+    { "id": "loop-extension", "result": "PASS", "detail": "9/9 contain NETSCAPE2.0 infinite-loop metadata" },
+    { "id": "loop-boundary", "result": "PASS", "detail": "decoded frame 0 and frame 95 SHA-256 match for 9/9" },
+    { "id": "visual-contact", "result": "PASS", "detail": "45 extracted proof frames show no crop loss, product warp, duplicate limb, or broken model identity" },
+    { "id": "claims", "result": "PASS", "detail": "no added text, UI, certification, numerical performance, cooling, UV, ventilation, durability, or anti-slip claim" }
+  ],
+  "evidence": {
+    "sourceContact": "qa/evidence/g3-gif-motion/batch-002-010-rev001/source-contact-17.jpg",
+    "reviewContact": "qa/evidence/g3-gif-motion/batch-002-010-rev001/gif-002-010-review-contact-9x5.png",
+    "reviewContactSha256": "2a056cef92f28f1a022fe03f038dda9e43ee7f6a31a5beba32e0cf1b44414920"
+  },
+  "promotion": {
+    "currentLocation": "asset/generated/pending/gif",
+    "promoteToApprovedOnlyAfterUserReview": true
+  }
+}

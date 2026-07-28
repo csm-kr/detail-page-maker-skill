@@ -1,0 +1,668 @@
+<!doctype html>
+<html
+  lang="ko"
+  data-resolution="square"
+  data-composition-variables='[
+    {"id":"name","type":"string","label":"Output name","default":"gif-016-loosefit-compare-v03"},
+    {"id":"mode","type":"enum","label":"Claim","default":"compare","options":[
+      {"value":"compare","label":"Loose fit compare"},
+      {"value":"cooling","label":"Cooling bar drop"},
+      {"value":"style","label":"Style match cut"},
+      {"value":"howto","label":"How to wear"},
+      {"value":"pair","label":"Pair reveal"}
+    ]}
+  ]'
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, height=800" />
+    <title>살랑 루즈핏 쿨토시</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Malgun Gothic";
+        src: local("Malgun Gothic");
+      }
+
+      :root {
+        --paper: #fffdf8;
+        --ivory: #f4efe6;
+        --ink: #18233a;
+        --muted: #5d6778;
+        --blue: #1460db;
+        --sky: #c9e9ff;
+        --ice: #eaf8ff;
+        --coral: #ff765e;
+        --yellow: #ffe58b;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,
+      body {
+        width: 800px;
+        height: 800px;
+        margin: 0;
+        overflow: hidden;
+        background: var(--ivory);
+        color: var(--ink);
+        font-family: "Malgun Gothic", sans-serif;
+      }
+
+      #stage,
+      #motion-clip {
+        position: absolute;
+        inset: 0;
+        width: 800px;
+        height: 800px;
+        overflow: hidden;
+      }
+
+      #stage {
+        isolation: isolate;
+        background:
+          radial-gradient(circle at 88% 5%, rgba(201, 233, 255, .92), transparent 31%),
+          var(--ivory);
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: none;
+        overflow: hidden;
+      }
+
+      .scene.active { display: block; }
+
+      .kicker,
+      .headline,
+      .subline,
+      .media,
+      .chip,
+      .compare-frame,
+      .divider,
+      .divider-knob,
+      .bar-chart,
+      .bar,
+      .drop-line,
+      .style-card,
+      .style-tabs,
+      .step-card,
+      .step-progress,
+      .pair-frame,
+      .pair-orbit,
+      .count-chip,
+      .shine {
+        position: absolute;
+      }
+
+      .kicker {
+        left: 42px;
+        top: 40px;
+        z-index: 30;
+        padding: 9px 15px 8px;
+        border-radius: 999px;
+        background: rgba(255, 253, 248, .95);
+        color: var(--blue);
+        box-shadow: 0 10px 28px rgba(24, 35, 58, .12);
+        font-size: 13px;
+        font-weight: 950;
+        letter-spacing: .08em;
+      }
+
+      .headline {
+        left: 42px;
+        top: 91px;
+        z-index: 30;
+        width: 330px;
+        margin: 0;
+        font-size: 48px;
+        font-weight: 950;
+        line-height: 1.05;
+        letter-spacing: -.065em;
+        word-break: keep-all;
+      }
+
+      .subline {
+        left: 45px;
+        top: 214px;
+        z-index: 30;
+        width: 300px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 17px;
+        font-weight: 750;
+        line-height: 1.55;
+        word-break: keep-all;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        user-select: none;
+      }
+
+      .chip {
+        z-index: 31;
+        min-width: 96px;
+        padding: 12px 17px 11px;
+        border-radius: 999px;
+        background: var(--ink);
+        color: #fff;
+        box-shadow: 0 12px 30px rgba(24, 35, 58, .2);
+        font-size: 14px;
+        font-weight: 950;
+        text-align: center;
+      }
+
+      /* Compare */
+      #compare {
+        background:
+          linear-gradient(135deg, rgba(255,255,255,.86), rgba(202,234,255,.58)),
+          var(--ivory);
+      }
+
+      #compare .headline { width: 320px; }
+      #compare .subline { top: 250px; width: 255px; }
+
+      .compare-frame {
+        left: 296px;
+        top: 55px;
+        width: 466px;
+        height: 690px;
+        overflow: hidden;
+        border-radius: 36px 90px 36px 90px;
+        background: #fff;
+        box-shadow: 0 34px 85px rgba(24, 35, 58, .22);
+      }
+
+      .compare-frame img {
+        position: absolute;
+        inset: 0;
+        object-position: 52% 50%;
+      }
+
+      #loose-photo { clip-path: inset(0 100% 0 0); }
+
+      .divider {
+        left: 296px;
+        top: 55px;
+        z-index: 18;
+        width: 4px;
+        height: 690px;
+        background: #fff;
+        box-shadow: 0 0 0 2px rgba(20, 96, 219, .72), 0 0 34px rgba(20, 96, 219, .7);
+      }
+
+      .divider-knob {
+        left: 273px;
+        top: 370px;
+        z-index: 19;
+        display: grid;
+        place-items: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--blue);
+        color: #fff;
+        box-shadow: 0 12px 30px rgba(20, 96, 219, .35);
+        font-size: 22px;
+        font-weight: 950;
+      }
+
+      #compare .chip.tight {
+        left: 43px;
+        top: 388px;
+        background: #3d4656;
+      }
+
+      #compare .chip.loose {
+        left: 43px;
+        top: 449px;
+        background: #d9e9ff;
+        color: #28456d;
+      }
+
+      /* Cooling */
+      #cooling {
+        background:
+          linear-gradient(145deg, #fff5ea 0 43%, #e8f7ff 43% 100%);
+      }
+
+      #cooling .headline { width: 340px; font-size: 46px; }
+      #cooling .subline { top: 252px; width: 276px; }
+
+      #cooling .media {
+        left: 336px;
+        top: 56px;
+        width: 426px;
+        height: 690px;
+        overflow: hidden;
+        border-radius: 88px 28px 88px 28px;
+        box-shadow: 0 34px 85px rgba(24, 35, 58, .2);
+      }
+
+      #cooling .media img { object-position: 56% 50%; }
+
+      .bar-chart {
+        left: 44px;
+        top: 378px;
+        z-index: 20;
+        width: 250px;
+        height: 210px;
+        padding: 20px 17px 22px;
+        border-radius: 24px;
+        background: rgba(255, 253, 248, .94);
+        box-shadow: 0 18px 45px rgba(24, 35, 58, .13);
+      }
+
+      .bar {
+        bottom: 24px;
+        width: 34px;
+        border-radius: 12px 12px 5px 5px;
+        transform-origin: 50% 100%;
+      }
+
+      .bar:nth-child(1) { left: 22px; height: 144px; background: var(--coral); }
+      .bar:nth-child(2) { left: 70px; height: 119px; background: #ffac73; }
+      .bar:nth-child(3) { left: 118px; height: 91px; background: #94cfff; }
+      .bar:nth-child(4) { left: 166px; height: 61px; background: var(--blue); }
+
+      .drop-line {
+        left: 12px;
+        top: 6px;
+        width: 218px;
+        height: 172px;
+        overflow: visible;
+      }
+
+      .drop-line path {
+        fill: none;
+        stroke: var(--ink);
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      #cooling .chip {
+        left: 44px;
+        bottom: 67px;
+        background: var(--blue);
+      }
+
+      /* Style */
+      #style {
+        background: linear-gradient(135deg, #f7efe5 0 48%, #dff1ff 48%);
+      }
+
+      #style .headline { width: 360px; }
+      #style .subline { top: 214px; width: 300px; }
+
+      .style-card {
+        left: 274px;
+        top: 52px;
+        z-index: 4;
+        width: 490px;
+        height: 688px;
+        overflow: hidden;
+        border-radius: 244px 244px 32px 32px;
+        background: #fff;
+        box-shadow: 0 34px 85px rgba(24, 35, 58, .22);
+        opacity: 0;
+      }
+
+      .style-card img { object-position: 51% 50%; }
+      #style-casual { opacity: 1; }
+
+      .style-tabs {
+        left: 42px;
+        bottom: 56px;
+        z-index: 20;
+        display: grid;
+        gap: 9px;
+        width: 214px;
+      }
+
+      .style-tabs span {
+        display: flex;
+        align-items: center;
+        height: 47px;
+        padding-left: 17px;
+        border-radius: 0 25px 25px 0;
+        background: rgba(255, 253, 248, .95);
+        box-shadow: 0 10px 28px rgba(24, 35, 58, .1);
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 950;
+        opacity: .38;
+        transform-origin: left center;
+      }
+
+      .style-tabs span:first-child {
+        color: var(--blue);
+        opacity: 1;
+      }
+
+      /* How-to */
+      #howto {
+        background:
+          linear-gradient(180deg, var(--paper) 0 49%, #e8f6ff 49% 100%);
+      }
+
+      #howto .headline { width: 700px; }
+      #howto .subline { top: 153px; width: 640px; }
+
+      .step-progress {
+        left: 70px;
+        top: 231px;
+        width: 660px;
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(24, 35, 58, .12);
+      }
+
+      .step-progress i {
+        display: block;
+        width: 12%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--coral), var(--blue));
+      }
+
+      .step-card {
+        top: 276px;
+        width: 220px;
+        height: 445px;
+        overflow: hidden;
+        border: 7px solid rgba(255, 253, 248, .97);
+        border-radius: 28px;
+        background: #fff;
+        box-shadow: 0 22px 52px rgba(24, 35, 58, .16);
+        opacity: .36;
+        transform-origin: 50% 50%;
+      }
+
+      #how-step-1 { left: 46px; opacity: 1; }
+      #how-step-2 { left: 290px; }
+      #how-step-3 { left: 534px; }
+
+      .step-card img {
+        height: 348px;
+        object-position: 51% 50%;
+      }
+
+      .step-card figcaption {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 75px;
+        padding: 0 13px;
+        font-size: 17px;
+        font-weight: 950;
+      }
+
+      .step-card b {
+        display: grid;
+        place-items: center;
+        min-width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--blue);
+        color: #fff;
+        font-size: 14px;
+      }
+
+      /* Pair */
+      #pair {
+        background:
+          radial-gradient(circle at 50% 48%, #ffffff 0 34%, #e9f6ff 34% 50%, transparent 50%),
+          linear-gradient(135deg, #fff9ef, #e7f5ff);
+      }
+
+      #pair .headline {
+        left: 54px;
+        top: 85px;
+        width: 692px;
+        text-align: center;
+      }
+
+      #pair .subline {
+        left: 154px;
+        top: 149px;
+        width: 492px;
+        text-align: center;
+      }
+
+      .pair-frame {
+        left: 205px;
+        top: 225px;
+        z-index: 8;
+        width: 390px;
+        height: 500px;
+        overflow: hidden;
+        border-radius: 44px;
+        background: #fff;
+        box-shadow: 0 30px 80px rgba(24, 35, 58, .18);
+      }
+
+      .pair-frame img {
+        object-fit: cover;
+        object-position: 50% 50%;
+      }
+
+      .pair-orbit {
+        left: 160px;
+        top: 187px;
+        z-index: 6;
+        width: 480px;
+        height: 480px;
+        border: 7px solid rgba(20, 96, 219, .42);
+        border-right-color: var(--coral);
+        border-radius: 50%;
+        box-shadow: 0 0 0 18px rgba(201, 233, 255, .28);
+      }
+
+      .count-chip {
+        z-index: 18;
+        display: grid;
+        place-items: center;
+        width: 57px;
+        height: 57px;
+        border-radius: 50%;
+        background: var(--blue);
+        color: #fff;
+        box-shadow: 0 15px 34px rgba(20, 96, 219, .35);
+        font-size: 24px;
+        font-weight: 950;
+        opacity: 0;
+      }
+
+      .count-chip.one { left: 262px; top: 600px; }
+      .count-chip.two { right: 262px; top: 600px; background: var(--coral); }
+
+      .shine {
+        left: 102px;
+        top: 170px;
+        z-index: 14;
+        width: 90px;
+        height: 620px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.92), transparent);
+        transform: rotate(14deg);
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main
+      id="stage"
+      data-composition-id="sallang-commercial-core-v03"
+      data-start="0"
+      data-duration="4.8"
+      data-fps="30"
+      data-width="800"
+      data-height="800"
+      aria-label="살랑 루즈핏 쿨토시"
+    >
+      <section id="motion-clip" class="clip" data-start="0" data-duration="4.8" data-track-index="1">
+        <article id="compare" class="scene">
+          <span class="kicker">TIGHT VS LOOSE</span>
+          <h1 class="headline">꼭 붙는 핏보다<br />살랑이는 여유</h1>
+          <p class="subline">여름 토시까지 팔선을 꽉 잡을 필요는 없으니까.</p>
+          <div class="compare-frame">
+            <img id="tight-photo" src="assets/compare-tight.png" alt="" aria-hidden="true" />
+            <img id="loose-photo" src="assets/compare-loose.png" alt="" aria-hidden="true" />
+          </div>
+          <i class="divider"></i>
+          <i class="divider-knob">↔</i>
+          <span class="chip tight">TIGHT</span>
+          <span class="chip loose">LOOSE</span>
+        </article>
+
+        <article id="cooling" class="scene">
+          <span class="kicker">COOL MATERIAL</span>
+          <h1 class="headline">뜨거운 하루 위<br />한 겹 더 시원하게</h1>
+          <p class="subline">높았던 열감이 차분히 내려가는 방향을 눈에 보이게.</p>
+          <div class="bar-chart" aria-hidden="true">
+            <i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i>
+            <svg class="drop-line" viewBox="0 0 218 172">
+              <path id="drop-path" d="M20 27 L70 53 L119 82 L168 114 L205 143" />
+            </svg>
+          </div>
+          <div class="media"><img src="assets/cooling.png" alt="" aria-hidden="true" /></div>
+          <span class="chip">WARM → COOL</span>
+        </article>
+
+        <article id="style" class="scene">
+          <span class="kicker">ONE SLEEVE / THREE MOODS</span>
+          <h1 class="headline">기능은 가볍게<br />오늘의 룩은 그대로</h1>
+          <p class="subline">같은 화이트 플리츠, 서로 다른 세 가지 여름 옷차림.</p>
+          <figure id="style-casual" class="style-card"><img src="assets/style-casual.png" alt="" aria-hidden="true" /></figure>
+          <figure id="style-office" class="style-card"><img src="assets/style-office.png" alt="" aria-hidden="true" /></figure>
+          <figure id="style-dress" class="style-card"><img src="assets/style-dress.png" alt="" aria-hidden="true" /></figure>
+          <div class="style-tabs" aria-hidden="true">
+            <span>CASUAL · 데님</span>
+            <span>OFFICE · 모노톤</span>
+            <span>DRESS · 페일 블루</span>
+          </div>
+        </article>
+
+        <article id="howto" class="scene">
+          <span class="kicker">EASY 3 STEP</span>
+          <h1 class="headline">팔을 넣고, 엄지를 쏙</h1>
+          <p class="subline">상단은 평평하게, 손등은 자연스럽게. 세 번이면 끝.</p>
+          <div class="step-progress" aria-hidden="true"><i></i></div>
+          <figure id="how-step-1" class="step-card">
+            <img src="assets/howto-start.png" alt="" aria-hidden="true" />
+            <figcaption><b>1</b><span>팔 넣기 🫳</span></figcaption>
+          </figure>
+          <figure id="how-step-2" class="step-card">
+            <img src="assets/howto-middle.png" alt="" aria-hidden="true" />
+            <figcaption><b>2</b><span>위로 올리기 ↗</span></figcaption>
+          </figure>
+          <figure id="how-step-3" class="step-card">
+            <img src="assets/howto-finish.png" alt="" aria-hidden="true" />
+            <figcaption><b>3</b><span>엄지를 쏙 👍</span></figcaption>
+          </figure>
+        </article>
+
+        <article id="pair" class="scene">
+          <span class="kicker">ONE SET / TWO SLEEVES</span>
+          <h1 class="headline">오늘의 그늘, 한 쌍으로</h1>
+          <p class="subline">화이트 루즈핏 쿨토시 1세트 · 2개입</p>
+          <i class="pair-orbit" aria-hidden="true"></i>
+          <div class="pair-frame"><img src="assets/product-pair.png" alt="" aria-hidden="true" /></div>
+          <span class="count-chip one">1</span>
+          <span class="count-chip two">2</span>
+          <i class="shine" aria-hidden="true"></i>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      const values = window.__hyperframes.getVariables();
+      const mode = values.mode || "compare";
+      const activeScene = document.getElementById(mode);
+      activeScene.classList.add("active");
+
+      const tl = gsap.timeline({ paused: true, defaults: { overwrite: false } });
+      const intro = (selector) => {
+        tl.fromTo(
+          `${selector} .kicker, ${selector} .headline, ${selector} .subline`,
+          { x: -28, opacity: 0 },
+          { x: 0, opacity: 1, duration: .5, stagger: .08, ease: "power3.out" },
+          .06
+        );
+      };
+
+      if (mode === "compare") {
+        intro("#compare");
+        tl.fromTo(".compare-frame", { y: 24, scale: .98 }, { y: 0, scale: 1, duration: .65, ease: "power3.out" }, .1);
+        tl.set("#loose-photo", { clipPath: "inset(0 100% 0 0)" }, 0);
+        tl.set(".divider", { x: 0 }, 0);
+        tl.set(".divider-knob", { x: 0 }, 0);
+        tl.to("#loose-photo", { clipPath: "inset(0 8% 0 0)", duration: 1.25, ease: "power2.inOut" }, 1.0);
+        tl.to(".divider", { x: 429, duration: 1.25, ease: "power2.inOut" }, 1.0);
+        tl.to(".divider-knob", { x: 429, duration: 1.25, ease: "power2.inOut" }, 1.0);
+        tl.to(".chip.tight", { backgroundColor: "#e1e6ee", color: "#4b5668", scale: .94, duration: .3 }, 1.4);
+        tl.to(".chip.loose", { backgroundColor: "#1460db", color: "#ffffff", scale: 1.07, duration: .4, ease: "back.out(1.5)" }, 1.78);
+        tl.to(".compare-frame", { scale: 1.025, duration: 1.7, ease: "sine.inOut" }, 2.7);
+      }
+
+      if (mode === "cooling") {
+        intro("#cooling");
+        tl.fromTo("#cooling .media", { x: 35, scale: .98 }, { x: 0, scale: 1, duration: .65, ease: "power3.out" }, .1);
+        tl.fromTo(".bar", { scaleY: .18, opacity: .3 }, { scaleY: 1, opacity: 1, duration: .58, stagger: .18, ease: "back.out(1.35)" }, .72);
+        tl.fromTo("#drop-path", { strokeDasharray: 300, strokeDashoffset: 300 }, { strokeDashoffset: 0, duration: 1.18, ease: "power2.inOut" }, 1.35);
+        tl.fromTo("#cooling .chip", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: .44, ease: "back.out(1.45)" }, 2.25);
+        tl.to(".bar", { filter: "brightness(1.12)", duration: .22, stagger: .12 }, 2.5);
+        tl.to(".bar", { filter: "brightness(1)", duration: .32, stagger: .12 }, 3.02);
+        tl.to("#cooling .media", { scale: 1.028, duration: 1.35, ease: "sine.inOut" }, 3.2);
+      }
+
+      if (mode === "style") {
+        intro("#style");
+        tl.fromTo("#style-casual", { y: 26 }, { y: 0, duration: .62, ease: "power3.out" }, .1);
+        tl.to("#style-casual", { x: -34, opacity: 0, scale: .97, duration: .32 }, 1.18);
+        tl.fromTo("#style-office", { x: 64, opacity: 0, scale: 1.03 }, { x: 0, opacity: 1, scale: 1, duration: .48, ease: "power3.out" }, 1.18);
+        tl.to(".style-tabs span:nth-child(1)", { opacity: .38, scale: .94, color: "#5d6778", duration: .24 }, 1.18);
+        tl.to(".style-tabs span:nth-child(2)", { opacity: 1, scale: 1.05, color: "#1460db", duration: .24 }, 1.18);
+        tl.to("#style-office", { x: -34, opacity: 0, scale: .97, duration: .32 }, 2.36);
+        tl.fromTo("#style-dress", { x: 64, opacity: 0, scale: 1.03 }, { x: 0, opacity: 1, scale: 1, duration: .48, ease: "power3.out" }, 2.36);
+        tl.to(".style-tabs span:nth-child(2)", { opacity: .38, scale: .94, color: "#5d6778", duration: .24 }, 2.36);
+        tl.to(".style-tabs span:nth-child(3)", { opacity: 1, scale: 1.05, color: "#1460db", duration: .24 }, 2.36);
+        tl.to("#style-dress", { scale: 1.028, duration: 1.35, ease: "sine.inOut" }, 3.05);
+      }
+
+      if (mode === "howto") {
+        intro("#howto");
+        tl.fromTo("#how-step-1", { x: -34 }, { x: 0, duration: .5, ease: "back.out(1.45)" }, .28);
+        tl.to("#how-step-1", { opacity: .35, scale: .88, y: 15, duration: .28 }, 1.18);
+        tl.to("#how-step-2", { opacity: 1, scale: 1.04, y: 0, duration: .34, ease: "back.out(1.45)" }, 1.18);
+        tl.to(".step-progress i", { width: "52%", duration: .55, ease: "power2.inOut" }, 1.16);
+        tl.to("#how-step-2", { opacity: .35, scale: .88, y: 15, duration: .28 }, 2.3);
+        tl.to("#how-step-3", { opacity: 1, scale: 1.04, y: 0, duration: .34, ease: "back.out(1.45)" }, 2.3);
+        tl.to(".step-progress i", { width: "100%", duration: .55, ease: "power2.inOut" }, 2.28);
+        tl.to("#how-step-3", { scale: 1.09, duration: .55, ease: "sine.inOut" }, 3.15);
+        tl.to("#how-step-3", { scale: 1.04, duration: .65, ease: "sine.inOut" }, 3.7);
+      }
+
+      if (mode === "pair") {
+        intro("#pair");
+        tl.fromTo(".pair-frame", { y: 28, scale: .84, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: .74, ease: "back.out(1.45)" }, .25);
+        tl.fromTo(".pair-orbit", { rotation: -135, scale: .72, opacity: 0 }, { rotation: 15, scale: 1, opacity: 1, duration: 1.1, ease: "power3.out" }, .46);
+        tl.fromTo(".count-chip", { y: 20, scale: .2, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: .45, stagger: .18, ease: "back.out(1.7)" }, 1.45);
+        tl.fromTo(".shine", { x: -180, opacity: 0 }, { x: 620, opacity: .82, duration: .95, ease: "power2.inOut" }, 2.14);
+        tl.to(".shine", { opacity: 0, duration: .2 }, 3.1);
+        tl.to(".pair-orbit", { rotation: 75, scale: 1.035, duration: 1.3, ease: "sine.inOut" }, 3.18);
+      }
+
+      tl.to({}, { duration: .24 }, 4.56);
+      window.__timelines["sallang-commercial-core-v03"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

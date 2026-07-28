@@ -27,7 +27,8 @@ Every detail page must move the buyer through this sequence:
    - State the product category and the main promise in one glance.
 3. `Reasons to Believe`
    - Separate three to five purchase reasons.
-   - Give each reason its own customer benefit and visible product proof.
+   - Give each reason its own customer benefit, still-image proof, and
+     dedicated motion proof.
 4. `Use Confidence`
    - Show how to wear or use the product.
    - Show realistic use cases and motion only when motion explains something.
@@ -35,6 +36,8 @@ Every detail page must move the buyer through this sequence:
    - Show material, construction, finish, fit, direction, and supplied
      configuration with the right camera distance.
 6. `Decision Support`
+   - Show verified same-SKU reviews when review text exists.
+   - Reconnect the opening problem to the proven product answers.
    - Answer size, care, compatibility, limitations, and frequently asked
      questions after value has been established.
 7. `Decision Recap`
@@ -60,9 +63,9 @@ the following page jobs must remain present and in this relative order.
 | 6 | Reasons to Believe | Prove reason 4 | Style, finish, or other differentiating reason |
 | 7 | Use Confidence | Explain how to use | A short, ordered use or wearing sequence |
 | 8 | Use Confidence | Show primary use case | One realistic situation shown large |
-| 9 | Use Confidence | Show more use cases | A small set of distinct, believable situations |
-| 10 | Detail Confidence | Inspect construction | Material, seam, band, opening, label, or mechanism |
-| 11 | Detail Confidence | Show motion or comparison | GIF, before/after state, or directional explanation |
+| 9 | Decision Support | Show verified customer voices | Same-SKU review text, or hide the section when unavailable |
+| 10 | Decision Support | Recap problem and solution | Opening problems mapped to the already proven reasons |
+| 11 | Detail Confidence | Inspect construction | Material, seam, band, opening, label, or mechanism |
 | 12 | Decision Support | Confirm configuration and size | Quantity, color, direction, verified dimensions |
 | 13 | Decision Support | Answer care and fit questions | Care, use conditions, limitations, concise FAQ |
 | 14 | Decision Recap | Close the decision | Strongest reasons, actual product, final configuration |
@@ -83,6 +86,8 @@ headline
 supporting_copy
 customer_benefit
 visual_proof
+still_evidence_asset_id
+motion_evidence_asset_id
 planned_assets
 next_reason
 ```
@@ -105,8 +110,9 @@ Each core purchase reason must answer five questions:
 1. What does the buyer want?
 2. What product structure or visible property answers it?
 3. What is the shortest honest customer-facing phrase?
-4. Which image or GIF proves it?
-5. Which stronger interpretation is still unverified and therefore blocked?
+4. Which still image proves it?
+5. Which dedicated GIF proves it?
+6. Which stronger interpretation is still unverified and therefore blocked?
 
 Do not merge unrelated reasons into one card. A style reason, a coverage
 reason, and a material reason require different proof.
@@ -131,7 +137,13 @@ reason, and a material reason require different proof.
 - `Detail` pages must change camera distance and show the exact part being
   discussed.
 - `Motion` must explain one action, state change, direction, or fit question.
-- `Product information` must use supplier facts and approved SSOT only.
+- A qualitative `MANUFACTURER_CLAIM` graph may show direction without numeric
+  ticks. Quantitative axes require manufacturer-supplied values and conditions.
+- Verified review copy must come from the same SKU. If it is unavailable, hide
+  or hold the review section instead of inventing customer voices.
+- Problem-solution recap and decision recap must not introduce a new claim.
+- `Product information` must use supplier facts, approved SSOT, and recorded
+  manufacturer claims only.
 - Care and limitation copy must be readable and must not be used to hide a
   weak value proposition.
 
@@ -142,7 +154,7 @@ Before image generation:
 1. Confirm the supplier URL and product SSOT.
 2. Approve the core purchase reasons and claim boundaries.
 3. Review all page cards in journey order.
-4. Confirm that every strong claim has a planned proof asset.
+4. Confirm that every strong claim has a planned still image and dedicated GIF.
 5. Confirm that the customer preview contains no production metadata.
 
 After approval, image generation and asset approval may begin. If the buyer

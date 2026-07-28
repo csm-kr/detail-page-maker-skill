@@ -250,7 +250,7 @@ test("사용자가 확인한 라벨과 색상으로 제품 SSOT를 REV-001에 �
           job.type === "imagegen.generate.product-ssot" &&
           job.status === "queued" &&
           job.executor.provider === "queue" &&
-          job.executor.concurrency === 4 &&
+          job.executor.concurrency === 8 &&
           job.sourceRefs.length === registered.payload.items.length,
       ),
     );
@@ -351,11 +351,11 @@ test("Studio는 실제품 SSOT 사진 여러 장을 고르는 전용 등록 UI�
     );
     assert.match(
       html,
-      /<option[^>]*value="god-tibo-imagen"[^>]*selected[^>]*>god-tibo-imagen 병렬 실행<\/option>/,
+      /<option[^>]*value="god-tibo-gpt-image2-skill"[^>]*selected[^>]*>God Tibo GPT Image 2 · 8장 배치<\/option>/,
     );
     assert.match(
       html,
-      /<input(?=[^>]*name="concurrency")(?=[^>]*value="4")(?=[^>]*min="1")(?=[^>]*max="4")[^>]*>/,
+      /<input(?=[^>]*name="concurrency")(?=[^>]*value="8")(?=[^>]*min="1")(?=[^>]*max="8")[^>]*>/,
     );
     assert.match(
       html,

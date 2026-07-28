@@ -183,7 +183,7 @@ function Install-LocalBrowserHarness {
 }
 
 function Install-LocalProjectSkills {
-    Write-Step "Taste와 HyperFrames 스킬을 받은 폴더 안에 설치"
+    Write-Step "Taste, God Tibo GPT Image 2와 HyperFrames 스킬을 받은 폴더 안에 설치"
     Set-Location -LiteralPath $SkillRoot
 
     Invoke-Checked "npx" @(
@@ -193,6 +193,23 @@ function Install-LocalProjectSkills {
         "--yes",
         "--copy",
         "--full-depth"
+    )
+    Invoke-Checked "npx" @(
+        "skills", "add", "csm-kr/god-tibo-gpt-image2-skill",
+        "--skill", "god-tibo-gpt-image2-skill",
+        "--agent", "codex",
+        "--yes",
+        "--copy",
+        "--full-depth"
+    )
+    $godTiboSkillRoot = Join-Path $LocalSkillRoot "god-tibo-gpt-image2-skill"
+    if (-not (Test-Path -LiteralPath (Join-Path $godTiboSkillRoot "SKILL.md") -PathType Leaf)) {
+        throw "God Tibo GPT Image 2 로컬 스킬을 설치하지 못했습니다."
+    }
+    Invoke-Checked "npm" @(
+        "install",
+        "--omit=dev",
+        "--prefix", $godTiboSkillRoot
     )
     Invoke-Checked "npx" @(
         "skills", "add", "heygen-com/hyperframes",

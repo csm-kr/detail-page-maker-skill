@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "projectRevisionId": "rev-008",
+  "g2RevisionId": "rev-004",
+  "gate": "G2 IMAGE_ASSETS",
+  "status": "g2-approved",
+  "userConfirmation": "음 x 자 에서 두개가 겹쳐서 나와서 리젝, 이거 여러개 만들어서 괜찮은거 찾아서 해줘",
+  "assetId": "D08",
+  "rejectedVersion": {
+    "version": "v03",
+    "path": "asset/generated/pending/image/production-rev003-feedback/correction-05-d08/frame-000.png",
+    "sha256": "328029cf4a73cc94a898f3ac221413e6a935c828505e3b63dd6c9843c93a377b",
+    "status": "changes_requested",
+    "finding": "X자 교차 구도에서 두 토시가 겹쳐 각각의 전체 외곽을 독립적으로 확인할 수 없음."
+  },
+  "generation": {
+    "provider": "god-tibo-gpt-image2-skill",
+    "workers": 8,
+    "candidateCount": 8,
+    "targetSize": "1024x1024",
+    "sizeMode": "controllable",
+    "sourcePriority": "user-real-original pair as Image 1, then real single and label details"
+  },
+  "hardSelectionCriteria": [
+    "exactly two sleeves",
+    "no contact, crossing, overlap, or touching shadows",
+    "continuous background gap from upper opening to bottom cuff",
+    "complete independent silhouettes",
+    "matched length, width, upper elastic, long cuff, thumb opening, label, and material",
+    "exact 1024x1024 output"
+  ],
+  "selectedVersion": {
+    "version": "v04",
+    "candidateId": "D08-C03",
+    "frameIndex": 2,
+    "path": "asset/generated/pending/image/production-rev004-feedback/correction-06-d08-nonoverlap-candidates/frame-002.png",
+    "sha256": "a34a946384a068c30b7be8f7f7a21d3a14329923f1729b769ca1fad513c9e8e1",
+    "width": 1024,
+    "height": 1024,
+    "qaStatus": "PASS",
+    "finding": "8개 후보 중 제품끼리 닿거나 겹치지 않고, 두 토시의 상·하단 정렬·전체 길이·폭·커프·엄지 구멍·라벨이 가장 안정적으로 일치하는 평행 플랫레이를 선택함.",
+    "status": "approved",
+    "approvedAt": "2026-07-27T13:43:27.450Z",
+    "approvedBy": "human_user"
+  },
+  "candidates": [
+    {
+      "candidateId": "D08-C01",
+      "frameIndex": 0,
+      "path": "asset/generated/pending/image/production-rev004-feedback/correction-06-d08-nonoverlap-candidates/frame-000.png",
+      "sha256": "36010971019a2ccc93fcceef777da2d7262908faede6f888dc0f9aeb970fac0b",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_07b0d14546c9c05c016a6759b6d11c8191894437e14bfcd614",
+      "generatedAt": "2026-07-27T13:15:56.514Z",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "qa": {
+        "exactSleeveCount": "PASS",
+        "noContactOrOverlap": "PASS",
+        "completeSilhouettes": "PASS",
+        "matchedPairIdentity": "PASS",
+        "exactOutputSize": "PASS"
+      },
+      "selection": "NOT_SELECTED",
+      "finding": "비겹침·동일 수량 통과. 좌우 하단 여백과 커프 폭 균형이 선택본보다 약간 덜 안정적."
+    },
+    {
+      "candidateId": "D08-C02",
+      "frameIndex": 1,
+      "path": "asset/generated/pending/image/production-rev004-feedback/correction-06-d08-nonoverlap-candidates/frame-001.png",
+      "sha256": "7a4c45973f434e97c4083203e4f519fd3448157886907413dd4b97a4f9572c5d",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_0ce983dfefffffc9016a6759b6c8588198909d284e37214db2",
+      "generatedAt": "2026-07-27T13:15:56.514Z",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "qa": {
+        "exactSleeveCount": "PASS",
+        "noContactOrOverlap": "PASS",
+        "completeSilhouettes": "PASS",
+        "matchedPairIdentity": "PASS",
+        "exactOutputSize": "PASS"
+      },
+      "selection": "NOT_SELECTED",
+      "finding": "비겹침·동일 수량 통과. 좌우 하단 수평 정렬이 선택본보다 약간 어긋남."
+    },
+    {
+      "candidateId": "D08-C03",
+      "frameIndex": 2,
+      "path": "asset/generated/pending/image/production-rev004-feedback/correction-06-d08-nonoverlap-candidates/frame-002.png",
+      "sha256": "a34a946384a068c30b7be8f7f7a21d3a14329923f1729b769ca1fad513c9e8e1",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_0f871a74d139d57a016a6759b6abc08191a975a9b1841b2fc5",
+      "generatedAt": "2026-07-27T13:15:56.514Z",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "qa": {
+        "exactSleeveCount": "PASS",
+        "noContactOrOverlap": "PASS",
+        "completeSilhouettes": "PASS",
+        "matchedPairIdentity": "PASS",
+        "exactOutputSize": "PASS"
+      },
+      "selection": "SELECTED",
+      "finding": "선택본. 연속 배경 간격, 상·하단 수평 정렬, 좌우 비례와 미러 커프 구조가 가장 안정적."
+    },
+    {
+      "candidateId": "D08-C04",
+      "frameIndex": 3,
+      "path": "asset/generated/pending/image/production-rev004-feedback/correction-06-d08-nonoverlap-candidates/frame-003.png",
+      "sha256": "f6122a10f0665a466a08199ff68a30e60520ad8c4bac177c029f5b2e74a62286",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_0dbf71c1ec309564016a6759b754388199a9f42ac24f5b6c0c",
+      "generatedAt": "2026-07-27T13:15:56.514Z",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "qa": {
+        "exactSleeveCount": "PASS",
+        "noContactOrOverlap": "PASS",
+        "completeSilhouettes": "PASS",
+        "matchedPairIdentity": "PASS",
+        "exactOutputSize": "PASS"
+      },
+      "selection": "NOT_SELECTED",
+      "finding": "비겹침·동일 수량 통과. 좌우 몸통 드레이프 밀도 차이가 선택본보다 큼."
+    },
+    {
+      "candidateId": "D08-C05",
+      "frameIndex": 4,
+      "path": "asset/generated/pending/image/production-rev004-feedback/correction-06-d08-nonoverlap-candidates/frame-004.png",
+      "sha256": "e904d908d6dd8141212fc85ee51ef1e974760ea9bcdab001285fe4a57153af74",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_0db094b2f478573a016a6759b3bb64819188ed8cd010a66339",
+      "generatedAt": "2026-07-27T13:15:56.514Z",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "qa": {
+        "exactSleeveCount": "PASS",
+        "noContactOrOverlap": "PASS",
+        "completeSilhouettes": "PASS",
+        "matchedPairIdentity": "PASS",
+        "exactOutputSize": "PASS"
+      },
+      "selection": "NOT_SELECTED",
+      "finding": "비겹침·동일 수량 통과. 커프와 라벨의 상대 정렬이 선택본보다 덜 또렷함."
+    },
+    {
+      "candidateId": "D08-C06",
+      "frameIndex": 5,
+      "path": "asset/generated/pending/image/production-rev004-feedback/correction-06-d08-nonoverlap-candidates/frame-005.png",
+      "sha256": "79885997e16ecbae893622cac34597ea6ad08274b386ff539aca917db0807750",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_04702f83051d02a8016a6759b653a8819191ce16d9fe04c01c",
+      "generatedAt": "2026-07-27T13:15:56.514Z",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "qa": {
+        "exactSleeveCount": "PASS",
+        "noContactOrOverlap": "PASS",
+        "completeSilhouettes": "PASS",
+        "matchedPairIdentity": "PASS",
+        "exactOutputSize": "PASS"
+      },
+      "selection": "NOT_SELECTED",
+      "finding": "비겹침·동일 수량 통과. 좌우 몸통 폭과 실루엣 균형이 선택본보다 약함."
+    },
+    {
+      "candidateId": "D08-C07",
+      "frameIndex": 6,
+      "path": "asset/generated/pending/image/production-rev004-feedback/correction-06-d08-nonoverlap-candidates/frame-006.png",
+      "sha256": "53899dcbe243ca65f047efc5741ada3038e288582f285bfeb5be4aff923c7eab",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_0d64d50f405051b3016a6759b5d5c08191b316a3fa46f56b0e",
+      "generatedAt": "2026-07-27T13:15:56.514Z",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "qa": {
+        "exactSleeveCount": "PASS",
+        "noContactOrOverlap": "PASS",
+        "completeSilhouettes": "PASS",
+        "matchedPairIdentity": "PASS",
+        "exactOutputSize": "PASS"
+      },
+      "selection": "NOT_SELECTED",
+      "finding": "비겹침·동일 수량 통과. 제품 간격과 라벨 대칭성이 좋지만 선택본보다 상단 정렬이 약함."
+    },
+    {
+      "candidateId": "D08-C08",
+      "frameIndex": 7,
+      "path": "asset/generated/pending/image/production-rev004-feedback/correction-06-d08-nonoverlap-candidates/frame-007.png",
+      "sha256": "71e920bf41a96d0d3c067a25b0bafa4c46e69df625401f6992a8fe7c7f9fb478",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_03ec9b90ebff05bd016a6759b7581c8191aa0327e9da2bc401",
+      "generatedAt": "2026-07-27T13:15:56.514Z",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "qa": {
+        "exactSleeveCount": "PASS",
+        "noContactOrOverlap": "PASS",
+        "completeSilhouettes": "PASS",
+        "matchedPairIdentity": "PASS",
+        "exactOutputSize": "PASS"
+      },
+      "selection": "NOT_SELECTED",
+      "finding": "차선 후보. 좌우 동일성과 미러 구조가 좋지만 제품 간격과 상단 안전 여백이 선택본보다 좁음."
+    }
+  ],
+  "productionGeneratedImageCount": 61,
+  "totalImageCountIncludingModelCandidates": 69,
+  "approvedAt": "2026-07-27T13:43:27.450Z",
+  "approvedBy": "human_user",
+  "approvalUserConfirmation": "승인",
+  "approvalProjectRevisionId": "rev-009"
+}

@@ -1,0 +1,29 @@
+{
+  "status": "BROWSER_COMPLETED",
+  "recorded_at": "2026-07-27T09:00:00Z",
+  "return_code": 0,
+  "requested_sections": [
+    "detail",
+    "reviews",
+    "thumbnails"
+  ],
+  "observed_sections": [
+    "detail",
+    "recording",
+    "reviews",
+    "thumbnails"
+  ],
+  "page": {
+    "url": "https://www.coupang.com/vp/products/9623659088?itemId=28739122241&vendorItemId=95678577209",
+    "title": "🐴 살랑 루즈핏 쿨토시 여성 헐렁한 냉감 팔토시 자외선 UV차단 운전 손등커버 - 쿨토시/토시 | 쿠팡",
+    "w": 2400,
+    "h": 1068,
+    "sx": 0,
+    "sy": 0,
+    "pw": 2381,
+    "ph": 8606
+  },
+  "stdout_line_count": 7,
+  "stderr_tail": "",
+  "recording_dir": "evidence/browser-harness/recordings/coupang-9623659088-28739122241-extract"
+}

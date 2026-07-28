@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "productId": "55873582",
+  "productName": "루즈핏 쿨토시",
+  "manufacturer": "살랑",
+  "variant": {
+    "color": "화이트",
+    "bundle": "1세트 2개입"
+  },
+  "status": "locked-g0",
+  "canonicalProductManifest": "../../product/product-manifest.json",
+  "identityLock": {
+    "labelText": "HELLO / CUTE SLEEVE",
+    "silhouette": "길고 여유 있는 튜브형",
+    "surface": "가늘고 불규칙한 세로 플리츠",
+    "upperFinish": "팔뚝 쪽 밴딩",
+    "handFinish": "넓은 손등 커프와 엄지홀",
+    "labelPosition": "손등 중앙",
+    "forbiddenChanges": [
+      "압박형 스포츠 토시처럼 몸에 딱 붙게 변경",
+      "플리츠를 규칙적인 골지 니트나 메쉬로 변경",
+      "엄지홀 제거 또는 손바닥 전체 막힘",
+      "라벨 위치·방향·문구·개수 변경",
+      "화이트 외 색상 추가",
+      "좌우 길이 또는 엄지홀 위치 비대칭",
+      "실리콘·논슬립·지퍼·조절끈 추가"
+    ]
+  },
+  "usagePolicy": {
+    "imageGeneration": "아래 primary 파일을 Image 1부터 우선 참조하고 supplier-secondary는 구조 보조로만 사용한다.",
+    "gifProduction": "제품 자체를 보여주는 핵심 GIF에서는 primary 실물 픽셀 또는 그 실물에서 만든 검증된 컷아웃을 직접 렌더링한다. 생성 이미지는 배경·모델·연결 프레임에만 사용하며 제품 동일성 대조를 통과해야 한다.",
+    "identityQaFrames": [
+      "first",
+      "middle",
+      "last"
+    ],
+    "legacyGeneratedAssets": "기존 A01~E08 및 GIF-001~010은 보조 소재로만 보존하며 핵심 소구의 단독 제품 증거로 자동 재사용하지 않는다."
+  },
+  "sources": [
+    {
+      "id": "ssot-user-original-01",
+      "priority": "primary",
+      "path": "source/user-real-original/photo-2026-07-05-411f8795.jpg",
+      "sha256": "09625e52c7db61dde57709296c388c6f94db610ea0d513b8c49f7c2f348e25c0",
+      "sizeBytes": 4185707,
+      "encodedWidthPx": 5712,
+      "encodedHeightPx": 4284,
+      "exifOrientation": 6,
+      "role": "single-front-floor"
+    },
+    {
+      "id": "ssot-user-original-02",
+      "priority": "primary",
+      "path": "source/user-real-original/photo-2026-07-05-d63f66f5.jpg",
+      "sha256": "7a413773d0fbef215bffc8db1f25850b74a7e1634e3825c74cf808e7b049016f",
+      "sizeBytes": 4751151,
+      "encodedWidthPx": 5712,
+      "encodedHeightPx": 4284,
+      "exifOrientation": 6,
+      "role": "single-reverse"
+    },
+    {
+      "id": "ssot-user-original-03",
+      "priority": "primary",
+      "path": "source/user-real-original/photo-2026-07-14-005edfc9.jpg",
+      "sha256": "ab7cd12ae0ee69be2bbf073dae2a90254fbf70ad8b3bab0b64ebe4ace4a578d6",
+      "sizeBytes": 4397317,
+      "encodedWidthPx": 5712,
+      "encodedHeightPx": 4284,
+      "exifOrientation": 6,
+      "role": "single-front-bed"
+    },
+    {
+      "id": "ssot-user-original-04",
+      "priority": "primary",
+      "path": "source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+      "sha256": "3209023b816aa0ad3443a8f3e46365a3a71e9978bd55c4f495398e3f135d0d44",
+      "sizeBytes": 3624017,
+      "encodedWidthPx": 5712,
+      "encodedHeightPx": 4284,
+      "exifOrientation": 6,
+      "role": "worn-full-arm"
+    },
+    {
+      "id": "ssot-user-original-05",
+      "priority": "primary",
+      "path": "source/user-real-original/photo-2026-07-14-62b5cece.jpg",
+      "sha256": "23236a89df4ebe10d42446405ef541fc210bafc5f2010603446c94531a917bd9",
+      "sizeBytes": 3889603,
+      "encodedWidthPx": 5712,
+      "encodedHeightPx": 4284,
+      "exifOrientation": 6,
+      "role": "label-closeup"
+    },
+    {
+      "id": "ssot-user-original-06",
+      "priority": "primary",
+      "path": "source/user-real-original/photo-2026-07-27-45c0af96.jpg",
+      "sha256": "9344c1987bd802d2247350fab9cac885bc17402fe655d6a655d1a4ea94aa1ec7",
+      "sizeBytes": 4575033,
+      "encodedWidthPx": 5712,
+      "encodedHeightPx": 4284,
+      "exifOrientation": 6,
+      "role": "single-front-neutral"
+    },
+    {
+      "id": "ssot-user-original-07",
+      "priority": "primary",
+      "path": "source/user-real-original/photo-2026-07-27-4605aff2.jpg",
+      "sha256": "3b383ccee83dfb532ef9fa2241f29456405b7963700dde95dea9938d73e44b0a",
+      "sizeBytes": 4432560,
+      "encodedWidthPx": 5712,
+      "encodedHeightPx": 4284,
+      "exifOrientation": 6,
+      "role": "pair-neutral"
+    },
+    {
+      "id": "ssot-user-original-08",
+      "priority": "primary",
+      "path": "source/user-real-original/photo-2026-07-27-fd874f53.jpg",
+      "sha256": "3d2a262c5e486ad75b7efc45043e4abcb9699e392e82a8db6fe006f1ec82136c",
+      "sizeBytes": 4684582,
+      "encodedWidthPx": 5712,
+      "encodedHeightPx": 4284,
+      "exifOrientation": 6,
+      "role": "single-pleat-neutral"
+    },
+    {
+      "id": "ssot-supplier-01",
+      "priority": "supplier-secondary",
+      "path": "source/supplier-crops/01-pair-full.png",
+      "sha256": "6eae513be970bc7ee2aa26e0399939124ba11feedd76bb2e8ba75d0bb49b008a",
+      "sizeBytes": 235584,
+      "widthPx": 363,
+      "heightPx": 315,
+      "role": "pair-proportion"
+    },
+    {
+      "id": "ssot-supplier-02",
+      "priority": "supplier-secondary",
+      "path": "source/supplier-crops/02-stretch-structure.png",
+      "sha256": "fcb08a7739d9dff8dec28a3674b311f3d4dcc8a5108fcb9a5651bc38a23cc867",
+      "sizeBytes": 236839,
+      "widthPx": 410,
+      "heightPx": 385,
+      "role": "stretch-structure"
+    },
+    {
+      "id": "ssot-supplier-03",
+      "priority": "supplier-secondary",
+      "path": "source/supplier-crops/03-pleat-macro.png",
+      "sha256": "910e47dade5ee79f68c4cb966dc66aea6112230a0fe041688b35cdc9fd653f9d",
+      "sizeBytes": 313076,
+      "widthPx": 443,
+      "heightPx": 445,
+      "role": "pleat-macro"
+    },
+    {
+      "id": "ssot-supplier-04",
+      "priority": "supplier-secondary",
+      "path": "source/supplier-crops/04-hand-label-structure.png",
+      "sha256": "7cbb2620cddde026a257d76ac223dee34c45070dd2ad3ceb56d1616bb140ad6c",
+      "sizeBytes": 1253606,
+      "widthPx": 853,
+      "heightPx": 950,
+      "role": "hand-label-structure"
+    }
+  ],
+  "deprecatedForGeneration": [
+    {
+      "path": "source/user-real-recovered",
+      "reason": "300×400 저해상도 복구본이며 고해상도 실물 원본 8장으로 대체됨"
+    }
+  ]
+}

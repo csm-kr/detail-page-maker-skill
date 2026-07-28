@@ -1,0 +1,628 @@
+{
+  "schema_version": 2,
+  "created_at": "2026-07-28T04:34:28.512Z",
+  "dry_run": false,
+  "mode": "per_item",
+  "detail_level": 3,
+  "workers": 8,
+  "batch_size": 8,
+  "duration_ms": 174560,
+  "reference_paths": [
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\02-stretch-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\approved\\image\\d01-pair-clean-cutout-v02.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\approved\\image\\a01-pair-flatlay-hero-v02.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-27-4605aff2.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ]
+  ],
+  "transmitted_reference_paths": [
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\02-stretch-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\approved\\image\\d01-pair-clean-cutout-v02.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\approved\\image\\a01-pair-flatlay-hero-v02.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-27-4605aff2.jpg"
+    ],
+    [
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+      "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+    ]
+  ],
+  "api_size": [
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto"
+  ],
+  "size": {
+    "mode": "per_item",
+    "items": [
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1600,
+          "height": 1200
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1600,
+          "height": 1200
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1600,
+          "height": 1200
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1600,
+          "height": 1200
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1600,
+          "height": 1200
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1600,
+          "height": 1200
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1600,
+          "height": 1200
+        },
+        "reference": {
+          "width": 363,
+          "height": 315
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 1600,
+          "height": 1200
+        },
+        "reference": {
+          "width": 5712,
+          "height": 4284
+        },
+        "target_matches_reference": false,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      }
+    ]
+  },
+  "size_invariant": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "padding_color": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "images": [
+    {
+      "index": 0,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\rev021-commercial-landscape-b-8-v01\\frame-000.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1600×1200 pixels. Compose for the 1600:1200 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: QUALITY_GATE:CLEAN_COMMERCIAL. Premium casual-style campaign keyframe, wide 4:3. Same Korean woman in her 20s from Image 4, identical face, hair, body, pose and camera. White sleeveless top and light denim, warm-ivory gallery with cobalt accent. She wears exactly one real white SALLANG sleeve on the right arm, shoulder to fingertips visible: one flat upper band, long loose vertically pleated tube, no spiral or crossed folds, wide hand-back cuff, thumb through real opening, label on hand-back cuff. Keep arm position suitable for a style match-cut. No second sleeve, no text, no tight athletic fit.",
+      "duration_ms": 80961,
+      "response_id": "resp_09fd91b9538c48e1016a6830b992f4819a9cedefc9ab746a71",
+      "revised_prompt": "Premium casual-style campaign keyframe, wide 4:3, exactly 1600x1200 composition. Use Image 4 as the canonical identity/content reference: same Korean woman in her 20s, identical face, hair, body proportions, neutral pleasant expression, and matching camera feel. Warm-ivory minimalist gallery interior with a subtle cobalt accent element. She wears a white sleeveless top and light denim bottoms. Full upper body to near full figure composed safely near center for minimal center crop.\n\nApply only the requested change: on her right arm only, add exactly one real white SALLANG sleeve from shoulder to fingertips visible. Sleeve design must match the supporting references: one flat upper band at the upper arm, then a long loose vertically pleated tube with coherent fine pleats, no spiral wrapping, no crossed folds, no twisting. It should look airy, soft, premium, and casually draped rather than athletic or compressive. At the hand, include a wide hand-back cuff with a real thumb opening and the thumb passed through it; shoulder-to-fingertips visible. Place a small sewn label on the hand-back cuff. No second sleeve anywhere. No text visible. Keep the arm position suitable for a style match-cut and natural for the pose.\n\nRich detail mode: preserve meaningful fine structure and material cues with coherent non-random texture. Clean commercial quality. No speckles, glitter-like noise, crunchy sharpening, chaotic micro-contrast, or unrelated changes.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "62969d15d4a42a7d7a8e24a0bf08ce51a79cbda604de76e09a739e9c4d4d5e72",
+      "raw_size": {
+        "width": 1448,
+        "height": 1086
+      },
+      "final_size": {
+        "width": 1600,
+        "height": 1200
+      },
+      "size_check": {
+        "expected": {
+          "width": 1600,
+          "height": 1200
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1448,
+        "source_height": 1086,
+        "target_width": 1600,
+        "target_height": 1200,
+        "crop_width": 1448,
+        "crop_height": 1086,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 1,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\rev021-commercial-landscape-b-8-v01\\frame-001.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1600×1200 pixels. Compose for the 1600:1200 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: QUALITY_GATE:CLEAN_COMMERCIAL. Premium office-style campaign keyframe matching Image 4 identity and the same centered pose and camera as a style match-cut. Same Korean woman in her 20s wears a clean black sleeveless square-neck top with ivory wide trousers. Exactly one real white SALLANG sleeve on her right arm, full shoulder-to-fingertips length: one flat upper band, long loose vertical irregular pleats, no diagonal spiral, wide hand-back cuff, natural thumb opening, small label on the hand-back cuff. Warm-ivory gallery and cobalt accent. No second sleeve, no text, no tight sport fabric.",
+      "duration_ms": 169913,
+      "response_id": "resp_074b10247339fece016a6830ba1f14819b811cfd5f139a2681",
+      "revised_prompt": "Premium office-style campaign keyframe, rich detail, clean commercial finish, exact canvas 1600x1200. Use Image 4 as the identity reference: same Korean woman in her 20s, same centered standing pose and same camera/framing as a style match-cut, calm neutral expression, straight dark shoulder-length hair. Compose safely for slight center crop, keep essential subject centered. Wardrobe: clean black sleeveless square-neck top and ivory wide trousers. Add exactly one real white SALLANG sleeve on her right arm only, full shoulder-to-fingertips length. Sleeve construction must be specific: one flat upper band at upper arm, long loose vertical irregular pleats through the arm, no diagonal spiral wrapping, wide hand-back cuff, natural thumb opening, small subtle label on the hand-back cuff. No second sleeve. No text anywhere. No tight sport fabric. Environment: warm-ivory gallery office setting with subtle cobalt accent, premium editorial lighting, soft clean shadows, modern commercial campaign aesthetic. Preserve meaningful fine structure and material cues with coherent, non-random texture. Avoid speckles, glitter-like noise, crunchy sharpening, and chaotic micro-contrast.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "6b3c3deed362077d8431d25ef7cc9a675de1f26831e9c7df299737d9527dab36",
+      "raw_size": {
+        "width": 1448,
+        "height": 1086
+      },
+      "final_size": {
+        "width": 1600,
+        "height": 1200
+      },
+      "size_check": {
+        "expected": {
+          "width": 1600,
+          "height": 1200
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1448,
+        "source_height": 1086,
+        "target_width": 1600,
+        "target_height": 1200,
+        "crop_width": 1448,
+        "crop_height": 1086,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 2,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\rev021-commercial-landscape-b-8-v01\\frame-002.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1600×1200 pixels. Compose for the 1600:1200 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: QUALITY_GATE:CLEAN_COMMERCIAL. Premium feminine-style campaign keyframe matching Image 4 identity and the same centered pose and camera as a style match-cut. Same Korean woman in her 20s wears a pale-blue sleeveless midi dress. Exactly one real white SALLANG sleeve on her right arm, full shoulder-to-fingertips length: single flat upper band, long loose vertical irregular pleats, no diagonal crossed ribbon or rope twist, wide hand-back cuff, natural thumb opening, small label on back-of-hand cuff. Warm-ivory gallery with cobalt accent. No second sleeve, no text, no tight sport sleeve.",
+      "duration_ms": 174200,
+      "response_id": "resp_0dabe26f2af2b2b9016a6830b6283c8191896c678e2d454cb2",
+      "revised_prompt": "Create a premium feminine-style commercial campaign keyframe, exact output canvas 1600×1200, composed safely for slight center crop. Image 1 is the canonical identity/content reference for the sleeve design; Image 4 is the identity and pose/camera match-cut reference for the woman. Show the same Korean woman in her 20s as Image 4, centered, same calm standing pose and camera perspective, polished beauty-campaign look. She wears a pale-blue sleeveless midi dress. On her right arm only, add exactly one real white SALLANG sleeve, full shoulder-to-fingertips length. Sleeve details must be precise: single flat upper band at upper arm; long loose vertical irregular pleats through the arm; no diagonal crossed ribbon, no rope twist, no sporty compression look; wide hand-back cuff; natural thumb opening; small label placed on the back-of-hand cuff. No second sleeve. No text anywhere in frame. Warm-ivory contemporary gallery interior with a cobalt accent element, soft refined lighting, clean commercial styling. Rich detail with coherent fabric texture and realistic material cues, smooth premium skin and textile rendering, no glitter, no speckles, no crunchy sharpening, no chaotic micro-contrast.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "44f30d8db5a5d58efa92e180e682757c266769a4d22a3188326b0fc1952a23eb",
+      "raw_size": {
+        "width": 1448,
+        "height": 1086
+      },
+      "final_size": {
+        "width": 1600,
+        "height": 1200
+      },
+      "size_check": {
+        "expected": {
+          "width": 1600,
+          "height": 1200
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1448,
+        "source_height": 1086,
+        "target_width": 1600,
+        "target_height": 1200,
+        "crop_width": 1448,
+        "crop_height": 1086,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 3,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\rev021-commercial-landscape-b-8-v01\\frame-003.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-05-411f8795.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1600×1200 pixels. Compose for the 1600:1200 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: QUALITY_GATE:CLEAN_COMMERCIAL. START keyframe for a premium three-step wearing sequence, wide 4:3. Same Korean woman in her 20s from Image 4, pale-blue sleeveless dress, same warm-ivory studio and shoulder-to-fingertips camera. She holds open the single flat gathered UPPER-ARM opening of exactly one real white SALLANG sleeve with her left hand while the fingertips of her bare right hand begin entering that opening. The wide hand-back cuff, small thumb opening and label remain visible at the far end. Product lies as a long loose tube with vertical irregular pleats. No crossed fabric, no spiral, no braid, no completed wearing, no duplicate garment, exactly two normal hands, no text.",
+      "duration_ms": 83530,
+      "response_id": "resp_0764716eaded517a016a6830b7c15c81918c26e09db3b988e0",
+      "revised_prompt": "Create a clean commercial studio product/lifestyle image, exact composition for a wide 4:3 canvas, 1600x1200. Use Image 4 as the canonical identity for the woman: same Korean woman in her 20s, same face, hair, skin tone, and overall appearance. Warm-ivory seamless studio background. Camera framing from shoulder to fingertips. She is wearing a pale-blue sleeveless dress. This is the START keyframe of a premium three-step wearing sequence.\n\nShe holds open the single flat gathered UPPER-ARM opening of exactly one real white SALLANG sleeve with her LEFT hand. The fingertips of her bare RIGHT hand are just beginning to enter that opening. The product is NOT yet worn; do not show completed insertion. The sleeve must appear as one long loose tube with vertical irregular pleats, hanging naturally. No crossed fabric, no spiral wrapping, no braid, no duplication, exactly one garment only. At the far end of the tube, keep the wide hand-back cuff visible, the small thumb opening visible, and the sewn label visible. Exactly two normal human hands only. No text anywhere in the image.\n\nMaterial/rendering requirements: rich detail, preserve meaningful fine structure and fabric cues, coherent non-random texture, soft premium lighting, realistic white pleated fabric, no speckles, no glitter noise, no crunchy sharpening, no chaotic micro-contrast. Keep essential content centered and crop-safe for minimal center-crop. Premium ecommerce/editorial look.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "b61aeb57c79b98541612d9dacc8098f6dd54ad1afeefeac53867f83ffbf219ff",
+      "raw_size": {
+        "width": 1448,
+        "height": 1086
+      },
+      "final_size": {
+        "width": 1600,
+        "height": 1200
+      },
+      "size_check": {
+        "expected": {
+          "width": 1600,
+          "height": 1200
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1448,
+        "source_height": 1086,
+        "target_width": 1600,
+        "target_height": 1200,
+        "crop_width": 1448,
+        "crop_height": 1086,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 4,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\rev021-commercial-landscape-b-8-v01\\frame-004.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\02-stretch-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1600×1200 pixels. Compose for the 1600:1200 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: QUALITY_GATE:CLEAN_COMMERCIAL. MIDDLE keyframe of the same premium wearing sequence, wide 4:3 with identical woman, pale-blue dress, camera, lighting and background. Her right hand has passed through the long tube and emerges from the wide cuff while her left hand draws the sleeve upward along the forearm. The thumb is beside, not through, the small side opening. Preserve one flat upper opening, long loose tube and generally vertical irregular pleats. Critical: the fabric must slide straight along the arm with no two bands crossing, no diagonal spiral, no rope twist and no duplicate sleeve. Exactly two normal hands, no text or arrows.",
+      "duration_ms": 79822,
+      "response_id": "resp_0a720aabab66ac1b016a6830b753f88191b28012e34e7c2483",
+      "revised_prompt": "Create a clean commercial-quality photorealistic image, exact canvas 1600x1200, wide 4:3 composition. Image 1 is the canonical identity/content reference: same identical East Asian woman from the reference sheet, same face, hair, body, camera perspective, soft neutral studio lighting, and simple light background. She is wearing the same pale-blue dress/outfit context as requested, and the scene shows the MIDDLE keyframe of the sleeve-wearing sequence.\n\nCritical pose/action: her right arm is inside the long pleated tube sleeve and her right hand has already passed fully through the sleeve and emerges naturally from the wide cuff opening. Her left hand is pulling the sleeve upward along the right forearm. The thumb is beside the small side opening, not inserted through it. Show exactly two normal human hands only.\n\nGarment construction must be clear and correct: one flat upper opening at the top, one long loose fabric tube, generally vertical irregular pleats, fabric sliding straight along the arm. No two bands crossing, no diagonal spiral wrap, no rope twist, no duplicate sleeve, no extra openings, no tangled geometry. The tube should look like soft semi-sheer pleated fabric with coherent realistic texture and material cues.\n\nPreserve premium fashion-product realism and continuity. Keep the woman and sleeve centered and center-crop safe. No text, no labels, no arrows, no watermark. Rich detail, coherent non-random texture, no speckles, no glitter noise, no crunchy sharpening, no chaotic micro-contrast.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "624be818526c5cdf72362f62faca6614e0d4d99cd2815286d63af21fef489b15",
+      "raw_size": {
+        "width": 1448,
+        "height": 1086
+      },
+      "final_size": {
+        "width": 1600,
+        "height": 1200
+      },
+      "size_check": {
+        "expected": {
+          "width": 1600,
+          "height": 1200
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1448,
+        "source_height": 1086,
+        "target_width": 1600,
+        "target_height": 1200,
+        "crop_width": 1448,
+        "crop_height": 1086,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 5,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\rev021-commercial-landscape-b-8-v01\\frame-005.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1600×1200 pixels. Compose for the 1600:1200 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: QUALITY_GATE:CLEAN_COMMERCIAL. FINISH keyframe of the same premium wearing sequence, wide 4:3 with identical woman, pale-blue dress, camera, lighting and background. Exactly one real white SALLANG sleeve is correctly worn on her right arm: one flat horizontal gathered upper band below shoulder, long airy loose tube with irregular vertical pleats, wide cuff covering the back of the hand, thumb naturally through the real side opening, small label on the back-of-hand cuff. Her left hand lightly smooths the upper band without crossing the sleeve. Critical: no spiral seam, no crossed pleat ribbon, no rope or braided twist, no tight fit, no second sleeve. Exactly two normal hands, no text.",
+      "duration_ms": 170753,
+      "response_id": "resp_01ef6e1e56799da4016a6830b846e0819188c714878e055a0c",
+      "revised_prompt": "Create a clean commercial keyframe, wide 4:3 composition at exactly 1600x1200. Use Image 1 as the canonical identity/content reference for the same woman and same premium wearing-sequence scene; supporting references only for sleeve construction. Preserve the identical East Asian woman, pale-blue dress, camera angle, lighting, and background style from the canonical sequence. Compose safely for minimal center crop in 4:3, keeping the subject centered.\n\nRequested change only: the woman is correctly wearing exactly one real white SALLANG sleeve on her right arm. The sleeve must have one flat horizontal gathered upper band sitting below the shoulder, then a long airy loose tube with soft irregular vertical pleats, then a wide cuff that covers the back of the hand. Her right thumb passes naturally through a real side thumb opening. A small plain label is attached on the back-of-hand cuff. The sleeve is loose and breathable, not tight.\n\nHer left hand lightly smooths the upper band without crossing over the sleeve. Show exactly two normal hands total. No second sleeve anywhere. No text visible anywhere in the image.\n\nCritical negatives: no spiral seam, no crossed pleat ribbon, no rope or braided twist, no twisted tube, no tight fit, no extra fingers, no extra arms, no second sleeve, no unrelated wardrobe/background changes.\n\nQuality gate: CLEAN_COMMERCIAL. Rich detail with coherent fabric texture and realistic material cues. Preserve meaningful fine structure. Do not add speckles, glitter-like noise, crunchy sharpening, halos, or chaotic micro-contrast. Natural premium studio realism.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "28363c2adddd3345cd12f6ef68a461956cfd607d8e47ed6c0648458f67f89e8d",
+      "raw_size": {
+        "width": 1448,
+        "height": 1086
+      },
+      "final_size": {
+        "width": 1600,
+        "height": 1200
+      },
+      "size_check": {
+        "expected": {
+          "width": 1600,
+          "height": 1200
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1448,
+        "source_height": 1086,
+        "target_width": 1600,
+        "target_height": 1200,
+        "crop_width": 1448,
+        "crop_height": 1086,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 6,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\rev021-commercial-landscape-b-8-v01\\frame-006.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\approved\\image\\d01-pair-clean-cutout-v02.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\approved\\image\\a01-pair-flatlay-hero-v02.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-27-4605aff2.jpg"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1600×1200 pixels. Compose for the 1600:1200 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 363×315 pixels.\n\nUser request: QUALITY_GATE:CLEAN_COMMERCIAL. Premium product-composition hero on a warm-ivory seamless surface, wide 4:3. Images 1 to 3 are exact real SSOT. Show exactly two matching white SALLANG loose-fit sleeves laid vertically side by side, fully separated and parallel, both the same length, width, cuff size and scale. Preserve the approximately 47:14 long narrow proportion, fine irregular vertical pleats, one upper gathered band per sleeve, one wide hand-back cuff per sleeve, small thumb openings facing outward symmetrically and one small label per cuff in the real location. No X overlap, no stacking, no third item, no shortened product, no text overlay. Soft cobalt crescent shadow may frame but never touch the products.",
+      "duration_ms": 77350,
+      "response_id": "resp_0bc29dd46db648dd016a6830b66bec8191b24305b902c4f33e",
+      "revised_prompt": "Create a clean commercial premium product-composition hero image at exactly 1600×1200, wide 4:3, on a warm-ivory seamless surface. Image 1 is the canonical identity/content reference; images 2 and 3 are supporting references only. Show exactly two matching white SALLANG loose-fit sleeves laid vertically side by side, fully separated, parallel, centered, and equal in length, width, cuff size, and scale. Preserve the real product shape and approximately 47:14 long narrow proportion from the reference, with fine irregular vertical pleats, one upper gathered elastic band per sleeve, and one wide hand-back cuff per sleeve. Include one small thumb opening per sleeve facing outward symmetrically. Include one small sewn label per cuff in the real location, matching the real product placement. No overlap, no X shape, no stacking, no third item, no shortened product, no text overlay. Maintain authentic white fabric material cues with coherent non-random texture, soft natural folds, subtle translucency, and refined commercial lighting. Add only a very soft cobalt crescent shadow framing the composition without touching the products. Keep all essential content inside the center-crop-safe area. Detail mode rich detail, clean commercial quality, no speckles, no glitter-like noise, no crunchy sharpening, no chaotic micro-contrast.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "41d2c481610410eef076658009538aed2a6865b991e78af3567ad29acdcd8f47",
+      "raw_size": {
+        "width": 1448,
+        "height": 1086
+      },
+      "final_size": {
+        "width": 1600,
+        "height": 1200
+      },
+      "size_check": {
+        "expected": {
+          "width": 1600,
+          "height": 1200
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1448,
+        "source_height": 1086,
+        "target_width": 1600,
+        "target_height": 1200,
+        "crop_width": 1448,
+        "crop_height": 1086,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 7,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\rev021-commercial-landscape-b-8-v01\\frame-007.png",
+      "size_mode": "controllable",
+      "reference_paths": [
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\user-real-original\\photo-2026-07-14-0bd7c853.jpg",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\01-pair-full.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\assets\\product-ssot\\source\\supplier-crops\\04-hand-label-structure.png",
+        "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\ssot\\model-sheet-c00-03-v01.png"
+      ],
+      "prompt": "Detail mode: Rich Detail. Preserve meaningful fine structure and material cues with coherent, non-random texture. Do not add speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.\n\nImage 1 is the canonical identity and content reference. Images 2 and later are supporting references only. Apply only the requested change. The requested target canvas overrides Image 1's pixel dimensions and aspect ratio. Compose for the target canvas, keep essential content near the center-crop-safe area, and avoid unrelated changes.\n\nTarget output size: exactly 1600×1200 pixels. Compose for the 1600:1200 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area. Image 1's original size is 5712×4284 pixels.\n\nUser request: QUALITY_GATE:CLEAN_COMMERCIAL. Premium final campaign image, wide 4:3 with generous breathing room and a full readable product length. Same Korean woman in her 20s from Image 4 wears exactly two matching real white SALLANG sleeves with a clean pale-blue sleeveless dress. Camera includes both shoulders, upper arms, elbows, hands and fingertips; do not crop the upper bands or hand cuffs. Both sleeves run long from below shoulders to backs of hands, same scale, one flat upper band each, long loose irregular vertical pleats, wide hand-back cuffs, thumbs through side openings and small labels on hand-back cuffs. Arms stay apart in a relaxed open pose, never X-crossed. No spiral or rope twist, no short sleeves, no tight fit, no text. Warm ivory sunlight with pale cool-blue shadow, polished Korean commercial finish.",
+      "duration_ms": 80631,
+      "response_id": "resp_0be1cefa2bd89664016a6830b3e8bc819190568790c9586422",
+      "revised_prompt": "Premium Korean commercial fashion campaign image, exact 1600x1200 composition, wide 4:3 with generous breathing room and full readable product length. Use Image 4 as the canonical identity for the same Korean woman in her 20s: natural straight shoulder-length black hair, soft clean makeup, calm pleasant expression, elegant polished studio-commercial look. Supporting references only for the product: she wears exactly two matching real white SALLANG arm sleeves and a clean pale-blue sleeveless dress. Show both shoulders, upper arms, elbows, hands, and fingertips fully in frame; do not crop the upper bands or hand cuffs. Keep essential content centered and safe for slight center crop.\n\nSleeve design must match the references closely: both sleeves long from just below the shoulders to the backs of the hands, same scale on both arms, one flat upper band each, long loose irregular vertical pleats through the arm, wide hand-back cuffs, thumb through side openings, and a small sewn label on each hand-back cuff. The sleeves are airy, soft, semi-sheer white fabric with coherent fine pleated texture; no spiral twist, no rope twist, no short sleeves, no tight fit, no extra bands, no crossed arms. Arms stay apart in a relaxed open pose, slightly away from the torso, natural and elegant.\n\nStyling and lighting: warm ivory sunlight with pale cool-blue shadow, polished Korean commercial finish, clean premium catalog/editorial aesthetic. Pale-blue sleeveless dress should be simple and refined, no text anywhere in the image. Background minimal, bright, tasteful, softly sunlit interior or studio setting. Rich detail mode: preserve meaningful fine structure and material cues with coherent non-random texture; avoid speckles, glitter-like noise, crunchy sharpening, or chaotic micro-contrast.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "02e037bd7ce202334218fe15e730f714473556d068f73b323c67890f91849a84",
+      "raw_size": {
+        "width": 1448,
+        "height": 1086
+      },
+      "final_size": {
+        "width": 1600,
+        "height": 1200
+      },
+      "size_check": {
+        "expected": {
+          "width": 1600,
+          "height": 1200
+        },
+        "matches_expected": true,
+        "matches_reference": false
+      },
+      "postprocess_plan": {
+        "source_width": 1448,
+        "source_height": 1086,
+        "target_width": 1600,
+        "target_height": 1200,
+        "crop_width": 1448,
+        "crop_height": 1086,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    }
+  ],
+  "gif_path": null
+}

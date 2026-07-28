@@ -1,0 +1,370 @@
+{
+  "schema_version": 2,
+  "created_at": "2026-07-27T12:21:51.677Z",
+  "dry_run": false,
+  "mode": "per_item",
+  "detail_level": 2,
+  "workers": 6,
+  "batch_size": 6,
+  "duration_ms": 52155,
+  "reference_paths": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ],
+  "transmitted_reference_paths": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ],
+  "api_size": [
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto",
+    "auto"
+  ],
+  "size": {
+    "mode": "per_item",
+    "items": [
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 2048,
+          "height": 1152
+        },
+        "reference": null,
+        "target_matches_reference": null,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 2048,
+          "height": 1152
+        },
+        "reference": null,
+        "target_matches_reference": null,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 2048,
+          "height": 1152
+        },
+        "reference": null,
+        "target_matches_reference": null,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 2048,
+          "height": 1152
+        },
+        "reference": null,
+        "target_matches_reference": null,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 2048,
+          "height": 1152
+        },
+        "reference": null,
+        "target_matches_reference": null,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      },
+      {
+        "mode": "controllable",
+        "target": {
+          "width": 2048,
+          "height": 1152
+        },
+        "reference": null,
+        "target_matches_reference": null,
+        "backend_request_size": "auto",
+        "postprocess": "minimal-center-crop-lanczos-resize",
+        "legacy_fields_migrated": false
+      }
+    ]
+  },
+  "size_invariant": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "padding_color": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "images": [
+    {
+      "index": 0,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\background-2048x1152-01\\frame-000.png",
+      "size_mode": "controllable",
+      "reference_paths": [],
+      "prompt": "Detail mode: Balanced Detail. Keep important material and subject detail while simplifying incidental micro-texture. Avoid speckles, glitter-like noise, harsh micro-contrast, and gritty grain.\n\nTarget output size: exactly 2048×1152 pixels. Compose for the 2048:1152 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area.\n\nUser request: Create asset B04 (window-desk-background) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 2048x1152. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nThis is a pure background generation with no reference image and no product or person.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nProduct-free and person-free premium summer window-desk background: pale warm wall, light oak tabletop, soft window light from upper left, subtle leaf shadow, shallow realistic room depth, generous clean compositing space.\n\nMUST SHOW — REQUIRED:\nNo product, garment, hands, people, text, icons, logos, brand objects, screens, posters, or performance symbols.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 49700,
+      "response_id": "resp_0986215c537c62c6016a674d2bfa3081919becae0a8cac66ff",
+      "revised_prompt": "Create a clean commercial product-photography background asset, exactly 2048x1152 composition, for a Korean Coupang detail-page source library. Scene: premium summer window-desk background, product-free and person-free. A pale warm wall in the background, a light oak tabletop along the lower portion, soft natural window light entering from the upper left, subtle leafy shadow cast gently across part of the wall and desk, shallow realistic room depth, generous clean empty compositing space in the center-crop-safe middle area. Minimal, elegant, bright, airy, premium lifestyle studio look. No product, no garment, no hands, no people, no text, no icons, no logos, no brand objects, no screens, no posters, no performance symbols. Balanced detail: keep important material and subject detail while simplifying incidental micro-texture. Avoid speckles, glitter-like noise, harsh micro-contrast, gritty grain, film grain, sensor noise, chromatic noise, dithering, JPEG artifacts, oversharpening, dirty shadow noise, artificial glitter, waxy blur. Clean shadow transitions, smooth continuous gradients, crisp but natural edges, physically plausible material texture only, low-ISO clarity. Compose from the start for exactly 2048:1152 and keep essential visual interest centered and safely within the middle area for minimal center cropping.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "36273fed39a1cfa5bfa41590cee47576a3ab579ce7ede4656f8094a7bd58c377",
+      "raw_size": {
+        "width": 1672,
+        "height": 941
+      },
+      "final_size": {
+        "width": 2048,
+        "height": 1152
+      },
+      "size_check": {
+        "expected": {
+          "width": 2048,
+          "height": 1152
+        },
+        "matches_expected": true,
+        "matches_reference": null
+      },
+      "postprocess_plan": {
+        "source_width": 1672,
+        "source_height": 941,
+        "target_width": 2048,
+        "target_height": 1152,
+        "crop_width": 1672,
+        "crop_height": 941,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 1,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\background-2048x1152-01\\frame-001.png",
+      "size_mode": "controllable",
+      "reference_paths": [],
+      "prompt": "Detail mode: Balanced Detail. Keep important material and subject detail while simplifying incidental micro-texture. Avoid speckles, glitter-like noise, harsh micro-contrast, and gritty grain.\n\nTarget output size: exactly 2048×1152 pixels. Compose for the 2048:1152 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area.\n\nUser request: Create asset E01 (ivory-paper-background) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 2048x1152. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nThis is a pure background generation with no reference image and no product or person.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nEmpty premium ivory paper background with subtle physically plausible paper grain, gentle warm top-left studio light, soft broad gradient and generous central compositing space.\n\nMUST SHOW — REQUIRED:\nNo product, garment, person, hand, object, text, logo, icon, frame, badge, price or watermark.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 40530,
+      "response_id": "resp_0a5c0fb6e912d7e8016a674d2bdef8819181c4ec5a20402678",
+      "revised_prompt": "Create a pure background asset for a Korean Coupang detail-page source library: empty premium ivory paper background only, no product, no garment, no person, no hand, no object, no text, no logo, no icon, no frame, no badge, no price, no watermark. Exact canvas composition for 2048×1152 aspect ratio, wide horizontal layout, with all important visual interest kept safely inside the center-crop-safe area. Scene: premium ivory paper surface/background with subtle physically plausible paper grain, gentle warm studio light from the top-left, smooth broad gradient, generous clean central compositing space. Balanced detail: keep important material character while simplifying incidental micro-texture; avoid speckles, glitter-like noise, harsh micro-contrast, gritty grain, halftone, JPEG artifacts, oversharpening, sensor noise, chromatic noise, dirty shadow noise, artificial glitter, waxy blur. Clean commercial photography style, low-ISO clarity, smooth continuous tonal transitions, crisp but natural rendering, soft elegant premium feel.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "bdd35c29c12f2c255f0b34b066c454333f9859ae772e4fa5f4b2ba52b0ab6585",
+      "raw_size": {
+        "width": 1672,
+        "height": 941
+      },
+      "final_size": {
+        "width": 2048,
+        "height": 1152
+      },
+      "size_check": {
+        "expected": {
+          "width": 2048,
+          "height": 1152
+        },
+        "matches_expected": true,
+        "matches_reference": null
+      },
+      "postprocess_plan": {
+        "source_width": 1672,
+        "source_height": 941,
+        "target_width": 2048,
+        "target_height": 1152,
+        "crop_width": 1672,
+        "crop_height": 941,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 2,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\background-2048x1152-01\\frame-002.png",
+      "size_mode": "controllable",
+      "reference_paths": [],
+      "prompt": "Detail mode: Balanced Detail. Keep important material and subject detail while simplifying incidental micro-texture. Avoid speckles, glitter-like noise, harsh micro-contrast, and gritty grain.\n\nTarget output size: exactly 2048×1152 pixels. Compose for the 2048:1152 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area.\n\nUser request: Create asset E02 (summer-blue-shadow-background) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 2048x1152. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nThis is a pure background generation with no reference image and no product or person.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nEmpty pale sky-blue plaster wall with a very soft out-of-focus leafy shadow from upper right, clean summer editorial light and a smooth surface suitable for product compositing.\n\nMUST SHOW — REQUIRED:\nNo product, person, hand, sun icon, UV icon, temperature graphic, text, logo, object, frame or watermark.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 35641,
+      "response_id": "resp_0dc500d53ef9d7a1016a674d2bf1a88191ab75c1f06449b338",
+      "revised_prompt": "Create a clean commercial background asset only, exactly composed for 2048×1152 landscape. Empty pale sky-blue plaster wall with a very soft, out-of-focus leafy shadow falling from the upper right. Summer editorial light, bright but gentle, smooth continuous gradients, subtle realistic plaster texture only, suitable for product compositing. No product, no person, no hand, no object, no text, no logo, no icon, no frame, no watermark. Keep the composition center-crop-safe, with essential visual interest in the central area and ample negative space. Balanced detail: preserve important wall/material realism while simplifying incidental micro-texture; avoid speckles, glitter-like noise, harsh micro-contrast, gritty grain, film grain, sensor noise, chromatic noise, dithering, JPEG artifacts, halftone, oversharpening, dirty shadow noise, artificial glitter, waxy blur, or plastic smoothing. Crisp but natural shadow transitions, controlled studio-quality lighting, low-ISO clarity.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "be77a5a607559647ce4f8f422baa025b85bfb601ca7eb7fd857df703d5126a29",
+      "raw_size": {
+        "width": 1672,
+        "height": 941
+      },
+      "final_size": {
+        "width": 2048,
+        "height": 1152
+      },
+      "size_check": {
+        "expected": {
+          "width": 2048,
+          "height": 1152
+        },
+        "matches_expected": true,
+        "matches_reference": null
+      },
+      "postprocess_plan": {
+        "source_width": 1672,
+        "source_height": 941,
+        "target_width": 2048,
+        "target_height": 1152,
+        "crop_width": 1672,
+        "crop_height": 941,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 3,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\background-2048x1152-01\\frame-003.png",
+      "size_mode": "controllable",
+      "reference_paths": [],
+      "prompt": "Detail mode: Balanced Detail. Keep important material and subject detail while simplifying incidental micro-texture. Avoid speckles, glitter-like noise, harsh micro-contrast, and gritty grain.\n\nTarget output size: exactly 2048×1152 pixels. Compose for the 2048:1152 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area.\n\nUser request: Create asset E03 (pale-coral-table-background) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 2048x1152. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nThis is a pure background generation with no reference image and no product or person.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nEmpty pale coral tabletop and matching soft wall sweep, directional light from upper left, restrained shadow area on the right and generous clean space for later product placement.\n\nMUST SHOW — REQUIRED:\nNo product, garment, person, hand, prop, food, text, logo, icon, frame, badge or watermark.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 39030,
+      "response_id": "resp_049fd4a50ac5b805016a674d2c1d5881988f07610bf36f12b3",
+      "revised_prompt": "Create a clean commercial studio background asset only, exactly 2048x1152 composition, designed for Korean Coupang detail-page source library. Scene: empty pale coral tabletop with matching soft wall sweep/background, seamless studio cyclorama feel. Directional light from upper left, restrained soft shadow area falling to the right, generous clean negative space for later product placement. No product, no garment, no person, no hand, no props, no food, no text, no logo, no icon, no frame, no badge, no watermark. Balanced detail mode: keep important surface/form detail while simplifying incidental micro-texture. Smooth continuous gradients, crisp but natural edges, physically plausible subtle tabletop material only, low-ISO clarity. Avoid speckles, glitter-like noise, harsh micro-contrast, gritty grain, film grain, sensor noise, chromatic noise, dithering, halftone, JPEG artifacts, dirty shadow noise, oversharpening, waxy blur, plastic smoothing. Compose from the start for 2048:1152 widescreen and keep the main clean area center-crop-safe.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "84b7973766c58f205a427c66b8516b6f2475ff550421433963cdbc2357f959ec",
+      "raw_size": {
+        "width": 1672,
+        "height": 941
+      },
+      "final_size": {
+        "width": 2048,
+        "height": 1152
+      },
+      "size_check": {
+        "expected": {
+          "width": 2048,
+          "height": 1152
+        },
+        "matches_expected": true,
+        "matches_reference": null
+      },
+      "postprocess_plan": {
+        "source_width": 1672,
+        "source_height": 941,
+        "target_width": 2048,
+        "target_height": 1152,
+        "crop_width": 1672,
+        "crop_height": 941,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 4,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\background-2048x1152-01\\frame-004.png",
+      "size_mode": "controllable",
+      "reference_paths": [],
+      "prompt": "Detail mode: Balanced Detail. Keep important material and subject detail while simplifying incidental micro-texture. Avoid speckles, glitter-like noise, harsh micro-contrast, and gritty grain.\n\nTarget output size: exactly 2048×1152 pixels. Compose for the 2048:1152 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area.\n\nUser request: Create asset E04 (parked-car-interior-background) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 2048x1152. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nThis is a pure background generation with no reference image and no product or person.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nEmpty bright clean parked-car driver interior viewed from the passenger side, steering wheel and seat visible, neutral light upholstery, soft daylight, shallow commercial depth and no signs of vehicle motion.\n\nMUST SHOW — REQUIRED:\nNo person, hand, product, garment, vehicle brand, dashboard text, screen content, plate, icon, price or watermark.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 52128,
+      "response_id": "resp_07737c3439ba78a4016a674d2c1aa4819a8605fd355730077e",
+      "revised_prompt": "Generate a clean commercial background asset exactly 2048x1152, composed for the 2048:1152 aspect ratio with all essential content center-crop-safe. Scene: empty bright clean parked-car driver interior viewed from the passenger side. Show the steering wheel and driver seat clearly, with neutral light upholstery, tidy modern cabin surfaces, soft daylight, shallow commercial depth of field, and absolutely no signs of vehicle motion. No person, no hand, no product, no garment. No vehicle brand, no dashboard text, no screen content, no plate, no icon, no price, no watermark, no UI, no logo. Style: balanced detail, keeping important material and subject detail while simplifying incidental micro-texture. Avoid speckles, glitter-like noise, harsh micro-contrast, gritty grain, film grain, sensor noise, chromatic noise, dithering, JPEG artifacts, oversharpening, dirty shadow noise, artificial surface glitter, waxy blur, or plastic smoothing. Use controlled studio-like commercial lighting, smooth continuous gradients, crisp but natural edges, clean shadow transitions, physically plausible textures only, low-ISO clarity. Bright, clean, neutral, airy automotive interior background suitable for a product detail page.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "748ab3a265ec6325b9be5aaa16f4e50abeb4b4e0fcd40231ab270eb0d4853401",
+      "raw_size": {
+        "width": 1672,
+        "height": 941
+      },
+      "final_size": {
+        "width": 2048,
+        "height": 1152
+      },
+      "size_check": {
+        "expected": {
+          "width": 2048,
+          "height": 1152
+        },
+        "matches_expected": true,
+        "matches_reference": null
+      },
+      "postprocess_plan": {
+        "source_width": 1672,
+        "source_height": 941,
+        "target_width": 2048,
+        "target_height": 1152,
+        "crop_width": 1672,
+        "crop_height": 941,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    },
+    {
+      "index": 5,
+      "path": "C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\projects\\살랑-루즈핏-쿨토시-55873582\\asset\\generated\\pending\\image\\production-rev001\\background-2048x1152-01\\frame-005.png",
+      "size_mode": "controllable",
+      "reference_paths": [],
+      "prompt": "Detail mode: Balanced Detail. Keep important material and subject detail while simplifying incidental micro-texture. Avoid speckles, glitter-like noise, harsh micro-contrast, and gritty grain.\n\nTarget output size: exactly 2048×1152 pixels. Compose for the 2048:1152 target aspect ratio. The generated canvas will be minimally center-cropped to that aspect ratio and resized with LANCZOS, so keep essential content inside the center-crop-safe area.\n\nUser request: Create asset E05 (grocery-aisle-background) for the Korean Coupang detail-page source library of \"루즈핏 쿨토시\", manufacturer \"살랑\".\n\nFinal output must be exactly 2048x1152. Compose for this ratio from the start and keep the main subject center-crop-safe.\n\nThis is a pure background generation with no reference image and no product or person.\n\n\nPRODUCT IDENTITY — REQUIRED:\nThe exact product is one white pair of long loose-fit arm sleeves.\nPreserve the long relaxed tube silhouette rather than a tight compression sleeve.\nPreserve the fine irregular vertical pleats and thin matte woven fabric.\nPreserve the elastic upper-arm band, wide back-of-hand cuff, and thumb opening.\nWhen the physical label is visible, preserve one white woven label per sleeve with the exact two-line black text \"HELLO\" over \"CUTE SLEEVE\".\nDo not invent rib knit, sports compression panels, mesh panels, zippers, drawstrings, silicone strips, anti-slip dots, extra seams, extra holes, or extra labels.\nThe sale unit is one pair, two sleeves, unless the scene explicitly requests a single sleeve.\nNo UV percentage, UPF grade, cooling number, temperature graphic, moisture-wicking claim, ventilation claim, anti-slip claim, certification mark, or performance icon.\n\n\nSCENE — REQUIRED:\nEmpty bright organized grocery aisle with softly defocused generic packages, clean neutral ceiling light, central walking space and a commercial yet unbranded look.\n\nMUST SHOW — REQUIRED:\nNo person, hand, cart, product, readable brand, readable price tag, sale sign, text, logo, icon or watermark.\n\n\nQUALITY_GATE:CLEAN_COMMERCIAL\nClean commercial product photography with controlled studio lighting,\nsmooth continuous gradients, crisp but natural edges, clean shadow transitions,\nphysically plausible material texture only, low-ISO clarity.\nNo film grain, no sensor noise, no chromatic noise, no dithering, no speckle,\nno crunchy micro-texture, no halftone, no JPEG artifacts, no oversharpening,\nno dirty shadow noise, no artificial surface glitter.\nDo not hide detail with waxy blur or plastic skin smoothing.\nNo advertising copy, title, caption, badge, icon, price, watermark, UI, or invented logo.\nKeep all important product edges, hands, face, and limbs safely inside the frame.",
+      "duration_ms": 50403,
+      "response_id": "resp_04cdaf95bfc4151a016a674d2c02b48198afd0e307a3210ef7",
+      "revised_prompt": "Create a clean commercial background asset only, exactly 2048x1152 composition, center-crop-safe. Scene: empty bright organized grocery aisle in a supermarket, viewed from standing eye level down the central walking space. Softly defocused generic packages on both left and right shelves, commercial yet completely unbranded look, no readable text anywhere, no logos, no price tags, no sale signs, no icons, no watermark. Neutral clean ceiling lighting with smooth continuous gradients, tidy polished floor, bright inviting atmosphere. Keep the aisle symmetrical or near-symmetrical with strong depth perspective and open central space for later product compositing. Balanced Detail mode: preserve important aisle structure and shelf forms while simplifying incidental micro-texture; avoid speckles, glitter-like noise, gritty grain, harsh micro-contrast. Quality: low-ISO clean photography, crisp but natural edges, physically plausible materials, smooth shadows, no film grain, no sensor noise, no chromatic noise, no dithering, no JPEG artifacts, no oversharpening, no waxy blur. Pure background generation only: no person, no hand, no cart, no product, no readable brand, no text, no labels.",
+      "warnings": [
+        "WARNING: This project calls an unsupported private Codex backend path. The contract may break without notice."
+      ],
+      "sha256": "6daac16682f9907ec0e4f7535f52c6af784eaf3ec82bbbeb8a162c6c04501a9b",
+      "raw_size": {
+        "width": 1672,
+        "height": 941
+      },
+      "final_size": {
+        "width": 2048,
+        "height": 1152
+      },
+      "size_check": {
+        "expected": {
+          "width": 2048,
+          "height": 1152
+        },
+        "matches_expected": true,
+        "matches_reference": null
+      },
+      "postprocess_plan": {
+        "source_width": 1672,
+        "source_height": 941,
+        "target_width": 2048,
+        "target_height": 1152,
+        "crop_width": 1672,
+        "crop_height": 941,
+        "x_offset": 0,
+        "y_offset": 0
+      }
+    }
+  ],
+  "gif_path": null
+}

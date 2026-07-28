@@ -1,5 +1,8 @@
 (() => {
-  const STATE_VERSION = 1;
+  const STATE_VERSION = 2;
+  const OBJECT_SELECTOR = "[data-edit-image],[data-edit-object]";
+  const MIN_OBJECT_SCALE = 0.25;
+  const MAX_OBJECT_SCALE = 4;
   const projectKey =
     document.documentElement.dataset.studioProject ||
     location.pathname.replace(/[^a-z0-9가-힣]+/gi, "-");
@@ -12,8 +15,12 @@
   const editableNodes = () => [...document.querySelectorAll("[data-edit]")];
   const imageNodes = () =>
     [...document.querySelectorAll("[data-edit-image]")];
+  const objectNodes = () => [...document.querySelectorAll(OBJECT_SELECTOR)];
   const sectionNodes = () =>
     [...page.querySelectorAll(":scope > section[data-section]")];
+  const objectTransforms = new WeakMap();
+  let selectedObject = null;
+  let dragState = null;
 
   function ensureEditIds() {
     sectionNodes().forEach((section) => {
@@ -29,10 +36,140 @@
           }
         },
       );
+      [...section.querySelectorAll("[data-edit-object]")].forEach(
+        (node, index) => {
+          if (
+            !node.dataset.assetId &&
+            !node.dataset.imageId &&
+            !node.dataset.objectId
+          ) {
+            node.dataset.objectId = `${section.dataset.section}:object-${index + 1}`;
+          }
+        },
+      );
     });
   }
 
   ensureEditIds();
+
+  const interactionStyle = document.createElement("style");
+  interactionStyle.dataset.studioInteraction = "";
+  interactionStyle.textContent = `
+    .is-editing [data-edit-image],
+    .is-editing [data-edit-object] { cursor: grab !important; }
+    .is-editing [data-edit-image].studio-object-selected,
+    .is-editing [data-edit-object].studio-object-selected {
+      outline: 3px solid #176bff !important;
+      outline-offset: 3px !important;
+    }
+    .is-editing [data-edit-image].studio-object-dragging,
+    .is-editing [data-edit-object].studio-object-dragging { cursor: grabbing !important; }
+    .is-editing [data-edit] { cursor: text !important; }
+  `;
+  document.head.append(interactionStyle);
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function objectId(node) {
+    return (
+      node.dataset.assetId ||
+      node.dataset.imageId ||
+      node.dataset.objectId ||
+      ""
+    );
+  }
+
+  function objectLabel(node) {
+    return (
+      node.dataset.objectLabel ||
+      node.getAttribute("alt") ||
+      objectId(node) ||
+      node.classList[0] ||
+      node.tagName.toLowerCase()
+    );
+  }
+
+  function currentObjectTransform(node) {
+    return objectTransforms.get(node) || { x: 0, y: 0, scale: 1 };
+  }
+
+  function applyObjectTransform(node, transform) {
+    const next = {
+      x: clamp(Number(transform.x) || 0, -2000, 2000),
+      y: clamp(Number(transform.y) || 0, -2000, 2000),
+      scale: clamp(
+        Number(transform.scale) || 1,
+        MIN_OBJECT_SCALE,
+        MAX_OBJECT_SCALE,
+      ),
+    };
+    objectTransforms.set(node, next);
+    node.style.setProperty("translate", `${next.x}px ${next.y}px`, "important");
+    node.style.setProperty("scale", String(next.scale), "important");
+    return next;
+  }
+
+  function notifyObjectSelected(node) {
+    const imageIndex = imageNodes().indexOf(node);
+    const transform = currentObjectTransform(node);
+    if (imageIndex >= 0) {
+      window.parent.postMessage(
+        {
+          type: "DETAIL_IMAGE_SELECTED",
+          index: imageIndex,
+          assetId: objectId(node),
+          src: node.getAttribute("src") || "",
+          alt: node.getAttribute("alt") || "",
+        },
+        "*",
+      );
+    }
+    window.parent.postMessage(
+      {
+        type: "DETAIL_OBJECT_SELECTED",
+        objectId: objectId(node),
+        label: objectLabel(node),
+        isImage: imageIndex >= 0,
+        imageIndex,
+        src: imageIndex >= 0 ? node.getAttribute("src") || "" : "",
+        alt: imageIndex >= 0 ? node.getAttribute("alt") || "" : "",
+        ...transform,
+      },
+      "*",
+    );
+  }
+
+  function notifyObjectChanged(node) {
+    window.parent.postMessage(
+      {
+        type: "DETAIL_OBJECT_CHANGED",
+        objectId: objectId(node),
+        label: objectLabel(node),
+        ...currentObjectTransform(node),
+      },
+      "*",
+    );
+  }
+
+  function selectObject(node) {
+    if (selectedObject !== node) {
+      selectedObject?.classList.remove("studio-object-selected");
+      selectedObject = node;
+      selectedObject.classList.add("studio-object-selected");
+    }
+    notifyObjectSelected(node);
+  }
+
+  function clearObjectSelection() {
+    selectedObject?.classList.remove(
+      "studio-object-selected",
+      "studio-object-dragging",
+    );
+    selectedObject = null;
+    dragState = null;
+  }
 
   function sectionPayload() {
     return sectionNodes().map((section, index) => ({
@@ -121,6 +258,17 @@
     }
     const documentCopy = document.documentElement.cloneNode(true);
     documentCopy.querySelector("body")?.classList.remove("is-editing");
+    documentCopy
+      .querySelectorAll("[data-studio-interaction]")
+      .forEach((node) => node.remove());
+    documentCopy
+      .querySelectorAll(".studio-object-selected,.studio-object-dragging")
+      .forEach((node) =>
+        node.classList.remove(
+          "studio-object-selected",
+          "studio-object-dragging",
+        ),
+      );
     documentCopy.querySelectorAll("[contenteditable]").forEach((node) => {
       node.removeAttribute("contenteditable");
     });
@@ -169,6 +317,15 @@
     documentCopy
       .querySelectorAll("[data-edit]")
       .forEach((node) => node.removeAttribute("data-edit"));
+    documentCopy
+      .querySelectorAll("[data-edit-object]")
+      .forEach((node) => node.removeAttribute("data-edit-object"));
+    documentCopy
+      .querySelectorAll("[data-object-id],[data-object-label]")
+      .forEach((node) => {
+        node.removeAttribute("data-object-id");
+        node.removeAttribute("data-object-label");
+      });
     const output = `<!doctype html>\n${documentCopy.outerHTML}`;
     const blob = new Blob([output], { type: "text/html;charset=utf-8" });
     const anchor = document.createElement("a");
@@ -190,6 +347,7 @@
       node.contentEditable = enabled ? "true" : "false";
       node.spellcheck = false;
     });
+    if (!enabled) clearObjectSelection();
   }
 
   function collectState() {
@@ -214,7 +372,19 @@
         src: node.getAttribute("src"),
         alt: node.getAttribute("alt") || "",
       })),
+      objects: objectNodes()
+        .filter((node) => objectTransforms.has(node))
+        .map((node) => ({
+          id: objectId(node),
+          ...currentObjectTransform(node),
+        })),
     };
+  }
+
+  function migrateState(state) {
+    if (!state || ![1, STATE_VERSION].includes(state.version)) return null;
+    if (state.version === STATE_VERSION) return state;
+    return { ...state, version: STATE_VERSION, objects: [] };
   }
 
   function applyState(state) {
@@ -250,6 +420,13 @@
       if (image.src) node.setAttribute("src", image.src);
       node.setAttribute("alt", image.alt || "");
     });
+    const objects = new Map(
+      (state.objects || []).map((item) => [item.id, item]),
+    );
+    objectNodes().forEach((node) => {
+      const transform = objects.get(objectId(node));
+      if (transform) applyObjectTransform(node, transform);
+    });
     if (state.accent) {
       document.documentElement.style.setProperty("--accent", state.accent);
     }
@@ -281,28 +458,94 @@
   }
 
   try {
-    applyState(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+    const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const migratedState = migrateState(savedState);
+    applyState(migratedState);
+    if (migratedState && migratedState !== savedState) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedState));
+    }
   } catch {
     localStorage.removeItem(STORAGE_KEY);
   }
 
-  document.addEventListener("click", (event) => {
+  document.addEventListener("pointerdown", (event) => {
     if (!body.classList.contains("is-editing")) return;
-    const image = event.target.closest("[data-edit-image]");
-    if (!image) return;
+    if (event.button !== 0 || !(event.target instanceof Element)) return;
+    if (event.target.closest("[data-edit]")) return;
+    const object = event.target.closest(OBJECT_SELECTOR);
+    if (!object) return;
     event.preventDefault();
     event.stopPropagation();
-    const index = imageNodes().indexOf(image);
-    window.parent.postMessage(
-      {
-        type: "DETAIL_IMAGE_SELECTED",
-        index,
-        assetId: image.dataset.assetId || image.dataset.imageId || "",
-        src: image.getAttribute("src") || "",
-        alt: image.getAttribute("alt") || "",
-      },
-      "*",
-    );
+    selectObject(object);
+    const transform = currentObjectTransform(object);
+    dragState = {
+      node: object,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      objectX: transform.x,
+      objectY: transform.y,
+    };
+    object.classList.add("studio-object-dragging");
+    object.setPointerCapture?.(event.pointerId);
+  });
+
+  document.addEventListener("pointermove", (event) => {
+    if (!dragState || event.pointerId !== dragState.pointerId) return;
+    applyObjectTransform(dragState.node, {
+      ...currentObjectTransform(dragState.node),
+      x: dragState.objectX + event.clientX - dragState.startX,
+      y: dragState.objectY + event.clientY - dragState.startY,
+    });
+    notifyObjectChanged(dragState.node);
+  });
+
+  function finishObjectDrag(event) {
+    if (!dragState || event.pointerId !== dragState.pointerId) return;
+    const node = dragState.node;
+    node.classList.remove("studio-object-dragging");
+    node.releasePointerCapture?.(event.pointerId);
+    dragState = null;
+    notifyObjectChanged(node);
+    scheduleNotifyReady();
+  }
+
+  document.addEventListener("pointerup", finishObjectDrag);
+  document.addEventListener("pointercancel", finishObjectDrag);
+
+  document.addEventListener(
+    "wheel",
+    (event) => {
+      if (
+        !body.classList.contains("is-editing") ||
+        !(event.target instanceof Element)
+      ) {
+        return;
+      }
+      const object = event.target.closest(OBJECT_SELECTOR);
+      if (!object || object !== selectedObject) return;
+      event.preventDefault();
+      event.stopPropagation();
+      selectObject(object);
+      const transform = currentObjectTransform(object);
+      applyObjectTransform(object, {
+        ...transform,
+        scale: transform.scale * Math.exp(-event.deltaY * 0.0015),
+      });
+      notifyObjectChanged(object);
+      scheduleNotifyReady();
+    },
+    { passive: false },
+  );
+
+  document.addEventListener("dragstart", (event) => {
+    if (
+      body.classList.contains("is-editing") &&
+      event.target instanceof Element &&
+      event.target.closest(OBJECT_SELECTOR)
+    ) {
+      event.preventDefault();
+    }
   });
 
   window.addEventListener("message", (event) => {
@@ -374,7 +617,7 @@
     childList: true,
     characterData: true,
     attributes: true,
-    attributeFilter: ["class", "hidden", "src", "style"],
+    attributeFilter: ["class", "hidden", "src"],
   });
   document.addEventListener("input", scheduleNotifyReady);
   imageNodes().forEach((image) => {

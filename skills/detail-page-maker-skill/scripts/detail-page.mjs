@@ -111,6 +111,37 @@ function probeLocalSkill(skillName) {
   };
 }
 
+function probeGodTiboRuntime(localSkill) {
+  const skillRoot = localSkill?.path;
+  const runnerPath = skillRoot
+    ? path.join(skillRoot, "scripts", "tibo-batch.mjs")
+    : null;
+  const runtimePackagePath = skillRoot
+    ? path.join(
+        skillRoot,
+        "node_modules",
+        "god-tibo-imagen",
+        "package.json",
+      )
+    : null;
+  const ok =
+    localSkill?.ok === true &&
+    existsSync(runnerPath) &&
+    existsSync(runtimePackagePath);
+  return {
+    ok,
+    required: true,
+    skill: "god-tibo-gpt-image2-skill",
+    path: skillRoot || null,
+    runnerPath: existsSync(runnerPath || "") ? runnerPath : null,
+    runtimeInstalled: existsSync(runtimePackagePath || ""),
+    defaultBatchSize: 8,
+    detail: ok
+      ? null
+      : "God Tibo GPT Image 2 실행 환경이 없습니다. scripts/setup-local.ps1을 실행하세요.",
+  };
+}
+
 function printHelp() {
   console.log(`Detail Page Maker
 
@@ -140,13 +171,17 @@ async function doctor() {
   );
   const localSkillsOk = Object.values(localSkills).every((skill) => skill.ok);
   const designTasteFrontend = localSkills["design-taste-frontend"];
+  const godTiboGptImage2 = probeGodTiboRuntime(
+    localSkills["god-tibo-gpt-image2-skill"],
+  );
   const report = {
     ok:
       nodeSupported() &&
       hyperframes.ok &&
       browserHarness.ok &&
       ffmpeg.ok &&
-      localSkillsOk,
+      localSkillsOk &&
+      godTiboGptImage2.ok,
     node: {
       ok: nodeSupported(),
       version: process.version,
@@ -172,6 +207,7 @@ async function doctor() {
       path: designTasteFrontend?.path || null,
       detail: designTasteFrontend?.detail || null,
     },
+    godTiboGptImage2,
     defaultProjectsRoot: defaultProjectsRoot(),
   };
   console.log(JSON.stringify(report, null, 2));

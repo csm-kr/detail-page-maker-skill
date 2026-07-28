@@ -31,6 +31,7 @@ test("단일 스킬 폴더는 로컬 설치할 의존 스킬을 명시한다", a
     [
       "browser-harness",
       "design-taste-frontend",
+      "god-tibo-gpt-image2-skill",
       "hyperframes",
       "hyperframes-animation",
       "hyperframes-cli",
@@ -54,6 +55,9 @@ test("로컬 설치 명령은 전역 폴더가 아니라 받은 스킬 폴더를
   assert.match(setup, /Set-Location -LiteralPath \$SkillRoot/);
   assert.match(setup, /\.agents[\\/]skills/);
   assert.match(setup, /Leonxlnx\/taste-skill/);
+  assert.match(setup, /csm-kr\/god-tibo-gpt-image2-skill/);
+  assert.match(setup, /"--skill", "god-tibo-gpt-image2-skill"/);
+  assert.match(setup, /npm"[\s\S]*"install"[\s\S]*"--omit=dev"/);
   assert.match(setup, /heygen-com\/hyperframes/);
   assert.match(setup, /browser-harness skill/);
   assert.match(setup, /e2e\.mjs/);

@@ -1,5 +1,10 @@
 # 제품 SSOT·ImageGen 동일성 규약
 
+이 문서의 모든 ImageGen 생성·편집은
+`.agents/skills/god-tibo-gpt-image2-skill/scripts/tibo-batch.mjs`로만 실행한다.
+새 장면은 `controllable`, 기존 장면 교정은 첫 참조를 Image 1로 둔
+`invariant` 작업으로 기록하며 기본 배치 크기는 8장이다.
+
 ## 자산 위계
 
 1. 사용자가 직접 수정하고 SSOT로 승격한 제품 참조

@@ -102,6 +102,12 @@ iframe { display: block; width: 360px; min-height: 1200px; border: 0; background
 .gate-card { padding: 13px; border: 1px solid #456180; border-radius: 11px; background: #0a1423; font-size: 11px; font-weight: 800; line-height: 1.55; }
 .gate-card.ready { border-color: #2f9e7c; color: #b8ffe4; }
 .gate-card.blocked { border-color: #a64a59; color: #ffd1d7; }
+.wing-export-result { margin-top: 10px; color: #9fb5cf; font-size: 10px; line-height: 1.6; }
+.wing-export-result:empty { display: none; }
+.wing-export-result strong { display: block; color: #b8ffe4; font-size: 11px; }
+.wing-export-result p { overflow-wrap: anywhere; margin: 4px 0 0; }
+.wing-export-result a { display: inline-flex; margin-top: 7px; color: #82bdff; font-weight: 850; }
+.wing-export button.busy { cursor: progress; }
 
 @media (max-width: 1050px) {
   .app { grid-template-columns: 280px 1fr; }

@@ -12,6 +12,13 @@ const assetReviewGrid = document.querySelector("#assetReviewGrid");
 const exportButton = document.querySelector("#exportHtml");
 const outputGate = document.querySelector("#outputGate");
 const outputSummary = document.querySelector("#outputSummary");
+const wingExportButton = document.querySelector("#exportCoupangWing");
+const wingCdnBaseUrl = document.querySelector("#wingCdnBaseUrl");
+const wingExportGate = document.querySelector("#wingExportGate");
+const wingExportResult = document.querySelector("#wingExportResult");
+const applyImageButton = document.querySelector("#applyImage");
+const imageFileInput = document.querySelector("#imageFile");
+const wingCdnStorageKey = `detail-page-maker:wing-cdn:${location.pathname}`;
 
 let editing = false;
 let selectedImageIndex = -1;
@@ -24,7 +31,10 @@ let gate = {
   pendingCount: 0,
   missingRequiredCount: 0,
   exportAllowed: false,
+  coupangWingExportAllowed: false,
+  coupangWingBlockers: [],
 };
+let wingExportBusy = false;
 
 function post(type, payload = {}) {
   preview.contentWindow.postMessage({ type, ...payload }, "*");
@@ -32,6 +42,45 @@ function post(type, payload = {}) {
 
 function setStatus(message) {
   statusNode.textContent = message;
+}
+
+function setImageControlsEnabled(enabled) {
+  srcInput.disabled = !enabled;
+  altInput.disabled = !enabled;
+  imageFileInput.disabled = !enabled;
+  applyImageButton.disabled = !enabled;
+}
+
+function renderSelectedObject(message) {
+  const name =
+    message.label ||
+    message.objectId ||
+    (message.isImage ? `이미지 #${message.imageIndex + 1}` : "요소");
+  const selected = document.createElement("span");
+  selected.className = "selected";
+  selected.textContent = name;
+  const detail = document.createTextNode(
+    ` · 드래그 이동 · 휠 확대/축소 · ${Math.round(
+      Number(message.scale || 1) * 100,
+    )}% · (${Math.round(Number(message.x) || 0)}, ${Math.round(
+      Number(message.y) || 0,
+    )})`,
+  );
+  selectedLabel.replaceChildren(selected, detail);
+
+  if (message.isImage) {
+    selectedImageIndex = Number(message.imageIndex);
+    selectedImageCurrentSrc = message.src || "";
+    srcInput.value = message.src || "";
+    altInput.value = message.alt || "";
+    setImageControlsEnabled(true);
+  } else {
+    selectedImageIndex = -1;
+    selectedImageCurrentSrc = "";
+    srcInput.value = "";
+    altInput.value = "";
+    setImageControlsEnabled(false);
+  }
 }
 
 async function api(pathname, options = {}) {
@@ -207,6 +256,49 @@ function renderGate() {
     <div class="summary-metric"><span>승인 대기</span><strong>${gate.pendingCount}</strong></div>
     <div class="summary-metric"><span>출력 상태</span><strong>${gate.exportAllowed ? "READY" : "LOCKED"}</strong></div>
   `;
+  const wingReady = Boolean(gate.coupangWingExportAllowed);
+  wingExportGate.className = `gate-card ${wingReady ? "ready" : "blocked"}`;
+  wingExportGate.textContent = wingReady
+    ? `쿠팡 Wing 게이트 통과 · 상용 QA ${gate.finalQaScore}점 · 사용자 게시 승인 완료`
+    : `쿠팡 Wing 내보내기 잠김 · ${(gate.coupangWingBlockers || []).join(" · ") || "G5 상태를 확인해 주세요."}`;
+  wingExportButton.disabled =
+    wingExportBusy || !wingReady || !isValidCdnBaseUrl(wingCdnBaseUrl.value);
+  wingExportButton.classList.toggle("busy", wingExportBusy);
+  wingExportButton.textContent = wingExportBusy
+    ? "780px WebP 패키지 생성 중…"
+    : "쿠팡 Wing 포맷으로 내보내기";
+}
+
+function isValidCdnBaseUrl(value) {
+  try {
+    const url = new URL(value.trim());
+    return (
+      url.protocol === "https:" &&
+      !url.username &&
+      !url.password &&
+      !url.search &&
+      !url.hash
+    );
+  } catch {
+    return false;
+  }
+}
+
+function renderWingExportResult(result) {
+  wingExportResult.replaceChildren();
+  const title = document.createElement("strong");
+  title.textContent = `완성형 WebP ${result.assetCount}개 생성 완료`;
+  const path = document.createElement("p");
+  path.textContent = result.relativeOutputRoot;
+  const summary = document.createElement("p");
+  summary.textContent =
+    `정적 ${result.staticCount}개 · 애니메이션 ${result.animatedCount}개 · CDN 원격 검증 대기`;
+  const previewLink = document.createElement("a");
+  previewLink.href = result.previewUrl;
+  previewLink.target = "_blank";
+  previewLink.rel = "noreferrer";
+  previewLink.textContent = "780px 로컬 미리보기 열기";
+  wingExportResult.append(title, path, summary, previewLink);
 }
 
 async function refreshGate() {
@@ -285,7 +377,7 @@ toggleEdit.addEventListener("click", () => {
   post("DETAIL_SET_EDITING", { enabled: editing });
   setStatus(
     editing
-      ? "문구를 클릭하거나 이미지를 선택해 주세요."
+      ? "문구는 클릭해 수정하고, 요소는 드래그로 이동하거나 휠로 확대·축소하세요."
       : "미리보기 모드입니다.",
   );
 });
@@ -343,7 +435,7 @@ document.querySelector("#heightPlus").addEventListener("click", () => {
   setStatus(`미리보기 높이를 ${next.toLocaleString("ko-KR")}px로 늘렸습니다.`);
 });
 document.querySelector("#heightFit").addEventListener("click", fitPreviewHeight);
-document.querySelector("#imageFile").addEventListener("change", (event) => {
+imageFileInput.addEventListener("change", (event) => {
   const file = event.target.files?.[0];
   if (!file) return;
   const reader = new FileReader();
@@ -352,7 +444,7 @@ document.querySelector("#imageFile").addEventListener("change", (event) => {
   };
   reader.readAsDataURL(file);
 });
-document.querySelector("#applyImage").addEventListener("click", async () => {
+applyImageButton.addEventListener("click", async () => {
   if (selectedImageIndex < 0) {
     setStatus("먼저 수정 모드에서 이미지를 선택해 주세요.");
     return;
@@ -393,6 +485,44 @@ exportButton.addEventListener("click", async () => {
   post("DETAIL_EXPORT_HTML");
   setStatus("CSS와 승인 에셋을 포함한 단일 HTML을 준비하는 중입니다.");
 });
+wingCdnBaseUrl.value = localStorage.getItem(wingCdnStorageKey) || "";
+wingCdnBaseUrl.addEventListener("input", () => {
+  localStorage.setItem(wingCdnStorageKey, wingCdnBaseUrl.value.trim());
+  renderGate();
+});
+wingExportButton.addEventListener("click", async () => {
+  await refreshGate();
+  if (!gate.coupangWingExportAllowed) {
+    setStatus("G5 게시 승인과 상용 QA 97점 이상이 필요합니다.");
+    return;
+  }
+  const cdnBaseUrl = wingCdnBaseUrl.value.trim().replace(/\/+$/, "");
+  if (!isValidCdnBaseUrl(cdnBaseUrl)) {
+    setStatus("새 revision이 포함된 HTTPS CDN 기본 주소를 입력해 주세요.");
+    return;
+  }
+  wingExportBusy = true;
+  wingExportResult.textContent =
+    "섹션을 평면화하고 정적·애니메이션 WebP를 만드는 중입니다.";
+  renderGate();
+  setStatus("쿠팡 Wing 780px WebP 패키지를 생성하는 중입니다.");
+  try {
+    const payload = await api("/api/v1/exports/coupang-wing", {
+      method: "POST",
+      body: JSON.stringify({ cdnBaseUrl }),
+    });
+    renderWingExportResult(payload.result);
+    setStatus(
+      `쿠팡 Wing 패키지 생성 완료 · ${payload.result.assetCount}개 WebP · CDN 업로드 후 원격 검증 필요`,
+    );
+  } catch (error) {
+    wingExportResult.textContent = `생성 실패 · ${error.message}`;
+    setStatus(error.message);
+  } finally {
+    wingExportBusy = false;
+    renderGate();
+  }
+});
 
 window.addEventListener("message", (event) => {
   const message = event.data || {};
@@ -404,9 +534,11 @@ window.addEventListener("message", (event) => {
     }
     sections = message.sections || [];
     refreshSectionSelect();
-    setStatus(
-      `${message.sectionCount}개 섹션 · 수정 문구 ${message.editableCount}개 · 이미지 ${message.imageCount}개 준비됨`,
-    );
+    if (!editing) {
+      setStatus(
+        `${message.sectionCount}개 섹션 · 수정 문구 ${message.editableCount}개 · 이미지 ${message.imageCount}개 준비됨`,
+      );
+    }
   }
   if (message.type === "DETAIL_SAVED") {
     setStatus(
@@ -430,7 +562,28 @@ window.addEventListener("message", (event) => {
     selectedLabel.innerHTML = `<span class="selected">${
       message.assetId || `이미지 #${message.index + 1}`
     }</span> 선택됨`;
+    setImageControlsEnabled(true);
+  }
+  if (message.type === "DETAIL_OBJECT_SELECTED") {
+    renderSelectedObject(message);
+  }
+  if (message.type === "DETAIL_OBJECT_CHANGED") {
+    renderSelectedObject({
+      ...message,
+      isImage: selectedImageIndex >= 0,
+      imageIndex: selectedImageIndex,
+      src: srcInput.value,
+      alt: altInput.value,
+    });
+    setStatus(
+      `${message.label || message.objectId || "요소"} · ${Math.round(
+        Number(message.scale || 1) * 100,
+      )}% · 위치 (${Math.round(Number(message.x) || 0)}, ${Math.round(
+        Number(message.y) || 0,
+      )})`,
+    );
   }
 });
 
+setImageControlsEnabled(false);
 refreshGate();

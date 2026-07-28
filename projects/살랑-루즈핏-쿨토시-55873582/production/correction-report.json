@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "revisionId": "rev-001",
+  "status": "qa-pass-pending-user-approval",
+  "appliedAt": "2026-07-27T12:32:39.882Z",
+  "initialGeneratedAssetCount": 40,
+  "correctionGeneratedAssetCount": 3,
+  "totalGeneratedImageCount": 43,
+  "corrections": [
+    {
+      "assetId": "B06",
+      "version": "v02",
+      "index": 0,
+      "path": "asset/generated/pending/image/production-rev001-corrections/correction-01/frame-000.png",
+      "sha256": "5d3d364b40bea5ba4f0b57978ffc1bd400b33935c92b4e2c34881992583cffcc",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_054746e1f8f70db8016a674f2131e88191ae174ba1df35e3b3",
+      "generatedAt": "2026-07-27T12:30:40.017Z",
+      "sizeCheck": {
+        "matchesReference": true
+      },
+      "qaStatus": "PASS",
+      "correctionFinding": "손바닥 면에 노출된 라벨을 제거하고 손바닥 개방 구조를 유지함."
+    },
+    {
+      "assetId": "D03",
+      "version": "v02",
+      "index": 1,
+      "path": "asset/generated/pending/image/production-rev001-corrections/correction-01/frame-001.png",
+      "sha256": "ac439d3d862507d971a6cf73fa2d8ee726ac0a91deb1a48a2e594ff3f7fb4854",
+      "width": 1024,
+      "height": 1536,
+      "responseId": "resp_01dad1114382baf9016a674f22583081919b13a2fb2c125ffa",
+      "generatedAt": "2026-07-27T12:30:40.017Z",
+      "sizeCheck": {
+        "matchesReference": true
+      },
+      "qaStatus": "PASS",
+      "correctionFinding": "뒷면 컷의 잘못된 라벨을 제거하고 역면 엄지홀·봉제를 유지함."
+    },
+    {
+      "assetId": "E08",
+      "version": "v02",
+      "index": 2,
+      "path": "asset/generated/pending/image/production-rev001-corrections/correction-01/frame-002.png",
+      "sha256": "2c068f228cb998a97b743cb85014cf0b479c435a4c26a051547f911dd06767c3",
+      "width": 1024,
+      "height": 1024,
+      "responseId": "resp_0f6f26a30d879f97016a674f2245848191af0074b40c23f41c",
+      "generatedAt": "2026-07-27T12:30:40.017Z",
+      "sizeCheck": {
+        "matchesReference": true
+      },
+      "qaStatus": "PASS",
+      "correctionFinding": "떠 있던 행택형 라벨을 손등 커프에 평평하게 봉제된 형태로 교정함."
+    }
+  ]
+}

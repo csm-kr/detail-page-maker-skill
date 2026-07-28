@@ -1,0 +1,81 @@
+{
+  "items": [
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Premium casual-style campaign keyframe, wide 4:3. Same Korean woman in her 20s from Image 4, identical face, hair, body, pose and camera. White sleeveless top and light denim, warm-ivory gallery with cobalt accent. She wears exactly one real white SALLANG sleeve on the right arm, shoulder to fingertips visible: one flat upper band, long loose vertically pleated tube, no spiral or crossed folds, wide hand-back cuff, thumb through real opening, label on hand-back cuff. Keep arm position suitable for a style match-cut. No second sleeve, no text, no tight athletic fit.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Premium office-style campaign keyframe matching Image 4 identity and the same centered pose and camera as a style match-cut. Same Korean woman in her 20s wears a clean black sleeveless square-neck top with ivory wide trousers. Exactly one real white SALLANG sleeve on her right arm, full shoulder-to-fingertips length: one flat upper band, long loose vertical irregular pleats, no diagonal spiral, wide hand-back cuff, natural thumb opening, small label on the hand-back cuff. Warm-ivory gallery and cobalt accent. No second sleeve, no text, no tight sport fabric.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Premium feminine-style campaign keyframe matching Image 4 identity and the same centered pose and camera as a style match-cut. Same Korean woman in her 20s wears a pale-blue sleeveless midi dress. Exactly one real white SALLANG sleeve on her right arm, full shoulder-to-fingertips length: single flat upper band, long loose vertical irregular pleats, no diagonal crossed ribbon or rope twist, wide hand-back cuff, natural thumb opening, small label on back-of-hand cuff. Warm-ivory gallery with cobalt accent. No second sleeve, no text, no tight sport sleeve.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. START keyframe for a premium three-step wearing sequence, wide 4:3. Same Korean woman in her 20s from Image 4, pale-blue sleeveless dress, same warm-ivory studio and shoulder-to-fingertips camera. She holds open the single flat gathered UPPER-ARM opening of exactly one real white SALLANG sleeve with her left hand while the fingertips of her bare right hand begin entering that opening. The wide hand-back cuff, small thumb opening and label remain visible at the far end. Product lies as a long loose tube with vertical irregular pleats. No crossed fabric, no spiral, no braid, no completed wearing, no duplicate garment, exactly two normal hands, no text.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-05-411f8795.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. MIDDLE keyframe of the same premium wearing sequence, wide 4:3 with identical woman, pale-blue dress, camera, lighting and background. Her right hand has passed through the long tube and emerges from the wide cuff while her left hand draws the sleeve upward along the forearm. The thumb is beside, not through, the small side opening. Preserve one flat upper opening, long loose tube and generally vertical irregular pleats. Critical: the fabric must slide straight along the arm with no two bands crossing, no diagonal spiral, no rope twist and no duplicate sleeve. Exactly two normal hands, no text or arrows.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/02-stretch-structure.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. FINISH keyframe of the same premium wearing sequence, wide 4:3 with identical woman, pale-blue dress, camera, lighting and background. Exactly one real white SALLANG sleeve is correctly worn on her right arm: one flat horizontal gathered upper band below shoulder, long airy loose tube with irregular vertical pleats, wide cuff covering the back of the hand, thumb naturally through the real side opening, small label on the back-of-hand cuff. Her left hand lightly smooths the upper band without crossing the sleeve. Critical: no spiral seam, no crossed pleat ribbon, no rope or braided twist, no tight fit, no second sleeve. Exactly two normal hands, no text.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Premium product-composition hero on a warm-ivory seamless surface, wide 4:3. Images 1 to 3 are exact real SSOT. Show exactly two matching white SALLANG loose-fit sleeves laid vertically side by side, fully separated and parallel, both the same length, width, cuff size and scale. Preserve the approximately 47:14 long narrow proportion, fine irregular vertical pleats, one upper gathered band per sleeve, one wide hand-back cuff per sleeve, small thumb openings facing outward symmetrically and one small label per cuff in the real location. No X overlap, no stacking, no third item, no shortened product, no text overlay. Soft cobalt crescent shadow may frame but never touch the products.",
+      "references": [
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../asset/generated/approved/image/d01-pair-clean-cutout-v02.png",
+        "../../asset/generated/approved/image/a01-pair-flatlay-hero-v02.png",
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-27-4605aff2.jpg"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Premium final campaign image, wide 4:3 with generous breathing room and a full readable product length. Same Korean woman in her 20s from Image 4 wears exactly two matching real white SALLANG sleeves with a clean pale-blue sleeveless dress. Camera includes both shoulders, upper arms, elbows, hands and fingertips; do not crop the upper bands or hand cuffs. Both sleeves run long from below shoulders to backs of hands, same scale, one flat upper band each, long loose irregular vertical pleats, wide hand-back cuffs, thumbs through side openings and small labels on hand-back cuffs. Arms stay apart in a relaxed open pose, never X-crossed. No spiral or rope twist, no short sleeves, no tight fit, no text. Warm ivory sunlight with pale cool-blue shadow, polished Korean commercial finish.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    }
+  ],
+  "workers": 8,
+  "detail_level": 3,
+  "size_mode": "controllable",
+  "target_size": "1600x1200",
+  "output_dir": "../../asset/generated/pending/image/rev021-commercial-landscape-b-8-v01"
+}

@@ -1,0 +1,81 @@
+{
+  "items": [
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Vertical premium Korean fashion-commerce hero, 3:4 portrait with copy-safe space above. Same Korean woman in her 20s from Image 4 wears exactly two matching real white SALLANG loose-fit sleeves with a pale-blue sleeveless midi dress. Frame from head to fingertips and include both upper bands. Preserve the real long approximately 47 cm impression, one flat horizontal upper band per arm, long airy loose tubes with irregular fine vertical pleats, wide cuffs over the backs of hands, real side thumb openings and small labels on hand-back cuffs. Arms relaxed and separate, no X crossing. No diagonal spiral folds, no rope twist, no braid, no tight sports fit, no text.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Vertical full-length finale in a warm-ivory gallery with pale sky and cobalt architecture. Same Korean woman in her 20s from Image 4, clean ivory sleeveless top and light denim. Show head, torso, both shoulders, both arms and fingertips without cropping. She wears exactly two matching real white SALLANG sleeves, both visibly long from below shoulder to the back of hand. Each has one flat upper band, loose vertical irregular pleats, wide hand cuff, natural thumb opening and label on hand-back cuff. Hands separated beside her body. No diagonal spiral, crossed fabric, X pose, rope twist, short proportion, text or extra garment.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Vertical premium product-answer portrait. Same Korean woman in her 20s from Image 4, soft black sleeveless top and ivory trousers, calm modern posture. Exactly one real white SALLANG sleeve on her right arm shown completely from upper band through fingertips. One flat upper ring, long loose vertically pleated tube, no diagonal twist, wide hand-back cuff, natural thumb opening and label on hand-back cuff. Warm ivory wall, cobalt doorway, large negative space. No second sleeve, no text, no tight compression silhouette.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/02-stretch-structure.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Vertical outdoor summer lifestyle portrait under soft open shade, not harsh sun. Same Korean woman in her 20s from Image 4 wears exactly two real white SALLANG loose-fit sleeves with a pale-blue sleeveless dress. Frame head to fingertips; products remain the focal point. Preserve one flat upper band per sleeve, long loose vertical irregular pleats, wide cuffs covering backs of hands, real thumb openings and label positions. No spiral, no braid, no X-crossed arms, no UV shield or performance graphic, no text.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Vertical editorial detail with same Korean woman in her 20s. Crop from shoulder to fingertips but keep the complete real white SALLANG sleeve length visible. Exactly one sleeve on right arm, one flat gathered upper band, long loose tube with irregular vertical pleats and gentle volume, wide hand-back cuff, thumb through side opening, small label on back-of-hand cuff. Her left hand stays away from the product. Pale sky background and ivory floor. No diagonal crossed pleat line, rope twist, tight fit, text or duplicated sleeve.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/02-stretch-structure.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Vertical product composition on warm ivory paper. Exactly two matching real white SALLANG sleeves from Images 1 to 4 laid straight and parallel, fully separated, both full length and same scale. Preserve long narrow 47:14 impression, one gathered upper band each, fine irregular vertical pleats, one wide hand-back cuff each, small side thumb openings and real label location. Pale cobalt shadow arc behind. No X overlap, no stacking, no third piece, no short product, no text.",
+      "references": [
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../asset/generated/approved/image/d01-pair-clean-cutout-v02.png",
+        "../../asset/generated/approved/image/a01-pair-flatlay-hero-v02.png",
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-27-4605aff2.jpg"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Vertical cool-material fashion still. Same Korean woman in her 20s wears exactly one real white SALLANG sleeve on right arm, complete from below shoulder to fingertips, in a warm-ivory room washed by a soft pale-blue moving shadow. One flat upper ring, long loose vertical irregular pleats, wide hand-back cuff, real thumb opening and label position. The environmental color shifts gently from warm at the far top to cool around the sleeve, without thermal imaging, numbers, snowflakes or thermometer. No spiral product twist, no text.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/03-pleat-macro.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    },
+    {
+      "prompt": "QUALITY_GATE:CLEAN_COMMERCIAL. Vertical final reminder portrait with wide copy-safe sky above. Same Korean woman in her 20s from Image 4, serene expression, pale-blue sleeveless dress. Both real white SALLANG sleeves are worn correctly and fully visible from upper arms through fingertips, arms open slightly away from body. Matching length and width, single flat upper bands, long loose vertical pleats with no diagonal spiral or braid, wide hand-back cuffs, thumb openings and labels in real positions. Soft ivory daylight, cobalt accent. No X pose, no tight sports fit, no text.",
+      "references": [
+        "../../assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../../assets/product-ssot/source/supplier-crops/01-pair-full.png",
+        "../../assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../../asset/ssot/model-sheet-c00-03-v01.png"
+      ]
+    }
+  ],
+  "workers": 8,
+  "detail_level": 3,
+  "size_mode": "controllable",
+  "target_size": "1200x1600",
+  "output_dir": "../../asset/generated/pending/image/rev021-commercial-portrait-8-v01"
+}

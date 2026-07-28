@@ -18,8 +18,9 @@
 | 공급처 URL 수집 | [`domeggook-supplier-extraction.md`](references/domeggook-supplier-extraction.md) | 다른 공급처는 같은 원본·locator·사실 분리 원칙 적용 |
 | 제품 SSOT | [`product-identity.md`](references/product-identity.md) | 생성 이미지까지 쓰면 [`product-identity-imagegen.md`](references/product-identity-imagegen.md) |
 | 상업 기획·카피 | [`commercial.md`](references/commercial.md), [`BUYER-JOURNEY.md`](references/BUYER-JOURNEY.md) | [`korean-copy-typography.md`](references/korean-copy-typography.md), [`commercial-detail-page.md`](references/commercial-detail-page.md) |
+| 커머셜 말투·고객 목소리 | [`commercial-copy-tone-guide.md`](references/commercial-copy-tone-guide.md) | 고객 장면·비유·말풍선·내부 표현 제거 |
 | 이미지 생성·자산 상태 | [`asset-gen-guide.md`](references/asset-gen-guide.md), [`asset-management.md`](references/asset-management.md), [`product-identity-imagegen.md`](references/product-identity-imagegen.md) | 제품별 상세 규약은 `commercial-detail-page.md`의 해당 절만 탐색 |
-| GIF·모션 | [`gif-guide.md`](references/gif-guide.md), [`hyperframes.md`](references/hyperframes.md) | 패턴은 [`gif-motion-pattern-library.md`](references/gif-motion-pattern-library.md), QA는 [`hyperframes-gif-qa.md`](references/hyperframes-gif-qa.md) |
+| GIF·모션 | [`gif-guide.md`](references/gif-guide.md), [`hyperframes.md`](references/hyperframes.md), [`commercial-effects-and-claim-proof.md`](references/commercial-effects-and-claim-proof.md) | 패턴은 [`gif-motion-pattern-library.md`](references/gif-motion-pattern-library.md), QA는 [`hyperframes-gif-qa.md`](references/hyperframes-gif-qa.md) |
 | Studio v1 조립·편집 | [`studio-workflow.md`](references/studio-workflow.md), [`asset-management.md`](references/asset-management.md) | 고객 화면 정책은 `public-output-policy.md` |
 | 디자인 실험 | 설치된 `design-taste-frontend` 스킬 | [`design-study.md`](references/design-study.md), [`behance-commercial-analysis.md`](references/behance-commercial-analysis.md) |
 | 게시 전 QA | [`commercial-qa.md`](references/commercial-qa.md), [`user-feedback-quality-gates.md`](references/user-feedback-quality-gates.md) | GIF가 있으면 `hyperframes-gif-qa.md` |

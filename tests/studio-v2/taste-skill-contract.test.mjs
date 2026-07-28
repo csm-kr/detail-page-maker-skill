@@ -43,3 +43,24 @@ test("설치와 doctor가 design-taste-frontend 의존성을 강제한다", asyn
   assert.match(cli, /probeLocalSkill/);
   assert.match(cli, /localSkills\["design-taste-frontend"\]/);
 });
+
+test("설치와 doctor가 God Tibo GPT Image 2 실행 환경을 강제한다", async () => {
+  const [setup, cli, dependencies] = await Promise.all([
+    repositoryFile(
+      "skills/detail-page-maker-skill/scripts/setup-local.ps1",
+    ),
+    repositoryFile(
+      "skills/detail-page-maker-skill/scripts/detail-page.mjs",
+    ),
+    repositoryFile(
+      "skills/detail-page-maker-skill/dependencies.json",
+    ),
+  ]);
+
+  assert.match(setup, /csm-kr\/god-tibo-gpt-image2-skill/);
+  assert.match(setup, /npm"[\s\S]*"install"[\s\S]*"--omit=dev"/);
+  assert.match(cli, /probeGodTiboRuntime/);
+  assert.match(cli, /defaultBatchSize:\s*8/);
+  assert.match(cli, /godTiboGptImage2/);
+  assert.match(dependencies, /"name":\s*"god-tibo-gpt-image2-skill"/);
+});

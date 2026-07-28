@@ -26,6 +26,7 @@
 | HyperFrames 원본·레이어·렌더 계약 | [`hyperframes.md`](hyperframes.md) |
 | 슬라이더·뒤집기·추적 오버레이 등 패턴 선택 | [`gif-motion-pattern-library.md`](gif-motion-pattern-library.md) |
 | 첫·중간·마지막 프레임과 제품 동일성 QA | [`hyperframes-gif-qa.md`](hyperframes-gif-qa.md) |
+| 상용 장점 직후 증거와 적극적 FX | [`commercial-effects-and-claim-proof.md`](commercial-effects-and-claim-proof.md) |
 
 GIF를 새로 만들거나 수정할 때는 이 파일을 읽은 뒤 위 세 문서를 작업 단계에 맞게
 읽는다. 정적 이미지만 사용하는 상세페이지도 프로젝트의 `planning/GIF.md`에 GIF를
@@ -66,6 +67,11 @@ approval_status
 
 한 GIF는 `claim_id` 하나와 `component_id` 하나를 기본으로 한다. 서로 다른 부품을
 한 GIF가 동시에 증명하게 하지 않는다.
+
+핵심 장점은 정지 이미지로 소개한 직후 전용 GIF로 증명한다. 완성된 GIF를 페이지
+뒤쪽 증거 갤러리에 다시 모으지 않는다. 비교 와이프·단계형 하강 막대·스타일
+매치컷·길이 공개·구성 공개는 주장에 맞을 때 적극 사용하되, 이펙트만 남고 제품
+변화가 읽히지 않는 모션은 실패다.
 
 ## 3. GIF 필요성 판정
 
@@ -197,6 +203,8 @@ GIF를 쓰지 않기로 한 판단도 `planning/GIF.md`에 `motion_required: no`
 8. GIF는 바로 옆 주장과 결속되고 별도 장식 섹션처럼 고립되지 않는다.
 9. `prefers-reduced-motion`에서는 poster 또는 설명력 높은 정지 상태를 제공한다.
 10. 실제 게시 HTML의 `currentSrc`가 승인된 버전 없는 GIF 경로를 가리킨다.
+11. 모든 핵심 장점 뒤에 대응 GIF가 있고, 페이지 끝의 중복 증거 갤러리는 없다.
+12. 첫 프레임만 보아도 제품과 증명할 차이가 읽히며 이펙트가 제품보다 먼저 보이지 않는다.
 
 전체 하드 게이트는 [`hyperframes-gif-qa.md`](hyperframes-gif-qa.md)를 따른다.
 

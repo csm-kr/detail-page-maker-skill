@@ -30,6 +30,8 @@ Create three to five reason cards. Each card must contain:
 - `product_answer`
 - `customer_copy`
 - `visual_proof`
+- `still_evidence_asset_id`
+- `motion_evidence_asset_id`
 - `blocked_expansion`
 
 ## Journey
@@ -42,9 +44,9 @@ Create three to five reason cards. Each card must contain:
 6. Optional Reason 4 or 5
 7. How to Use
 8. Primary Use Case
-9. More Use Cases
-10. Construction Details
-11. Motion or Comparison
+9. Verified Same-SKU Reviews
+10. Problem-Solution Recap
+11. Construction Details
 12. Configuration and Size
 13. Care and Final Questions
 14. Decision Recap

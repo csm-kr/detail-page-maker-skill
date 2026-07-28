@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "gate": "G3 GIF_MOTION",
+  "projectId": "project-6b33dae5-1d25-47a8-b331-93fe0058196a",
+  "projectRevisionId": "rev-011",
+  "gifId": "GIF-001",
+  "assetVersion": "v01",
+  "result": "PASS_RENDERED_PENDING_USER_APPROVAL",
+  "renderAuthorization": {
+    "confirmedByUser": true,
+    "userConfirmation": "gif 렌더하자"
+  },
+  "render": {
+    "engine": "HyperFrames 0.7.76",
+    "compositionPath": "hyperframes/projects/gif-001-thumbhole-direction/index.html",
+    "compositionSha256": "d1ab35a63ab966ebb3fe5258dbe8054dc644bd5f297e6db7e281bf61634edb0d",
+    "width": 800,
+    "height": 800,
+    "durationSeconds": 3.2,
+    "frameCount": 96,
+    "fps": 30,
+    "quality": "high",
+    "audio": false
+  },
+  "artifacts": [
+    {
+      "role": "pending-gif",
+      "path": "asset/generated/pending/gif/gif-001-thumbhole-direction-hybrid-v01.gif",
+      "sha256": "1bf5be35e5c0c73fb531750051b3e5415bc3c23efb35c9a5cc7450a87a7db8aa",
+      "bytes": 21070456
+    },
+    {
+      "role": "qa-mp4",
+      "path": "hyperframes/renders/gif-001-thumbhole-direction-hybrid-v01.mp4",
+      "sha256": "6cecc938938f2c74621b676e18ebcae6c0d0273a45a38309c3d6ca295c0263c0",
+      "bytes": 1303027
+    },
+    {
+      "role": "manifest",
+      "path": "asset/generated/pending/gif/gif-001-thumbhole-direction-hybrid-v01.manifest.json",
+      "sha256": "643ab9a376a45272298cf3cfb99e657502918e9202a3f1e8be023b952887333d"
+    },
+    {
+      "role": "rendered-contact-sheet",
+      "path": "qa/evidence/g3-gif-motion/rev001/rendered-v01/rendered-contact-start-worn-palm-loop-v01.png",
+      "sha256": "f80cd6dbe28886e55f2221f6c262727d6374540a53cca6750f2681faea7e0776"
+    }
+  ],
+  "formatQa": {
+    "gifCodec": "gif",
+    "gifWidth": 800,
+    "gifHeight": 800,
+    "gifDurationSeconds": 3.2,
+    "gifFrameCount": 96,
+    "gifLoopExtension": "NETSCAPE2.0",
+    "gifLoopCount": 0,
+    "gifInfiniteLoop": true,
+    "mp4Codec": "h264",
+    "mp4Width": 800,
+    "mp4Height": 800,
+    "mp4DurationSeconds": 3.2,
+    "mp4FrameCount": 96,
+    "mp4Fps": 30
+  },
+  "visualQa": {
+    "holdFramesInspected": [0, 41, 71, 95],
+    "transitionFramesInspected": [26, 56, 84],
+    "thumbHoleVisible": true,
+    "fingerCountStableWithinEachApprovedSource": true,
+    "productIdentity": "pass",
+    "anatomyMorphUsed": false,
+    "doubleExposureUsed": false,
+    "generatedTextUsed": false,
+    "forbiddenPerformanceImplications": [],
+    "firstAndLastFrameByteIdentical": true,
+    "firstFrameSha256": "71a0c25f5e4a25b31af8512f069d42e8519d797f0302df1d47c1adceb9509dd2",
+    "lastFrameSha256": "71a0c25f5e4a25b31af8512f069d42e8519d797f0302df1d47c1adceb9509dd2"
+  },
+  "preparationStatus": "rendered_qa_passed_pending_user_approval",
+  "requestedDecision": "approve_or_changes_requested",
+  "knownWarnings": [],
+  "deliveryNotes": [
+    "GIF는 30fps 고품질 마스터이며 크기는 21,070,456바이트다.",
+    "플랫폼 파일 용량 최적화는 원본을 보존한 채 상세페이지 조립 단계에서 별도 파생 버전으로 수행한다."
+  ],
+  "createdAt": "2026-07-27T18:04:42.555Z"
+}

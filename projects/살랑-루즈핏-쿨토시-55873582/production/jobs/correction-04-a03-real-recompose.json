@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "prompt": "Recreate corrected asset A03 from the real product photographs. Final output must be exactly 1536x1024 and center-crop-safe. Image 1 is the real reverse side and is the canonical product identity. Image 2 is the real labeled front side. Create a clean warm-ivory studio evidence image of the same single white sleeve shown twice, side by side, both complete from upper elastic to hand cuff with generous visible margin above and below. Each full sleeve must occupy 78–84% of canvas height and preserve the real 47cm by 14cm long narrow ratio of about 3.36:1. LEFT: reverse face, no label, rotated slightly so the real short vertical side thumb slit is clearly and unambiguously visible as open negative space on the outer edge of the wide cuff; this opening is mandatory and must not be omitted. RIGHT: labeled front face, exactly one flat sewn white woven label with exact black two-line text HELLO over CUTE SLEEVE. Preserve near-parallel long edges, narrow gathered upper elastic, lightweight slightly lustrous synthetic fabric, extremely fine horizontal micro-lines, irregular soft longitudinal drape wrinkles, gathered cuff transition, and wide hand cuff. Do not crop either product. Do not shorten, squash, widen, taper, inflate, or turn it into a leg warmer. Do not add thick rib knit, rope-like pleats, mesh, sports panels, extra seams, extra holes, extra labels, detached tags, copy, icons, watermarks, or performance claims. QUALITY_GATE:CLEAN_COMMERCIAL Clean low-ISO catalog realism, smooth warm ivory gradient, natural contact shadows and edges, no grain, noise, speckle, glitter, oversharpening, waxy blur, or JPEG artifacts.",
+      "references": [
+        "../../asset/input/user-real-original/photo-2026-07-05-d63f66f5.jpg",
+        "../../asset/input/user-real-original/photo-2026-07-05-411f8795.jpg",
+        "../../asset/input/user-real-original/photo-2026-07-27-fd874f53.jpg",
+        "../../asset/input/user-real-original/photo-2026-07-14-62b5cece.jpg"
+      ]
+    }
+  ],
+  "detail_level": 3,
+  "workers": 1,
+  "size_mode": "controllable",
+  "target_size": "1536x1024",
+  "output_dir": "../../asset/generated/pending/image/production-rev002-feedback/correction-04-a03"
+}

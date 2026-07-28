@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>루즈핏 쿨토시 · G2A 캐릭터 시트 선택</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17211c;
+        --muted: #68736d;
+        --paper: #f3f1ea;
+        --surface: #fffdf8;
+        --line: #d8ddd4;
+        --green: #184d37;
+        --green-soft: #e2eee6;
+        --coral: #b85239;
+        --shadow: 0 20px 55px rgba(23, 33, 28, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family:
+          Pretendard,
+          "Noto Sans KR",
+          "Apple SD Gothic Neo",
+          system-ui,
+          sans-serif;
+        line-height: 1.6;
+      }
+
+      .shell {
+        width: min(1320px, calc(100% - 32px));
+        margin: 24px auto 80px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+        gap: 44px;
+        padding: clamp(34px, 6vw, 76px);
+        border: 1px solid var(--line);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .eyebrow {
+        margin: 0 0 20px;
+        color: var(--green);
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1,
+      h2 {
+        font-family: Georgia, "Noto Serif KR", serif;
+        font-weight: 500;
+        letter-spacing: -0.045em;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-bottom: 22px;
+        font-size: clamp(2.7rem, 7vw, 6.4rem);
+        line-height: 0.98;
+      }
+
+      .lead {
+        max-width: 720px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+
+      .summary {
+        align-self: end;
+        padding: 24px;
+        border-left: 4px solid var(--green);
+        background: var(--green-soft);
+      }
+
+      .summary strong {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--green);
+      }
+
+      .section {
+        padding-top: clamp(48px, 7vw, 84px);
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: 0.8fr 1.2fr;
+        gap: 36px;
+        align-items: end;
+        margin-bottom: 28px;
+      }
+
+      .section-head h2 {
+        margin-bottom: 0;
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1.05;
+      }
+
+      .section-head p {
+        margin-bottom: 0;
+        color: var(--muted);
+      }
+
+      .top-pick {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+        border: 2px solid var(--green);
+        background: var(--surface);
+      }
+
+      .top-pick img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .top-copy {
+        padding: clamp(26px, 5vw, 54px);
+      }
+
+      .rank {
+        display: inline-block;
+        margin-bottom: 20px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        color: white;
+        background: var(--green);
+        font-size: 0.76rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+      }
+
+      .top-copy h3 {
+        margin-bottom: 14px;
+        font-family: Georgia, "Noto Serif KR", serif;
+        font-size: 2.3rem;
+        font-weight: 500;
+      }
+
+      .top-copy ul {
+        margin: 20px 0 0;
+        padding-left: 1.15rem;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        overflow: hidden;
+        min-width: 0;
+        border: 1px solid var(--line);
+        background: var(--surface);
+      }
+
+      .card.recommended {
+        border-color: #7da68e;
+      }
+
+      .card img {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3 / 2;
+        object-fit: cover;
+      }
+
+      .card-copy {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 18px;
+        align-items: start;
+        padding: 20px;
+      }
+
+      .number {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        font-family: Georgia, serif;
+        font-size: 1.25rem;
+      }
+
+      .card h3 {
+        margin-bottom: 5px;
+        font-size: 1rem;
+      }
+
+      .card p {
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .decision {
+        margin-top: 64px;
+        padding: clamp(34px, 6vw, 64px);
+        color: white;
+        background: var(--ink);
+      }
+
+      .decision h2 {
+        max-width: 740px;
+        margin-bottom: 16px;
+        color: white;
+        font-size: clamp(2rem, 5vw, 4rem);
+        line-height: 1.08;
+      }
+
+      .decision p {
+        max-width: 800px;
+        color: #cad3ce;
+      }
+
+      .reply {
+        margin-top: 22px;
+        padding: 20px;
+        border-left: 4px solid #8bd0a5;
+        background: #223028;
+        font-weight: 800;
+      }
+
+      footer {
+        padding-top: 22px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-align: right;
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .section-head,
+        .top-pick {
+          grid-template-columns: 1fr;
+        }
+
+        .summary {
+          align-self: auto;
+        }
+      }
+
+      @media (max-width: 680px) {
+        .shell {
+          width: min(100% - 20px, 1320px);
+          margin-top: 10px;
+        }
+
+        .hero {
+          padding: 30px 22px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .card-copy {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">G2A · Character Identity Selection</p>
+          <h1>20대 여성 모델<br />후보 8장</h1>
+          <p class="lead">
+            God Tibo 8-worker로 동시에 생성한 1536×1024 캐릭터 시트입니다.
+            여기서 선택한 한 장만 이후 40개 실착·라이프스타일 이미지의 인간
+            아이덴티티 SSOT로 사용합니다.
+          </p>
+        </div>
+        <aside class="summary">
+          <strong>자동 추천 · C00-03</strong>
+          다섯 시점이 가장 정돈돼 있고 얼굴·헤어·체형·손의 일관성이 안정적입니다.
+          C00-01과 C00-02도 상위 대안입니다.
+        </aside>
+      </header>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>추천 1순위<br />C00-03</h2>
+          <p>
+            정면·3/4·프로필·반신·전신이 명확히 분리돼 이후 장면 프롬프트에서
+            참조하기 쉽습니다. 반신의 두 손도 확인할 수 있어 엄지홀과 손등 장면의
+            모델 피부톤·네일 기준으로 쓰기 좋습니다.
+          </p>
+        </div>
+
+        <article class="top-pick">
+          <img
+            src="../model/candidates/c00-rev001/frame-002.png"
+            alt="캐릭터 시트 후보 C00-03"
+          />
+          <div class="top-copy">
+            <span class="rank">RECOMMENDATION 01</span>
+            <h3>C00-03</h3>
+            <ul>
+              <li>다섯 시점 완비</li>
+              <li>쇄골 길이 흑갈색 롱 보브 일관</li>
+              <li>20대 중후반의 자연스러운 상업 모델 인상</li>
+              <li>반신 손·전신 체형 참조 가능</li>
+              <li>문자·로고·제품 혼입 없음</li>
+            </ul>
+          </div>
+        </article>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>전체 후보<br />1–8</h2>
+          <p>
+            모든 후보는 크기 검사를 통과했습니다. 초록 테두리는 자동 QA 상위
+            3개이며, 최종 선택은 사용자가 결정합니다.
+          </p>
+        </div>
+
+        <div class="grid">
+          <article class="card recommended">
+            <img src="../model/candidates/c00-rev001/frame-000.png" alt="후보 C00-01" />
+            <div class="card-copy">
+              <span class="number">01</span>
+              <div><h3>C00-01 · 추천 2순위</h3><p>손과 전신이 잘 보이고 얼굴·헤어 일관성이 높습니다.</p></div>
+            </div>
+          </article>
+          <article class="card recommended">
+            <img src="../model/candidates/c00-rev001/frame-001.png" alt="후보 C00-02" />
+            <div class="card-copy">
+              <span class="number">02</span>
+              <div><h3>C00-02 · 추천 3순위</h3><p>친근한 인상과 손을 모은 반신 포즈가 장점입니다.</p></div>
+            </div>
+          </article>
+          <article class="card recommended">
+            <img src="../model/candidates/c00-rev001/frame-002.png" alt="후보 C00-03" />
+            <div class="card-copy">
+              <span class="number">03</span>
+              <div><h3>C00-03 · 추천 1순위</h3><p>다섯 시점과 손·체형 참조가 가장 균형 잡혔습니다.</p></div>
+            </div>
+          </article>
+          <article class="card">
+            <img src="../model/candidates/c00-rev001/frame-003.png" alt="후보 C00-04" />
+            <div class="card-copy">
+              <span class="number">04</span>
+              <div><h3>C00-04</h3><p>얼굴 시점은 안정적이며 손 참조 면적은 조금 작습니다.</p></div>
+            </div>
+          </article>
+          <article class="card">
+            <img src="../model/candidates/c00-rev001/frame-004.png" alt="후보 C00-05" />
+            <div class="card-copy">
+              <span class="number">05</span>
+              <div><h3>C00-05</h3><p>인물 일관성은 좋지만 반신 한쪽 손이 가려집니다.</p></div>
+            </div>
+          </article>
+          <article class="card">
+            <img src="../model/candidates/c00-rev001/frame-005.png" alt="후보 C00-06" />
+            <div class="card-copy">
+              <span class="number">06</span>
+              <div><h3>C00-06</h3><p>다섯 시점의 얼굴 일관성과 전신 실루엣이 좋습니다.</p></div>
+            </div>
+          </article>
+          <article class="card">
+            <img src="../model/candidates/c00-rev001/frame-006.png" alt="후보 C00-07" />
+            <div class="card-copy">
+              <span class="number">07</span>
+              <div><h3>C00-07</h3><p>구성은 깨끗하지만 손이 작아 손 구조 참조에는 덜 유리합니다.</p></div>
+            </div>
+          </article>
+          <article class="card">
+            <img src="../model/candidates/c00-rev001/frame-007.png" alt="후보 C00-08" />
+            <div class="card-copy">
+              <span class="number">08</span>
+              <div><h3>C00-08</h3><p>얼굴 일관성은 좋지만 손을 주머니에 넣은 포즈가 포함됩니다.</p></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="decision">
+        <p class="eyebrow">One explicit selection required</p>
+        <h2>한 장을 선택하면 본 제작 40장을 시작합니다.</h2>
+        <p>
+          선택한 이미지는 SHA-256과 함께 모델 SSOT로 잠기며, 다른 7장은 보존하되
+          제작 참조에는 사용하지 않습니다. 별도 취향이 없으면 자동 추천 C00-03이
+          가장 안정적입니다.
+        </p>
+        <div class="reply">답변 예시: “C00-03으로 승인”</div>
+      </section>
+
+      <footer>G2A · rev-001 · 8/8 size checks passed · production 40 held</footer>
+    </main>
+  </body>
+</html>
