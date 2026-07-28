@@ -25,10 +25,14 @@ const elementX = document.querySelector("#elementX");
 const elementY = document.querySelector("#elementY");
 const applyPositionButton = document.querySelector("#applyPosition");
 const clearTextButton = document.querySelector("#clearText");
+const deleteObjectButton = document.querySelector("#deleteObject");
 const nudgeButtons = [...document.querySelectorAll("[data-nudge-x]")];
+const modeButtons = [...document.querySelectorAll("[data-editor-mode]")];
+const textAlignButtons = [...document.querySelectorAll("[data-text-align]")];
 const wingCdnStorageKey = `detail-page-maker:wing-cdn:${location.pathname}`;
 
 let editing = false;
+let editorMode = "layout";
 let selectedImageIndex = -1;
 let selectedImageCurrentSrc = "";
 let selectedObjectState = null;
@@ -75,15 +79,40 @@ function colorToHex(value) {
 }
 
 function setElementControlsEnabled(enabled, isText = false) {
-  elementX.disabled = !enabled;
-  elementY.disabled = !enabled;
-  applyPositionButton.disabled = !enabled;
-  elementFont.disabled = !enabled;
-  elementColor.disabled = !enabled;
-  clearTextButton.disabled = !enabled || !isText;
+  const layoutEnabled = enabled && editorMode === "layout";
+  const textEnabled = enabled && isText && editorMode === "text";
+  elementX.disabled = !layoutEnabled;
+  elementY.disabled = !layoutEnabled;
+  applyPositionButton.disabled = !layoutEnabled;
+  elementFont.disabled = !textEnabled;
+  elementColor.disabled = !textEnabled;
+  clearTextButton.disabled = !textEnabled;
+  deleteObjectButton.disabled = !layoutEnabled;
   nudgeButtons.forEach((button) => {
-    button.disabled = !enabled;
+    button.disabled = !layoutEnabled;
   });
+  textAlignButtons.forEach((button) => {
+    button.disabled = !textEnabled;
+  });
+}
+
+function setEditorMode(mode, announce = true, syncPreview = true) {
+  if (!["layout", "text"].includes(mode)) return;
+  editorMode = mode;
+  modeButtons.forEach((button) => {
+    const active = button.dataset.editorMode === mode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  if (syncPreview) post("DETAIL_SET_MODE", { mode });
+  setElementControlsEnabled(Boolean(selectedObjectState), Boolean(selectedObjectState?.isText));
+  if (announce) {
+    setStatus(
+      mode === "layout"
+        ? "요소 배치 · 드래그, 방향키, 좌표, 삭제만 사용할 수 있습니다."
+        : "텍스트 변환 · 문구 수정, 글꼴, 색상, 정렬만 사용할 수 있습니다.",
+    );
+  }
 }
 
 function renderSelectedObject(message) {
@@ -110,6 +139,12 @@ function renderSelectedObject(message) {
   );
   elementFont.value = fontOption?.value || "";
   elementColor.value = colorToHex(message.color);
+  textAlignButtons.forEach((button) => {
+    button.classList.toggle(
+      "active",
+      button.dataset.textAlign === (message.textAlign || "left"),
+    );
+  });
   setElementControlsEnabled(true, Boolean(message.isText));
 
   if (message.isImage) {
@@ -416,12 +451,15 @@ document.querySelectorAll("[data-asset-filter]").forEach((button) => {
 
 toggleEdit.addEventListener("click", () => {
   editing = !editing;
-  toggleEdit.textContent = editing ? "수정 모드 끄기" : "수정 모드 켜기";
+  toggleEdit.textContent = editing ? "편집 종료" : "편집 시작";
   toggleEdit.classList.toggle("primary", !editing);
   post("DETAIL_SET_EDITING", { enabled: editing });
+  if (editing) post("DETAIL_SET_MODE", { mode: editorMode });
   setStatus(
     editing
-      ? "문구는 클릭해 수정하고, 요소는 드래그로 이동하거나 휠로 확대·축소하세요."
+      ? editorMode === "layout"
+        ? "요소 배치 · 클릭한 요소를 이동하거나 크기를 조절하세요."
+        : "텍스트 변환 · 클릭한 문구의 내용과 정렬을 바꾸세요."
       : "미리보기 모드입니다.",
   );
   if (!editing) {
@@ -429,6 +467,17 @@ toggleEdit.addEventListener("click", () => {
     setElementControlsEnabled(false);
     setImageControlsEnabled(false);
   }
+});
+modeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    if (!editing) {
+      editing = true;
+      toggleEdit.textContent = "편집 종료";
+      toggleEdit.classList.remove("primary");
+      post("DETAIL_SET_EDITING", { enabled: true });
+    }
+    setEditorMode(button.dataset.editorMode);
+  });
 });
 document.querySelector("#save").addEventListener("click", () => post("DETAIL_SAVE"));
 undoButton.addEventListener("click", () => post("DETAIL_UNDO"));
@@ -497,6 +546,17 @@ clearTextButton.addEventListener("click", () => {
   if (!selectedObjectState?.isText) return;
   post("DETAIL_CLEAR_TEXT");
   setStatus("선택한 텍스트를 비웠습니다. 실행 취소로 되돌릴 수 있습니다.");
+});
+textAlignButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    if (!selectedObjectState?.isText || editorMode !== "text") return;
+    post("DETAIL_SET_TEXT_ALIGN", { value: button.dataset.textAlign });
+  });
+});
+deleteObjectButton.addEventListener("click", () => {
+  if (!selectedObjectState || editorMode !== "layout") return;
+  post("DETAIL_DELETE_OBJECT");
+  setStatus("선택한 요소를 삭제했습니다. 실행 취소로 되돌릴 수 있습니다.");
 });
 autoHeight.addEventListener("change", () => {
   if (autoHeight.checked) fitPreviewHeight();
@@ -611,10 +671,35 @@ wingExportButton.addEventListener("click", async () => {
 });
 
 document.addEventListener("keydown", (event) => {
+  const inControl = event.target.closest("input,select,textarea,[contenteditable]");
+  if (!inControl && !event.ctrlKey && !event.metaKey && !event.altKey) {
+    if (event.key.toLowerCase() === "v") {
+      event.preventDefault();
+      if (!editing) {
+        editing = true;
+        toggleEdit.textContent = "편집 종료";
+        toggleEdit.classList.remove("primary");
+        post("DETAIL_SET_EDITING", { enabled: true });
+      }
+      setEditorMode("layout");
+      return;
+    }
+    if (event.key.toLowerCase() === "t") {
+      event.preventDefault();
+      if (!editing) {
+        editing = true;
+        toggleEdit.textContent = "편집 종료";
+        toggleEdit.classList.remove("primary");
+        post("DETAIL_SET_EDITING", { enabled: true });
+      }
+      setEditorMode("text");
+      return;
+    }
+  }
   if (
     (event.ctrlKey || event.metaKey) &&
     event.key.toLowerCase() === "z" &&
-    !event.target.closest("input,select,[contenteditable]")
+    !inControl
   ) {
     event.preventDefault();
     post("DETAIL_UNDO");
@@ -683,6 +768,20 @@ window.addEventListener("message", (event) => {
         Number(message.y) || 0,
       )})`,
     );
+  }
+  if (message.type === "DETAIL_SELECTION_CLEARED") {
+    selectedObjectState = null;
+    selectedImageIndex = -1;
+    selectedImageCurrentSrc = "";
+    selectedLabel.textContent =
+      editorMode === "layout"
+        ? "요소 배치 모드에서 옮길 요소를 선택해 주세요."
+        : "텍스트 변환 모드에서 바꿀 문구를 선택해 주세요.";
+    setElementControlsEnabled(false);
+    setImageControlsEnabled(false);
+  }
+  if (message.type === "DETAIL_MODE_CHANGED") {
+    setEditorMode(message.mode, false, false);
   }
 });
 

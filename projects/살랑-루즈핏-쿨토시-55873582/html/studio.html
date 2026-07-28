@@ -33,13 +33,21 @@
           <section class="group">
             <h2>편집</h2>
             <div class="button-grid">
-              <button id="toggleEdit" type="button" class="primary">수정 모드 켜기</button>
+              <button id="toggleEdit" type="button" class="primary">편집 시작</button>
               <button id="undo" type="button" disabled>실행 취소</button>
               <button id="save" type="button">로컬 저장</button>
               <button id="reset" type="button">초기화</button>
               <button id="replay" type="button">GIF 다시 재생</button>
             </div>
-            <p class="hint">문구와 시각 요소를 클릭해 선택합니다. 이미지는 드래그로 이동하고, 모든 선택 요소는 좌표·화살표로 정밀하게 옮길 수 있습니다.</p>
+            <div class="mode-switch" role="group" aria-label="편집 도구">
+              <button type="button" data-editor-mode="layout" class="active" aria-pressed="true">
+                <span>V</span> 요소 배치
+              </button>
+              <button type="button" data-editor-mode="text" aria-pressed="false">
+                <span>T</span> 텍스트 변환
+              </button>
+            </div>
+            <p class="hint">요소 배치는 선택·이동·크기 조절만, 텍스트 변환은 글자 편집·정렬만 실행합니다. 요소 배치에서는 좌표·화살표로 정밀하게 옮길 수 있습니다.</p>
           </section>
 
           <section class="group">
@@ -47,6 +55,12 @@
             <div class="section-row">
               <select id="sectionSelect" aria-label="순서를 바꿀 섹션"></select>
               <button id="toggleSection" type="button" title="섹션 표시 전환">보기</button>
+            </div>
+            <div class="text-align-grid" role="group" aria-label="텍스트 정렬">
+              <button type="button" data-text-align="left" title="왼쪽 정렬 · Ctrl/Cmd+Shift+L" disabled>왼쪽</button>
+              <button type="button" data-text-align="center" title="가운데 정렬 · Ctrl/Cmd+Shift+E" disabled>가운데</button>
+              <button type="button" data-text-align="right" title="오른쪽 정렬 · Ctrl/Cmd+Shift+R" disabled>오른쪽</button>
+              <button type="button" data-text-align="justify" title="양쪽 정렬 · Ctrl/Cmd+Shift+J" disabled>양쪽</button>
             </div>
             <div class="button-grid section-actions">
               <button id="moveUp" type="button">위로</button>
@@ -86,7 +100,14 @@
               <button type="button" data-nudge-x="1" data-nudge-y="0" disabled>오른쪽</button>
               <button type="button" data-nudge-x="0" data-nudge-y="1" disabled>아래</button>
             </div>
-            <button id="clearText" type="button" class="wide" disabled>선택 텍스트 비우기</button>
+            <div class="destructive-grid">
+              <button id="clearText" type="button" disabled>텍스트 비우기</button>
+              <button id="deleteObject" type="button" class="danger" disabled>선택 요소 삭제</button>
+            </div>
+            <details class="shortcut-help">
+              <summary>단축키</summary>
+              <p><kbd>V</kbd> 요소 배치 · <kbd>T</kbd> 텍스트 변환 · <kbd>방향키</kbd> 1px · <kbd>Shift</kbd>+방향키 10px · <kbd>Delete</kbd> 삭제 · <kbd>Esc</kbd> 선택 해제 · <kbd>Ctrl/Cmd</kbd>+<kbd>Z</kbd> 실행 취소</p>
+            </details>
             <div class="subgroup">
               <h3>이미지 교체</h3>
             <label for="imageSrc">승인된 이미지 경로</label>

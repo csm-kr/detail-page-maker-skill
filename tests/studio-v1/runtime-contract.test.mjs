@@ -55,6 +55,10 @@ test("새 프로젝트에는 노바페이스 기반 Studio v1 편집기와 승�
     assert.match(studio, /좌표·화살표로 정밀하게 옮길 수 있습니다/);
     assert.match(studio, /id="undo"[^>]*disabled/);
     assert.match(studio, /id="clearText"[^>]*disabled/);
+    assert.match(studio, /data-editor-mode="layout"/);
+    assert.match(studio, /data-editor-mode="text"/);
+    assert.match(studio, /data-text-align="justify"/);
+    assert.match(studio, /id="deleteObject"[^>]*disabled/);
     assert.match(studio, /id="elementFont"[^>]*disabled/);
     assert.match(studio, /Noto Sans KR/);
     assert.match(studio, /Gmarket Sans/);
@@ -70,6 +74,10 @@ test("새 프로젝트에는 노바페이스 기반 Studio v1 편집기와 승�
     assert.match(app, /DETAIL_EXPORT_HTML/);
     assert.match(app, /DETAIL_OBJECT_SELECTED/);
     assert.match(app, /DETAIL_OBJECT_CHANGED/);
+    assert.match(app, /DETAIL_SET_MODE/);
+    assert.match(app, /DETAIL_SET_TEXT_ALIGN/);
+    assert.match(app, /DETAIL_DELETE_OBJECT/);
+    assert.match(app, /section-center-y/);
     assert.match(app, /addEventListener\("pointerdown"/);
     assert.match(app, /addEventListener\(\s*"wheel"/);
     assert.match(app, /objects:\s*objectNodes\(\)/);
@@ -96,6 +104,8 @@ test("패키지 Studio v1에는 편집과 최종 출력 사이 승인 작업면�
     assert.match(studio, /좌표·화살표로 정밀하게 옮길 수 있습니다/);
     assert.match(studio, /id="elementColor"/);
     assert.match(studio, /id="applyPosition"/);
+    assert.match(studio, /data-text-align="center"/);
+    assert.match(studio, /선택 요소 삭제/);
 });
 
 test("Studio v1 요소 편집은 저장·복원·내보내기 계약을 포함한다", async () => {
@@ -111,6 +121,9 @@ test("Studio v1 요소 편집은 저장·복원·내보내기 계약을 포함�
   assert.match(app, /DETAIL_SET_OBJECT_POSITION/);
   assert.match(app, /DETAIL_SET_OBJECT_STYLE/);
   assert.match(app, /DETAIL_CLEAR_TEXT/);
+  assert.match(app, /DETAIL_SET_TEXT_ALIGN/);
+  assert.match(app, /DETAIL_DELETE_OBJECT/);
+  assert.match(app, /dataset\.studioDeleted/);
   assert.match(app, /DETAIL_UNDO/);
   assert.match(app, /DETAIL_HISTORY_CHANGED/);
   assert.match(app, /state\.objects/);

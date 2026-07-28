@@ -65,6 +65,16 @@ asset/generated/pending
 
 ## 상세 편집
 
+편집은 동시에 섞지 않고 두 도구로 나눈다.
+
+| 도구 | 하는 일 | 하지 않는 일 |
+|---|---|---|
+| `V 요소 배치` | 모든 의미 있는 요소 선택, 드래그·X/Y·방향키 이동, 휠 크기 조절, 삭제 | 텍스트 입력·정렬 |
+| `T 텍스트 변환` | 텍스트 선택·직접 입력, 글꼴·색·왼쪽/가운데/오른쪽/양쪽 정렬, 비우기 | 요소 이동·크기 조절·삭제 |
+
+요소를 움직일 때 캔버스 세로 중심선, 좌우 8% 안전선, 현재 섹션 가로
+중심선을 보이고 8px 이내에서 스냅한다. 보조선은 내보낸 HTML에서 제거한다.
+
 허용:
 
 - 카피·타이포·색
@@ -72,7 +82,8 @@ asset/generated/pending
 - 선택 요소의 X/Y 숫자 입력, 1px 이동 버튼, `Shift` 10px 이동, 화살표 키 이동
 - 이미지·GIF와 시각 요소를 포인터로 드래그해 이동하고, 선택한 비텍스트 요소 위
   휠로 25~400% 확대·축소
-- 선택 텍스트 비우기와 실행 취소
+- 선택 텍스트의 왼쪽·가운데·오른쪽·양쪽 정렬, 텍스트 비우기와 실행 취소
+- 선택 요소 삭제와 실행 취소
 - 선택 텍스트의 글자색 변경
 - `Noto Sans KR`, `Gmarket Sans`, `S-Core Dream`, `Wanted Sans`,
   `Black Han Sans`, `Jalnan` 글꼴 변경
@@ -84,6 +95,15 @@ asset/generated/pending
 실행 취소는 버튼과 `Ctrl/Cmd+Z`를 모두 제공하고 최소 최근 50개 체크포인트를
 유지한다. 텍스트 비우기·문구 수정·위치·크기·글꼴·색·이미지 교체·섹션 순서를
 되돌릴 수 있어야 한다. 모든 변경을 저장하기 전에도 실행 취소할 수 있어야 한다.
+
+단축키는 `V` 요소 배치, `T` 텍스트 변환, 방향키 1px,
+`Shift+방향키` 10px, `Delete/Backspace` 삭제, `Esc` 선택 해제,
+`Ctrl/Cmd+Shift+L/E/R/J` 왼쪽/가운데/오른쪽/양쪽 정렬을 사용한다. 입력 중인
+텍스트에는 `V`, `T`, `Backspace` 도구 단축키를 가로채지 않는다. 정렬과 단축키
+패턴은 [Google Docs 단축키](https://support.google.com/docs/answer/179738?hl=en),
+[PowerPoint 텍스트 정렬](https://support.microsoft.com/en-us/powerpoint/change-text-alignment-indentation-and-spacing-in-powerpoint),
+[Microsoft 개체 정렬](https://support.microsoft.com/en-us/office/graphics-visuals/align-or-arrange-objects)의
+사용자 기대와 맞춘다.
 
 금지:
 

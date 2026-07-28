@@ -1,0 +1,33 @@
+{
+  "revision": "rev022-sales-first",
+  "status": "passed",
+  "recording_id": "sallang-rev022-browser-qa-v5",
+  "isolated_visual_recording_id": "sallang-rev022-isolated-visual-v2",
+  "studio": {
+    "text_mode_editable": true,
+    "center_alignment_applied": true,
+    "text_mode_drag_blocked": true,
+    "layout_guide_count": 4,
+    "snap_activated": true,
+    "delete_applied": true,
+    "undo_restored": true
+  },
+  "viewports": [
+    320,
+    360,
+    390,
+    768,
+    800
+  ],
+  "detail_page": {
+    "horizontal_overflow_count": 0,
+    "broken_media_count": 0,
+    "section_count": 11,
+    "image_count": 21,
+    "gif_count": 10,
+    "cooling_graph_count": 0,
+    "pending_reference_count": 0,
+    "forbidden_public_copy_count": 0,
+    "label_selling_copy_count": 0
+  }
+}

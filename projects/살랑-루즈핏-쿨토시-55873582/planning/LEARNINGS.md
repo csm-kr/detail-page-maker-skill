@@ -45,7 +45,7 @@
 - `scope`: candidate-shared
 - `observation`: 고객 화면은 제조사 확인·생성 방식·검수 과정을 설명하는 곳이 아니다. 내부 사실을 고객의 상황, 망설임과 편익의 방향으로 번역해야 상업 문장으로 읽힌다.
 - `evidence_paths`: `docs/research/behance-commercial-language-study-55.md`, `docs/references/commercial-copy-tone-guide.md`, `planning/COMMERCIAL.md`
-- `before_after`: `팔에는 여유를, 손등에는 이어지는 길이를` 같은 구조 설명에서 `그늘은 길게, 실루엣은 가볍게`처럼 고객이 기억할 대비와 이미지 언어로 전환했다.
+- `before_after`: 구조 직역과 감성 반복을 줄이고 `조이지 않게 여유롭고, 손등까지 길게`처럼 제품 차이와 구매 효익을 첫 화면에서 직접 말하도록 전환했다.
 - `risk_if_reused`: 비유가 제품 사실을 넘어 성능 보장으로 읽히지 않도록 주장 경계가 필요하다.
 - `next_validation`: 다른 상세페이지 1개에서 고객 이해도와 내부 용어 0건을 회귀 검사한다.
 - `promotion_status`: skill-adopted
@@ -111,7 +111,7 @@
 - `scope`: candidate-shared
 - `observation`: 정량 시험이 없는 쿨 소재는 그래프처럼 측정 결과로 보이는 형식보다 승인 실착 위 열감 오버레이 제거·쿨 스윕·공기 흐름으로 정성 방향을 보여 주는 편이 정확하고 즉각적이다.
 - `evidence_paths`: `research/coupang-9623659088-ad-reference-20260728.md`, `planning/GIF-FX-MAP.md`, `asset/generated/pending/gif/rev022-commercial-fx-v01/gif-017-cooling-sweep-v04.gif`
-- `before_after`: 무수치 막대·꺾은선 그래프를 제거하고 실제 모델 착용 장면 위 쿨 스윕과 서리 입자로 교체했다.
+- `before_after`: 무수치 막대·꺾은선 그래프와 제품과 무관한 서리 연출을 제거하고 실제 모델 착용 장면 위 짧은 쿨 스윕으로 교체했다.
 - `risk_if_reused`: FX가 실제 온도 측정이나 즉시 냉각 보장으로 읽히지 않도록 수치·열화상 범례·시험 문구를 금지해야 한다.
 - `next_validation`: 다른 정성 기능 상품에서 그래프 금지와 주장 이해도를 회귀 검사한다.
 - `promotion_status`: skill-adopted
@@ -136,6 +136,28 @@
 - `before_after`: 텍스트·이미지 일부만 편집하던 Studio를 전체 의미 요소 선택과 6개 글꼴·색·위치·undo로 확장하고, 충돌하던 `assets/`는 삭제 대신 archive로 이동했다.
 - `risk_if_reused`: 자동 선택자가 장식용 내부 노드까지 과도하게 선택하거나 archive 이동 뒤 활성 참조가 남을 수 있다.
 - `next_validation`: Studio 런타임 계약 테스트와 archive 체크섬·활성 경로 0건 검사를 유지한다.
+- `promotion_status`: skill-adopted
+
+## LEARN-013
+
+- `category`: sales-copy
+- `scope`: candidate-shared
+- `observation`: 감성 문장만 반복하면 제품이 예뻐 보여도 결제 질문에 늦게 답한다. 판매 정보 70 : 브랜드 감성 30, 제품 우선 Hero, `특징 → 고객 효익 → 사용 장면 → 즉시 증거`가 필요하다.
+- `evidence_paths`: `deliverables/rev022-sales-first/index.html`, `docs/references/sales-copy-and-purchase-confidence.md`, `qa/reports/rev022-sales-first.md`
+- `before_after`: 모델 중심 감성 Hero와 후반 구매 질문을 제품 한 쌍 중심의 직접 Hero와 앞쪽 BEFORE YOU CHOOSE로 바꿨다. 라벨 소구를 제거하고 핏 비교는 팔 중심으로 크롭했다.
+- `risk_if_reused`: 판매 정보 비율을 채우기 위해 확인되지 않은 소재·치수·효능을 만들면 안 된다.
+- `next_validation`: 다른 상품 한 개에서 구매 질문의 앞쪽 배치, 장점 반복 2회 이하, 제품 중심 비교를 회귀 검사한다.
+- `promotion_status`: skill-adopted
+
+## LEARN-014
+
+- `category`: studio-editing
+- `scope`: candidate-shared
+- `observation`: 위치 이동과 텍스트 입력이 같은 모드에 있으면 드래그와 편집이 충돌한다. `V 요소 배치`와 `T 텍스트 변환`을 분리하고 중심·안전선 스냅, 네 정렬, 삭제·undo를 제공해야 한다.
+- `evidence_paths`: `html/studio.html`, `html/studio-v1.js`, `html/app.js`, `docs/studio/v1-editor-contract.md`
+- `before_after`: 단일 수정 모드를 상호 배타적인 두 도구로 나누고 좌우 8% 안전선·캔버스 중심·섹션 중심 보조선과 단축키를 추가했다.
+- `risk_if_reused`: 텍스트 입력 중 V/T/Backspace를 도구 단축키가 가로채면 문구 편집이 손상된다.
+- `next_validation`: 브라우저에서 텍스트 입력·정렬, 요소 드래그·스냅·삭제·undo를 회귀 검사한다.
 - `promotion_status`: skill-adopted
 
 상품 고유 부품명, 카피, 색, 수치와 고객 상황은 `project-only`로 유지한다.

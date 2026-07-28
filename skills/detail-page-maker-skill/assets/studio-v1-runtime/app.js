@@ -1,5 +1,5 @@
 (() => {
-  const STATE_VERSION = 3;
+  const STATE_VERSION = 4;
   const OBJECT_SELECTOR =
     "[data-edit],[data-edit-image],[data-edit-object],[data-studio-object]";
   const AUTO_SELECTABLE_SELECTOR =
@@ -37,6 +37,8 @@
   let historyStack = [];
   let historyTimer = 0;
   let restoringHistory = false;
+  let editorMode = "layout";
+  const SNAP_DISTANCE = 8;
 
   function ensureEditIds() {
     sectionNodes().forEach((section) => {
@@ -97,19 +99,50 @@
   }
 
   ensureEditIds();
+  body.dataset.editorMode = editorMode;
 
   const interactionStyle = document.createElement("style");
   interactionStyle.dataset.studioInteraction = "";
   interactionStyle.textContent = `
-    .is-editing [data-studio-object] { cursor: grab !important; }
+    .is-editing[data-editor-mode="layout"] [data-studio-object] { cursor: grab !important; }
+    .is-editing[data-editor-mode="text"] [data-studio-object] { cursor: default !important; }
     .is-editing [data-studio-object].studio-object-selected {
       outline: 2px solid #176bff !important;
       outline-offset: 3px !important;
     }
-    .is-editing [data-studio-object].studio-object-dragging { cursor: grabbing !important; }
-    .is-editing ${TEXT_SELECTOR} { cursor: text !important; }
+    .is-editing[data-editor-mode="layout"] [data-studio-object].studio-object-dragging { cursor: grabbing !important; }
+    .is-editing[data-editor-mode="text"] ${TEXT_SELECTOR} { cursor: text !important; }
+    .studio-guide {
+      position: absolute;
+      z-index: 2147483646;
+      pointer-events: none;
+      opacity: 0;
+      background: #22d3ee;
+      box-shadow: 0 0 0 1px rgba(15,23,42,.2);
+      transition: opacity 80ms ease;
+    }
+    .studio-guide.visible { opacity: .48; }
+    .studio-guide.active { opacity: 1; background: #f43f5e; }
+    .studio-guide.vertical { top: 0; width: 1px; min-height: 100%; }
+    .studio-guide.horizontal { left: 0; height: 1px; width: 100%; }
   `;
   document.head.append(interactionStyle);
+
+  const guideLayer = document.createElement("div");
+  guideLayer.dataset.studioInteraction = "";
+  guideLayer.setAttribute("aria-hidden", "true");
+  const guideNames = ["safe-left", "center-x", "safe-right", "section-center-y"];
+  const guides = new Map();
+  guideNames.forEach((name) => {
+    const guide = document.createElement("div");
+    guide.className = `studio-guide ${
+      name === "section-center-y" ? "horizontal" : "vertical"
+    }`;
+    guide.dataset.guide = name;
+    guideLayer.append(guide);
+    guides.set(name, guide);
+  });
+  document.body.append(guideLayer);
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
@@ -143,6 +176,8 @@
         scale: 1,
         fontFamily: "",
         color: "",
+        textAlign: "",
+        deleted: false,
       }
     );
   }
@@ -160,6 +195,12 @@
       color: /^#[0-9a-f]{6}$/i.test(transform.color || "")
         ? transform.color
         : "",
+      textAlign: ["", "left", "center", "right", "justify"].includes(
+        transform.textAlign,
+      )
+        ? transform.textAlign
+        : "",
+      deleted: Boolean(transform.deleted),
     };
     objectTransforms.set(node, next);
     node.style.setProperty("translate", `${next.x}px ${next.y}px`, "important");
@@ -173,6 +214,18 @@
       node.style.setProperty("color", next.color, "important");
     } else {
       node.style.removeProperty("color");
+    }
+    if (next.textAlign) {
+      node.style.setProperty("text-align", next.textAlign, "important");
+    } else {
+      node.style.removeProperty("text-align");
+    }
+    if (next.deleted) {
+      node.style.setProperty("display", "none", "important");
+      node.dataset.studioDeleted = "";
+    } else {
+      node.style.removeProperty("display");
+      delete node.dataset.studioDeleted;
     }
     return next;
   }
@@ -208,6 +261,7 @@
         ...transform,
         fontFamily: transform.fontFamily || computed.fontFamily,
         color: transform.color || computed.color,
+        textAlign: transform.textAlign || computed.textAlign || "left",
       },
       "*",
     );
@@ -242,6 +296,77 @@
     );
     selectedObject = null;
     dragState = null;
+    hideGuides();
+    window.parent.postMessage({ type: "DETAIL_SELECTION_CLEARED" }, "*");
+  }
+
+  function setGuide(name, position, active = false) {
+    const guide = guides.get(name);
+    if (!guide) return;
+    const vertical = name !== "section-center-y";
+    guide.style[vertical ? "left" : "top"] = `${Math.round(position)}px`;
+    guide.classList.add("visible");
+    guide.classList.toggle("active", active);
+  }
+
+  function hideGuides() {
+    guides.forEach((guide) => {
+      guide.classList.remove("visible", "active");
+    });
+  }
+
+  function showLayoutGuides(active = new Set(), section = null) {
+    if (!body.classList.contains("is-editing") || editorMode !== "layout") {
+      hideGuides();
+      return;
+    }
+    const pageRect = page.getBoundingClientRect();
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    guideLayer.style.height = `${Math.max(document.documentElement.scrollHeight, page.scrollHeight)}px`;
+    setGuide("safe-left", pageRect.left + scrollX + pageRect.width * 0.08, active.has("safe-left"));
+    setGuide("center-x", pageRect.left + scrollX + pageRect.width / 2, active.has("center-x"));
+    setGuide("safe-right", pageRect.right + scrollX - pageRect.width * 0.08, active.has("safe-right"));
+    const sectionRect = (section || selectedObject?.closest("section[data-section]") || page).getBoundingClientRect();
+    setGuide(
+      "section-center-y",
+      sectionRect.top + scrollY + sectionRect.height / 2,
+      active.has("section-center-y"),
+    );
+  }
+
+  function snappedTransform(node, x, y) {
+    const current = currentObjectTransform(node);
+    const nodeRect = node.getBoundingClientRect();
+    const pageRect = page.getBoundingClientRect();
+    const sectionRect = (node.closest("section[data-section]") || page).getBoundingClientRect();
+    let nextX = x;
+    let nextY = y;
+    const active = new Set();
+    const baseLeft = nodeRect.left - current.x;
+    const baseTop = nodeRect.top - current.y;
+    const width = nodeRect.width;
+    const height = nodeRect.height;
+    const centerTarget = pageRect.left + pageRect.width / 2;
+    const leftTarget = pageRect.left + pageRect.width * 0.08;
+    const rightTarget = pageRect.right - pageRect.width * 0.08;
+    const xCandidates = [
+      { name: "center-x", delta: centerTarget - (baseLeft + nextX + width / 2) },
+      { name: "safe-left", delta: leftTarget - (baseLeft + nextX) },
+      { name: "safe-right", delta: rightTarget - (baseLeft + nextX + width) },
+    ].sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta));
+    if (Math.abs(xCandidates[0].delta) <= SNAP_DISTANCE) {
+      nextX += xCandidates[0].delta;
+      active.add(xCandidates[0].name);
+    }
+    const sectionCenter = sectionRect.top + sectionRect.height / 2;
+    const yDelta = sectionCenter - (baseTop + nextY + height / 2);
+    if (Math.abs(yDelta) <= SNAP_DISTANCE) {
+      nextY += yDelta;
+      active.add("section-center-y");
+    }
+    showLayoutGuides(active, node.closest("section[data-section]"));
+    return { x: nextX, y: nextY };
   }
 
   function notifyHistory() {
@@ -382,6 +507,9 @@
     documentCopy.querySelectorAll("[contenteditable]").forEach((node) => {
       node.removeAttribute("contenteditable");
     });
+    documentCopy
+      .querySelectorAll("[data-studio-deleted]")
+      .forEach((node) => node.remove());
     documentCopy.setAttribute("data-export", "self-contained");
 
     const sourceImages = [...document.querySelectorAll("img[src]")];
@@ -459,11 +587,37 @@
 
   function setEditing(enabled) {
     body.classList.toggle("is-editing", enabled);
+    body.dataset.editorMode = editorMode;
     editableNodes().forEach((node) => {
-      node.contentEditable = enabled ? "true" : "false";
+      node.contentEditable =
+        enabled && editorMode === "text" ? "true" : "false";
       node.spellcheck = false;
     });
     if (!enabled) clearObjectSelection();
+  }
+
+  function setEditorMode(mode) {
+    if (!["layout", "text"].includes(mode)) return;
+    editorMode = mode;
+    body.dataset.editorMode = mode;
+    editableNodes().forEach((node) => {
+      node.contentEditable =
+        body.classList.contains("is-editing") && mode === "text"
+          ? "true"
+          : "false";
+      node.spellcheck = false;
+    });
+    if (
+      selectedObject &&
+      mode === "text" &&
+      !selectedObject.matches(TEXT_SELECTOR)
+    ) {
+      clearObjectSelection();
+    } else {
+      hideGuides();
+      if (selectedObject) notifyObjectSelected(selectedObject);
+    }
+    window.parent.postMessage({ type: "DETAIL_MODE_CHANGED", mode }, "*");
   }
 
   function collectState() {
@@ -498,7 +652,7 @@
   }
 
   function migrateState(state) {
-    if (!state || ![1, 2, STATE_VERSION].includes(state.version)) return null;
+    if (!state || ![1, 2, 3, STATE_VERSION].includes(state.version)) return null;
     if (state.version === STATE_VERSION) return state;
     return {
       ...state,
@@ -507,6 +661,8 @@
         ...item,
         fontFamily: item.fontFamily || "",
         color: item.color || "",
+        textAlign: item.textAlign || "",
+        deleted: Boolean(item.deleted),
       })),
     };
   }
@@ -557,6 +713,9 @@
         node.style.removeProperty("scale");
         node.style.removeProperty("font-family");
         node.style.removeProperty("color");
+        node.style.removeProperty("text-align");
+        node.style.removeProperty("display");
+        delete node.dataset.studioDeleted;
       }
     });
     if (state.accent) {
@@ -605,8 +764,12 @@
     if (event.button !== 0 || !(event.target instanceof Element)) return;
     const object = event.target.closest(OBJECT_SELECTOR);
     if (!object) return;
+    if (editorMode === "text" && !object.matches(TEXT_SELECTOR)) {
+      clearObjectSelection();
+      return;
+    }
     selectObject(object);
-    if (object.matches(TEXT_SELECTOR)) return;
+    if (editorMode === "text") return;
     event.preventDefault();
     event.stopPropagation();
     checkpointHistory();
@@ -625,10 +788,14 @@
 
   document.addEventListener("pointermove", (event) => {
     if (!dragState || event.pointerId !== dragState.pointerId) return;
+    const snapped = snappedTransform(
+      dragState.node,
+      dragState.objectX + event.clientX - dragState.startX,
+      dragState.objectY + event.clientY - dragState.startY,
+    );
     applyObjectTransform(dragState.node, {
       ...currentObjectTransform(dragState.node),
-      x: dragState.objectX + event.clientX - dragState.startX,
-      y: dragState.objectY + event.clientY - dragState.startY,
+      ...snapped,
     });
     notifyObjectChanged(dragState.node);
   });
@@ -639,6 +806,7 @@
     node.classList.remove("studio-object-dragging");
     node.releasePointerCapture?.(event.pointerId);
     dragState = null;
+    hideGuides();
     notifyObjectChanged(node);
     scheduleNotifyReady();
   }
@@ -651,6 +819,7 @@
     (event) => {
       if (
         !body.classList.contains("is-editing") ||
+        editorMode !== "layout" ||
         !(event.target instanceof Element)
       ) {
         return;
@@ -675,6 +844,7 @@
   document.addEventListener("dragstart", (event) => {
     if (
       body.classList.contains("is-editing") &&
+      editorMode === "layout" &&
       event.target instanceof Element &&
       event.target.closest(OBJECT_SELECTOR)
     ) {
@@ -685,6 +855,7 @@
   document.addEventListener("beforeinput", (event) => {
     if (
       body.classList.contains("is-editing") &&
+      editorMode === "text" &&
       event.target instanceof Element &&
       event.target.closest(TEXT_SELECTOR)
     ) {
@@ -694,12 +865,75 @@
 
   document.addEventListener("keydown", (event) => {
     if (!body.classList.contains("is-editing")) return;
+    const typing =
+      event.target instanceof Element &&
+      Boolean(event.target.closest("input,textarea,select,[contenteditable='true']"));
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
       event.preventDefault();
       undo();
       return;
     }
-    if (!selectedObject || event.target.closest?.(TEXT_SELECTOR)) return;
+    if (
+      editorMode === "text" &&
+      selectedObject?.matches(TEXT_SELECTOR) &&
+      (event.ctrlKey || event.metaKey) &&
+      event.shiftKey
+    ) {
+      const alignment = {
+        l: "left",
+        e: "center",
+        r: "right",
+        j: "justify",
+      }[event.key.toLowerCase()];
+      if (alignment) {
+        event.preventDefault();
+        checkpointHistory();
+        applyObjectTransform(selectedObject, {
+          ...currentObjectTransform(selectedObject),
+          textAlign: alignment,
+        });
+        notifyObjectSelected(selectedObject);
+        scheduleNotifyReady();
+        return;
+      }
+    }
+    if (!typing && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      if (event.key.toLowerCase() === "v") {
+        event.preventDefault();
+        setEditorMode("layout");
+        return;
+      }
+      if (event.key.toLowerCase() === "t") {
+        event.preventDefault();
+        setEditorMode("text");
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        clearObjectSelection();
+        return;
+      }
+      if (
+        editorMode === "layout" &&
+        selectedObject &&
+        ["Delete", "Backspace"].includes(event.key)
+      ) {
+        event.preventDefault();
+        checkpointHistory();
+        applyObjectTransform(selectedObject, {
+          ...currentObjectTransform(selectedObject),
+          deleted: true,
+        });
+        clearObjectSelection();
+        scheduleNotifyReady();
+        return;
+      }
+    }
+    if (
+      editorMode !== "layout" ||
+      !selectedObject ||
+      typing
+    ) return;
     const direction = {
       ArrowLeft: [-1, 0],
       ArrowRight: [1, 0],
@@ -724,6 +958,9 @@
     const message = event.data || {};
     if (message.type === "DETAIL_SET_EDITING") {
       setEditing(Boolean(message.enabled));
+    }
+    if (message.type === "DETAIL_SET_MODE") {
+      setEditorMode(String(message.mode || ""));
     }
     if (message.type === "DETAIL_SAVE") save();
     if (message.type === "DETAIL_RESET") {
@@ -762,7 +999,11 @@
         notifyReady();
       }
     }
-    if (message.type === "DETAIL_NUDGE_OBJECT" && selectedObject) {
+    if (
+      message.type === "DETAIL_NUDGE_OBJECT" &&
+      selectedObject &&
+      editorMode === "layout"
+    ) {
       checkpointHistoryOnce();
       const transform = currentObjectTransform(selectedObject);
       applyObjectTransform(selectedObject, {
@@ -773,7 +1014,11 @@
       notifyObjectChanged(selectedObject);
       scheduleNotifyReady();
     }
-    if (message.type === "DETAIL_SET_OBJECT_POSITION" && selectedObject) {
+    if (
+      message.type === "DETAIL_SET_OBJECT_POSITION" &&
+      selectedObject &&
+      editorMode === "layout"
+    ) {
       checkpointHistory();
       const transform = currentObjectTransform(selectedObject);
       applyObjectTransform(selectedObject, {
@@ -784,7 +1029,11 @@
       notifyObjectChanged(selectedObject);
       scheduleNotifyReady();
     }
-    if (message.type === "DETAIL_SET_OBJECT_STYLE" && selectedObject) {
+    if (
+      message.type === "DETAIL_SET_OBJECT_STYLE" &&
+      selectedObject?.matches(TEXT_SELECTOR) &&
+      editorMode === "text"
+    ) {
       const fontFamily = String(message.fontFamily || "");
       const color = String(message.color || "");
       if (!FONT_STACKS.has(fontFamily)) return;
@@ -800,13 +1049,43 @@
     }
     if (
       message.type === "DETAIL_CLEAR_TEXT" &&
-      selectedObject?.matches(TEXT_SELECTOR)
+      selectedObject?.matches(TEXT_SELECTOR) &&
+      editorMode === "text"
     ) {
       checkpointHistory();
       selectedObject.textContent = "";
       notifyObjectSelected(selectedObject);
       scheduleNotifyReady();
     }
+    if (
+      message.type === "DETAIL_SET_TEXT_ALIGN" &&
+      selectedObject?.matches(TEXT_SELECTOR) &&
+      editorMode === "text"
+    ) {
+      const textAlign = String(message.value || "");
+      if (!["left", "center", "right", "justify"].includes(textAlign)) return;
+      checkpointHistory();
+      applyObjectTransform(selectedObject, {
+        ...currentObjectTransform(selectedObject),
+        textAlign,
+      });
+      notifyObjectSelected(selectedObject);
+      scheduleNotifyReady();
+    }
+    if (
+      message.type === "DETAIL_DELETE_OBJECT" &&
+      selectedObject &&
+      editorMode === "layout"
+    ) {
+      checkpointHistory();
+      applyObjectTransform(selectedObject, {
+        ...currentObjectTransform(selectedObject),
+        deleted: true,
+      });
+      clearObjectSelection();
+      scheduleNotifyReady();
+    }
+    if (message.type === "DETAIL_CLEAR_SELECTION") clearObjectSelection();
     if (message.type === "DETAIL_UNDO") undo();
     if (message.type === "DETAIL_REPLAY_GIFS") {
       document.querySelectorAll('img[src*=".gif"]').forEach((image) => {

@@ -1,6 +1,6 @@
 ---
 name: detail-page-maker-skill
-description: 공급처 상품 URL과 실제 제품 자료에서 G0 제품 SSOT와 G1 시장·상업 기획을 병렬 준비하고, 순차 승인 뒤 God Tibo 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만든다. 신규 이미지·GIF를 pending에서 시작해 Studio v1에서 사용자가 개별 승인·반려하고 approved 에셋만 조립·QA·게시하거나, 쿠팡 Wing 전용 780px HTML과 Cloudflare CDN 패키지를 만들어야 할 때 사용한다.
+description: 공급처 URL·실제품에서 제품 SSOT와 판매형 카피를 만들고 God Tibo 이미지, HyperFrames GIF, Studio 편집 HTML과 쿠팡 Wing 출력을 제작한다. 상세페이지·상품페이지·커머셜 카피·이미지/GIF·Studio 편집·에셋 승인·게시 QA 요청에 사용한다.
 ---
 
 # Detail Page Maker
@@ -9,7 +9,10 @@ description: 공급처 상품 URL과 실제 제품 자료에서 G0 제품 SSOT�
 
 ## 문서 라우팅
 
-1. [`guide.md`](guide.md)에서 현재 작업의 필수 문서를 고른다.
+스킬 목록의 설명은 컨텍스트 예산에 따라 축약될 수 있다. 설명 길이에 기대지 말고
+이 본문에 진입하면 반드시 다음 순서로 라우팅한다.
+
+1. [`guide.md`](guide.md)의 작업별 표에서 현재 요청과 일치하는 행을 고른다.
 2. 항상 [`workflow.md`](references/workflow.md),
    [`approval-guide.md`](references/approval-guide.md),
    [`asset-management.md`](references/asset-management.md),
@@ -18,6 +21,8 @@ description: 공급처 상품 URL과 실제 제품 자료에서 G0 제품 SSOT�
    [`asset-gen-guide.md`](references/asset-gen-guide.md), GIF는
    [`gif-guide.md`](references/gif-guide.md)를 읽는다.
    공개 카피는 [`commercial-copy-tone-guide.md`](references/commercial-copy-tone-guide.md),
+   판매 정보 70 : 브랜드 감성 30, 제품 우선 Hero, 구매 불안과 제품 중심 비교는
+   [`sales-copy-and-purchase-confidence.md`](references/sales-copy-and-purchase-confidence.md),
    비교·슬라이드·전환·구성·규격 FX와 소구 직후 증명은
    [`commercial-effects-and-claim-proof.md`](references/commercial-effects-and-claim-proof.md)를
    읽는다.
@@ -31,6 +36,20 @@ description: 공급처 상품 URL과 실제 제품 자료에서 G0 제품 SSOT�
    설치·E2E는 [`portable-install.md`](references/portable-install.md)를 읽는다.
 7. 프로젝트 종료와 공용 규칙 승격은
    [`learning-loop.md`](references/learning-loop.md)를 읽는다.
+
+### 축약 설명 환경의 요청 라우팅
+
+| 사용자 요청 단어 | 반드시 읽을 문서 |
+| --- | --- |
+| 상세페이지, 상품페이지, 카피, 소구, 판매력 | `commercial.md` → `commercial-copy-tone-guide.md` → `sales-copy-and-purchase-confidence.md` |
+| 이미지, 배경, 모델, 제품 컷 | `asset-gen-guide.md` → `product-identity-imagegen.md` |
+| GIF, 효과, 비교, 치수 | `gif-guide.md` → `commercial-effects-and-claim-proof.md` |
+| Studio, 위치, 글씨, 정렬, 삭제, 단축키 | `studio-workflow.md` |
+| 승인, pending, approved | `approval-guide.md` → `asset-management.md` |
+| 출력, Wing, CDN, 게시 | `public-output-policy.md` → `coupang-wing-html-cdn.md` → `commercial-qa.md` |
+
+한 요청이 여러 행과 맞으면 해당 문서를 모두 읽고 `workflow.md`의 게이트 순서대로
+실행한다. 축약된 설명만 보고 하위 문서를 생략하지 않는다.
 
 ## 로컬 의존 스킬
 
@@ -76,7 +95,10 @@ node scripts/detail-page.mjs new `
 3. 고객 화면을 최우선으로 설계한다. 기본적으로 서로 다른 불편 3개를
    `우리 제품의 답 → 선택 이유 3~5개 → 직접 증거`로 연결하되, 제품 근거가
    부족하면 수를 억지로 채우지 않는다. 문제는 고객의 장면·감정으로 말하고
-   제작 방식·근거 분류·승인 상태는 공개하지 않는다.
+   제작 방식·근거 분류·승인 상태는 공개하지 않는다. 카피와 정보 밀도는
+   판매 정보 70 : 브랜드 감성 30을 기본으로 하고, 첫 화면의 가장 큰 시각 대상은
+   제품으로 둔다. 일반 설득 장은 `특징 → 고객 효익 → 사용 장면 → 즉시 증거`로
+   작성한다. 같은 장점은 최대 두 번만 말하고 라벨은 구매 이유로 강조하지 않는다.
 4. 공개 주장마다
    `claim_id → component_id → fact_id → evidence_asset_id → section_id`를 고정한다.
    `fact_id`는 검증된 제품 사실 또는 출처가 고정된 `MANUFACTURER_CLAIM` 레코드다.
@@ -104,8 +126,9 @@ node scripts/detail-page.mjs new `
    실제 외곽에 맞춰 애니메이션하고, 치수 라벨을 고정한다. 단순 숫자 표기만으로
    대체하지 않는다.
 10. 정량 시험 근거가 없는 냉감·통풍·열감 주장은 그래프·막대·꺾은선·가짜
-    열화상 범례로 만들지 않는다. 제품과 착용 장면 위의 쿨 스윕·공기 흐름·서리
-    입자처럼 정성 방향을 보여 주는 FX로 표현하고 온도·비율·시간을 생성하지 않는다.
+    열화상 범례로 만들지 않는다. 제품과 착용 장면 위의 짧은 쿨 스윕·공기 흐름처럼
+    정성 방향을 보여 주는 FX로 표현하고, 제품과 무관한 얼음·서리 연출이나
+    온도·비율·시간을 생성하지 않는다.
 11. 고객 HTML에서 프롬프트·파일명·해시·QA·승인 상태와 `제조사 확인`,
    `실물 구조를 기준으로 재구성` 같은 제작자 언어를 제거한다.
 12. 각 프로젝트는 근거·자산·HyperFrames 원본·QA·HTML을 자기 폴더 안에 보존하고
@@ -139,6 +162,13 @@ SSOT와 회귀 검사가 사용하는 확장 도메인·서버·런타임은 지
 글자색, `Noto Sans KR`, `Gmarket Sans`, `S-Core Dream`, `Wanted Sans`,
 `Black Han Sans`, `Jalnan` 글꼴을 변경할 수 있어야 한다. 실행 취소 버튼과
 `Ctrl/Cmd+Z`를 제공하고 상태 저장 전에도 최근 변경을 되돌릴 수 있어야 한다.
+`요소 배치`와 `텍스트 변환`은 별도 모드로 동작한다. 요소 배치 모드에서는
+텍스트 내용을 바꾸지 않고 선택·드래그·좌표·화살표 이동·삭제만 수행한다. 텍스트
+변환 모드에서는 비텍스트 요소를 움직이지 않고 문구·글꼴·글자색·왼쪽·가운데·
+오른쪽·양쪽 정렬만 수행한다. 캔버스 중심, 현재 섹션 중심과 좌우 안전 여백
+보조선을 제공하고 중심·안전 여백 가까이에서 스냅한다. `V`는 요소 배치, `T`는
+텍스트 변환, `Delete/Backspace`는 선택 요소 삭제, `Esc`는 선택 해제,
+`Ctrl/Cmd+Shift+L/E/R/J`는 텍스트 정렬로 고정한다.
 
 ## 완료 조건
 

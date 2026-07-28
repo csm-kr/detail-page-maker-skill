@@ -34,7 +34,7 @@
 | 공급처 추출 | [`domeggook-supplier-extraction.md`](../skills/detail-page-maker-skill/references/domeggook-supplier-extraction.md) | [`contracts/domeggook-supplier-extraction.md`](contracts/domeggook-supplier-extraction.md) |
 | 제품 동일성 | [`product-identity.md`](../skills/detail-page-maker-skill/references/product-identity.md), [`product-identity-imagegen.md`](../skills/detail-page-maker-skill/references/product-identity-imagegen.md) | [`references/product-identity-imagegen.md`](references/product-identity-imagegen.md) |
 | 상업 기획 | [`commercial.md`](../skills/detail-page-maker-skill/references/commercial.md), [`BUYER-JOURNEY.md`](../skills/detail-page-maker-skill/references/BUYER-JOURNEY.md) | [`references/commercial-detail-page.md`](references/commercial-detail-page.md) |
-| 카피·한글 | [`commercial-copy-tone-guide.md`](../skills/detail-page-maker-skill/references/commercial-copy-tone-guide.md), [`korean-copy-typography.md`](../skills/detail-page-maker-skill/references/korean-copy-typography.md) | [`research/behance-commercial-language-study-55.md`](research/behance-commercial-language-study-55.md) |
+| 카피·한글·판매력 | [`commercial-copy-tone-guide.md`](../skills/detail-page-maker-skill/references/commercial-copy-tone-guide.md), [`sales-copy-and-purchase-confidence.md`](../skills/detail-page-maker-skill/references/sales-copy-and-purchase-confidence.md), [`korean-copy-typography.md`](../skills/detail-page-maker-skill/references/korean-copy-typography.md) | [`references/sales-copy-and-purchase-confidence.md`](references/sales-copy-and-purchase-confidence.md), [`research/behance-commercial-language-study-55.md`](research/behance-commercial-language-study-55.md) |
 | 이미지 생성 | [`asset-gen-guide.md`](../skills/detail-page-maker-skill/references/asset-gen-guide.md) | [`references/design-study.md`](references/design-study.md) |
 | GIF·FX | [`gif-guide.md`](../skills/detail-page-maker-skill/references/gif-guide.md), [`commercial-effects-and-claim-proof.md`](../skills/detail-page-maker-skill/references/commercial-effects-and-claim-proof.md) | [`gif-motion-pattern-library.md`](../skills/detail-page-maker-skill/references/gif-motion-pattern-library.md), [`research/hyperframes-gif-pipeline.md`](research/hyperframes-gif-pipeline.md) |
 | Studio | [`studio-workflow.md`](../skills/detail-page-maker-skill/references/studio-workflow.md) | [`studio/v1-editor-contract.md`](studio/v1-editor-contract.md), [`studio/commerce-detail-page-studio-handoff.md`](studio/commerce-detail-page-studio-handoff.md), [`studio/ui-ux-ai-handoff.md`](studio/ui-ux-ai-handoff.md) |
@@ -51,6 +51,7 @@
   [`behance-commercial-analysis-20260725.md`](references/behance-commercial-analysis-20260725.md)
 - 디자인: [`design-study.md`](references/design-study.md)
 - 카피·타이포: [`korean-copy-typography.md`](references/korean-copy-typography.md)
+- 판매형 카피·구매 불안: [`sales-copy-and-purchase-confidence.md`](references/sales-copy-and-purchase-confidence.md)
 - 제품 동일성: [`product-identity-imagegen.md`](references/product-identity-imagegen.md)
 - 모션 QA: [`hyperframes-gif-qa.md`](references/hyperframes-gif-qa.md)
 - 사용자 피드백: [`user-feedback-quality-gates.md`](references/user-feedback-quality-gates.md)

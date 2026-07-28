@@ -10,6 +10,9 @@
 3. [`references/asset-management.md`](references/asset-management.md): 원본·SSOT·pending·approved·rejected·output 상태 전환
 4. [`references/public-output-policy.md`](references/public-output-policy.md): 고객 화면과 제작 메타데이터 분리
 
+설명이 축약되어 보여도 이 표를 건너뛰지 않는다. 요청에 포함된 명사와 동사를
+아래 작업별 라우팅에 모두 대조하고, 둘 이상의 행에 해당하면 문서를 합쳐 읽는다.
+
 ## 작업별 라우팅
 
 | 작업 | 필수 문서 | 필요할 때 추가 |
@@ -17,11 +20,11 @@
 | 프로젝트 목록·격리 검사 | [`portable-install.md`](references/portable-install.md), [`asset-management.md`](references/asset-management.md) | `detail-page.mjs list`, `detail-page.mjs validate` |
 | 공급처 URL 수집 | [`domeggook-supplier-extraction.md`](references/domeggook-supplier-extraction.md) | 다른 공급처는 같은 원본·locator·사실 분리 원칙 적용 |
 | 제품 SSOT | [`product-identity.md`](references/product-identity.md) | 생성 이미지까지 쓰면 [`product-identity-imagegen.md`](references/product-identity-imagegen.md) |
-| 상업 기획·카피 | [`commercial.md`](references/commercial.md), [`BUYER-JOURNEY.md`](references/BUYER-JOURNEY.md) | [`korean-copy-typography.md`](references/korean-copy-typography.md), [`commercial-detail-page.md`](references/commercial-detail-page.md) |
+| 상업 기획·카피·판매력 개선 | [`commercial.md`](references/commercial.md), [`sales-copy-and-purchase-confidence.md`](references/sales-copy-and-purchase-confidence.md), [`BUYER-JOURNEY.md`](references/BUYER-JOURNEY.md) | [`korean-copy-typography.md`](references/korean-copy-typography.md), [`commercial-detail-page.md`](references/commercial-detail-page.md) |
 | 커머셜 말투·고객 목소리 | [`commercial-copy-tone-guide.md`](references/commercial-copy-tone-guide.md) | 고객 장면·비유·말풍선·내부 표현 제거 |
 | 이미지 생성·자산 상태 | [`asset-gen-guide.md`](references/asset-gen-guide.md), [`asset-management.md`](references/asset-management.md), [`product-identity-imagegen.md`](references/product-identity-imagegen.md) | 제품별 상세 규약은 `commercial-detail-page.md`의 해당 절만 탐색 |
 | GIF·모션 | [`gif-guide.md`](references/gif-guide.md), [`hyperframes.md`](references/hyperframes.md), [`commercial-effects-and-claim-proof.md`](references/commercial-effects-and-claim-proof.md) | 패턴은 [`gif-motion-pattern-library.md`](references/gif-motion-pattern-library.md), QA는 [`hyperframes-gif-qa.md`](references/hyperframes-gif-qa.md) |
-| Studio v1 조립·편집 | [`studio-workflow.md`](references/studio-workflow.md), [`asset-management.md`](references/asset-management.md) | 고객 화면 정책은 `public-output-policy.md` |
+| Studio v1 조립·편집·위치·글씨·정렬·삭제 | [`studio-workflow.md`](references/studio-workflow.md), [`asset-management.md`](references/asset-management.md) | 고객 화면 정책은 `public-output-policy.md` |
 | 디자인 실험 | 설치된 `design-taste-frontend` 스킬 | [`design-study.md`](references/design-study.md), [`behance-commercial-analysis.md`](references/behance-commercial-analysis.md) |
 | 게시 전 QA | [`commercial-qa.md`](references/commercial-qa.md), [`user-feedback-quality-gates.md`](references/user-feedback-quality-gates.md) | GIF가 있으면 `hyperframes-gif-qa.md` |
 | 프로젝트 종료·피드백 승격 | [`learning-loop.md`](references/learning-loop.md) | `planning/LEARNINGS.md`, 저장소에서는 `docs/issues/` |
