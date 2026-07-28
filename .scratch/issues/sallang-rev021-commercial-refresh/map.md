@@ -17,11 +17,11 @@ Behance 상용 사례 50개 이상의 카피·배치·모션 문법을 근거로
 
 ## Frontier
 
-- 없음. rev021 검토 패키지가 준비되었다.
+없음.
 
 ## Planned
 
-- 없음.
+없음.
 
 ## Decisions so far
 
@@ -41,6 +41,24 @@ Behance 상용 사례 50개 이상의 카피·배치·모션 문법을 근거로
   — 세 불편과 소구 직후 증명 구조의 독립 deliverables 패키지를 조립했다.
 - [07. 공개 언어·제품 동일성·모션·반응형 최종 QA](issues/07-run-rev021-commercial-qa.md)
   — 다섯 뷰포트와 미디어·카피·모션 검사를 통과하고 검토 보고서를 만들었다.
+- [08. 워크트리 병합과 비활성 자산 보존 이관](issues/08-merge-worktree-and-archive-assets.md)
+  — 병합 전 변경을 복구 참조로 보존하고 단일 `asset/` 루트와 체크섬 archive로
+  안전하게 통합했다.
+- [09. 쿠팡 참고 광고와 쿨토시 학습 감사](issues/09-audit-coupang-reference-and-learnings.md)
+  — 참고 광고의 주장 직후 증명·생활 장면·규격 안내 문법을 기록하고 살랑
+  학습 원장을 갱신했다.
+- [10. Studio 전체 요소 편집 도구](issues/10-build-studio-element-controls.md)
+  — 전체 요소 선택·위치·실행 취소·텍스트 비우기·6개 글꼴·색상 변경과
+  저장·내보내기를 구현했다.
+- [11. 주장 연관 FX와 47 cm 측정 GIF](issues/11-rebuild-claim-fx-and-size-proof.md)
+  — 그래프 없는 냉감 FX와 핵심 치수 측정 GIF를 포함한 신규 6개 GIF를 만들고
+  strict QA를 통과했다.
+- [12. 스킬·학습·Markdown 라우팅 지도](issues/12-update-skill-learnings-and-doc-map.md)
+  — 검증된 규칙을 공용 스킬에 승격하고 `docs/map.md`로 문서 경로를 연결했다.
+- [13. Studio·GIF·반응형·자산 최종 QA](issues/13-run-followup-qa.md)
+  — 브라우저·자동 테스트·체크섬·사본 해시 검사를 모두 통과했다.
+- [14. 최신 main 통합·선별 커밋·푸시](issues/14-integrate-commit-and-push.md)
+  — 원격 최신 main을 확인하고 이번 요청 경로만 선별해 통합했다.
 
 ## Out of scope
 

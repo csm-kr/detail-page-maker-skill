@@ -125,6 +125,18 @@ Studio v1에서 사용자가 명시적으로 승인한 파일만 저장한다. �
 구버전 SSOT, 이전 Studio 구조와 더 이상 쓰지 않는 과거 결과를 이동한다. 활성
 폴더와 섞지 않고 삭제보다 이 이동을 우선한다.
 
+### `archive/legacy-assets/<YYYY-MM-DD>/`
+
+프로젝트 루트의 오래된 `assets/`, 중복 원본, 교체된 GIF처럼 활성 제작 경로에서
+제외해야 하지만 복구 가능하게 보존할 데이터의 위치다.
+
+- 삭제 전에 원래 경로와 새 경로를 `README.md`에 기록한다.
+- 모든 이동 파일의 SHA-256을 `checksums.sha256`에 기록하고 이동 뒤 다시 검증한다.
+- 현재 SSOT·승인본·pending 후보·manifest가 참조하는 파일은 archive로 옮기지 않는다.
+- prototype, HyperFrames 원본, 사용자 승인 이력은 정리 대상으로 간주하지 않는다.
+- 프로젝트 루트의 `assets/`는 내용물을 archive 또는 단수 `asset/`로 이동하고 참조를
+  모두 바꾼 뒤 빈 디렉터리만 제거한다.
+
 ## 3. 상태 전환
 
 ```text
@@ -244,6 +256,8 @@ node scripts/migrate-legacy-asset-root.mjs `
 `asset/generated/approved/`, 구버전은 `asset/deprecated/`, 게시 파생물은
 `asset/output/`으로 분류한다. 상세페이지·매니페스트·기획 기록의 활성 경로를
 새 위치로 변경하고 모든 해시와 참조를 검증한 뒤에만 복수형 루트를 제거한다.
+중복 또는 비활성 파일도 즉시 삭제하지 않고
+`archive/legacy-assets/<YYYY-MM-DD>/`로 옮겨 체크섬과 복구 경로를 남긴다.
 
 과거 사용자가 확정한 레거시 게시 자산은 승인 사실을 새로 꾸미지 않고
 `legacy-user-confirmed-page-migration` 출처로 승인 원장에 이관한다. 이후 신규 또는

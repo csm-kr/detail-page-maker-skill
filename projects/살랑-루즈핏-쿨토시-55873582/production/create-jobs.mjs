@@ -47,9 +47,9 @@ const refs = {
   p6: `${projectFromJobs}/asset/input/user-real-original/photo-2026-07-27-45c0af96.jpg`,
   p7: `${projectFromJobs}/asset/input/user-real-original/photo-2026-07-27-4605aff2.jpg`,
   p8: `${projectFromJobs}/asset/input/user-real-original/photo-2026-07-27-fd874f53.jpg`,
-  s1: `${projectFromJobs}/assets/product-ssot/source/supplier-crops/01-pair-full.png`,
-  s3: `${projectFromJobs}/assets/product-ssot/source/supplier-crops/03-pleat-macro.png`,
-  s4: `${projectFromJobs}/assets/product-ssot/source/supplier-crops/04-hand-label-structure.png`,
+  s1: `${projectFromJobs}/asset/input/product-ssot/supplier-crops/01-pair-full.png`,
+  s3: `${projectFromJobs}/asset/input/product-ssot/supplier-crops/03-pleat-macro.png`,
+  s4: `${projectFromJobs}/asset/input/product-ssot/supplier-crops/04-hand-label-structure.png`,
   model: `${projectFromJobs}/asset/ssot/model-sheet-c00-03-v01.png`,
 };
 

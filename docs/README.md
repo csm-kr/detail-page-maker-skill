@@ -1,5 +1,6 @@
 # Documentation
 
+- [`map.md`](map.md): 모든 Markdown 문서의 목적별 라우팅과 소유권 지도
 - [`RULES.md`](RULES.md): 저장소 규칙, 도메인 사용법과 triage label
 - [`ISSUE.md`](ISSUE.md): Markdown 이슈 트래커 형식과 현재 지도
 - [`CONTEXT.md`](CONTEXT.md): 도메인 glossary

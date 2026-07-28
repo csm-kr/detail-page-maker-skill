@@ -34,7 +34,7 @@
       "displayDimensions": "4284x5712"
     },
     "legacyRecoveredReference": {
-      "path": "assets/product-ssot/source/user-real-recovered/contact-sheet-recovered.jpg",
+      "path": "archive/legacy-assets/2026-07-28/assets-product-ssot/user-real-recovered/contact-sheet-recovered.jpg",
       "status": "deprecated-for-generation",
       "note": "고해상도 원본 8장이 추가되어 기존 저해상도 복구본 7장은 생성 참조에서 제외하고 이력 확인용으로만 보존한다."
     },
@@ -228,7 +228,7 @@
     {
       "id": "ssot-supplier-01",
       "originalFileName": "01-pair-full.png",
-      "path": "assets/product-ssot/source/supplier-crops/01-pair-full.png",
+      "path": "asset/input/product-ssot/supplier-crops/01-pair-full.png",
       "sha256": "6eae513be970bc7ee2aa26e0399939124ba11feedd76bb2e8ba75d0bb49b008a",
       "mime": "image/png",
       "sizeBytes": 235584,
@@ -251,7 +251,7 @@
     {
       "id": "ssot-supplier-02",
       "originalFileName": "02-stretch-structure.png",
-      "path": "assets/product-ssot/source/supplier-crops/02-stretch-structure.png",
+      "path": "asset/input/product-ssot/supplier-crops/02-stretch-structure.png",
       "sha256": "fcb08a7739d9dff8dec28a3674b311f3d4dcc8a5108fcb9a5651bc38a23cc867",
       "mime": "image/png",
       "sizeBytes": 236839,
@@ -274,7 +274,7 @@
     {
       "id": "ssot-supplier-03",
       "originalFileName": "03-pleat-macro.png",
-      "path": "assets/product-ssot/source/supplier-crops/03-pleat-macro.png",
+      "path": "asset/input/product-ssot/supplier-crops/03-pleat-macro.png",
       "sha256": "910e47dade5ee79f68c4cb966dc66aea6112230a0fe041688b35cdc9fd653f9d",
       "mime": "image/png",
       "sizeBytes": 313076,
@@ -297,7 +297,7 @@
     {
       "id": "ssot-supplier-04",
       "originalFileName": "04-hand-label-structure.png",
-      "path": "assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+      "path": "asset/input/product-ssot/supplier-crops/04-hand-label-structure.png",
       "sha256": "7cbb2620cddde026a257d76ac223dee34c45070dd2ad3ceb56d1616bb140ad6c",
       "mime": "image/png",
       "sizeBytes": 1253606,

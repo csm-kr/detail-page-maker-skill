@@ -7,7 +7,7 @@
 - `user_confirmation`: 2026-07-27 이후 사용자 명시 승인
 - `generation_blocked`: no
 - `revision_reason`: 사용자가 `inputs`에 고해상도 실물 원본 8장을 추가해 기존 G0 후보를 교체함
-- `canonical_manifest`: `assets/product-ssot/manifest.json`
+- `canonical_manifest`: `asset/ssot/product-manifest.json`
 
 ## 제안 SSOT
 
@@ -15,7 +15,7 @@
 
 프로젝트 보존 위치:
 
-- 정식 SSOT: `assets/product-ssot/source/user-real-original/`
+- 정식 SSOT: `asset/input/user-real-original/`
 - 입력 보존본: `asset/input/user-real-original/`
 - 검토용 접촉시트: `qa/evidence/g0-input-review/originals-contact.jpg`
 
@@ -33,16 +33,16 @@
 보존·검증:
 
 - 입력 폴더 원본은 이동·삭제·재인코딩하지 않았다.
-- `assets/product-ssot/source/user-real-original/`의 정식 SSOT 복사본 8장과 입력 보존본의 SHA-256은 일치한다.
+- `asset/input/user-real-original/`의 정식 SSOT 복사본 8장과 입력 보존본의 SHA-256은 일치한다.
 - 각 파일은 인코딩 기준 5712×4284, EXIF Orientation 6, 표시 기준 4284×5712다.
 - 기존 300×400 저해상도 복구본 7장은 삭제하지 않고 이력용으로만 보존하며, 앞으로의 이미지 생성 참조에서는 제외한다.
 
 ### 2순위 — 공급처 원본 크롭 4장
 
-1. `assets/product-ssot/source/supplier-crops/01-pair-full.png`
-2. `assets/product-ssot/source/supplier-crops/02-stretch-structure.png`
-3. `assets/product-ssot/source/supplier-crops/03-pleat-macro.png`
-4. `assets/product-ssot/source/supplier-crops/04-hand-label-structure.png`
+1. `asset/input/product-ssot/supplier-crops/01-pair-full.png`
+2. `asset/input/product-ssot/supplier-crops/02-stretch-structure.png`
+3. `asset/input/product-ssot/supplier-crops/03-pleat-macro.png`
+4. `asset/input/product-ssot/supplier-crops/04-hand-label-structure.png`
 
 원본, 좌표, 파일 해시는 `product/product-manifest.json`에 기록했다. 공급처 크롭은 사용자가 제공한 실물 원본에 없는 구조를 보조 확인하는 2순위 자료로만 사용한다.
 
@@ -81,4 +81,4 @@
 
 > `inputs`에 추가한 고해상도 화이트 실물 원본 8장이 이 상품과 같은 SKU이고, 제품명은 `루즈핏 쿨토시`, 제조사는 `살랑`, 라벨은 `HELLO / CUTE SLEEVE`, 구성은 1세트 2개입이 맞습니다. 이 원본 8장과 공급처 크롭 4장을 제품 SSOT로 승인합니다.
 
-위 승인은 `product/product-manifest.json`의 `locked-g0` 상태와 사용자 승인 이력으로 확정됐다. 이후 생성·GIF·HTML에서는 `assets/product-ssot/manifest.json`을 제품 동일성의 단일 진실원본으로 사용한다.
+위 승인은 `product/product-manifest.json`의 `locked-g0` 상태와 사용자 승인 이력으로 확정됐다. 이후 생성·GIF·HTML에서는 `asset/ssot/product-manifest.json`과 `asset/input/product-ssot/supplier-crops/`를 제품 동일성의 단일 진실원본으로 사용한다.

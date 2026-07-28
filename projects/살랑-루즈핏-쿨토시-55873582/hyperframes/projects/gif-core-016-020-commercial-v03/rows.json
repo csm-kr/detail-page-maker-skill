@@ -5,7 +5,7 @@
       "mode": "compare"
     },
     {
-      "name": "gif-017-cooling-bar-drop-v03",
+      "name": "gif-017-cooling-sweep-v04",
       "mode": "cooling"
     },
     {
@@ -19,6 +19,10 @@
     {
       "name": "gif-020-pair-reveal-v03",
       "mode": "pair"
+    },
+    {
+      "name": "gif-021-size-47cm-guide-v01",
+      "mode": "size"
     }
   ]
 }

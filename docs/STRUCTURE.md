@@ -73,6 +73,23 @@ hard link를 보존하지 않고, 이 파일들은 manifest와 QA 보고서가 �
 archive manifest를 만든 뒤 정리한다. 프로젝트 자기완결성과 재현성을 깨는
 공용 asset store 도입은 현재 하지 않는다.
 
+## Project asset root policy
+
+신규·갱신 프로젝트의 활성 자산 루트는 단수 `asset/` 하나다. 프로젝트 루트에
+`asset/`와 `assets/`가 동시에 있으면 다음 순서로 정리한다.
+
+1. 모든 활성 참조와 SHA-256을 조사한다.
+2. 현재 입력·SSOT·승인본은 `asset/`의 정해진 상태 폴더로 이동한다.
+3. 비활성 원본·중복·교체본은 삭제하지 않고
+   `archive/legacy-assets/<YYYY-MM-DD>/`로 이동한다.
+4. archive에 원래 경로·복구 경로 `README.md`와 `checksums.sha256`을 남긴다.
+5. 텍스트·manifest 참조가 0건이고 디렉터리가 비었을 때만 프로젝트 루트의
+   `assets/` 디렉터리를 제거한다.
+
+스킬 런타임의 `skills/**/assets/`, HyperFrames 프로젝트 내부 `assets/`, 쿠팡
+Wing 출력 패키지의 `assets/`는 각 도구의 자기완결 리소스이므로 이 규칙의 대상이
+아니다. prototype과 모션 원본은 안전 정리 대상으로 보지 않는다.
+
 ## `skills/`와 `.agents/skills/`
 
 | 경로 | 성격 | 수정·버전 관리 |

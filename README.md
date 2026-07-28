@@ -2,7 +2,7 @@
 
 공급처 상품 URL에서 제품 사실 SSOT, God Tibo GPT Image 2 상업 이미지, HyperFrames GIF와 수정 가능한 HTML 상세페이지를 만드는 설치형 Codex 스킬입니다.
 
-저장소 규칙과 설계 문서는 [`docs/`](docs/README.md), 완성 상품은
+저장소 규칙과 설계 문서는 [`docs/map.md`](docs/map.md), 완성 상품은
 [`projects/`](projects/README.md), 설치 가능한 스킬 정본은
 [`skills/detail-page-maker-skill/`](skills/detail-page-maker-skill/)에 있습니다.
 

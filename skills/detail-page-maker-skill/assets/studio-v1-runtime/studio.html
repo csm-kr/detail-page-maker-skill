@@ -34,11 +34,12 @@
             <h2>편집</h2>
             <div class="button-grid">
               <button id="toggleEdit" type="button" class="primary">수정 모드 켜기</button>
+              <button id="undo" type="button" disabled>실행 취소</button>
               <button id="save" type="button">로컬 저장</button>
               <button id="reset" type="button">초기화</button>
               <button id="replay" type="button">GIF 다시 재생</button>
             </div>
-            <p class="hint">문구는 클릭해 수정하고, 이미지·GIF·선택 가능한 요소는 클릭 후 드래그로 이동하고 휠로 확대·축소합니다.</p>
+            <p class="hint">문구와 시각 요소를 클릭해 선택합니다. 이미지는 드래그로 이동하고, 모든 선택 요소는 좌표·화살표로 정밀하게 옮길 수 있습니다.</p>
           </section>
 
           <section class="group">
@@ -56,6 +57,38 @@
           <section class="group">
             <h2>선택한 요소</h2>
             <div id="selectedLabel" class="hint">수정 모드에서 이미지·GIF·요소를 선택해 주세요.</div>
+            <div class="control-pair">
+              <div>
+                <label for="elementFont">글꼴</label>
+                <select id="elementFont" disabled>
+                  <option value="">원래 글꼴</option>
+                  <option value='"Noto Sans KR", "Malgun Gothic", sans-serif'>Noto Sans KR</option>
+                  <option value='"Gmarket Sans", "GmarketSansMedium", sans-serif'>Gmarket Sans</option>
+                  <option value='"S-Core Dream", "SCoreDream", sans-serif'>S-Core Dream</option>
+                  <option value='"Wanted Sans", "WantedSans", sans-serif'>Wanted Sans</option>
+                  <option value='"Black Han Sans", "Arial Black", sans-serif'>Black Han Sans</option>
+                  <option value='"Jalnan", "JalnanGothic", sans-serif'>Jalnan</option>
+                </select>
+              </div>
+              <div>
+                <label for="elementColor">글자색</label>
+                <input id="elementColor" type="color" value="#111827" disabled />
+              </div>
+            </div>
+            <div class="position-grid">
+              <label for="elementX">X <input id="elementX" type="number" step="1" value="0" disabled /></label>
+              <label for="elementY">Y <input id="elementY" type="number" step="1" value="0" disabled /></label>
+              <button id="applyPosition" type="button" disabled>위치 적용</button>
+            </div>
+            <div class="nudge-grid" aria-label="선택 요소 미세 이동">
+              <button type="button" data-nudge-x="0" data-nudge-y="-1" disabled>위</button>
+              <button type="button" data-nudge-x="-1" data-nudge-y="0" disabled>왼쪽</button>
+              <button type="button" data-nudge-x="1" data-nudge-y="0" disabled>오른쪽</button>
+              <button type="button" data-nudge-x="0" data-nudge-y="1" disabled>아래</button>
+            </div>
+            <button id="clearText" type="button" class="wide" disabled>선택 텍스트 비우기</button>
+            <div class="subgroup">
+              <h3>이미지 교체</h3>
             <label for="imageSrc">승인된 이미지 경로</label>
             <input id="imageSrc" type="text" placeholder="../asset/generated/approved/..." />
             <label for="imageAlt">대체 텍스트</label>
@@ -63,6 +96,7 @@
             <label for="imageFile">로컬 이미지 미리보기</label>
             <input id="imageFile" type="file" accept="image/*" />
             <button id="applyImage" type="button" class="wide">선택 이미지에 적용</button>
+            </div>
           </section>
 
           <section class="group">

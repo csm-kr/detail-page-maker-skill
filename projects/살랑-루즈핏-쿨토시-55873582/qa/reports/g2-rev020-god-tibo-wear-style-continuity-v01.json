@@ -4,7 +4,7 @@
   "batch": "rev020-god-tibo-wear-style-continuity-v01",
   "reviewedAt": "2026-07-28",
   "status": "approved_with_exclusions",
-  "ssotManifest": "assets/product-ssot/manifest.json",
+  "ssotManifest": "asset/ssot/product-manifest.json",
   "items": [
     {
       "file": "frame-000.png",

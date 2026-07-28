@@ -12,10 +12,26 @@ const assetReviewGrid = document.querySelector("#assetReviewGrid");
 const exportButton = document.querySelector("#exportHtml");
 const outputGate = document.querySelector("#outputGate");
 const outputSummary = document.querySelector("#outputSummary");
+const wingExportButton = document.querySelector("#exportCoupangWing");
+const wingCdnBaseUrl = document.querySelector("#wingCdnBaseUrl");
+const wingExportGate = document.querySelector("#wingExportGate");
+const wingExportResult = document.querySelector("#wingExportResult");
+const applyImageButton = document.querySelector("#applyImage");
+const imageFileInput = document.querySelector("#imageFile");
+const undoButton = document.querySelector("#undo");
+const elementFont = document.querySelector("#elementFont");
+const elementColor = document.querySelector("#elementColor");
+const elementX = document.querySelector("#elementX");
+const elementY = document.querySelector("#elementY");
+const applyPositionButton = document.querySelector("#applyPosition");
+const clearTextButton = document.querySelector("#clearText");
+const nudgeButtons = [...document.querySelectorAll("[data-nudge-x]")];
+const wingCdnStorageKey = `detail-page-maker:wing-cdn:${location.pathname}`;
 
 let editing = false;
 let selectedImageIndex = -1;
 let selectedImageCurrentSrc = "";
+let selectedObjectState = null;
 let sections = [];
 let measuredHeight = 1200;
 let activeAssetFilter = "pending";
@@ -24,7 +40,10 @@ let gate = {
   pendingCount: 0,
   missingRequiredCount: 0,
   exportAllowed: false,
+  coupangWingExportAllowed: false,
+  coupangWingBlockers: [],
 };
+let wingExportBusy = false;
 
 function post(type, payload = {}) {
   preview.contentWindow.postMessage({ type, ...payload }, "*");
@@ -32,6 +51,80 @@ function post(type, payload = {}) {
 
 function setStatus(message) {
   statusNode.textContent = message;
+}
+
+function setImageControlsEnabled(enabled) {
+  srcInput.disabled = !enabled;
+  altInput.disabled = !enabled;
+  imageFileInput.disabled = !enabled;
+  applyImageButton.disabled = !enabled;
+}
+
+function colorToHex(value) {
+  if (/^#[0-9a-f]{6}$/i.test(value || "")) return value.toLowerCase();
+  const channels = String(value || "").match(/\d+(?:\.\d+)?/g);
+  if (!channels || channels.length < 3) return "#111827";
+  return `#${channels
+    .slice(0, 3)
+    .map((channel) =>
+      Math.max(0, Math.min(255, Math.round(Number(channel))))
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+}
+
+function setElementControlsEnabled(enabled, isText = false) {
+  elementX.disabled = !enabled;
+  elementY.disabled = !enabled;
+  applyPositionButton.disabled = !enabled;
+  elementFont.disabled = !enabled;
+  elementColor.disabled = !enabled;
+  clearTextButton.disabled = !enabled || !isText;
+  nudgeButtons.forEach((button) => {
+    button.disabled = !enabled;
+  });
+}
+
+function renderSelectedObject(message) {
+  selectedObjectState = { ...(selectedObjectState || {}), ...message };
+  const name =
+    message.label ||
+    message.objectId ||
+    (message.isImage ? `이미지 #${message.imageIndex + 1}` : "요소");
+  const selected = document.createElement("span");
+  selected.className = "selected";
+  selected.textContent = name;
+  const detail = document.createTextNode(
+    ` · ${message.isText ? "문구 편집" : "드래그 이동"} · ${Math.round(
+      Number(message.scale || 1) * 100,
+    )}% · (${Math.round(Number(message.x) || 0)}, ${Math.round(
+      Number(message.y) || 0,
+    )})`,
+  );
+  selectedLabel.replaceChildren(selected, detail);
+  elementX.value = String(Math.round(Number(message.x) || 0));
+  elementY.value = String(Math.round(Number(message.y) || 0));
+  const fontOption = [...elementFont.options].find(
+    (option) => option.value && message.fontFamily?.includes(option.textContent),
+  );
+  elementFont.value = fontOption?.value || "";
+  elementColor.value = colorToHex(message.color);
+  setElementControlsEnabled(true, Boolean(message.isText));
+
+  if (message.isImage) {
+    selectedImageIndex = Number(message.imageIndex);
+    selectedImageCurrentSrc = message.src || "";
+    srcInput.value = message.src || "";
+    altInput.value = message.alt || "";
+    setImageControlsEnabled(true);
+  } else {
+    selectedImageIndex = -1;
+    selectedImageCurrentSrc = "";
+    srcInput.value = "";
+    altInput.value = "";
+    setImageControlsEnabled(false);
+  }
 }
 
 async function api(pathname, options = {}) {
@@ -207,6 +300,49 @@ function renderGate() {
     <div class="summary-metric"><span>승인 대기</span><strong>${gate.pendingCount}</strong></div>
     <div class="summary-metric"><span>출력 상태</span><strong>${gate.exportAllowed ? "READY" : "LOCKED"}</strong></div>
   `;
+  const wingReady = Boolean(gate.coupangWingExportAllowed);
+  wingExportGate.className = `gate-card ${wingReady ? "ready" : "blocked"}`;
+  wingExportGate.textContent = wingReady
+    ? `쿠팡 Wing 게이트 통과 · 상용 QA ${gate.finalQaScore}점 · 사용자 게시 승인 완료`
+    : `쿠팡 Wing 내보내기 잠김 · ${(gate.coupangWingBlockers || []).join(" · ") || "G5 상태를 확인해 주세요."}`;
+  wingExportButton.disabled =
+    wingExportBusy || !wingReady || !isValidCdnBaseUrl(wingCdnBaseUrl.value);
+  wingExportButton.classList.toggle("busy", wingExportBusy);
+  wingExportButton.textContent = wingExportBusy
+    ? "780px WebP 패키지 생성 중…"
+    : "쿠팡 Wing 포맷으로 내보내기";
+}
+
+function isValidCdnBaseUrl(value) {
+  try {
+    const url = new URL(value.trim());
+    return (
+      url.protocol === "https:" &&
+      !url.username &&
+      !url.password &&
+      !url.search &&
+      !url.hash
+    );
+  } catch {
+    return false;
+  }
+}
+
+function renderWingExportResult(result) {
+  wingExportResult.replaceChildren();
+  const title = document.createElement("strong");
+  title.textContent = `완성형 WebP ${result.assetCount}개 생성 완료`;
+  const path = document.createElement("p");
+  path.textContent = result.relativeOutputRoot;
+  const summary = document.createElement("p");
+  summary.textContent =
+    `정적 ${result.staticCount}개 · 애니메이션 ${result.animatedCount}개 · CDN 원격 검증 대기`;
+  const previewLink = document.createElement("a");
+  previewLink.href = result.previewUrl;
+  previewLink.target = "_blank";
+  previewLink.rel = "noreferrer";
+  previewLink.textContent = "780px 로컬 미리보기 열기";
+  wingExportResult.append(title, path, summary, previewLink);
 }
 
 async function refreshGate() {
@@ -285,11 +421,17 @@ toggleEdit.addEventListener("click", () => {
   post("DETAIL_SET_EDITING", { enabled: editing });
   setStatus(
     editing
-      ? "문구를 클릭하거나 이미지를 선택해 주세요."
+      ? "문구는 클릭해 수정하고, 요소는 드래그로 이동하거나 휠로 확대·축소하세요."
       : "미리보기 모드입니다.",
   );
+  if (!editing) {
+    selectedObjectState = null;
+    setElementControlsEnabled(false);
+    setImageControlsEnabled(false);
+  }
 });
 document.querySelector("#save").addEventListener("click", () => post("DETAIL_SAVE"));
+undoButton.addEventListener("click", () => post("DETAIL_UNDO"));
 document.querySelector("#replay").addEventListener("click", () => post("DETAIL_REPLAY_GIFS"));
 document.querySelector("#reset").addEventListener("click", () => {
   if (confirm("로컬에 저장한 수정 내용을 모두 초기화할까요?")) {
@@ -320,6 +462,42 @@ document.querySelector("#toggleSection").addEventListener("click", () => {
 document.querySelector("#accent").addEventListener("input", (event) =>
   post("DETAIL_SET_ACCENT", { value: event.target.value }),
 );
+elementFont.addEventListener("change", () => {
+  if (!selectedObjectState) return;
+  post("DETAIL_SET_OBJECT_STYLE", {
+    fontFamily: elementFont.value,
+    color: elementColor.value,
+  });
+});
+elementColor.addEventListener("input", () => {
+  if (!selectedObjectState) return;
+  post("DETAIL_SET_OBJECT_STYLE", {
+    fontFamily: elementFont.value,
+    color: elementColor.value,
+  });
+});
+applyPositionButton.addEventListener("click", () => {
+  if (!selectedObjectState) return;
+  post("DETAIL_SET_OBJECT_POSITION", {
+    x: Number(elementX.value) || 0,
+    y: Number(elementY.value) || 0,
+  });
+});
+nudgeButtons.forEach((button) => {
+  button.addEventListener("click", (event) => {
+    if (!selectedObjectState) return;
+    const amount = event.shiftKey ? 10 : 1;
+    post("DETAIL_NUDGE_OBJECT", {
+      dx: Number(button.dataset.nudgeX) * amount,
+      dy: Number(button.dataset.nudgeY) * amount,
+    });
+  });
+});
+clearTextButton.addEventListener("click", () => {
+  if (!selectedObjectState?.isText) return;
+  post("DETAIL_CLEAR_TEXT");
+  setStatus("선택한 텍스트를 비웠습니다. 실행 취소로 되돌릴 수 있습니다.");
+});
 autoHeight.addEventListener("change", () => {
   if (autoHeight.checked) fitPreviewHeight();
   else setStatus("수동 높이 조절 모드입니다.");
@@ -343,7 +521,7 @@ document.querySelector("#heightPlus").addEventListener("click", () => {
   setStatus(`미리보기 높이를 ${next.toLocaleString("ko-KR")}px로 늘렸습니다.`);
 });
 document.querySelector("#heightFit").addEventListener("click", fitPreviewHeight);
-document.querySelector("#imageFile").addEventListener("change", (event) => {
+imageFileInput.addEventListener("change", (event) => {
   const file = event.target.files?.[0];
   if (!file) return;
   const reader = new FileReader();
@@ -352,7 +530,7 @@ document.querySelector("#imageFile").addEventListener("change", (event) => {
   };
   reader.readAsDataURL(file);
 });
-document.querySelector("#applyImage").addEventListener("click", async () => {
+applyImageButton.addEventListener("click", async () => {
   if (selectedImageIndex < 0) {
     setStatus("먼저 수정 모드에서 이미지를 선택해 주세요.");
     return;
@@ -393,6 +571,55 @@ exportButton.addEventListener("click", async () => {
   post("DETAIL_EXPORT_HTML");
   setStatus("CSS와 승인 에셋을 포함한 단일 HTML을 준비하는 중입니다.");
 });
+wingCdnBaseUrl.value = localStorage.getItem(wingCdnStorageKey) || "";
+wingCdnBaseUrl.addEventListener("input", () => {
+  localStorage.setItem(wingCdnStorageKey, wingCdnBaseUrl.value.trim());
+  renderGate();
+});
+wingExportButton.addEventListener("click", async () => {
+  await refreshGate();
+  if (!gate.coupangWingExportAllowed) {
+    setStatus("G5 게시 승인과 상용 QA 97점 이상이 필요합니다.");
+    return;
+  }
+  const cdnBaseUrl = wingCdnBaseUrl.value.trim().replace(/\/+$/, "");
+  if (!isValidCdnBaseUrl(cdnBaseUrl)) {
+    setStatus("새 revision이 포함된 HTTPS CDN 기본 주소를 입력해 주세요.");
+    return;
+  }
+  wingExportBusy = true;
+  wingExportResult.textContent =
+    "섹션을 평면화하고 정적·애니메이션 WebP를 만드는 중입니다.";
+  renderGate();
+  setStatus("쿠팡 Wing 780px WebP 패키지를 생성하는 중입니다.");
+  try {
+    const payload = await api("/api/v1/exports/coupang-wing", {
+      method: "POST",
+      body: JSON.stringify({ cdnBaseUrl }),
+    });
+    renderWingExportResult(payload.result);
+    setStatus(
+      `쿠팡 Wing 패키지 생성 완료 · ${payload.result.assetCount}개 WebP · CDN 업로드 후 원격 검증 필요`,
+    );
+  } catch (error) {
+    wingExportResult.textContent = `생성 실패 · ${error.message}`;
+    setStatus(error.message);
+  } finally {
+    wingExportBusy = false;
+    renderGate();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (
+    (event.ctrlKey || event.metaKey) &&
+    event.key.toLowerCase() === "z" &&
+    !event.target.closest("input,select,[contenteditable]")
+  ) {
+    event.preventDefault();
+    post("DETAIL_UNDO");
+  }
+});
 
 window.addEventListener("message", (event) => {
   const message = event.data || {};
@@ -404,14 +631,19 @@ window.addEventListener("message", (event) => {
     }
     sections = message.sections || [];
     refreshSectionSelect();
-    setStatus(
-      `${message.sectionCount}개 섹션 · 수정 문구 ${message.editableCount}개 · 이미지 ${message.imageCount}개 준비됨`,
-    );
+    if (!editing) {
+      setStatus(
+        `${message.sectionCount}개 섹션 · 수정 문구 ${message.editableCount}개 · 이미지 ${message.imageCount}개 준비됨`,
+      );
+    }
   }
   if (message.type === "DETAIL_SAVED") {
     setStatus(
       `로컬 저장 완료 · ${new Date(message.savedAt).toLocaleTimeString("ko-KR")}`,
     );
+  }
+  if (message.type === "DETAIL_HISTORY_CHANGED") {
+    undoButton.disabled = !message.canUndo;
   }
   if (message.type === "DETAIL_EXPORT_PROGRESS") {
     setStatus(`단일 HTML 에셋 포함 중 · ${message.completed}/${message.total}`);
@@ -430,7 +662,30 @@ window.addEventListener("message", (event) => {
     selectedLabel.innerHTML = `<span class="selected">${
       message.assetId || `이미지 #${message.index + 1}`
     }</span> 선택됨`;
+    setImageControlsEnabled(true);
+  }
+  if (message.type === "DETAIL_OBJECT_SELECTED") {
+    renderSelectedObject(message);
+  }
+  if (message.type === "DETAIL_OBJECT_CHANGED") {
+    renderSelectedObject({
+      ...(selectedObjectState || {}),
+      ...message,
+      isImage: selectedImageIndex >= 0,
+      imageIndex: selectedImageIndex,
+      src: srcInput.value,
+      alt: altInput.value,
+    });
+    setStatus(
+      `${message.label || message.objectId || "요소"} · ${Math.round(
+        Number(message.scale || 1) * 100,
+      )}% · 위치 (${Math.round(Number(message.x) || 0)}, ${Math.round(
+        Number(message.y) || 0,
+      )})`,
+    );
   }
 });
 
+setImageControlsEnabled(false);
+setElementControlsEnabled(false);
 refreshGate();

@@ -1,8 +1,21 @@
 (() => {
-  const STATE_VERSION = 2;
-  const OBJECT_SELECTOR = "[data-edit-image],[data-edit-object]";
+  const STATE_VERSION = 3;
+  const OBJECT_SELECTOR =
+    "[data-edit],[data-edit-image],[data-edit-object],[data-studio-object]";
+  const AUTO_SELECTABLE_SELECTOR =
+    "h1,h2,h3,h4,p,span,strong,small,b,em,figcaption,figure,picture,img,article,li,th,td";
+  const TEXT_SELECTOR = "[data-edit],[data-studio-text]";
   const MIN_OBJECT_SCALE = 0.25;
   const MAX_OBJECT_SCALE = 4;
+  const FONT_STACKS = new Set([
+    "",
+    '"Noto Sans KR", "Malgun Gothic", sans-serif',
+    '"Gmarket Sans", "GmarketSansMedium", sans-serif',
+    '"S-Core Dream", "SCoreDream", sans-serif',
+    '"Wanted Sans", "WantedSans", sans-serif',
+    '"Black Han Sans", "Arial Black", sans-serif',
+    '"Jalnan", "JalnanGothic", sans-serif',
+  ]);
   const projectKey =
     document.documentElement.dataset.studioProject ||
     location.pathname.replace(/[^a-z0-9가-힣]+/gi, "-");
@@ -12,7 +25,7 @@
   if (!page) return;
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 
-  const editableNodes = () => [...document.querySelectorAll("[data-edit]")];
+  const editableNodes = () => [...document.querySelectorAll(TEXT_SELECTOR)];
   const imageNodes = () =>
     [...document.querySelectorAll("[data-edit-image]")];
   const objectNodes = () => [...document.querySelectorAll(OBJECT_SELECTOR)];
@@ -21,6 +34,9 @@
   const objectTransforms = new WeakMap();
   let selectedObject = null;
   let dragState = null;
+  let historyStack = [];
+  let historyTimer = 0;
+  let restoringHistory = false;
 
   function ensureEditIds() {
     sectionNodes().forEach((section) => {
@@ -28,9 +44,11 @@
         if (!node.dataset.editId) {
           node.dataset.editId = `${section.dataset.section}:text-${index + 1}`;
         }
+        node.dataset.studioObject = "";
       });
       [...section.querySelectorAll("[data-edit-image]")].forEach(
         (node, index) => {
+          node.dataset.studioObject = "";
           if (!node.dataset.assetId && !node.dataset.imageId) {
             node.dataset.imageId = `${section.dataset.section}:image-${index + 1}`;
           }
@@ -38,12 +56,40 @@
       );
       [...section.querySelectorAll("[data-edit-object]")].forEach(
         (node, index) => {
+          node.dataset.studioObject = "";
           if (
             !node.dataset.assetId &&
             !node.dataset.imageId &&
             !node.dataset.objectId
           ) {
             node.dataset.objectId = `${section.dataset.section}:object-${index + 1}`;
+          }
+        },
+      );
+      [...section.querySelectorAll(AUTO_SELECTABLE_SELECTOR)].forEach(
+        (node, index) => {
+          node.dataset.studioObject = "";
+          if (
+            node.matches(
+              "h1,h2,h3,h4,p,span,strong,small,b,em,figcaption,li,th,td",
+            )
+          ) {
+            node.dataset.studioText = "";
+          }
+          if (
+            !node.dataset.assetId &&
+            !node.dataset.imageId &&
+            !node.dataset.objectId &&
+            !node.dataset.editId
+          ) {
+            node.dataset.objectId = `${section.dataset.section}:element-${index + 1}`;
+          }
+        },
+      );
+      [...section.querySelectorAll("[data-studio-text]")].forEach(
+        (node, index) => {
+          if (!node.dataset.editId) {
+            node.dataset.editId = `${section.dataset.section}:auto-text-${index + 1}`;
           }
         },
       );
@@ -55,16 +101,13 @@
   const interactionStyle = document.createElement("style");
   interactionStyle.dataset.studioInteraction = "";
   interactionStyle.textContent = `
-    .is-editing [data-edit-image],
-    .is-editing [data-edit-object] { cursor: grab !important; }
-    .is-editing [data-edit-image].studio-object-selected,
-    .is-editing [data-edit-object].studio-object-selected {
-      outline: 3px solid #176bff !important;
+    .is-editing [data-studio-object] { cursor: grab !important; }
+    .is-editing [data-studio-object].studio-object-selected {
+      outline: 2px solid #176bff !important;
       outline-offset: 3px !important;
     }
-    .is-editing [data-edit-image].studio-object-dragging,
-    .is-editing [data-edit-object].studio-object-dragging { cursor: grabbing !important; }
-    .is-editing [data-edit] { cursor: text !important; }
+    .is-editing [data-studio-object].studio-object-dragging { cursor: grabbing !important; }
+    .is-editing ${TEXT_SELECTOR} { cursor: text !important; }
   `;
   document.head.append(interactionStyle);
 
@@ -77,6 +120,7 @@
       node.dataset.assetId ||
       node.dataset.imageId ||
       node.dataset.objectId ||
+      node.dataset.editId ||
       ""
     );
   }
@@ -92,7 +136,15 @@
   }
 
   function currentObjectTransform(node) {
-    return objectTransforms.get(node) || { x: 0, y: 0, scale: 1 };
+    return (
+      objectTransforms.get(node) || {
+        x: 0,
+        y: 0,
+        scale: 1,
+        fontFamily: "",
+        color: "",
+      }
+    );
   }
 
   function applyObjectTransform(node, transform) {
@@ -104,16 +156,32 @@
         MIN_OBJECT_SCALE,
         MAX_OBJECT_SCALE,
       ),
+      fontFamily: String(transform.fontFamily || ""),
+      color: /^#[0-9a-f]{6}$/i.test(transform.color || "")
+        ? transform.color
+        : "",
     };
     objectTransforms.set(node, next);
     node.style.setProperty("translate", `${next.x}px ${next.y}px`, "important");
     node.style.setProperty("scale", String(next.scale), "important");
+    if (next.fontFamily) {
+      node.style.setProperty("font-family", next.fontFamily, "important");
+    } else {
+      node.style.removeProperty("font-family");
+    }
+    if (next.color) {
+      node.style.setProperty("color", next.color, "important");
+    } else {
+      node.style.removeProperty("color");
+    }
     return next;
   }
 
   function notifyObjectSelected(node) {
     const imageIndex = imageNodes().indexOf(node);
     const transform = currentObjectTransform(node);
+    const computed = getComputedStyle(node);
+    const isText = node.matches(TEXT_SELECTOR);
     if (imageIndex >= 0) {
       window.parent.postMessage(
         {
@@ -132,10 +200,14 @@
         objectId: objectId(node),
         label: objectLabel(node),
         isImage: imageIndex >= 0,
+        isText,
         imageIndex,
         src: imageIndex >= 0 ? node.getAttribute("src") || "" : "",
         alt: imageIndex >= 0 ? node.getAttribute("alt") || "" : "",
+        text: isText ? node.textContent || "" : "",
         ...transform,
+        fontFamily: transform.fontFamily || computed.fontFamily,
+        color: transform.color || computed.color,
       },
       "*",
     );
@@ -147,6 +219,7 @@
         type: "DETAIL_OBJECT_CHANGED",
         objectId: objectId(node),
         label: objectLabel(node),
+        isText: node.matches(TEXT_SELECTOR),
         ...currentObjectTransform(node),
       },
       "*",
@@ -169,6 +242,43 @@
     );
     selectedObject = null;
     dragState = null;
+  }
+
+  function notifyHistory() {
+    window.parent.postMessage(
+      { type: "DETAIL_HISTORY_CHANGED", canUndo: historyStack.length > 0 },
+      "*",
+    );
+  }
+
+  function checkpointHistory() {
+    if (restoringHistory) return;
+    const snapshot = collectState();
+    snapshot.savedAt = null;
+    const serialized = JSON.stringify(snapshot);
+    if (historyStack.at(-1)?.serialized === serialized) return;
+    historyStack.push({ serialized, state: snapshot });
+    if (historyStack.length > 50) historyStack.shift();
+    notifyHistory();
+  }
+
+  function checkpointHistoryOnce(delay = 240) {
+    if (historyTimer) return;
+    checkpointHistory();
+    historyTimer = window.setTimeout(() => {
+      historyTimer = 0;
+    }, delay);
+  }
+
+  function undo() {
+    const entry = historyStack.pop();
+    if (!entry) return;
+    restoringHistory = true;
+    applyState(entry.state);
+    restoringHistory = false;
+    if (selectedObject) notifyObjectSelected(selectedObject);
+    scheduleNotifyReady();
+    notifyHistory();
   }
 
   function sectionPayload() {
@@ -321,10 +431,16 @@
       .querySelectorAll("[data-edit-object]")
       .forEach((node) => node.removeAttribute("data-edit-object"));
     documentCopy
-      .querySelectorAll("[data-object-id],[data-object-label]")
+      .querySelectorAll(
+        "[data-object-id],[data-object-label],[data-studio-object],[data-studio-text],[data-edit-id],[data-image-id]",
+      )
       .forEach((node) => {
         node.removeAttribute("data-object-id");
         node.removeAttribute("data-object-label");
+        node.removeAttribute("data-studio-object");
+        node.removeAttribute("data-studio-text");
+        node.removeAttribute("data-edit-id");
+        node.removeAttribute("data-image-id");
       });
     const output = `<!doctype html>\n${documentCopy.outerHTML}`;
     const blob = new Blob([output], { type: "text/html;charset=utf-8" });
@@ -382,9 +498,17 @@
   }
 
   function migrateState(state) {
-    if (!state || ![1, STATE_VERSION].includes(state.version)) return null;
+    if (!state || ![1, 2, STATE_VERSION].includes(state.version)) return null;
     if (state.version === STATE_VERSION) return state;
-    return { ...state, version: STATE_VERSION, objects: [] };
+    return {
+      ...state,
+      version: STATE_VERSION,
+      objects: (state.objects || []).map((item) => ({
+        ...item,
+        fontFamily: item.fontFamily || "",
+        color: item.color || "",
+      })),
+    };
   }
 
   function applyState(state) {
@@ -425,7 +549,15 @@
     );
     objectNodes().forEach((node) => {
       const transform = objects.get(objectId(node));
-      if (transform) applyObjectTransform(node, transform);
+      if (transform) {
+        applyObjectTransform(node, transform);
+      } else {
+        objectTransforms.delete(node);
+        node.style.removeProperty("translate");
+        node.style.removeProperty("scale");
+        node.style.removeProperty("font-family");
+        node.style.removeProperty("color");
+      }
     });
     if (state.accent) {
       document.documentElement.style.setProperty("--accent", state.accent);
@@ -471,12 +603,13 @@
   document.addEventListener("pointerdown", (event) => {
     if (!body.classList.contains("is-editing")) return;
     if (event.button !== 0 || !(event.target instanceof Element)) return;
-    if (event.target.closest("[data-edit]")) return;
     const object = event.target.closest(OBJECT_SELECTOR);
     if (!object) return;
+    selectObject(object);
+    if (object.matches(TEXT_SELECTOR)) return;
     event.preventDefault();
     event.stopPropagation();
-    selectObject(object);
+    checkpointHistory();
     const transform = currentObjectTransform(object);
     dragState = {
       node: object,
@@ -527,6 +660,7 @@
       event.preventDefault();
       event.stopPropagation();
       selectObject(object);
+      checkpointHistoryOnce();
       const transform = currentObjectTransform(object);
       applyObjectTransform(object, {
         ...transform,
@@ -548,6 +682,44 @@
     }
   });
 
+  document.addEventListener("beforeinput", (event) => {
+    if (
+      body.classList.contains("is-editing") &&
+      event.target instanceof Element &&
+      event.target.closest(TEXT_SELECTOR)
+    ) {
+      checkpointHistoryOnce(450);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!body.classList.contains("is-editing")) return;
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+      event.preventDefault();
+      undo();
+      return;
+    }
+    if (!selectedObject || event.target.closest?.(TEXT_SELECTOR)) return;
+    const direction = {
+      ArrowLeft: [-1, 0],
+      ArrowRight: [1, 0],
+      ArrowUp: [0, -1],
+      ArrowDown: [0, 1],
+    }[event.key];
+    if (!direction) return;
+    event.preventDefault();
+    checkpointHistoryOnce();
+    const amount = event.shiftKey ? 10 : 1;
+    const transform = currentObjectTransform(selectedObject);
+    applyObjectTransform(selectedObject, {
+      ...transform,
+      x: transform.x + direction[0] * amount,
+      y: transform.y + direction[1] * amount,
+    });
+    notifyObjectChanged(selectedObject);
+    scheduleNotifyReady();
+  });
+
   window.addEventListener("message", (event) => {
     const message = event.data || {};
     if (message.type === "DETAIL_SET_EDITING") {
@@ -562,6 +734,7 @@
       message.type === "DETAIL_SET_ACCENT" &&
       /^#[0-9a-f]{6}$/i.test(message.value || "")
     ) {
+      checkpointHistoryOnce();
       document.documentElement.style.setProperty(
         "--accent",
         message.value,
@@ -570,10 +743,13 @@
     if (message.type === "DETAIL_SET_IMAGE") {
       const image = imageNodes()[Number(message.index)];
       if (!image) return;
+      checkpointHistory();
       if (message.src) image.setAttribute("src", message.src);
       image.setAttribute("alt", message.alt || "");
+      selectObject(image);
     }
     if (message.type === "DETAIL_MOVE_SECTION") {
+      checkpointHistory();
       moveSection(message.id, message.direction);
     }
     if (message.type === "DETAIL_TOGGLE_SECTION") {
@@ -581,10 +757,57 @@
         (node) => node.dataset.section === message.id,
       );
       if (section) {
+        checkpointHistory();
         section.hidden = Boolean(message.hidden);
         notifyReady();
       }
     }
+    if (message.type === "DETAIL_NUDGE_OBJECT" && selectedObject) {
+      checkpointHistoryOnce();
+      const transform = currentObjectTransform(selectedObject);
+      applyObjectTransform(selectedObject, {
+        ...transform,
+        x: transform.x + clamp(Number(message.dx) || 0, -100, 100),
+        y: transform.y + clamp(Number(message.dy) || 0, -100, 100),
+      });
+      notifyObjectChanged(selectedObject);
+      scheduleNotifyReady();
+    }
+    if (message.type === "DETAIL_SET_OBJECT_POSITION" && selectedObject) {
+      checkpointHistory();
+      const transform = currentObjectTransform(selectedObject);
+      applyObjectTransform(selectedObject, {
+        ...transform,
+        x: Number(message.x) || 0,
+        y: Number(message.y) || 0,
+      });
+      notifyObjectChanged(selectedObject);
+      scheduleNotifyReady();
+    }
+    if (message.type === "DETAIL_SET_OBJECT_STYLE" && selectedObject) {
+      const fontFamily = String(message.fontFamily || "");
+      const color = String(message.color || "");
+      if (!FONT_STACKS.has(fontFamily)) return;
+      if (color && !/^#[0-9a-f]{6}$/i.test(color)) return;
+      checkpointHistory();
+      applyObjectTransform(selectedObject, {
+        ...currentObjectTransform(selectedObject),
+        fontFamily,
+        color,
+      });
+      notifyObjectSelected(selectedObject);
+      scheduleNotifyReady();
+    }
+    if (
+      message.type === "DETAIL_CLEAR_TEXT" &&
+      selectedObject?.matches(TEXT_SELECTOR)
+    ) {
+      checkpointHistory();
+      selectedObject.textContent = "";
+      notifyObjectSelected(selectedObject);
+      scheduleNotifyReady();
+    }
+    if (message.type === "DETAIL_UNDO") undo();
     if (message.type === "DETAIL_REPLAY_GIFS") {
       document.querySelectorAll('img[src*=".gif"]').forEach((image) => {
         const url = new URL(image.src);
@@ -627,5 +850,6 @@
   document.fonts?.ready.then(scheduleNotifyReady);
   window.addEventListener("resize", scheduleNotifyReady);
   window.addEventListener("load", notifyReady);
+  notifyHistory();
   requestAnimationFrame(notifyReady);
 })();

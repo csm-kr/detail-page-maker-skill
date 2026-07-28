@@ -3,7 +3,7 @@
 ## Source
 
 - `supplier_url`: https://domeggook.com/55873582?affid=
-- `status`: REV-021_RENDERED_QA_PASS
+- `status`: REV-022_RENDERED_QA_PASS_USER_REVIEW_PENDING
 - `planning_phase`: `G3_QA_PASSED_USER_REVIEW_PENDING`
 - `g0_dependency`: approved
 - `model_sheet_dependency`: approved G2A
@@ -12,28 +12,29 @@
 ## GIF Decision
 
 - `motion_required`: yes
-- `gif_count`: 10 minimum
+- `gif_count`: 11 active deliverable / 10 minimum satisfied
 - `motion_type`: procedure + product structure + material detail + lifestyle
 - `decision_reason`: 사용자가 GIF 10개 이상과 이미지 40개 이상을 요청했다. 기존 엄지홀 방향 GIF를 유지하고 승인 이미지에서 서로 겹치지 않는 제품 구조·질감·착용·보관 소구 9개를 추가했다.
-- `manufacturer_claim_motion`: MFR-CLAIM-COOL-MATERIAL 범위의 쿨링과 온도 하강 방향은 정성 그래픽으로 표현한다.
+- `manufacturer_claim_motion`: MFR-CLAIM-COOL-MATERIAL 범위의 쿨링 방향은 승인 실착 위 쿨 스윕·공기 흐름·서리 입자 FX로 표현한다.
 - `blocked_motion_claims`: 제조사가 제공하지 않은 정확한 °C·비율·시간·시험기관·비교군, 통풍 수치, UV 차단률, 신축 복원, 흘러내림 방지는 움직임으로 만들지 않는다.
 
 ## Rev-021 Authoritative Motion Set
 
-고객 페이지에는 최소 10개 GIF를 장점·사용법·구성 가까이에 분산 배치한다. 뒤쪽
-증거 갤러리에 다시 모으지 않는다. 기존 승인 렌더는 보존하고, 아래 다섯 개를
+고객 페이지에는 11개 GIF를 장점·사용법·구성·규격 가까이에 분산 배치한다. 뒤쪽
+증거 갤러리에 다시 모으지 않는다. 기존 승인 렌더는 보존하고, 아래 여섯 개를
 HyperFrames로 새로 제작한다.
 
 | ID | 역할 | 패턴 | 핵심 QA |
 |---|---|---|---|
 | GIF-016 | 압박형과 루즈핏 비교 | `MOTION-COMPARE-WIPE` | 같은 팔 위치·스케일, 분할선과 마스크 동기화 |
-| GIF-017 | 시원한 쿨 소재 방향 | `MOTION-BAR-DROP` | 단계적으로 낮아지는 막대와 꺾인 하강선, 수치 없음 |
+| GIF-017 | 시원한 쿨 소재 방향 | `MOTION-COOL-SWEEP` | 그래프 없이 열감 오버레이 제거·푸른 공기 흐름·서리 입자 |
 | GIF-018 | 세 가지 데일리 스타일 | `MOTION-STYLE-MATCH-CUT` | 동일 모델·제품·라벨·길이, 상단 밴드 무꼬임 |
 | GIF-019 | 간단한 착용법 | `MOTION-PROCEDURE` | 팔 넣기→엄지홀→손등 정돈, 위쪽 밴드 평평함 |
 | GIF-020 | 화이트 한 쌍 구성 | `MOTION-HERO-REVEAL` | 두 개 동일 크기, X자 겹침 없음, 실제 긴 비율 |
+| GIF-021 | 약 47cm 치수 위치 | `MOTION-MEASUREMENT-GUIDE` | 위쪽 밴드→손등 커프 끝, 측정선·끝단 캡·라벨 축 일치 |
 
 기존 풀에서는 GIF-001, GIF-004, GIF-006, GIF-007, GIF-010을 재검증해 사용한다.
-따라서 현행 최소 세트는 001·004·006·007·010·016·017·018·019·020의 10개다.
+따라서 현행 세트는 001·004·006·007·010·016·017·018·019·020·021의 11개다.
 
 ### Placement Contract
 
@@ -43,7 +44,17 @@ HyperFrames로 새로 제작한다.
 - GIF-018은 스타일 카피 바로 다음.
 - GIF-019는 착용법 단계와 같은 모듈.
 - GIF-020은 상품 구성 제목과 같은 모듈.
+- GIF-021은 규격표 바로 위 모듈.
 - 나머지 구조·질감 GIF도 설명하는 사실 바로 아래에 배치한다.
+
+### FX and Copy Contract
+
+- 모든 GIF는 바로 앞 소구와 직접 연결된 주 FX를 최소 1개 사용한다.
+- HTML 외부 카피는 고객 상황·편익을 설명하고 GIF 내부 문구는 상태·단계·수량만
+  표시한다. 같은 문장을 안팎에서 반복하지 않는다.
+- GIF-017에는 그래프·막대·꺾은선·온도·퍼센트·시간·가짜 열화상 범례를 쓰지 않는다.
+- GIF-021은 규격표 바로 위에서 위쪽 밴드부터 손등 커프 끝까지 `약 47 cm`를
+  애니메이션하며, 이 배치는 이후 상세페이지 개정에서도 제거하지 않는다.
 
 ### Upper-Band Twist Hard Failure
 
@@ -135,7 +146,7 @@ GIF를 모두 반려한다.
 - `changed_contact`: `qa/evidence/g3-gif-motion/batch-002-010-rev002-feedback/gif-003-005-009-review-contact-v02.png`
 - `current_set_contact`: `qa/evidence/g3-gif-motion/batch-002-010-rev002-feedback/gif-002-010-current-review-contact-9x5.png`
 
-## Rev-018 Core Advantage Motion Map
+## Rev-018 Core Advantage Motion Map — superseded history
 
 기존 승인 GIF는 지우거나 덮어쓰지 않고 자산 풀로 보존한다. 다음 조립본의 네 장점과
 사용법에는 아래 전용 GIF를 배정한다.
@@ -148,12 +159,12 @@ GIF를 모두 반려한다.
 | 스타일 호환 | CLAIM-STYLE-VERSATILITY | GIF-012 | 신규 제작·G3 승인 필요 |
 | 착용법 | CLAIM-HOW-TO-WEAR | GIF-013 | 신규 제작·G3 승인 필요 |
 
-### GIF-011 — 쿨 소재 온도 하강 방향
+### GIF-011 — 쿨 소재 온도 하강 방향 — superseded by GIF-017 v04
 
 - `single_claim`: 제조사 확인 쿨 소재는 착용 시 착용 부위 표면 온도가 낮아지는 방향의 쿨링 기능을 가진다.
 - `fact_id`: MFR-CLAIM-COOL-MATERIAL
-- `pattern`: 실제 원단 매크로 위 따뜻한 색→시원한 색 전환과 숫자 없는 하강 곡선
-- `must_show`: 착용 전, 착용 후, 아래로 향하는 한 개의 명확한 곡선
+- `pattern`: 과거 계획 기록. 현행본은 승인 실착 위 쿨 스윕·공기 흐름·서리 입자로 교체했다.
+- `must_show`: 현행 적용 금지. `GIF-017 v04`를 사용한다.
 - `forbidden`: 임의 °C, 퍼센트, 시간, 표본, 시험기관, 비교 제품, 열화상 시험처럼 보이는 수치 범례
 
 ### GIF-012 — 세 가지 스타일 전환

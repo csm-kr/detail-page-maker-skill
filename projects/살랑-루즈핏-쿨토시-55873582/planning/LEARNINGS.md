@@ -83,5 +83,60 @@
 - `next_validation`: manifest 해시와 deliverables 파일 해시 일치 검사를 자동화한다.
 - `promotion_status`: skill-adopted
 
+## LEARN-008
+
+- `category`: gif-claim-fx
+- `scope`: candidate-shared
+- `observation`: 모든 GIF에 주장과 직접 연결된 주 FX를 최소 1개 지정해야 움직임이 장식이 아니라 증거로 읽힌다.
+- `evidence_paths`: `planning/GIF-FX-MAP.md`, `hyperframes/projects/gif-core-016-020-commercial-v03/index.html`, `asset/generated/pending/gif/rev022-commercial-fx-v01/manifest.json`
+- `before_after`: 단순 줌·광선 중심 표현을 비교 와이프, 쿨 스윕, 매치컷, 단계 진행, 구성 리빌, 측정선으로 바꿨다.
+- `risk_if_reused`: 효과 수만 채우면 다시 장식이 되므로 `claim_fx`가 어떤 구매 질문을 답하는지 기록해야 한다.
+- `next_validation`: 다른 상품의 모든 GIF manifest에서 `claimFx.length >= 1`을 검사한다.
+- `promotion_status`: skill-adopted
+
+## LEARN-009
+
+- `category`: gif-copy
+- `scope`: candidate-shared
+- `observation`: GIF 위의 HTML 카피는 고객 상황과 편익을, GIF 내부 문구는 상태·단계·수량을 맡겨야 같은 메시지를 두 번 읽지 않는다.
+- `evidence_paths`: `planning/GIF-FX-MAP.md`, `deliverables/rev021-commercial/index.html`
+- `before_after`: 착용 GIF의 `EASY 3 STEP`과 구성 GIF의 `ONE SET / TWO SLEEVES` 중복 문구를 제거하고 각각 `3 STEP`, `1 SET / 2 PCS`만 남겼다.
+- `risk_if_reused`: 단어 하나가 겹친다는 이유로 필요한 상태 라벨까지 지우면 이해가 어려워질 수 있다. 문장·역할 중복을 검사한다.
+- `next_validation`: 외부 figcaption과 내부 문구의 정규화된 완전 일치 0건을 자동 검사한다.
+- `promotion_status`: skill-adopted
+
+## LEARN-010
+
+- `category`: qualitative-claim
+- `scope`: candidate-shared
+- `observation`: 정량 시험이 없는 쿨 소재는 그래프처럼 측정 결과로 보이는 형식보다 승인 실착 위 열감 오버레이 제거·쿨 스윕·공기 흐름으로 정성 방향을 보여 주는 편이 정확하고 즉각적이다.
+- `evidence_paths`: `research/coupang-9623659088-ad-reference-20260728.md`, `planning/GIF-FX-MAP.md`, `asset/generated/pending/gif/rev022-commercial-fx-v01/gif-017-cooling-sweep-v04.gif`
+- `before_after`: 무수치 막대·꺾은선 그래프를 제거하고 실제 모델 착용 장면 위 쿨 스윕과 서리 입자로 교체했다.
+- `risk_if_reused`: FX가 실제 온도 측정이나 즉시 냉각 보장으로 읽히지 않도록 수치·열화상 범례·시험 문구를 금지해야 한다.
+- `next_validation`: 다른 정성 기능 상품에서 그래프 금지와 주장 이해도를 회귀 검사한다.
+- `promotion_status`: skill-adopted
+
+## LEARN-011
+
+- `category`: size-proof
+- `scope`: candidate-shared
+- `observation`: 길이 숫자만 표에 쓰면 어느 구간인지 알기 어렵다. 규격표 바로 위에서 승인 제품의 실제 두 끝점을 잇는 전용 치수 위치 GIF가 필요하다.
+- `evidence_paths`: `asset/generated/approved/image/b07-measurement-flatlay-v01.png`, `asset/generated/pending/gif/rev022-commercial-fx-v01/gif-021-size-47cm-guide-v01.gif`, `deliverables/rev021-commercial/index.html`
+- `before_after`: `47cm` 표기만 있던 규격 장에 위쪽 밴드부터 손등 커프 끝까지 측정선·끝단 캡·`약 47 cm` 라벨이 움직이는 GIF를 추가했다.
+- `risk_if_reused`: 상품마다 축과 측정 기준이 다르므로 이 프로젝트의 47cm 값이나 좌표를 복제하면 안 된다.
+- `next_validation`: 다음 상품에서 공급처 치수의 시작점·끝점과 규격표 직전 배치를 검사한다.
+- `promotion_status`: skill-adopted
+
+## LEARN-012
+
+- `category`: studio-and-archive
+- `scope`: candidate-shared
+- `observation`: 모든 가시 요소 선택, 위치·글꼴·색·텍스트 비우기·실행 취소를 한 패널에서 제공하고 비활성 자산은 체크섬과 복구 경로를 남겨 archive로 이동하면 편집성과 보존성을 함께 확보할 수 있다.
+- `evidence_paths`: `html/studio.html`, `html/studio-v1.js`, `archive/legacy-assets/2026-07-28/README.md`, `archive/legacy-assets/2026-07-28/checksums.sha256`
+- `before_after`: 텍스트·이미지 일부만 편집하던 Studio를 전체 의미 요소 선택과 6개 글꼴·색·위치·undo로 확장하고, 충돌하던 `assets/`는 삭제 대신 archive로 이동했다.
+- `risk_if_reused`: 자동 선택자가 장식용 내부 노드까지 과도하게 선택하거나 archive 이동 뒤 활성 참조가 남을 수 있다.
+- `next_validation`: Studio 런타임 계약 테스트와 archive 체크섬·활성 경로 0건 검사를 유지한다.
+- `promotion_status`: skill-adopted
+
 상품 고유 부품명, 카피, 색, 수치와 고객 상황은 `project-only`로 유지한다.
 `candidate-shared` 항목은 다른 프로젝트 또는 회귀 테스트로 재검증하기 전까지 공용 스킬 규약에 반영하지 않는다.

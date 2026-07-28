@@ -4,9 +4,9 @@
   "batch": "rev018-ssot-strict-commercial-v01",
   "reviewedAt": "2026-07-28",
   "status": "changes_requested",
-  "ssotManifest": "assets/product-ssot/manifest.json",
+  "ssotManifest": "asset/ssot/product-manifest.json",
   "policy": {
-    "productPixels": "제품 증거 GIF에는 assets/product-ssot의 실제 원본 픽셀만 직접 사용한다.",
+    "productPixels": "제품 증거 GIF에는 asset/input/product-ssot와 승인 SSOT의 실제 원본 픽셀만 직접 사용한다.",
     "generatedMedia": "생성 이미지는 제품·손·착용 구조가 없는 배경과 이펙트 플레이트에만 사용한다."
   },
   "items": [

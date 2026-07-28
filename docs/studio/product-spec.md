@@ -1,7 +1,8 @@
 # Detail Page Studio v2 제품 명세 (Deprecated)
 
 > 상태: 폐기. 과거 설계 참고 자료이며 활성 구현·CLI·테스트 기준이 아니다.
-> 현재 기준은 `domeggook-60851997` 기반 Studio v1이다.
+> 현재 기준은 [`v1-editor-contract.md`](v1-editor-contract.md)와 설치 스킬의
+> `references/studio-workflow.md`다.
 
 ## 목차
 

@@ -3,16 +3,16 @@
   "revision": "rev021-commercial",
   "entrypoint": "index.html",
   "output_contract": "deliverables/<revision>/index.html",
-  "generated_at": "2026-07-28T06:18:34.948Z",
+  "generated_at": "2026-07-28T07:52:08.267Z",
   "customer_media": {
     "image_count": 16,
-    "gif_count": 10
+    "gif_count": 11
   },
   "files": [
     {
       "path": "index.html",
-      "bytes": 31799,
-      "sha256": "dd6a1581d07691e1d08dfe24a0f9464110c4662ceb915f4379b3ee4210257909"
+      "bytes": 32234,
+      "sha256": "e80eb0f978e02adf805a466fdf1d7bbc7f35a1ec99c4da6e56d9e6ff889a721e"
     },
     {
       "path": "media/gifs/gif-001-thumbhole-direction-hybrid-v01.gif",
@@ -41,28 +41,33 @@
     },
     {
       "path": "media/gifs/gif-016-loosefit-compare-v03.gif",
-      "bytes": 8121942,
-      "sha256": "04d157b44b8da2ed0e351639f6b6da31e86ade06f5fc802d3724c18cb9648b31"
+      "bytes": 8025715,
+      "sha256": "b163047b9dca1cd013eaf4475174b3d09e27441ae2c3866e94ab8dd0ee765145"
     },
     {
-      "path": "media/gifs/gif-017-cooling-bar-drop-v03.gif",
-      "bytes": 5908741,
-      "sha256": "f807004a5affe6d48608357192546dec5c036d7dc25aa016a9f222c7336ee0b6"
+      "path": "media/gifs/gif-017-cooling-sweep-v04.gif",
+      "bytes": 10478648,
+      "sha256": "4245937e87667140363604c107916435993859ffc83e80d105169e0471caad05"
     },
     {
       "path": "media/gifs/gif-018-style-matchcut-v03.gif",
-      "bytes": 8492279,
-      "sha256": "9107bd1176de54b49f25cfbeaaa30e3813a0b8821dd02f8c8d8e0adc8b7be39e"
+      "bytes": 8308029,
+      "sha256": "875351f2f9f895e4f5e369d0ba7c4c3b64987eeed537996db5575da7328c7f13"
     },
     {
       "path": "media/gifs/gif-019-howto-no-twist-v03.gif",
-      "bytes": 3319038,
-      "sha256": "393d6787acd2324e7d63b78ddcf0c357314e533c5e647b67a534474b68ca59fa"
+      "bytes": 3114726,
+      "sha256": "af7b1fad1973e14f6167f81e748dc236c0b6c8e341307231b2c75f4fa834507e"
     },
     {
       "path": "media/gifs/gif-020-pair-reveal-v03.gif",
-      "bytes": 3317011,
-      "sha256": "47c41cdfb24dc175a9a1b840f18da338d53348c354add5f7a90f7880a154e49e"
+      "bytes": 3118507,
+      "sha256": "4645a488f66ee0e0bd9ffaa8d5e890b489d916b9a08aaa451e922d2ed3b9f892"
+    },
+    {
+      "path": "media/gifs/gif-021-size-47cm-guide-v01.gif",
+      "bytes": 3181160,
+      "sha256": "226b39302c60bd91a6345410329ae5faaa3c0b65f33752bffb1e635efc977011"
     },
     {
       "path": "media/images/cool-material.png",
@@ -146,33 +151,38 @@
     },
     {
       "path": "qa/browser-harness-report.json",
-      "bytes": 2276,
-      "sha256": "b3b11fd34d19274f7504855ada9465b3bec48194774a843760b68d10f9b0a156"
+      "bytes": 2965,
+      "sha256": "e5ad11606e53372315bed38dbcaed5bb24c60bbc5e7fa791e0550a92c4940c31"
     },
     {
       "path": "qa/final-report.md",
-      "bytes": 2108,
-      "sha256": "3bb2171f286e6b172197e895cb985b53e3387255ad98adc0b7cd4478c98a62e0"
+      "bytes": 3119,
+      "sha256": "b0f902b0b6f45de5b94ab2b803beb2cb53237390ff92302e27433b2227748b96"
+    },
+    {
+      "path": "qa/studio-controls-report.json",
+      "bytes": 817,
+      "sha256": "855fc88f899d93d51e3c67e8750f78bbbce72b263aeef0984da21083bdc86a9f"
     },
     {
       "path": "qa/studio-link-report.json",
-      "bytes": 845,
-      "sha256": "2430b42a3336d9b7826f531c5bb3dd37687a9f96e02328b3fdf6a30d544c0515"
+      "bytes": 1086,
+      "sha256": "09371f9add654d4eba7a28784495dc2d1f2dcf174734f8276617809dc6a88774"
     },
     {
       "path": "qa/viewport-390-bottom.png",
-      "bytes": 240339,
-      "sha256": "e2cfec16a98352abf76eb3f125be96ca50bf96d7bcffa41f585105541502e672"
+      "bytes": 184119,
+      "sha256": "51bb91dceaeb5ca625d2dcece5694c83d4eba3c5c7c3e80c3a4fc610a1cdbb7e"
     },
     {
       "path": "qa/viewport-390-mid.png",
-      "bytes": 251695,
-      "sha256": "d05e716deb76093975a46cd9fb1e94bcac41d806fdbfcc8efb315aa1e6a61e85"
+      "bytes": 270083,
+      "sha256": "2243f0df5f392799517aa94a596fa4812f2a9ade2cf3d9e7cabc31c250873d10"
     },
     {
       "path": "qa/viewport-390-top.png",
-      "bytes": 383102,
-      "sha256": "5f7a29a57183279db70b86ce12b024417f016df140f162a7a2a241801d5e9ad8"
+      "bytes": 419635,
+      "sha256": "38faf96e21975804a899564f3ce42b16702eb3cf8f5aeab38e157dca131765a2"
     },
     {
       "path": "qa/viewport-800-bottom.png",

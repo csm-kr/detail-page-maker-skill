@@ -11,7 +11,7 @@
       "source": "csm-kr/god-tibo-gpt-image2-skill",
       "sourceType": "github",
       "skillPath": "skills/god-tibo-gpt-image2-skill/SKILL.md",
-      "computedHash": "d56e05684a4104b76d3d1cfd2be598514a695732cf1e7fbb2d284f77d19bc9c3"
+      "computedHash": "f76659d544cb092a6c7853f246d679780ecd7df758bccbdef8e5d8a587ac11e7"
     },
     "hyperframes": {
       "source": "heygen-com/hyperframes",

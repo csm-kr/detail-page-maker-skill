@@ -4,8 +4,8 @@
       "prompt": "Create the START frame of a premium three-step how-to commercial sequence. Image 1 is the locked commercial scene and model identity; Image 2 is the exact real product SSOT; Image 3 is the real hand-cuff construction. Same Korean woman in her 20s, same pale-blue sleeveless dress, same warm-ivory gallery and cobalt arch, same shoulder-to-fingertips camera. She is about to put on exactly one sleeve: her left hand holds open the gathered UPPER-ARM elastic opening and the fingertips of her bare right hand have just entered that upper opening. The wide hand-back cuff with HELLO / CUTE SLEEVE label and real thumb opening remains visible at the far end of the loose long tube. Preserve exact white color, long loose proportions, irregular fine pleats, upper gathered band, wide cuff, thumb opening, and label placement. Exactly two normal hands, five fingers each, one sleeve only. No completed wearing, no duplicated garment, no text overlay, no arrows, no UI.",
       "references": [
         "../..//asset/generated/pending/image/rev019-god-tibo-commercial-product-v01/frame-007.png",
-        "../..//assets/product-ssot/source/user-real-original/photo-2026-07-05-411f8795.jpg",
-        "../..//assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../..//asset/input/user-real-original/photo-2026-07-05-411f8795.jpg",
+        "../..//asset/input/product-ssot/supplier-crops/04-hand-label-structure.png",
         "../..//asset/ssot/model-sheet-c00-03-v01.png"
       ]
     },
@@ -13,8 +13,8 @@
       "prompt": "Create the MIDDLE frame of the same premium three-step how-to commercial sequence as Image 1. Keep the identical Korean woman in her 20s, pale-blue sleeveless dress, warm-ivory gallery, cobalt arch, lighting and shoulder-to-fingertips camera. Image 2 is the exact product SSOT and Image 3 is the real hand structure. The right hand has passed through the long sleeve and naturally emerges from the wide hand cuff; the left hand is pulling the loose pleated tube upward along the right forearm. The thumb is beside the thumb opening but not yet inserted. Preserve the exact long loose tube, irregular fine pleats, gathered upper elastic, wide hand-back cuff, small HELLO / CUTE SLEEVE label and proportions. Exactly two normal hands, one sleeve, no missing fingers, no duplicate cloth, no text overlay, no arrows, no UI.",
       "references": [
         "../..//asset/generated/pending/image/rev019-god-tibo-commercial-product-v01/frame-007.png",
-        "../..//assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
-        "../..//assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../..//asset/input/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../..//asset/input/product-ssot/supplier-crops/04-hand-label-structure.png",
         "../..//asset/ssot/model-sheet-c00-03-v01.png"
       ]
     },
@@ -22,8 +22,8 @@
       "prompt": "Create the FINISH frame of the same premium three-step how-to commercial sequence as Image 1. Keep the identical Korean woman in her 20s, pale-blue sleeveless dress, warm-ivory gallery, cobalt arch, lighting and shoulder-to-fingertips camera. The same real white sleeve is now correctly worn on her right arm: gathered upper band below the shoulder, long airy loose tube with irregular fine pleats, wide cuff covering the back of the hand, thumb naturally through the real opening, HELLO / CUTE SLEEVE label lying on the back-of-hand cuff. Her left hand lightly smooths the upper band. Product proportions must match Images 2 and 3 exactly. Exactly two normal hands, one sleeve, no exposed wrist cuff, no tight sports sleeve, no duplicate, no text overlay, no arrows, no UI.",
       "references": [
         "../..//asset/generated/pending/image/rev019-god-tibo-commercial-product-v01/frame-007.png",
-        "../..//assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
-        "../..//assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../..//asset/input/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../..//asset/input/product-ssot/supplier-crops/04-hand-label-structure.png",
         "../..//asset/ssot/model-sheet-c00-03-v01.png"
       ]
     },
@@ -31,8 +31,8 @@
       "prompt": "Create a premium casual-style campaign image using Image 1 as the locked woman and visual universe and Images 2 and 3 as the exact real product. Same Korean woman in her 20s, white sleeveless top and light denim, bright warm-ivory studio with pale-sky floor and one cobalt chair far behind. Shoulder-to-fingertips crop. She correctly wears exactly one sleeve on her right arm: gathered upper band below shoulder, visibly long loose airy tube, irregular fine pleats, wide cuff covering the back of the hand, thumb through the opening, small HELLO / CUTE SLEEVE label on the back-of-hand cuff. Preserve actual length and proportions. Do not end the cuff at the wrist, do not expose the back of the hand, do not make a tight sports sleeve, no second sleeve, no text.",
       "references": [
         "../..//asset/generated/pending/image/rev019-god-tibo-commercial-product-v01/frame-007.png",
-        "../..//assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
-        "../..//assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../..//asset/input/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../..//asset/input/product-ssot/supplier-crops/04-hand-label-structure.png",
         "../..//asset/ssot/model-sheet-c00-03-v01.png"
       ]
     },
@@ -40,8 +40,8 @@
       "prompt": "Create a premium monochrome city-style campaign image using Image 1 as the locked Korean woman in her 20s and exact visual identity. Dress her in a clean black sleeveless square-neck top with ivory wide trousers, in the same warm-ivory gallery with a cobalt architectural accent. Shoulder-to-fingertips crop. Images 2 and 3 are the exact product SSOT. She correctly wears exactly one real white sleeve on her right arm: gathered upper band below shoulder, long visibly loose tube with irregular fine pleats, wide cuff covering the back of the hand, thumb through the real opening, HELLO / CUTE SLEEVE label naturally on the back-of-hand cuff. Preserve color, length and all proportions. No tight sports sleeve, no cuff ending at wrist, no duplicated product, no extra limbs, no text.",
       "references": [
         "../..//asset/generated/pending/image/rev019-god-tibo-commercial-product-v01/frame-007.png",
-        "../..//assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
-        "../..//assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../..//asset/input/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../..//asset/input/product-ssot/supplier-crops/04-hand-label-structure.png",
         "../..//asset/ssot/model-sheet-c00-03-v01.png"
       ]
     },
@@ -49,8 +49,8 @@
       "prompt": "Create a premium weekend-stripe styling campaign with the same locked Korean woman in her 20s from Image 1. She wears an oversized blue-and-white striped short-sleeve shirt over a white tank and light beige shorts, photographed in the same warm-ivory and cobalt visual universe. Shoulder-to-fingertips crop. Images 2 and 3 are the exact real sleeve SSOT. Correctly show exactly one sleeve on her right arm, with the upper elastic below the shirt sleeve, long loose airy irregular pleats, wide cuff extending over the back of the hand, thumb through the real opening, and the small label on the hand-back cuff. Preserve real product length and silhouette. No wrist-only cuff, no tight ribbed fabric, no second sleeve, no text.",
       "references": [
         "../..//asset/generated/pending/image/rev019-god-tibo-commercial-product-v01/frame-007.png",
-        "../..//assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
-        "../..//assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../..//asset/input/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../..//asset/input/product-ssot/supplier-crops/04-hand-label-structure.png",
         "../..//asset/ssot/model-sheet-c00-03-v01.png"
       ]
     },
@@ -58,16 +58,16 @@
       "prompt": "Create a premium light-sport styling campaign with the same locked Korean woman in her 20s from Image 1. She wears a soft sage sleeveless polo top and a white tennis skirt in a bright Korean summer studio with warm ivory, pale sky and cobalt accents. Shoulder-to-fingertips crop, polished commercial photography. Images 2 and 3 are the exact real product SSOT. She correctly wears exactly one real sleeve on her right arm: upper gathered elastic below shoulder, long loose translucent-white tube with irregular fine pleats, wide cuff covering the back of the hand, thumb through the real opening, small HELLO / CUTE SLEEVE label on the hand-back cuff. Do not convert it into tight athletic compression wear, do not end at wrist, no second sleeve, no text.",
       "references": [
         "../..//asset/generated/pending/image/rev019-god-tibo-commercial-product-v01/frame-007.png",
-        "../..//assets/product-ssot/source/user-real-original/photo-2026-07-14-0bd7c853.jpg",
-        "../..//assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../..//asset/input/user-real-original/photo-2026-07-14-0bd7c853.jpg",
+        "../..//asset/input/product-ssot/supplier-crops/04-hand-label-structure.png",
         "../..//asset/ssot/model-sheet-c00-03-v01.png"
       ]
     },
     {
       "prompt": "Create a corrected premium commercial macro of the exact real label-and-hand cuff in Images 1 and 2. Preserve the actual structure without beautifying it into a different product: wide cuff covering the back of the hand, natural thumb through the real side opening, the small white woven two-line HELLO / CUTE SLEEVE label positioned low and naturally on the back-of-hand cuff, irregular fine pleated tube beginning above the cuff, real seam spacing and true white color. One hand with five fingers, one sleeve. Upgrade only background and lighting to warm ivory with a cobalt crescent and crisp magazine macro finish. No label moved to center forearm, no extra band, no glove shape, no duplicate label, no text overlay.",
       "references": [
-        "../..//assets/product-ssot/source/user-real-original/photo-2026-07-14-62b5cece.jpg",
-        "../..//assets/product-ssot/source/supplier-crops/04-hand-label-structure.png",
+        "../..//asset/input/user-real-original/photo-2026-07-14-62b5cece.jpg",
+        "../..//asset/input/product-ssot/supplier-crops/04-hand-label-structure.png",
         "../..//asset/generated/pending/image/rev019-god-tibo-commercial-product-v01/frame-002.png"
       ]
     }

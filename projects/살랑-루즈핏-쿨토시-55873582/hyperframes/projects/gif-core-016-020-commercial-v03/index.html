@@ -6,10 +6,11 @@
     {"id":"name","type":"string","label":"Output name","default":"gif-016-loosefit-compare-v03"},
     {"id":"mode","type":"enum","label":"Claim","default":"compare","options":[
       {"value":"compare","label":"Loose fit compare"},
-      {"value":"cooling","label":"Cooling bar drop"},
+      {"value":"cooling","label":"Cooling FX sweep"},
       {"value":"style","label":"Style match cut"},
       {"value":"howto","label":"How to wear"},
-      {"value":"pair","label":"Pair reveal"}
+      {"value":"pair","label":"Pair reveal"},
+      {"value":"size","label":"47 cm measurement guide"}
     ]}
   ]'
 >
@@ -82,9 +83,10 @@
       .compare-frame,
       .divider,
       .divider-knob,
-      .bar-chart,
-      .bar,
-      .drop-line,
+      .thermal-layer,
+      .cool-sweep,
+      .air-stream,
+      .frost-particle,
       .style-card,
       .style-tabs,
       .step-card,
@@ -92,7 +94,11 @@
       .pair-frame,
       .pair-orbit,
       .count-chip,
-      .shine {
+      .shine,
+      .size-frame,
+      .measure-line,
+      .measure-cap,
+      .measure-glow {
         position: absolute;
       }
 
@@ -226,69 +232,101 @@
 
       /* Cooling */
       #cooling {
-        background:
-          linear-gradient(145deg, #fff5ea 0 43%, #e8f7ff 43% 100%);
+        background: #dff4ff;
       }
 
-      #cooling .headline { width: 340px; font-size: 46px; }
-      #cooling .subline { top: 252px; width: 276px; }
+      #cooling .kicker {
+        color: #a84727;
+        background: rgba(255, 246, 238, .94);
+      }
+
+      #cooling .headline {
+        top: 96px;
+        width: 238px;
+        color: #133560;
+        font-size: 58px;
+      }
+
+      #cooling .subline {
+        top: 236px;
+        width: 228px;
+        color: #335377;
+      }
 
       #cooling .media {
-        left: 336px;
-        top: 56px;
-        width: 426px;
-        height: 690px;
+        inset: 0;
+        width: 800px;
+        height: 800px;
         overflow: hidden;
-        border-radius: 88px 28px 88px 28px;
-        box-shadow: 0 34px 85px rgba(24, 35, 58, .2);
       }
 
-      #cooling .media img { object-position: 56% 50%; }
-
-      .bar-chart {
-        left: 44px;
-        top: 378px;
-        z-index: 20;
-        width: 250px;
-        height: 210px;
-        padding: 20px 17px 22px;
-        border-radius: 24px;
-        background: rgba(255, 253, 248, .94);
-        box-shadow: 0 18px 45px rgba(24, 35, 58, .13);
+      #cooling .media img {
+        object-position: 54% 50%;
+        filter: saturate(.92) contrast(1.02);
       }
 
-      .bar {
-        bottom: 24px;
-        width: 34px;
-        border-radius: 12px 12px 5px 5px;
-        transform-origin: 50% 100%;
+      .thermal-layer {
+        inset: 0;
+        z-index: 8;
+        background:
+          radial-gradient(circle at 18% 48%, rgba(255, 112, 61, .52), transparent 37%),
+          linear-gradient(90deg, rgba(255, 154, 96, .42), rgba(255, 205, 167, .18) 58%, transparent);
+        mix-blend-mode: multiply;
       }
 
-      .bar:nth-child(1) { left: 22px; height: 144px; background: var(--coral); }
-      .bar:nth-child(2) { left: 70px; height: 119px; background: #ffac73; }
-      .bar:nth-child(3) { left: 118px; height: 91px; background: #94cfff; }
-      .bar:nth-child(4) { left: 166px; height: 61px; background: var(--blue); }
-
-      .drop-line {
-        left: 12px;
-        top: 6px;
-        width: 218px;
-        height: 172px;
-        overflow: visible;
+      .cool-sweep {
+        left: 250px;
+        top: -120px;
+        z-index: 12;
+        width: 720px;
+        height: 1040px;
+        background:
+          linear-gradient(90deg, transparent 0 12%, rgba(205, 244, 255, .34) 28%, rgba(73, 184, 255, .62) 52%, rgba(16, 95, 219, .18) 78%, transparent 100%);
+        filter: blur(7px);
+        transform: rotate(-9deg);
+        mix-blend-mode: screen;
       }
 
-      .drop-line path {
-        fill: none;
-        stroke: var(--ink);
-        stroke-width: 6;
-        stroke-linecap: round;
-        stroke-linejoin: round;
+      .air-stream {
+        z-index: 18;
+        width: 230px;
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, transparent, rgba(98, 202, 255, .92), transparent);
+        filter: drop-shadow(0 0 12px rgba(69, 180, 255, .9));
+        opacity: 0;
       }
 
-      #cooling .chip {
-        left: 44px;
-        bottom: 67px;
+      .air-stream.one { left: 522px; top: 392px; transform: rotate(78deg); }
+      .air-stream.two { left: 494px; top: 480px; transform: rotate(75deg); }
+      .air-stream.three { left: 455px; top: 572px; transform: rotate(70deg); }
+
+      .frost-particle {
+        z-index: 19;
+        width: 14px;
+        height: 14px;
+        border: 3px solid rgba(231, 250, 255, .96);
+        border-radius: 50%;
+        box-shadow: 0 0 18px rgba(56, 173, 255, .9);
+        opacity: 0;
+      }
+
+      .frost-particle.p1 { left: 612px; top: 345px; }
+      .frost-particle.p2 { left: 664px; top: 453px; width: 10px; height: 10px; }
+      .frost-particle.p3 { left: 568px; top: 574px; width: 18px; height: 18px; }
+      .frost-particle.p4 { left: 650px; top: 650px; width: 9px; height: 9px; }
+
+      #cooling .chip.warm {
+        left: 45px;
+        bottom: 80px;
+        background: #8f351f;
+      }
+
+      #cooling .chip.cool {
+        left: 162px;
+        bottom: 80px;
         background: var(--blue);
+        opacity: 0;
       }
 
       /* Style */
@@ -492,6 +530,88 @@
         transform: rotate(14deg);
         opacity: 0;
       }
+
+      /* Size */
+      #size {
+        background:
+          radial-gradient(circle at 22% 42%, rgba(255,255,255,.96), transparent 34%),
+          #e9f5ff;
+      }
+
+      #size .kicker {
+        left: 46px;
+        top: 42px;
+        color: var(--blue);
+      }
+
+      #size .headline {
+        left: 45px;
+        top: 102px;
+        width: 220px;
+        color: #15385f;
+        font-size: 56px;
+      }
+
+      #size .subline {
+        left: 48px;
+        top: 231px;
+        width: 208px;
+        color: #496783;
+      }
+
+      .size-frame {
+        left: 252px;
+        top: 40px;
+        width: 510px;
+        height: 720px;
+        overflow: hidden;
+        border: 8px solid rgba(255,255,255,.94);
+        border-radius: 34px;
+        background: #f7f2ea;
+        box-shadow: 0 28px 72px rgba(24, 67, 109, .19);
+      }
+
+      .size-frame img {
+        object-fit: cover;
+        object-position: 50% 50%;
+      }
+
+      .measure-line {
+        left: 655px;
+        top: 69px;
+        z-index: 18;
+        width: 7px;
+        height: 658px;
+        border-radius: 999px;
+        background: var(--blue);
+        box-shadow: 0 0 20px rgba(20, 96, 219, .48);
+        transform-origin: 50% 0;
+      }
+
+      .measure-cap {
+        left: 624px;
+        z-index: 19;
+        width: 69px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--blue);
+        box-shadow: 0 0 17px rgba(20, 96, 219, .42);
+      }
+
+      .measure-cap.top { top: 66px; }
+      .measure-cap.bottom { top: 724px; }
+
+      .measure-glow {
+        left: 323px;
+        top: 91px;
+        z-index: 12;
+        width: 292px;
+        height: 626px;
+        border: 5px solid rgba(77, 184, 255, .58);
+        border-radius: 42%;
+        filter: blur(1px);
+        opacity: 0;
+      }
     </style>
   </head>
   <body>
@@ -507,9 +627,9 @@
     >
       <section id="motion-clip" class="clip" data-start="0" data-duration="4.8" data-track-index="1">
         <article id="compare" class="scene">
-          <span class="kicker">TIGHT VS LOOSE</span>
-          <h1 class="headline">꼭 붙는 핏보다<br />살랑이는 여유</h1>
-          <p class="subline">여름 토시까지 팔선을 꽉 잡을 필요는 없으니까.</p>
+          <span class="kicker">FIT COMPARE</span>
+          <h1 class="headline">TIGHT<br />LOOSE</h1>
+          <p class="subline">밀착과 여유의 차이를 한눈에.</p>
           <div class="compare-frame">
             <img id="tight-photo" src="assets/compare-tight.png" alt="" aria-hidden="true" />
             <img id="loose-photo" src="assets/compare-loose.png" alt="" aria-hidden="true" />
@@ -521,23 +641,26 @@
         </article>
 
         <article id="cooling" class="scene">
-          <span class="kicker">COOL MATERIAL</span>
-          <h1 class="headline">뜨거운 하루 위<br />한 겹 더 시원하게</h1>
-          <p class="subline">높았던 열감이 차분히 내려가는 방향을 눈에 보이게.</p>
-          <div class="bar-chart" aria-hidden="true">
-            <i class="bar"></i><i class="bar"></i><i class="bar"></i><i class="bar"></i>
-            <svg class="drop-line" viewBox="0 0 218 172">
-              <path id="drop-path" d="M20 27 L70 53 L119 82 L168 114 L205 143" />
-            </svg>
-          </div>
           <div class="media"><img src="assets/cooling.png" alt="" aria-hidden="true" /></div>
-          <span class="chip">WARM → COOL</span>
+          <i class="thermal-layer" data-layout-allow-overflow aria-hidden="true"></i>
+          <i class="cool-sweep" data-layout-allow-overflow aria-hidden="true"></i>
+          <i class="air-stream one" aria-hidden="true"></i>
+          <i class="air-stream two" aria-hidden="true"></i>
+          <i class="air-stream three" aria-hidden="true"></i>
+          <i class="frost-particle p1" aria-hidden="true"></i>
+          <i class="frost-particle p2" aria-hidden="true"></i>
+          <i class="frost-particle p3" aria-hidden="true"></i>
+          <i class="frost-particle p4" aria-hidden="true"></i>
+          <span class="kicker">COOL MATERIAL</span>
+          <h1 class="headline">COOL<br />SHIFT</h1>
+          <span class="chip warm">WARM</span>
+          <span class="chip cool">COOL</span>
         </article>
 
         <article id="style" class="scene">
-          <span class="kicker">ONE SLEEVE / THREE MOODS</span>
-          <h1 class="headline">기능은 가볍게<br />오늘의 룩은 그대로</h1>
-          <p class="subline">같은 화이트 플리츠, 서로 다른 세 가지 여름 옷차림.</p>
+          <span class="kicker">STYLE MATCH</span>
+          <h1 class="headline">3<br />MOODS</h1>
+          <p class="subline">CASUAL / OFFICE / DRESS</p>
           <figure id="style-casual" class="style-card"><img src="assets/style-casual.png" alt="" aria-hidden="true" /></figure>
           <figure id="style-office" class="style-card"><img src="assets/style-office.png" alt="" aria-hidden="true" /></figure>
           <figure id="style-dress" class="style-card"><img src="assets/style-dress.png" alt="" aria-hidden="true" /></figure>
@@ -549,9 +672,8 @@
         </article>
 
         <article id="howto" class="scene">
-          <span class="kicker">EASY 3 STEP</span>
-          <h1 class="headline">팔을 넣고, 엄지를 쏙</h1>
-          <p class="subline">상단은 평평하게, 손등은 자연스럽게. 세 번이면 끝.</p>
+          <h1 class="headline">3 STEP</h1>
+          <p class="subline">ARM / UP / THUMB</p>
           <div class="step-progress" aria-hidden="true"><i></i></div>
           <figure id="how-step-1" class="step-card">
             <img src="assets/howto-start.png" alt="" aria-hidden="true" />
@@ -568,14 +690,22 @@
         </article>
 
         <article id="pair" class="scene">
-          <span class="kicker">ONE SET / TWO SLEEVES</span>
-          <h1 class="headline">오늘의 그늘, 한 쌍으로</h1>
-          <p class="subline">화이트 루즈핏 쿨토시 1세트 · 2개입</p>
+          <h1 class="headline">1 SET / 2 PCS</h1>
           <i class="pair-orbit" aria-hidden="true"></i>
           <div class="pair-frame"><img src="assets/product-pair.png" alt="" aria-hidden="true" /></div>
           <span class="count-chip one">1</span>
           <span class="count-chip two">2</span>
           <i class="shine" aria-hidden="true"></i>
+        </article>
+
+        <article id="size" class="scene">
+          <h1 class="headline">약<br />47 cm</h1>
+          <p class="subline">상단 밴딩부터<br />손등 커프 끝까지</p>
+          <div class="size-frame"><img src="assets/measurement-47cm.png" alt="" aria-hidden="true" /></div>
+          <i class="measure-glow" aria-hidden="true"></i>
+          <i class="measure-line" aria-hidden="true"></i>
+          <i class="measure-cap top" aria-hidden="true"></i>
+          <i class="measure-cap bottom" aria-hidden="true"></i>
         </article>
       </section>
     </main>
@@ -614,13 +744,15 @@
 
       if (mode === "cooling") {
         intro("#cooling");
-        tl.fromTo("#cooling .media", { x: 35, scale: .98 }, { x: 0, scale: 1, duration: .65, ease: "power3.out" }, .1);
-        tl.fromTo(".bar", { scaleY: .18, opacity: .3 }, { scaleY: 1, opacity: 1, duration: .58, stagger: .18, ease: "back.out(1.35)" }, .72);
-        tl.fromTo("#drop-path", { strokeDasharray: 300, strokeDashoffset: 300 }, { strokeDashoffset: 0, duration: 1.18, ease: "power2.inOut" }, 1.35);
-        tl.fromTo("#cooling .chip", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: .44, ease: "back.out(1.45)" }, 2.25);
-        tl.to(".bar", { filter: "brightness(1.12)", duration: .22, stagger: .12 }, 2.5);
-        tl.to(".bar", { filter: "brightness(1)", duration: .32, stagger: .12 }, 3.02);
-        tl.to("#cooling .media", { scale: 1.028, duration: 1.35, ease: "sine.inOut" }, 3.2);
+        tl.fromTo("#cooling .media", { scale: 1.04 }, { scale: 1, duration: .72, ease: "power3.out" }, 0);
+        tl.fromTo(".thermal-layer", { x: 0, opacity: 1 }, { x: -300, opacity: .12, duration: 1.65, ease: "power2.inOut" }, .72);
+        tl.fromTo(".cool-sweep", { x: -760, opacity: .1 }, { x: 90, opacity: 1, duration: 1.55, ease: "power2.inOut" }, .78);
+        tl.fromTo(".air-stream", { y: 32, scaleX: .12, opacity: 0 }, { y: -18, scaleX: 1, opacity: .92, duration: .72, stagger: .13, ease: "power3.out" }, 1.42);
+        tl.fromTo(".frost-particle", { y: 32, scale: .25, opacity: 0 }, { y: -34, scale: 1, opacity: .92, duration: .82, stagger: .12, ease: "power2.out" }, 1.7);
+        tl.to("#cooling .chip.warm", { x: -16, opacity: 0, scale: .94, duration: .35 }, 1.88);
+        tl.fromTo("#cooling .chip.cool", { x: 22, opacity: 0, scale: .72 }, { x: 0, opacity: 1, scale: 1.06, duration: .46, ease: "back.out(1.6)" }, 2.02);
+        tl.to(".cool-sweep", { x: 138, opacity: .86, duration: 1.45, ease: "sine.inOut" }, 2.65);
+        tl.to(".frost-particle", { y: -54, opacity: .28, duration: 1.2, stagger: .08, ease: "sine.inOut" }, 3.05);
       }
 
       if (mode === "style") {
@@ -658,6 +790,16 @@
         tl.fromTo(".shine", { x: -180, opacity: 0 }, { x: 620, opacity: .82, duration: .95, ease: "power2.inOut" }, 2.14);
         tl.to(".shine", { opacity: 0, duration: .2 }, 3.1);
         tl.to(".pair-orbit", { rotation: 75, scale: 1.035, duration: 1.3, ease: "sine.inOut" }, 3.18);
+      }
+
+      if (mode === "size") {
+        intro("#size");
+        tl.fromTo(".size-frame", { y: 26, scale: .965, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: .68, ease: "power3.out" }, .12);
+        tl.fromTo(".measure-line", { scaleY: 0, opacity: 0 }, { scaleY: 1, opacity: 1, duration: 1.05, ease: "power2.inOut" }, .84);
+        tl.fromTo(".measure-cap.top", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: .35, ease: "back.out(1.6)" }, .82);
+        tl.fromTo(".measure-cap.bottom", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: .35, ease: "back.out(1.6)" }, 1.68);
+        tl.fromTo(".measure-glow", { scale: .92, opacity: 0 }, { scale: 1.03, opacity: .8, duration: .66, ease: "sine.out" }, 2.12);
+        tl.to(".measure-glow", { scale: 1.09, opacity: .24, duration: .82, ease: "sine.inOut", repeat: 1, yoyo: true }, 2.82);
       }
 
       tl.to({}, { duration: .24 }, 4.56);

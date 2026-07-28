@@ -912,8 +912,8 @@
           <p>따뜻한 바깥 공기에서<br />산뜻한 여름 착용감으로.</p>
         </div>
         <figure class="proof-block">
-          <figcaption><strong>한눈에 읽히는 쿨링의 방향</strong><span>WARM → COOL</span></figcaption>
-          <img src="media/gifs/gif-017-cooling-bar-drop-v03.gif" alt="막대와 꺾인 선이 단계적으로 낮아지는 쿨 소재 그래픽" />
+          <figcaption><strong>따뜻한 열감이 지나간 자리</strong><span>COOL SWEEP</span></figcaption>
+          <img src="media/gifs/gif-017-cooling-sweep-v04.gif" alt="따뜻한 색의 오버레이가 걷히고 푸른 공기선과 서리 입자가 팔토시를 따라 흐르는 장면" />
         </figure>
       </section>
 
@@ -988,6 +988,10 @@
 
       <section class="spec" aria-labelledby="spec-title">
         <h2 id="spec-title">고르기 전,<br />크기와 구성을 확인하세요.</h2>
+        <figure class="proof-block">
+          <figcaption><strong>47cm, 어디서 어디까지일까요?</strong><span>SIZE GUIDE</span></figcaption>
+          <img src="media/gifs/gif-021-size-47cm-guide-v01.gif" alt="팔토시 상단 밴딩부터 손등 커프 끝까지 약 47cm 측정 위치를 선으로 보여주는 장면" />
+        </figure>
         <table class="spec-table">
           <tbody>
             <tr>
@@ -1050,6 +1054,7 @@
         launcher.href = "http://127.0.0.1:8898/studio.html";
         launcher.textContent = "Studio에서 편집";
         launcher.setAttribute("aria-label", "현재 상세페이지를 Studio에서 편집");
+        launcher.dataset.studioLauncher = "";
         Object.assign(launcher.style, {
           position: "fixed",
           zIndex: "9999",

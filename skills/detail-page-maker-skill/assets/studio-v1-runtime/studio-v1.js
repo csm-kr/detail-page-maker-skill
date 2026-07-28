@@ -18,11 +18,20 @@ const wingExportGate = document.querySelector("#wingExportGate");
 const wingExportResult = document.querySelector("#wingExportResult");
 const applyImageButton = document.querySelector("#applyImage");
 const imageFileInput = document.querySelector("#imageFile");
+const undoButton = document.querySelector("#undo");
+const elementFont = document.querySelector("#elementFont");
+const elementColor = document.querySelector("#elementColor");
+const elementX = document.querySelector("#elementX");
+const elementY = document.querySelector("#elementY");
+const applyPositionButton = document.querySelector("#applyPosition");
+const clearTextButton = document.querySelector("#clearText");
+const nudgeButtons = [...document.querySelectorAll("[data-nudge-x]")];
 const wingCdnStorageKey = `detail-page-maker:wing-cdn:${location.pathname}`;
 
 let editing = false;
 let selectedImageIndex = -1;
 let selectedImageCurrentSrc = "";
+let selectedObjectState = null;
 let sections = [];
 let measuredHeight = 1200;
 let activeAssetFilter = "pending";
@@ -51,7 +60,34 @@ function setImageControlsEnabled(enabled) {
   applyImageButton.disabled = !enabled;
 }
 
+function colorToHex(value) {
+  if (/^#[0-9a-f]{6}$/i.test(value || "")) return value.toLowerCase();
+  const channels = String(value || "").match(/\d+(?:\.\d+)?/g);
+  if (!channels || channels.length < 3) return "#111827";
+  return `#${channels
+    .slice(0, 3)
+    .map((channel) =>
+      Math.max(0, Math.min(255, Math.round(Number(channel))))
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+}
+
+function setElementControlsEnabled(enabled, isText = false) {
+  elementX.disabled = !enabled;
+  elementY.disabled = !enabled;
+  applyPositionButton.disabled = !enabled;
+  elementFont.disabled = !enabled;
+  elementColor.disabled = !enabled;
+  clearTextButton.disabled = !enabled || !isText;
+  nudgeButtons.forEach((button) => {
+    button.disabled = !enabled;
+  });
+}
+
 function renderSelectedObject(message) {
+  selectedObjectState = { ...(selectedObjectState || {}), ...message };
   const name =
     message.label ||
     message.objectId ||
@@ -60,13 +96,21 @@ function renderSelectedObject(message) {
   selected.className = "selected";
   selected.textContent = name;
   const detail = document.createTextNode(
-    ` · 드래그 이동 · 휠 확대/축소 · ${Math.round(
+    ` · ${message.isText ? "문구 편집" : "드래그 이동"} · ${Math.round(
       Number(message.scale || 1) * 100,
     )}% · (${Math.round(Number(message.x) || 0)}, ${Math.round(
       Number(message.y) || 0,
     )})`,
   );
   selectedLabel.replaceChildren(selected, detail);
+  elementX.value = String(Math.round(Number(message.x) || 0));
+  elementY.value = String(Math.round(Number(message.y) || 0));
+  const fontOption = [...elementFont.options].find(
+    (option) => option.value && message.fontFamily?.includes(option.textContent),
+  );
+  elementFont.value = fontOption?.value || "";
+  elementColor.value = colorToHex(message.color);
+  setElementControlsEnabled(true, Boolean(message.isText));
 
   if (message.isImage) {
     selectedImageIndex = Number(message.imageIndex);
@@ -380,8 +424,14 @@ toggleEdit.addEventListener("click", () => {
       ? "문구는 클릭해 수정하고, 요소는 드래그로 이동하거나 휠로 확대·축소하세요."
       : "미리보기 모드입니다.",
   );
+  if (!editing) {
+    selectedObjectState = null;
+    setElementControlsEnabled(false);
+    setImageControlsEnabled(false);
+  }
 });
 document.querySelector("#save").addEventListener("click", () => post("DETAIL_SAVE"));
+undoButton.addEventListener("click", () => post("DETAIL_UNDO"));
 document.querySelector("#replay").addEventListener("click", () => post("DETAIL_REPLAY_GIFS"));
 document.querySelector("#reset").addEventListener("click", () => {
   if (confirm("로컬에 저장한 수정 내용을 모두 초기화할까요?")) {
@@ -412,6 +462,42 @@ document.querySelector("#toggleSection").addEventListener("click", () => {
 document.querySelector("#accent").addEventListener("input", (event) =>
   post("DETAIL_SET_ACCENT", { value: event.target.value }),
 );
+elementFont.addEventListener("change", () => {
+  if (!selectedObjectState) return;
+  post("DETAIL_SET_OBJECT_STYLE", {
+    fontFamily: elementFont.value,
+    color: elementColor.value,
+  });
+});
+elementColor.addEventListener("input", () => {
+  if (!selectedObjectState) return;
+  post("DETAIL_SET_OBJECT_STYLE", {
+    fontFamily: elementFont.value,
+    color: elementColor.value,
+  });
+});
+applyPositionButton.addEventListener("click", () => {
+  if (!selectedObjectState) return;
+  post("DETAIL_SET_OBJECT_POSITION", {
+    x: Number(elementX.value) || 0,
+    y: Number(elementY.value) || 0,
+  });
+});
+nudgeButtons.forEach((button) => {
+  button.addEventListener("click", (event) => {
+    if (!selectedObjectState) return;
+    const amount = event.shiftKey ? 10 : 1;
+    post("DETAIL_NUDGE_OBJECT", {
+      dx: Number(button.dataset.nudgeX) * amount,
+      dy: Number(button.dataset.nudgeY) * amount,
+    });
+  });
+});
+clearTextButton.addEventListener("click", () => {
+  if (!selectedObjectState?.isText) return;
+  post("DETAIL_CLEAR_TEXT");
+  setStatus("선택한 텍스트를 비웠습니다. 실행 취소로 되돌릴 수 있습니다.");
+});
 autoHeight.addEventListener("change", () => {
   if (autoHeight.checked) fitPreviewHeight();
   else setStatus("수동 높이 조절 모드입니다.");
@@ -524,6 +610,17 @@ wingExportButton.addEventListener("click", async () => {
   }
 });
 
+document.addEventListener("keydown", (event) => {
+  if (
+    (event.ctrlKey || event.metaKey) &&
+    event.key.toLowerCase() === "z" &&
+    !event.target.closest("input,select,[contenteditable]")
+  ) {
+    event.preventDefault();
+    post("DETAIL_UNDO");
+  }
+});
+
 window.addEventListener("message", (event) => {
   const message = event.data || {};
   if (message.type === "DETAIL_READY") {
@@ -544,6 +641,9 @@ window.addEventListener("message", (event) => {
     setStatus(
       `로컬 저장 완료 · ${new Date(message.savedAt).toLocaleTimeString("ko-KR")}`,
     );
+  }
+  if (message.type === "DETAIL_HISTORY_CHANGED") {
+    undoButton.disabled = !message.canUndo;
   }
   if (message.type === "DETAIL_EXPORT_PROGRESS") {
     setStatus(`단일 HTML 에셋 포함 중 · ${message.completed}/${message.total}`);
@@ -569,6 +669,7 @@ window.addEventListener("message", (event) => {
   }
   if (message.type === "DETAIL_OBJECT_CHANGED") {
     renderSelectedObject({
+      ...(selectedObjectState || {}),
       ...message,
       isImage: selectedImageIndex >= 0,
       imageIndex: selectedImageIndex,
@@ -586,4 +687,5 @@ window.addEventListener("message", (event) => {
 });
 
 setImageControlsEnabled(false);
+setElementControlsEnabled(false);
 refreshGate();

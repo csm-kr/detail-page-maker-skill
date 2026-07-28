@@ -38,7 +38,7 @@
 → G0 SOURCE_SSOT 승인
 → 제품 답·선택 이유·주장-증거 연결 확정
 → G1 COMMERCIAL_PLAN 승인
-→ God Tibo 이미지 배치 4개
+→ God Tibo 이미지 기본 배치 8개
 → generated/pending/image 저장
 → 옆 승인 세션: 에셋 승인
 → Studio v1 사용자 승인·approved/image 이동

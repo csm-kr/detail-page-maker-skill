@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "revision": "rev022-commercial-fx-v01",
+  "status": "pending_user_review",
+  "provider": "HyperFrames",
+  "method": "heygenframe",
+  "compositionPath": "hyperframes/projects/gif-core-016-020-commercial-v03/index.html",
+  "renderPolicy": {
+    "width": 800,
+    "height": 800,
+    "fps": 15,
+    "durationSeconds": 4.8,
+    "frameCount": 72,
+    "loopCount": 0,
+    "audio": false,
+    "strictErrors": 0,
+    "strictWarnings": 0
+  },
+  "approvalPolicy": "신규 렌더는 일괄 사용자 검토 전까지 pending을 유지한다.",
+  "assets": [
+    {
+      "id": "GIF-016",
+      "version": "v03",
+      "file": "gif-016-loosefit-compare-v03.gif",
+      "role": "loosefit-compare",
+      "claimId": "CLAIM-LOOSE-DRAPE",
+      "claimFx": ["compare-divider", "synchronized-wipe"],
+      "outerCopy": "꼭 붙는 핏과, 살랑이는 핏",
+      "innerCopy": ["FIT COMPARE", "TIGHT", "LOOSE"],
+      "bytes": 8025715,
+      "sha256": "b163047b9dca1cd013eaf4475174b3d09e27441ae2c3866e94ab8dd0ee765145"
+    },
+    {
+      "id": "GIF-017",
+      "version": "v04",
+      "file": "gif-017-cooling-sweep-v04.gif",
+      "role": "cooling-direction",
+      "claimId": "CLAIM-MFR-COOLING",
+      "claimFx": ["thermal-overlay-clear", "cool-sweep", "air-stream", "frost-particles"],
+      "outerCopy": "따뜻한 열감이 지나간 자리",
+      "innerCopy": ["COOL SHIFT", "WARM", "COOL"],
+      "forbiddenFx": ["graph", "bar-chart", "line-chart", "numeric-thermal-legend"],
+      "bytes": 10478648,
+      "sha256": "4245937e87667140363604c107916435993859ffc83e80d105169e0471caad05"
+    },
+    {
+      "id": "GIF-018",
+      "version": "v03",
+      "file": "gif-018-style-matchcut-v03.gif",
+      "role": "style-matchcut",
+      "claimId": "CLAIM-STYLE-VERSATILITY",
+      "claimFx": ["style-matchcut", "active-look-tab"],
+      "outerCopy": "같은 화이트 플리츠, 세 가지 무드",
+      "innerCopy": ["STYLE MATCH", "3 MOODS"],
+      "bytes": 8308029,
+      "sha256": "875351f2f9f895e4f5e369d0ba7c4c3b64987eeed537996db5575da7328c7f13"
+    },
+    {
+      "id": "GIF-019",
+      "version": "v03",
+      "file": "gif-019-howto-no-twist-v03.gif",
+      "role": "wearing-procedure",
+      "claimId": "CLAIM-HOW-TO-WEAR",
+      "claimFx": ["step-progress", "step-card-focus"],
+      "outerCopy": "세 장면으로 끝나는 간단한 착용",
+      "innerCopy": ["3 STEP", "ARM / UP / THUMB"],
+      "bytes": 3114726,
+      "sha256": "af7b1fad1973e14f6167f81e748dc236c0b6c8e341307231b2c75f4fa834507e"
+    },
+    {
+      "id": "GIF-020",
+      "version": "v03",
+      "file": "gif-020-pair-reveal-v03.gif",
+      "role": "pair-reveal",
+      "claimId": "CLAIM-PAIR-CONTENTS",
+      "claimFx": ["pair-orbit", "count-reveal", "light-sweep"],
+      "outerCopy": "같은 길이와 형태로 나란히",
+      "innerCopy": ["1 SET / 2 PCS"],
+      "bytes": 3118507,
+      "sha256": "4645a488f66ee0e0bd9ffaa8d5e890b489d916b9a08aaa451e922d2ed3b9f892"
+    },
+    {
+      "id": "GIF-021",
+      "version": "v01",
+      "file": "gif-021-size-47cm-guide-v01.gif",
+      "role": "measurement-location-guide",
+      "claimId": "CLAIM-SIZE-LENGTH",
+      "factId": "FACT-SUPPLIER-SIZE-47X14",
+      "claimFx": ["measurement-line", "endpoint-caps", "product-outline"],
+      "outerCopy": "47cm, 어디서 어디까지일까요?",
+      "innerCopy": ["약 47 cm", "상단 밴딩부터 / 손등 커프 끝까지"],
+      "measurementAxis": "vertical",
+      "startAnchor": "upper-band-end",
+      "endAnchor": "hand-cuff-end",
+      "placementLock": "immediately-before-spec-table",
+      "sourceAssetId": "B07-v01",
+      "bytes": 3181160,
+      "sha256": "226b39302c60bd91a6345410329ae5faaa3c0b65f33752bffb1e635efc977011"
+    }
+  ]
+}
