@@ -1,6 +1,6 @@
 ---
 name: detail-page-maker-skill
-description: 공급처 URL·실제품에서 제품 SSOT와 판매형 카피를 만들고 God Tibo 이미지, HyperFrames GIF, Studio 편집 HTML과 쿠팡 Wing 출력을 제작한다. 상세페이지·상품페이지·커머셜 카피·이미지/GIF·Studio 편집·에셋 승인·게시 QA 요청에 사용한다.
+description: 상세페이지 제작을 라우팅한다. 실행 전 guide.md와 해당 reference를 읽는다.
 ---
 
 # Detail Page Maker
