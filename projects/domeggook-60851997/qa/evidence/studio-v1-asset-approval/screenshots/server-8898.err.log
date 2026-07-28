@@ -1,0 +1,27 @@
+Error: ENOENT: no such file or directory, stat 'C:\Users\csm81\Desktop\detail-page-maker-skill\prototypes\domeggook-60851997\favicon.ico'
+    at async stat (node:internal/fs/promises:1038:18)
+    at async serveFile (file:///C:/Users/csm81/Desktop/detail-page-maker-skill/skills/detail-page-maker-skill/scripts/studio-v1-server.mjs:314:16)
+    at async Server.<anonymous> (file:///C:/Users/csm81/Desktop/detail-page-maker-skill/skills/detail-page-maker-skill/scripts/studio-v1-server.mjs:404:7) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\prototypes\\domeggook-60851997\\favicon.ico'
+}
+Error: ENOENT: no such file or directory, stat 'C:\Users\csm81\Desktop\detail-page-maker-skill\prototypes\domeggook-60851997\favicon.ico'
+    at async stat (node:internal/fs/promises:1038:18)
+    at async serveFile (file:///C:/Users/csm81/Desktop/detail-page-maker-skill/skills/detail-page-maker-skill/scripts/studio-v1-server.mjs:314:16)
+    at async Server.<anonymous> (file:///C:/Users/csm81/Desktop/detail-page-maker-skill/skills/detail-page-maker-skill/scripts/studio-v1-server.mjs:404:7) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\prototypes\\domeggook-60851997\\favicon.ico'
+}
+Error: ENOENT: no such file or directory, stat 'C:\Users\csm81\Desktop\detail-page-maker-skill\prototypes\domeggook-60851997\favicon.ico'
+    at async stat (node:internal/fs/promises:1038:18)
+    at async serveFile (file:///C:/Users/csm81/Desktop/detail-page-maker-skill/skills/detail-page-maker-skill/scripts/studio-v1-server.mjs:314:16)
+    at async Server.<anonymous> (file:///C:/Users/csm81/Desktop/detail-page-maker-skill/skills/detail-page-maker-skill/scripts/studio-v1-server.mjs:404:7) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: 'C:\\Users\\csm81\\Desktop\\detail-page-maker-skill\\prototypes\\domeggook-60851997\\favicon.ico'
+}

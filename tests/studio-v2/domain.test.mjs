@@ -26,7 +26,7 @@ function register(state, assetId, dependencies = []) {
     role: assetId,
     kind: assetId.includes("motion") ? "gif" : "image",
     dependencies,
-    versionPath: `assets/source/${assetId}/v1.png`,
+    versionPath: `asset/input/studio-v2/${assetId}/v1.png`,
     sha256: assetId.padEnd(64, "0").slice(0, 64),
     mime: "image/png",
   }).version;
@@ -88,7 +88,7 @@ test("업로드 원본은 참조 전용이며 ImageGen 파생 전에는 승인�
     name: "사용자 촬영 원본",
     role: "user-upload-reference",
     required: true,
-    versionPath: "assets/source/user-upload-reference/v1.png",
+    versionPath: "asset/input/studio-v2/user-upload-reference/v1.png",
     sha256: "reference".padEnd(64, "0"),
     mime: "image/png",
     provenance: "raw-upload-reference",

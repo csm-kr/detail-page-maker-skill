@@ -248,8 +248,8 @@ GIF를 쓰지 않기로 한 판단도 `planning/GIF.md`에 `motion_required: no`
   `MOTION-STRUCTURE-TRACE`, `MOTION-LOCAL-EFFECT`, `MOTION-SELECTION`,
   `MOTION-PROCEDURE`, `MOTION-HERO-REVEAL`
 - 근거 경로:
-  `projects/domeggook-60851997/assets/gifs/gif-manifest.json`,
-  `projects/domeggook-60851997/assets/gifs/README.md`,
+  `projects/domeggook-60851997/asset/manifests/gif-manifest.json`,
+  `projects/domeggook-60851997/asset/manifests/gifs-README.md`,
   `projects/domeggook-60851997/hyperframes/projects/domeggook-60851997-motion/compositions/`
 - 잘된 점: 소재 비교를 실제 화면 절반 이상 이동하는 와이프로 보여 주고, 상면·하면은
   Y축 뒤집기와 상태 라벨로 구분했다. 에어셀·블루쿠션·아치·에어홀을 서로 다른 GIF로

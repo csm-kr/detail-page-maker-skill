@@ -75,6 +75,8 @@ test("새 프로젝트는 목록에 나타나고 외부 파일 의존성이 없�
     const projects = await listProjects(projectsRoot);
     assert.equal(projects.length, 1);
     assert.equal(projects[0].isolation, "self-contained");
+    await assert.rejects(access(path.join(created.projectRoot, "assets")));
+    await access(path.join(created.projectRoot, "asset"));
 
     const report = await validateProjectIsolation(created.projectRoot);
     assert.equal(report.ok, true);
@@ -121,6 +123,18 @@ test("새 프로젝트는 목록에 나타나고 외부 파일 의존성이 없�
         (issue) => issue.reason === "LEGACY_SHARED_ROOT_REFERENCE",
       ).length,
       2,
+    );
+
+    await mkdir(path.join(created.projectRoot, "assets"));
+    const duplicateAssetRoot = await validateProjectIsolation(
+      created.projectRoot,
+    );
+    assert.equal(duplicateAssetRoot.ok, false);
+    assert.equal(
+      duplicateAssetRoot.issues.some(
+        (issue) => issue.reason === "LEGACY_ASSET_ROOT_FORBIDDEN",
+      ),
+      true,
     );
   } finally {
     await rm(projectsRoot, { recursive: true, force: true });

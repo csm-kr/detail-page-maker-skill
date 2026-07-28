@@ -154,10 +154,10 @@ planning/
 검증된 대표 이미지와 상세 자산 중 실제 SKU를 보여주는 파일만 다음 위치로 가져온다.
 
 ```text
-assets/product-ssot/supplier/
+asset/input/product-ssot/supplier/
 ```
 
-가져온 각 파일은 `assets/product-ssot/manifest.json`에서 원본 bundle 상대 경로와 SHA-256을 참조한다. 배너, 추천상품, 후기 이미지, 배송·교환·반품 안내와 사이트 UI는 제품 SSOT에서 제외한다.
+가져온 각 파일은 `asset/ssot/product-manifest.json`에서 원본 bundle 상대 경로와 SHA-256을 참조한다. 배너, 추천상품, 후기 이미지, 배송·교환·반품 안내와 사이트 UI는 제품 SSOT에서 제외한다.
 
 공급처 이미지는 사용자 촬영 원본을 대체하지 않는다. 두 출처가 충돌하면 자동으로 하나를 선택하지 않고 차이를 기록해 사용자 확인을 받는다.
 

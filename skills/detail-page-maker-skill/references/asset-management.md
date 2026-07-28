@@ -8,7 +8,7 @@
 4. GIF 방식
 5. Studio v1 승인
 6. 조립과 출력
-7. 노바페이스 전환 규칙
+7. 단일 자산 루트와 레거시 마이그레이션
 
 ## 1. 흐름
 
@@ -220,12 +220,31 @@ Studio에서 새 이미지로 교체할 때도 `generated/approved` 경로만 �
 만든다. 이 패키지 생성은 CDN 게시 완료가 아니다. WebP 업로드와 원격
 HTTP·MIME·캐시·SHA-256 검증을 끝내기 전에는 게시 상태로 전환하지 않는다.
 
-## 7. 노바페이스 전환 규칙
+## 7. 단일 자산 루트와 레거시 마이그레이션
 
-`projects/domeggook-60851997/assets/`는 Studio v1 승인 게이트를 도입하기 전에
-사용자가 확정한 현재 페이지의 동결 자산이다. 119MB를 복제하거나 경로를 급히
-이동해 HyperFrames 원본과 기존 편집 상태를 깨지 않는다.
+프로젝트 자산 루트는 단수 `asset/` 하나다. 프로젝트 루트의 복수형 `assets/`와
+단수형 `asset/`를 동시에 유지하지 않는다. 이 규칙은 프로젝트 데이터에만 적용하며
+스킬 설치본의 `skills/.../assets/`와 쿠팡 Wing 출력 패키지 내부 `assets/`에는
+적용하지 않는다.
 
-전환 뒤 새로 만들거나 교체하는 파일부터 canonical `asset/generated/pending/`에서
-시작한다. 한 번 교체된 레거시 경로는 새 `approved` 경로로 바꾸고 과거 파일은
-`deprecated` 대상으로 기록한다.
+복수형 레거시 루트가 발견되면 새 작업을 시작하기 전에 다음 명령을 사용한다.
+
+```powershell
+node scripts/migrate-legacy-asset-root.mjs `
+  --project "<project-path>"
+
+node scripts/migrate-legacy-asset-root.mjs `
+  --project "<project-path>" `
+  --apply
+```
+
+마이그레이션은 각 파일의 원본 SHA-256과 최종 SHA-256을
+`asset/manifests/legacy-root-migration.json`에 기록한다. 실제 제품 원본은
+`asset/input/`, 승격된 제품 기준은 `asset/ssot/`, 현재 승인 이미지·GIF는
+`asset/generated/approved/`, 구버전은 `asset/deprecated/`, 게시 파생물은
+`asset/output/`으로 분류한다. 상세페이지·매니페스트·기획 기록의 활성 경로를
+새 위치로 변경하고 모든 해시와 참조를 검증한 뒤에만 복수형 루트를 제거한다.
+
+과거 사용자가 확정한 레거시 게시 자산은 승인 사실을 새로 꾸미지 않고
+`legacy-user-confirmed-page-migration` 출처로 승인 원장에 이관한다. 이후 신규 또는
+교체 파일은 항상 `asset/generated/pending/`에서 시작한다.

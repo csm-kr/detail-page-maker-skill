@@ -8,7 +8,7 @@
     "도매꾹 공급처 원본",
     "동일성 검수를 통과한 ImageGen 상용 파생 소재"
   ],
-  "source_directory": "../assets/product-ssot/source/real-product-raw",
+  "source_directory": "../asset/input/product-ssot/real-product-raw",
   "user_promoted_ssot": [
     {
       "file": "Flux2-Klein_00355_.png",
@@ -45,12 +45,12 @@
   ],
   "authoritative_cutouts": [
     {
-      "file": "../assets/product-ssot/cutout/actual-bottom-pair-v1.png",
+      "file": "../asset/ssot/cutout/actual-bottom-pair-v1.png",
       "method": "실제품 촬영 픽셀을 보존한 전경 분리",
       "status": "internal_identity_reference"
     },
     {
-      "file": "../assets/product-ssot/cutout/actual-top-pair-v1.png",
+      "file": "../asset/ssot/cutout/actual-top-pair-v1.png",
       "method": "실제품 촬영 픽셀을 보존한 전경 분리",
       "status": "internal_identity_reference"
     }
@@ -73,13 +73,13 @@
     "air_hole": "에어홀",
     "blue_heel_component": "블루쿠션",
     "visible_product_print": "ZOOM SPORTS",
-    "white_body_emboss": "SPORTS"
+    "white_body_emboss": "STORTS"
   },
   "imagegen_policy": {
     "spelling_hard_gates": [
       "blue cushion print must preserve exact ZOOM SPORTS",
-      "white PU body emboss must preserve exact SPORTS",
-      "STORTS, ZZOM and ZZOOM are hard failures",
+      "white PU body emboss must preserve exact STORTS",
+      "SPORTS or SIORTS on the white PU body, and ZZOM or ZZOOM on the blue cushion, are hard failures",
       "factory print must follow the product part's long axis"
     ],
     "allowed": [

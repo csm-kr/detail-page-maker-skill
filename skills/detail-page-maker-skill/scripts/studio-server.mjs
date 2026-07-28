@@ -1414,10 +1414,10 @@ export async function startStudioServer({
           ) + 1;
         const relativePath = toPosix(
           path.join(
-            "assets",
+            "asset",
             referenceOnly && !current.assets[assetId]
-              ? "source"
-              : "candidates",
+              ? "input/studio-v2"
+              : "generated/pending/studio-v2",
             assetId,
             `v${nextVersion}${extension}`,
           ),

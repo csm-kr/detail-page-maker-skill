@@ -1,4 +1,4 @@
 interface:
   display_name: "상업 상세페이지 Studio v1"
   short_description: "SSOT부터 승인·GIF·Wing HTML·CDN 게시까지"
-  default_prompt: "Use $detail-page-maker-skill to turn a supplier URL into SSOT, generate pending images in default batches of 8 through the required local $god-tibo-gpt-image2-skill, create claim-adjacent HyperFrames GIFs with active commercial effects, keep production metadata out of the customer surface, collect approvals, and deliver the current revision through one <project>/deliverables/<revision>/index.html entry point; when requested, also package a verified 780px Coupang Wing HTML."
+  default_prompt: "Use $detail-page-maker-skill to turn a supplier URL into SSOT, generate pending images in default batches of 8 through the required local $god-tibo-gpt-image2-skill, create claim-adjacent HyperFrames GIFs with active commercial effects, keep production metadata out of the customer surface, collect approvals, export an editable Studio v1 detail page through one <project>/deliverables/<revision>/index.html entry point, and when requested package a verified 780px Coupang Wing HTML with Cloudflare CDN assets."
