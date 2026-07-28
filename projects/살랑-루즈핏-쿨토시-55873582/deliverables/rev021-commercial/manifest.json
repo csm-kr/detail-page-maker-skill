@@ -3,7 +3,7 @@
   "revision": "rev021-commercial",
   "entrypoint": "index.html",
   "output_contract": "deliverables/<revision>/index.html",
-  "generated_at": "2026-07-28T05:05:43.707Z",
+  "generated_at": "2026-07-28T06:18:34.948Z",
   "customer_media": {
     "image_count": 16,
     "gif_count": 10
@@ -11,8 +11,8 @@
   "files": [
     {
       "path": "index.html",
-      "bytes": 30485,
-      "sha256": "1e713d0528a770d060016f4a2ac2def4374fa682678686b513be6d4edfb7af75"
+      "bytes": 31799,
+      "sha256": "dd6a1581d07691e1d08dfe24a0f9464110c4662ceb915f4379b3ee4210257909"
     },
     {
       "path": "media/gifs/gif-001-thumbhole-direction-hybrid-v01.gif",
@@ -151,8 +151,13 @@
     },
     {
       "path": "qa/final-report.md",
-      "bytes": 1574,
-      "sha256": "e903164097d8234d17251557862c128dd431e73e4e86af50cb5a9f10fab078fd"
+      "bytes": 2108,
+      "sha256": "3bb2171f286e6b172197e895cb985b53e3387255ad98adc0b7cd4478c98a62e0"
+    },
+    {
+      "path": "qa/studio-link-report.json",
+      "bytes": 845,
+      "sha256": "2430b42a3336d9b7826f531c5bb3dd37687a9f96e02328b3fdf6a30d544c0515"
     },
     {
       "path": "qa/viewport-390-bottom.png",

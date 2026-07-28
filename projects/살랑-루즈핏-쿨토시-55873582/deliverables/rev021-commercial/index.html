@@ -1033,5 +1033,42 @@
         </div>
       </section>
     </main>
+    <script>
+      (() => {
+        const localHost =
+          location.protocol === "file:" ||
+          location.hostname === "127.0.0.1" ||
+          location.hostname === "localhost";
+        const reviewEntry =
+          location.protocol === "file:" ||
+          decodeURIComponent(location.pathname).includes(
+            "/deliverables/rev021-commercial/",
+          );
+        if (!localHost || !reviewEntry) return;
+
+        const launcher = document.createElement("a");
+        launcher.href = "http://127.0.0.1:8898/studio.html";
+        launcher.textContent = "Studio에서 편집";
+        launcher.setAttribute("aria-label", "현재 상세페이지를 Studio에서 편집");
+        Object.assign(launcher.style, {
+          position: "fixed",
+          zIndex: "9999",
+          top: "16px",
+          right: "16px",
+          padding: "12px 18px",
+          border: "1px solid rgba(255,255,255,.72)",
+          borderRadius: "999px",
+          background: "rgba(12,63,159,.94)",
+          color: "#fff",
+          boxShadow: "0 12px 32px rgba(12,63,159,.28)",
+          fontSize: "14px",
+          fontWeight: "900",
+          lineHeight: "1",
+          textDecoration: "none",
+          backdropFilter: "blur(10px)",
+        });
+        document.body.append(launcher);
+      })();
+    </script>
   </body>
 </html>

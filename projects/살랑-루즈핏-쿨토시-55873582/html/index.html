@@ -1,743 +1,1075 @@
-<!DOCTYPE html>
-<html lang="ko" data-studio-project="살랑-루즈핏-쿨토시-55873582">
+<!doctype html>
+<html lang="ko" data-studio-project="sallang-coolsleeve-rev021">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta
-      name="description"
-      content="여유 있게 떨어지는 화이트 플리츠와 손등 커프를 실물 기준으로 보여주는 살랑 루즈핏 쿨토시 상세페이지">
-    <title>살랑 루즈핏 쿨토시 | 상세페이지</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="살랑 루즈핏 쿨토시 상세페이지" />
+    <title>살랑 루즈핏 쿨토시</title>
+    <style>
+      @font-face {
+        font-family: "Malgun Gothic";
+        src: local("Malgun Gothic");
+      }
+
+      :root {
+        --paper: #fffdf8;
+        --ivory: #f4efe6;
+        --ivory-deep: #e9e0d3;
+        --ink: #172238;
+        --muted: #626b7b;
+        --blue: #145ed8;
+        --blue-deep: #0c3f9f;
+        --sky: #d9efff;
+        --ice: #eef9ff;
+        --coral: #ff765e;
+        --line: rgba(23, 34, 56, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: #eae7e2;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        width: min(100%, 800px);
+        margin: 0 auto;
+        overflow-x: hidden;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+        word-break: keep-all;
+        box-shadow: 0 0 60px rgba(23, 34, 56, 0.12);
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      h1,
+      h2,
+      h3,
+      p,
+      figure {
+        margin: 0;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--blue);
+        box-shadow: 0 8px 24px rgba(23, 34, 56, 0.1);
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+      }
+
+      .headline {
+        margin-top: 22px;
+        font-size: clamp(42px, 7.6vw, 66px);
+        font-weight: 950;
+        line-height: 1.08;
+        letter-spacing: -0.065em;
+      }
+
+      .lead {
+        margin-top: 22px;
+        color: var(--muted);
+        font-size: clamp(20px, 3.2vw, 27px);
+        font-weight: 700;
+        line-height: 1.65;
+        letter-spacing: -0.035em;
+      }
+
+      .section-pad {
+        padding: 104px 58px;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 1060px;
+        overflow: hidden;
+        background: #e9f4fb;
+      }
+
+      .hero > img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 46%;
+      }
+
+      .hero::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background:
+          linear-gradient(180deg, rgba(14, 28, 49, 0.03) 30%, rgba(14, 28, 49, 0.86) 100%),
+          linear-gradient(90deg, rgba(255, 253, 248, 0.22), transparent 55%);
+      }
+
+      .hero-copy {
+        position: absolute;
+        z-index: 2;
+        right: 54px;
+        bottom: 76px;
+        left: 54px;
+        color: #fff;
+      }
+
+      .hero .eyebrow {
+        color: var(--blue-deep);
+      }
+
+      .hero h1 {
+        margin-top: 24px;
+        max-width: 650px;
+        font-size: clamp(55px, 10vw, 82px);
+        font-weight: 950;
+        line-height: 1.03;
+        letter-spacing: -0.075em;
+      }
+
+      .hero p {
+        margin-top: 25px;
+        font-size: clamp(20px, 3.5vw, 28px);
+        font-weight: 750;
+        line-height: 1.55;
+      }
+
+      .hero-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .hero-tags span {
+        padding: 11px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.13);
+        backdrop-filter: blur(12px);
+        font-size: 16px;
+        font-weight: 850;
+      }
+
+      .pain-intro {
+        background:
+          radial-gradient(circle at 82% 16%, var(--sky), transparent 27%),
+          var(--paper);
+        text-align: center;
+      }
+
+      .pain-intro .headline {
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 640px;
+      }
+
+      .pain-stack {
+        display: grid;
+        gap: 18px;
+        padding: 0 28px 90px;
+        background: var(--paper);
+      }
+
+      .pain-card {
+        position: relative;
+        min-height: 570px;
+        overflow: hidden;
+        border-radius: 34px;
+        background: var(--ivory);
+        box-shadow: 0 24px 70px rgba(23, 34, 56, 0.13);
+      }
+
+      .pain-card > img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .pain-card::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background: linear-gradient(180deg, transparent 36%, rgba(14, 26, 47, 0.82) 100%);
+      }
+
+      .message {
+        position: absolute;
+        z-index: 2;
+        right: 30px;
+        bottom: 30px;
+        left: 30px;
+        padding: 23px 27px;
+        border-radius: 26px 26px 8px 26px;
+        background: rgba(255, 255, 255, 0.94);
+        color: var(--ink);
+        box-shadow: 0 16px 42px rgba(14, 26, 47, 0.22);
+        font-size: clamp(22px, 4vw, 31px);
+        font-weight: 900;
+        line-height: 1.4;
+        letter-spacing: -0.045em;
+      }
+
+      .message small {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--blue);
+        font-size: 14px;
+        letter-spacing: 0.07em;
+      }
+
+      .answer {
+        position: relative;
+        min-height: 760px;
+        overflow: hidden;
+        background: var(--ivory);
+      }
+
+      .answer > img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 55% 50%;
+      }
+
+      .answer::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background: linear-gradient(90deg, rgba(255, 253, 248, 0.97) 0 44%, rgba(255, 253, 248, 0.18) 76%);
+      }
+
+      .answer-copy {
+        position: absolute;
+        z-index: 2;
+        top: 82px;
+        right: 48%;
+        left: 52px;
+      }
+
+      .answer-copy h2 {
+        margin-top: 23px;
+        font-size: clamp(44px, 7.2vw, 64px);
+        font-weight: 950;
+        line-height: 1.08;
+        letter-spacing: -0.065em;
+      }
+
+      .answer-copy p {
+        margin-top: 23px;
+        color: var(--muted);
+        font-size: 21px;
+        font-weight: 750;
+        line-height: 1.65;
+      }
+
+      .answer-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .answer-list span {
+        width: fit-content;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: var(--ink);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 850;
+      }
+
+      .feature {
+        padding: 112px 48px;
+        background: var(--paper);
+      }
+
+      .feature.blue {
+        background:
+          radial-gradient(circle at 88% 12%, #cdeaff, transparent 27%),
+          linear-gradient(180deg, #eff9ff, #fffdf8);
+      }
+
+      .feature.warm {
+        background:
+          radial-gradient(circle at 10% 8%, #ffe5d7, transparent 27%),
+          linear-gradient(180deg, #fff8ef, #fffdf8);
+      }
+
+      .feature-number {
+        color: var(--blue);
+        font-size: 18px;
+        font-weight: 950;
+        letter-spacing: 0.12em;
+      }
+
+      .feature h2 {
+        margin-top: 17px;
+        font-size: clamp(44px, 7.5vw, 64px);
+        font-weight: 950;
+        line-height: 1.08;
+        letter-spacing: -0.065em;
+      }
+
+      .feature-copy {
+        margin-top: 23px;
+        color: var(--muted);
+        font-size: clamp(20px, 3.4vw, 27px);
+        font-weight: 700;
+        line-height: 1.65;
+      }
+
+      .still-frame {
+        margin-top: 42px;
+        overflow: hidden;
+        border-radius: 38px;
+        background: var(--ivory);
+        box-shadow: 0 28px 78px rgba(23, 34, 56, 0.15);
+      }
+
+      .still-frame img {
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+      }
+
+      .proof-block {
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 32px;
+        background: #fff;
+        box-shadow: 0 24px 68px rgba(23, 34, 56, 0.12);
+      }
+
+      .proof-block figcaption {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 3px 4px 17px;
+      }
+
+      .proof-block figcaption strong {
+        font-size: 21px;
+        font-weight: 950;
+      }
+
+      .proof-block figcaption span {
+        color: var(--blue);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+      }
+
+      .proof-block img {
+        overflow: hidden;
+        border-radius: 22px;
+      }
+
+      .mini-proof-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .mini-proof {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.85);
+      }
+
+      .mini-proof strong {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 18px;
+        font-weight: 950;
+      }
+
+      .mini-proof img {
+        border-radius: 16px;
+      }
+
+      .cool-scene {
+        position: relative;
+        min-height: 720px;
+        margin-top: 42px;
+        overflow: hidden;
+        border-radius: 42px;
+        background: #eaf7ff;
+        box-shadow: 0 28px 78px rgba(23, 34, 56, 0.15);
+      }
+
+      .cool-scene > img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 58% 50%;
+      }
+
+      .cool-scene::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background: linear-gradient(180deg, rgba(17, 40, 70, 0.01) 42%, rgba(10, 29, 54, 0.75) 100%);
+      }
+
+      .cool-scene p {
+        position: absolute;
+        z-index: 2;
+        right: 32px;
+        bottom: 34px;
+        left: 32px;
+        color: #fff;
+        font-size: 23px;
+        font-weight: 850;
+        line-height: 1.5;
+      }
+
+      .style-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 42px;
+      }
+
+      .style-card {
+        overflow: hidden;
+        border-radius: 80px 80px 20px 20px;
+        background: #fff;
+        box-shadow: 0 18px 46px rgba(23, 34, 56, 0.13);
+      }
+
+      .style-card img {
+        aspect-ratio: 0.72;
+        object-fit: cover;
+      }
+
+      .style-card figcaption {
+        padding: 15px 8px 17px;
+        color: var(--blue-deep);
+        font-size: 14px;
+        font-weight: 950;
+        text-align: center;
+      }
+
+      .howto {
+        padding: 110px 48px;
+        background:
+          linear-gradient(180deg, #fffdf8 0 42%, #eaf7ff 42% 100%);
+      }
+
+      .howto h2 {
+        margin-top: 18px;
+        font-size: clamp(44px, 7.5vw, 64px);
+        font-weight: 950;
+        letter-spacing: -0.065em;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .step {
+        padding: 15px 10px;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(23, 34, 56, 0.09);
+        font-size: 15px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .step b {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        margin: 0 auto 9px;
+        border-radius: 50%;
+        background: var(--blue);
+        color: #fff;
+      }
+
+      .voice {
+        padding: 106px 52px;
+        background: var(--ink);
+        color: #fff;
+      }
+
+      .voice .eyebrow {
+        color: var(--blue-deep);
+      }
+
+      .voice h2 {
+        margin-top: 22px;
+        font-size: clamp(42px, 7vw, 62px);
+        font-weight: 950;
+        line-height: 1.1;
+        letter-spacing: -0.06em;
+      }
+
+      .chat-list {
+        display: grid;
+        gap: 16px;
+        margin-top: 42px;
+      }
+
+      .chat {
+        max-width: 86%;
+        padding: 22px 25px;
+        border-radius: 26px 26px 26px 8px;
+        background: #fff;
+        color: var(--ink);
+        font-size: 21px;
+        font-weight: 850;
+        line-height: 1.48;
+      }
+
+      .chat.answer-chat {
+        margin-left: auto;
+        border-radius: 26px 26px 8px 26px;
+        background: var(--blue);
+        color: #fff;
+      }
+
+      .composition {
+        padding: 108px 48px;
+        background:
+          radial-gradient(circle at 50% 54%, #fff 0 29%, var(--sky) 29% 45%, transparent 45%),
+          linear-gradient(135deg, #fff8ed, #e7f5ff);
+        text-align: center;
+      }
+
+      .composition h2 {
+        margin-top: 19px;
+        font-size: clamp(46px, 7.6vw, 66px);
+        font-weight: 950;
+        letter-spacing: -0.065em;
+      }
+
+      .composition .proof-block {
+        text-align: left;
+      }
+
+      .pair-still {
+        margin-top: 24px;
+        overflow: hidden;
+        border-radius: 34px;
+        box-shadow: 0 26px 74px rgba(23, 34, 56, 0.15);
+      }
+
+      .spec {
+        padding: 108px 50px;
+        background: var(--paper);
+      }
+
+      .spec h2 {
+        font-size: clamp(44px, 7.4vw, 64px);
+        font-weight: 950;
+        letter-spacing: -0.065em;
+      }
+
+      .spec-table {
+        width: 100%;
+        margin-top: 38px;
+        overflow: hidden;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: #fff;
+        box-shadow: 0 18px 52px rgba(23, 34, 56, 0.08);
+        font-size: 19px;
+      }
+
+      .spec-table th,
+      .spec-table td {
+        padding: 22px 20px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+      }
+
+      .spec-table tr:last-child th,
+      .spec-table tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .spec-table th {
+        width: 34%;
+        background: #f2f7fb;
+        color: var(--blue-deep);
+        font-weight: 950;
+      }
+
+      .spec-table td {
+        color: #3d4656;
+        font-weight: 750;
+        line-height: 1.45;
+      }
+
+      .size-note {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .finale {
+        position: relative;
+        min-height: 1120px;
+        overflow: hidden;
+        background: #e9f4fb;
+      }
+
+      .finale > img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 48%;
+      }
+
+      .finale::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background: linear-gradient(180deg, rgba(15, 30, 53, 0.01) 38%, rgba(15, 30, 53, 0.86) 100%);
+      }
+
+      .finale-copy {
+        position: absolute;
+        z-index: 2;
+        right: 52px;
+        bottom: 72px;
+        left: 52px;
+        color: #fff;
+        text-align: center;
+      }
+
+      .finale-copy h2 {
+        font-size: clamp(52px, 9vw, 76px);
+        font-weight: 950;
+        line-height: 1.04;
+        letter-spacing: -0.07em;
+      }
+
+      .finale-copy p {
+        margin-top: 23px;
+        font-size: 22px;
+        font-weight: 750;
+        line-height: 1.55;
+      }
+
+      .finale-tags {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 9px;
+        margin-top: 27px;
+      }
+
+      .finale-tags span {
+        padding: 10px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        font-size: 15px;
+        font-weight: 850;
+      }
+
+      @media (max-width: 520px) {
+        .section-pad,
+        .feature,
+        .howto,
+        .voice,
+        .composition,
+        .spec {
+          padding-right: 26px;
+          padding-left: 26px;
+        }
+
+        .hero-copy,
+        .finale-copy {
+          right: 28px;
+          left: 28px;
+        }
+
+        .pain-stack {
+          padding-right: 14px;
+          padding-left: 14px;
+        }
+
+        .pain-card {
+          min-height: 460px;
+        }
+
+        .answer {
+          min-height: 660px;
+        }
+
+        .answer::after {
+          background: linear-gradient(180deg, rgba(255, 253, 248, 0.96) 0 44%, rgba(255, 253, 248, 0.06) 76%);
+        }
+
+        .answer-copy {
+          top: 38px;
+          right: 28px;
+          left: 28px;
+        }
+
+        .answer-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .answer-list span {
+          width: auto;
+          text-align: center;
+        }
+
+        .mini-proof-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .style-grid {
+          gap: 6px;
+        }
+
+        .style-card figcaption {
+          font-size: 11px;
+        }
+
+        .proof-block {
+          padding: 12px;
+        }
+
+        .proof-block figcaption {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .spec-table {
+          font-size: 15px;
+        }
+
+        .spec-table th,
+        .spec-table td {
+          padding: 17px 13px;
+        }
+
+        .finale {
+          min-height: 0;
+          background: var(--ink);
+        }
+
+        .finale > img {
+          position: relative;
+          inset: auto;
+          width: 100%;
+          height: auto;
+          object-fit: contain;
+        }
+
+        .finale::after {
+          display: none;
+        }
+
+        .finale-copy {
+          position: relative;
+          right: auto;
+          bottom: auto;
+          left: auto;
+          padding: 48px 26px 68px;
+          background: var(--ink);
+        }
+      }
+    </style>
   </head>
-  <body data-export-name="살랑-루즈핏-쿨토시-55873582-standalone.html">
+  <body>
     <main id="detailPage">
-      <section class="section hero" data-section="hero">
+      <section data-section="hero" class="hero" aria-labelledby="hero-title">
+        <img data-edit-image data-asset-id="rev021-media-01" src="../deliverables/rev021-commercial/media/images/hero-portrait.png" alt="화이트 루즈핏 쿨토시를 양팔에 길게 착용한 여성" />
         <div class="hero-copy">
-          <p class="kicker" data-layer-id="hero-product" data-edit>루즈핏 쿨토시</p>
-          <h1 data-layer-id="hero-title" data-edit>
-            조이지 않아 살랑,<br>
-            손등까지 가볍게.
-          </h1>
-          <p class="hero-summary" data-layer-id="hero-summary" data-edit>
-            여유 있게 떨어지는 화이트 플리츠와 손등 커프를 한 쌍으로.
-          </p>
-        </div>
-        <figure class="hero-portrait media-frame">
-          <img
-            src="../asset/generated/approved/image/e06-model-product-split-hero-v01.png"
-            alt="화이트 루즈핏 쿨토시를 착용한 20대 여성과 제품 한 쌍"
-            width="2160"
-            height="3840"
-            fetchpriority="high"
-            data-edit-image
-            data-asset-id="E06">
-        </figure>
-        <figure class="hero-pair media-frame">
-          <img
-            src="../asset/generated/approved/image/a01-pair-flatlay-hero-v02.png"
-            alt="화이트 루즈핏 쿨토시 한 쌍"
-            width="1536"
-            height="1024"
-            loading="eager"
-            data-edit-image
-            data-asset-id="A01">
-        </figure>
-        <p class="hero-note" data-layer-id="hero-note" data-edit>
-          팔부터 손등까지 이어지는 길고 여유로운 실루엣
-        </p>
-      </section>
-
-      <section class="section problem" data-section="problem">
-        <div class="section-copy problem-copy">
-          <h2 data-layer-id="problem-title" data-edit>
-            여름 토시까지<br>
-            꽉 조일 필요는 없으니까.
-          </h2>
-          <p data-layer-id="problem-body" data-edit>
-            살랑은 피부에 딱 붙기보다 여유 있게 떨어지는 실루엣입니다.
-          </p>
-        </div>
-        <figure class="problem-model media-frame">
-          <img
-            src="../asset/generated/approved/image/c01-model-editorial-front-v01.png"
-            alt="루즈핏 쿨토시의 정면 실착 모습"
-            width="1024"
-            height="1536"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="C01">
-        </figure>
-        <figure class="problem-light" aria-hidden="true">
-          <img
-            src="../asset/generated/approved/image/e02-summer-blue-shadow-background-v01.png"
-            alt=""
-            width="2048"
-            height="1152"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="E02">
-        </figure>
-        <p class="problem-caption" data-layer-id="problem-caption" data-edit>
-          압박형보다 여유핏을 선호한다면, 먼저 팔 전체의 주름을 확인하세요.
-        </p>
-      </section>
-
-      <section class="section drape" data-section="reason-loose-fit">
-        <header class="section-heading">
-          <h2 data-layer-id="drape-title" data-edit>
-            딱 붙지 않아,<br>
-            주름이 살랑.
-          </h2>
-          <p data-layer-id="drape-body" data-edit>
-            길고 여유 있는 튜브형 플리츠가 팔을 따라 자연스럽게 내려옵니다.
-          </p>
-        </header>
-        <div class="drape-grid">
-          <figure class="drape-main media-frame">
-            <img
-              src="../asset/generated/approved/image/a07-loose-drape-arm-v01.png"
-              alt="팔 전체를 따라 여유 있게 떨어지는 플리츠"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="A07">
-          </figure>
-          <figure class="drape-side media-frame">
-            <img
-              src="../asset/generated/approved/image/c03-model-side-drape-v01.png"
-              alt="옆에서 본 루즈핏 쿨토시의 길이와 주름"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="C03">
-          </figure>
-          <figure class="motion-frame drape-motion">
-            <img
-              src="../asset/generated/approved/gif/gif-007-loose-drape-silhouette-v01.gif"
-              alt="팔 동작에 따라 달라지는 루즈핏 실루엣"
-              width="800"
-              height="800"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="GIF-007">
-            <figcaption data-layer-id="drape-motion-caption" data-edit>
-              팔을 움직일 때 보이는 여유 주름
-            </figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section class="section hand-cover" data-section="reason-hand-cover">
-        <header class="section-heading centered">
-          <h2 data-layer-id="hand-title" data-edit>
-            손목에서 끝나지 않고,<br>
-            손등까지.
-          </h2>
-          <p data-layer-id="hand-body" data-edit>
-            엄지는 자연스럽게 빼고 손등은 길게 이어지는 구조입니다.
-          </p>
-        </header>
-        <div class="hand-hero-grid">
-          <figure class="hand-cover-main media-frame">
-            <img
-              src="../asset/generated/approved/image/a05-thumb-hole-hand-cover-v01.png"
-              alt="엄지홀과 손등 커프를 보여주는 착용 모습"
-              width="1024"
-              height="1024"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="A05">
-          </figure>
-          <figure class="hand-palm media-frame">
-            <img
-              src="../asset/generated/approved/image/b06-palm-side-structure-v02.png"
-              alt="손바닥 쪽이 열린 쿨토시 구조"
-              width="1024"
-              height="1024"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="B06">
-          </figure>
-          <figure class="hand-model media-frame">
-            <img
-              src="../asset/generated/approved/image/c02-model-editorial-three-quarter-v01.png"
-              alt="손등 커프가 자연스럽게 놓인 실착 모습"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="C02">
-          </figure>
-        </div>
-        <div class="detail-pair">
-          <figure class="detail-tile media-frame">
-            <img
-              src="../asset/generated/approved/image/d04-left-thumb-detail-v01.png"
-              alt="한쪽 엄지홀과 손등 커프 근접 모습"
-              width="1024"
-              height="1024"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="D04">
-          </figure>
-          <figure class="detail-tile media-frame">
-            <img
-              src="../asset/generated/approved/image/d05-right-thumb-detail-v01.png"
-              alt="반대쪽 엄지홀과 손등 커프 근접 모습"
-              width="1024"
-              height="1024"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="D05">
-          </figure>
-        </div>
-        <div class="motion-duo">
-          <figure class="motion-frame">
-            <img
-              src="../asset/generated/approved/gif/gif-001-thumbhole-direction-hybrid-v01.gif"
-              alt="엄지홀 방향과 착용 순서를 보여주는 움직임"
-              width="800"
-              height="800"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="GIF-001">
-            <figcaption data-layer-id="thumb-motion-caption" data-edit>
-              엄지홀 방향을 먼저 맞춰 주세요
-            </figcaption>
-          </figure>
-          <figure class="motion-frame">
-            <img
-              src="../asset/generated/approved/gif/gif-008-daily-hand-use-v01.gif"
-              alt="손가락을 자유롭게 쓰는 손등 커프 모습"
-              width="800"
-              height="800"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="GIF-008">
-            <figcaption data-layer-id="hand-use-caption" data-edit>
-              손가락은 열고 손등은 길게
-            </figcaption>
-          </figure>
-        </div>
-        <figure class="thumb-step media-frame">
-          <img
-            src="../asset/generated/approved/image/e08-thumbhole-procedure-mid-v03.png"
-            alt="엄지를 홀에 넣는 중간 착용 단계"
-            width="1024"
-            height="1024"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="E08">
-        </figure>
-      </section>
-
-      <section class="section identity" data-section="reason-real-check">
-        <header class="section-heading">
-          <p class="kicker" data-layer-id="identity-kicker" data-edit>실물로 확인</p>
-          <h2 data-layer-id="identity-title" data-edit>
-            좌우 한 쌍부터 라벨까지,<br>
-            실물 기준으로.
-          </h2>
-          <p data-layer-id="identity-body" data-edit>
-            화이트 플리츠, 엄지홀, 손등 중앙 라벨의 위치를 차례로 확인했습니다.
-          </p>
-        </header>
-        <figure class="identity-pair media-frame">
-          <img
-            src="../asset/generated/approved/image/d01-pair-clean-cutout-v02.png"
-            alt="나란히 놓인 화이트 쿨토시 한 쌍"
-            width="1536"
-            height="1024"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="D01">
-        </figure>
-        <div class="identity-singles">
-          <figure class="media-frame">
-            <img
-              src="../asset/generated/approved/image/d02-single-front-cutout-v01.png"
-              alt="쿨토시 단품 앞면"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="D02">
-          </figure>
-          <figure class="media-frame">
-            <img
-              src="../asset/generated/approved/image/d03-single-reverse-cutout-v02.png"
-              alt="쿨토시 단품 뒷면"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="D03">
-          </figure>
-          <figure class="identity-label-landscape media-frame">
-            <img
-              src="../asset/generated/approved/image/a03-single-reverse-label-v04.png"
-              alt="제품 한 쌍의 라벨 방향"
-              width="1536"
-              height="1024"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="A03">
-          </figure>
-        </div>
-        <figure class="label-proof media-frame">
-          <img
-            src="../asset/generated/approved/image/d06-label-macro-clean-v01.png"
-            alt="손등 중앙에 봉제된 제품 라벨"
-            width="1024"
-            height="1024"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="D06">
-        </figure>
-        <div class="motion-trio">
-          <figure class="motion-frame">
-            <img
-              src="../asset/generated/approved/gif/gif-002-pair-silhouette-v01.gif"
-              alt="제품 한 쌍의 전체 실루엣"
-              width="800"
-              height="800"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="GIF-002">
-            <figcaption data-layer-id="pair-motion-caption" data-edit>
-              좌우 한 쌍의 전체 길이
-            </figcaption>
-          </figure>
-          <figure class="motion-frame">
-            <img
-              src="../asset/generated/approved/gif/gif-003-matched-single-structure-v02.gif"
-              alt="같은 크기로 본 단품 구조"
-              width="800"
-              height="800"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="GIF-003">
-            <figcaption data-layer-id="single-motion-caption" data-edit>
-              크기를 맞춰 보는 단품 구조
-            </figcaption>
-          </figure>
-          <figure class="motion-frame">
-            <img
-              src="../asset/generated/approved/gif/gif-006-label-placement-v01.gif"
-              alt="손등 위 라벨 위치를 보여주는 움직임"
-              width="800"
-              height="800"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="GIF-006">
-            <figcaption data-layer-id="label-motion-caption" data-edit>
-              라벨은 손등 중앙에
-            </figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section class="section construction" data-section="construction">
-        <header class="section-heading centered">
-          <h2 data-layer-id="construction-title" data-edit>
-            얇은 플리츠,<br>
-            보이는 그대로.
-          </h2>
-          <p data-layer-id="construction-body" data-edit>
-            세로 주름과 팔뚝 밴딩, 손등 커프의 봉제를 가까이 보여드립니다.
-          </p>
-        </header>
-        <figure class="pleat-macro media-frame">
-          <img
-            src="../asset/generated/approved/image/a04-pleat-macro-v02.png"
-            alt="화이트 원단의 가늘고 불규칙한 세로 플리츠"
-            width="1024"
-            height="1024"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="A04">
-        </figure>
-        <div class="construction-row">
-          <figure class="media-frame">
-            <img
-              src="../asset/generated/approved/image/a06-upper-band-seam-v01.png"
-              alt="팔뚝 밴딩과 플리츠 연결 부분"
-              width="1024"
-              height="1024"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="A06">
-          </figure>
-          <figure class="media-frame">
-            <img
-              src="../asset/generated/approved/image/d07-seam-macro-clean-v01.png"
-              alt="끝단 밴딩과 봉제 근접 모습"
-              width="1024"
-              height="1024"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="D07">
-          </figure>
-        </div>
-        <div class="motion-duo">
-          <figure class="motion-frame">
-            <img
-              src="../asset/generated/approved/gif/gif-004-pleat-texture-v01.gif"
-              alt="빛의 방향에 따라 보이는 플리츠 결"
-              width="800"
-              height="800"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="GIF-004">
-            <figcaption data-layer-id="pleat-motion-caption" data-edit>
-              가까이 볼수록 드러나는 세로 결
-            </figcaption>
-          </figure>
-          <figure class="motion-frame">
-            <img
-              src="../asset/generated/approved/gif/gif-005-band-seam-construction-v02.gif"
-              alt="밴딩과 봉제 연결부만 보여주는 움직임"
-              width="800"
-              height="800"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="GIF-005">
-            <figcaption data-layer-id="seam-motion-caption" data-edit>
-              밴딩과 봉제 연결을 한눈에
-            </figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section class="section honesty" data-section="honest-size-material">
-        <figure class="honesty-paper" aria-hidden="true">
-          <img
-            src="../asset/generated/approved/image/e01-ivory-paper-background-v01.png"
-            alt=""
-            width="2048"
-            height="1152"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="E01">
-        </figure>
-        <div class="honesty-copy">
-          <h2 data-layer-id="honesty-title" data-edit>
-            밝은 빛에서는,<br>
-            얇음까지 확인하세요.
-          </h2>
-          <p data-layer-id="honesty-body" data-edit>
-            화이트 얇은 소재는 빛과 피부톤에 따라 비침이 느껴질 수 있습니다.
-          </p>
-        </div>
-        <figure class="honesty-photo media-frame">
-          <img
-            src="../asset/generated/approved/image/a08-daylight-thinness-v01.png"
-            alt="밝은 자연광에서 확인하는 화이트 원단의 얇은 인상"
-            width="1024"
-            height="1536"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="A08">
-        </figure>
-        <p class="honesty-note" data-layer-id="honesty-note" data-edit>
-          화면과 조명 환경에 따라 화이트 색감은 다르게 보일 수 있습니다.
-        </p>
-      </section>
-
-      <section class="section driving" data-section="primary-use">
-        <figure class="driving-environment" aria-hidden="true">
-          <img
-            src="../asset/generated/approved/image/e04-parked-car-interior-background-v01.png"
-            alt=""
-            width="2048"
-            height="1152"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="E04">
-        </figure>
-        <div class="driving-copy">
-          <h2 data-layer-id="driving-title" data-edit>
-            운전할 때 드러나는<br>
-            손등까지.
-          </h2>
-          <p data-layer-id="driving-body" data-edit>
-            손바닥은 열리고 원단은 손등까지 이어지는 모습을 장면으로 확인하세요.
-          </p>
-        </div>
-        <figure class="driving-photo media-frame">
-          <img
-            src="../asset/generated/approved/image/b01-parked-car-driving-v01.png"
-            alt="정차 차량에서 핸들을 잡은 손등 커프 실착 모습"
-            width="1024"
-            height="1536"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="B01">
-        </figure>
-        <p class="safety-note" data-layer-id="driving-note" data-edit>
-          차량이 안전하게 정차된 상태에서 촬영한 연출 이미지입니다.
-        </p>
-      </section>
-
-      <section class="section lifestyle" data-section="more-uses">
-        <header class="section-heading">
-          <h2 data-layer-id="lifestyle-title" data-edit>
-            산책도, 장보기도,<br>
-            여름의 매일도.
-          </h2>
-          <p data-layer-id="lifestyle-body" data-edit>
-            화이트 플리츠가 스포츠 장비보다 데일리 소품처럼 자연스럽게 어울립니다.
-          </p>
-        </header>
-        <div class="lifestyle-grid">
-          <figure class="life-walk media-frame">
-            <img
-              src="../asset/generated/approved/image/b02-summer-walk-v01.png"
-              alt="여름 산책길의 루즈핏 쿨토시 실착"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="B02">
-          </figure>
-          <figure class="life-grocery media-frame">
-            <img
-              src="../asset/generated/approved/image/b03-grocery-cart-v01.png"
-              alt="장보는 일상에 착용한 화이트 쿨토시"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="B03">
-          </figure>
-          <figure class="life-drink media-frame">
-            <img
-              src="../asset/generated/approved/image/c04-iced-drink-hand-v01.png"
-              alt="차가운 음료를 든 손의 손등 커프"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="C04">
-          </figure>
-          <figure class="life-phone media-frame">
-            <img
-              src="../asset/generated/approved/image/c05-phone-use-close-v01.png"
-              alt="휴대전화를 사용하는 손의 쿨토시 실착"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="C05">
-          </figure>
-          <figure class="life-tote media-frame">
-            <img
-              src="../asset/generated/approved/image/c06-tote-walk-v01.png"
-              alt="토트백을 들고 걷는 여름 외출 모습"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="C06">
-          </figure>
-          <figure class="life-reading media-frame">
-            <img
-              src="../asset/generated/approved/image/c07-balcony-reading-v01.png"
-              alt="창가에서 책을 읽는 손의 루즈핏 쿨토시"
-              width="1024"
-              height="1536"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="C07">
-          </figure>
-          <figure class="life-window" aria-hidden="true">
-            <img
-              src="../asset/generated/approved/image/b04-window-desk-background-v01.png"
-              alt=""
-              width="2048"
-              height="1152"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="B04">
-          </figure>
-          <figure class="life-market" aria-hidden="true">
-            <img
-              src="../asset/generated/approved/image/e05-grocery-aisle-background-v01.png"
-              alt=""
-              width="2048"
-              height="1152"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="E05">
-          </figure>
-        </div>
-        <figure class="motion-frame lifestyle-motion">
-          <img
-            src="../asset/generated/approved/gif/gif-009-summer-outing-style-v02.gif"
-            alt="여름 산책과 독서 장면으로 이어지는 데일리 스타일"
-            width="800"
-            height="800"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="GIF-009">
-          <figcaption data-layer-id="lifestyle-motion-caption" data-edit>
-            한 가지 화이트로 이어지는 여름 일상
-          </figcaption>
-        </figure>
-      </section>
-
-      <section class="section carry" data-section="carry">
-        <figure class="carry-background" aria-hidden="true">
-          <img
-            src="../asset/generated/approved/image/e03-pale-coral-table-background-v01.png"
-            alt=""
-            width="2048"
-            height="1152"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="E03">
-        </figure>
-        <header class="section-heading centered">
-          <h2 data-layer-id="carry-title" data-edit>
-            접으면 작게,<br>
-            필요할 때 꺼내서.
-          </h2>
-          <p data-layer-id="carry-body" data-edit>
-            한 쌍을 접어 여름 가방 안에 넣는 모습을 보여드립니다.
-          </p>
-        </header>
-        <div class="carry-grid">
-          <figure class="media-frame">
-            <img
-              src="../asset/generated/approved/image/b05-folded-pouch-v01.png"
-              alt="파우치 옆에 접어 둔 쿨토시 한 쌍"
-              width="1024"
-              height="1024"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="B05">
-          </figure>
-          <figure class="media-frame">
-            <img
-              src="../asset/generated/approved/image/d08-folded-pair-stack-v04.png"
-              alt="서로 겹치지 않게 접어 둔 동일한 쿨토시 한 쌍"
-              width="1024"
-              height="1024"
-              loading="lazy"
-              data-edit-image
-              data-asset-id="D08">
-          </figure>
-        </div>
-        <figure class="motion-frame carry-motion">
-          <img
-            src="../asset/generated/approved/gif/gif-010-folded-storage-form-v01.gif"
-            alt="쿨토시 한 쌍을 접어 보관하는 형태"
-            width="800"
-            height="800"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="GIF-010">
-          <figcaption data-layer-id="carry-motion-caption" data-edit>
-            한 쌍을 가지런히 접는 보관 형태
-          </figcaption>
-        </figure>
-      </section>
-
-      <section class="section spec" data-section="size-spec">
-        <header class="section-heading">
-          <p class="kicker" data-layer-id="spec-kicker" data-edit>상품 정보</p>
-          <h2 data-layer-id="spec-title" data-edit>
-            길이 47cm<br>
-            평면 폭 14cm
-          </h2>
-          <p data-layer-id="spec-body" data-edit>
-            공급처 표기 기준이며 측정 위치와 방식에 따라 차이가 있을 수 있습니다.
-          </p>
-        </header>
-        <figure class="spec-measure media-frame">
-          <img
-            src="../asset/generated/approved/image/b07-measurement-flatlay-v01.png"
-            alt="자를 나란히 두고 본 쿨토시 단품의 길이"
-            width="1024"
-            height="1536"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="B07">
-        </figure>
-        <figure class="spec-single media-frame">
-          <img
-            src="../asset/generated/approved/image/a02-single-front-v01.png"
-            alt="펼쳐 놓은 화이트 쿨토시 단품"
-            width="1024"
-            height="1536"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="A02">
-        </figure>
-        <figure class="spec-banner media-frame">
-          <img
-            src="../asset/generated/approved/image/e07-pair-wide-banner-v02.png"
-            alt="넓게 펼쳐 놓은 화이트 쿨토시 한 쌍"
-            width="1536"
-            height="1024"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="E07">
-        </figure>
-        <dl class="spec-facts">
-          <div>
-            <dt data-layer-id="spec-config-label" data-edit>구성</dt>
-            <dd data-layer-id="spec-config-value" data-edit>화이트 쿨토시 1쌍</dd>
+          <span data-edit class="eyebrow">SALLANG SUMMER ESSENTIAL</span>
+          <h1 data-edit id="hero-title">그늘은 길게,<br />실루엣은 가볍게.</h1>
+          <p data-edit>루즈핏 쿨토시</p>
+          <div class="hero-tags" aria-label="상품 핵심 특징">
+            <span data-edit>루즈핏 플리츠</span>
+            <span data-edit>손등 커버</span>
+            <span data-edit>시원한 쿨 소재</span>
+            <span data-edit>화이트 데일리</span>
           </div>
-          <div>
-            <dt data-layer-id="spec-color-label" data-edit>색상</dt>
-            <dd data-layer-id="spec-color-value" data-edit>화이트</dd>
-          </div>
-          <div>
-            <dt data-layer-id="spec-maker-label" data-edit>제조사</dt>
-            <dd data-layer-id="spec-maker-value" data-edit>살랑</dd>
-          </div>
-        </dl>
+        </div>
       </section>
 
-      <section class="section finale" data-section="decision-recap">
-        <figure class="finale-photo media-frame">
-          <img
-            src="../asset/generated/approved/image/b08-final-recap-hero-v01.png"
-            alt="모델 실착과 제품 한 쌍을 함께 보여주는 최종 이미지"
-            width="2160"
-            height="3840"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="B08">
+      <section data-section="pain-intro" class="pain-intro section-pad" aria-labelledby="pain-title">
+        <span data-edit class="eyebrow">SUMMER DILEMMA</span>
+        <h2 data-edit id="pain-title" class="headline">가리고는 싶지만,<br />포기하고 싶지 않은 것들.</h2>
+        <p data-edit class="lead">여름 토시 앞에서 망설이게 되는 이유는<br />하나가 아니니까요.</p>
+      </section>
+
+      <section data-section="pain-stack" class="pain-stack" aria-label="세 가지 여름 팔토시 불편">
+        <article class="pain-card">
+          <img data-edit-image data-asset-id="rev021-media-02" src="../deliverables/rev021-commercial/media/images/pain-tight.png" alt="팔에 밀착되는 스포츠형 팔토시를 착용한 모습" />
+          <p data-edit class="message"><small>01 · FIT</small>햇빛은 피하고 싶은데,<br />팔까지 꼭 조여야 할까요?</p>
+        </article>
+        <article class="pain-card">
+          <img data-edit-image data-asset-id="rev021-media-03" src="../deliverables/rev021-commercial/media/images/pain-hand.png" alt="손목에서 끝나 손등이 드러나는 팔토시를 바라보는 모습" />
+          <p data-edit class="message"><small>02 · LENGTH</small>손목에서 멈춘 커버,<br />손등은 또 그대로.</p>
+        </article>
+        <article class="pain-card">
+          <img data-edit-image data-asset-id="rev021-media-04" src="../deliverables/rev021-commercial/media/images/pain-style.png" alt="일상 옷차림과 스포티한 팔토시를 함께 살펴보는 모습" />
+          <p data-edit class="message"><small>03 · STYLE</small>등산용 토시는 조금…<br />오늘의 옷차림까지 무거워 보이니까.</p>
+        </article>
+      </section>
+
+      <section data-section="answer" class="answer" aria-labelledby="answer-title">
+        <img data-edit-image data-asset-id="rev021-media-05" src="../deliverables/rev021-commercial/media/images/product-answer.png" alt="화이트 루즈핏 쿨토시를 양팔에 착용한 여성" />
+        <div class="answer-copy">
+          <span data-edit class="eyebrow">THE SALLANG ANSWER</span>
+          <h2 data-edit id="answer-title">오늘의 옷에 살랑,<br />여름 햇빛 아래엔 가볍게.</h2>
+          <p data-edit>달라붙지 않는 주름과<br />손등까지 이어지는 길이.</p>
+          <div class="answer-list" aria-label="살랑의 네 가지 특징">
+            <span data-edit>LOOSE FIT</span>
+            <span data-edit>HAND COVER</span>
+            <span data-edit>COOL MATERIAL</span>
+            <span data-edit>DAILY STYLE</span>
+          </div>
+        </div>
+      </section>
+
+      <section data-section="loose-fit" class="feature blue" aria-labelledby="loose-title">
+        <p data-edit class="feature-number">01 · LOOSE FIT</p>
+        <h2 data-edit id="loose-title">바람이 머무는 듯,<br />주름 사이에 남겨둔 여유.</h2>
+        <p data-edit class="feature-copy">팔선을 타이트하게 누르기보다<br />가늘고 긴 플리츠가 여유롭게 떨어집니다.</p>
+        <figure class="still-frame">
+          <img data-edit-image data-asset-id="rev021-media-06" src="../deliverables/rev021-commercial/media/images/loosefit.png" alt="팔을 따라 길고 여유 있게 떨어지는 화이트 플리츠" />
         </figure>
+        <figure class="proof-block">
+          <figcaption><strong>꼭 붙는 핏과, 살랑이는 핏</strong><span data-edit>SLIDE TO COMPARE</span></figcaption>
+          <img data-edit-image data-asset-id="rev021-media-07" src="../deliverables/rev021-commercial/media/gifs/gif-016-loosefit-compare-v03.gif" alt="밀착형과 루즈핏을 슬라이드로 비교하는 장면" />
+        </figure>
+        <div class="mini-proof-grid">
+          <figure class="mini-proof">
+            <strong>움직일 때도 남는 여유</strong>
+            <img data-edit-image data-asset-id="rev021-media-08" src="../deliverables/rev021-commercial/media/gifs/gif-007-loose-drape-silhouette-v01.gif" alt="팔 움직임에 따라 루즈한 플리츠가 이어지는 모습" />
+          </figure>
+          <figure class="mini-proof">
+            <strong>가까이 보면 잔잔한 플리츠</strong>
+            <img data-edit-image data-asset-id="rev021-media-09" src="../deliverables/rev021-commercial/media/gifs/gif-004-pleat-texture-v01.gif" alt="화이트 원단의 가늘고 불규칙한 플리츠 질감" />
+          </figure>
+        </div>
+      </section>
+
+      <section data-section="hand-cover" class="feature" aria-labelledby="hand-title">
+        <p data-edit class="feature-number">02 · HAND COVER</p>
+        <h2 data-edit id="hand-title">손끝의 움직임은 자유롭게,<br />그늘은 손등까지.</h2>
+        <p data-edit class="feature-copy">엄지는 자연스럽게 빼고,<br />넓은 커프는 손등 위로 길게 이어집니다.</p>
+        <figure class="still-frame">
+          <img data-edit-image data-asset-id="rev021-media-10" src="../deliverables/rev021-commercial/media/images/hand-cover.png" alt="엄지홀과 손등 커프, 라벨이 보이는 착용 모습" />
+        </figure>
+        <figure class="proof-block">
+          <figcaption><strong>엄지홀에서 손등까지 이어지는 방향</strong><span data-edit>HAND-BACK COVER</span></figcaption>
+          <img data-edit-image data-asset-id="rev021-media-11" src="../deliverables/rev021-commercial/media/gifs/gif-001-thumbhole-direction-hybrid-v01.gif" alt="엄지홀을 기준으로 손등과 손바닥 방향을 보여주는 장면" />
+        </figure>
+        <figure class="proof-block">
+          <figcaption><strong>손등 위에 자연스럽게 놓이는 라벨</strong><span data-edit>LABEL POSITION</span></figcaption>
+          <img data-edit-image data-asset-id="rev021-media-12" src="../deliverables/rev021-commercial/media/gifs/gif-006-label-placement-v01.gif" alt="손등 커프 위 라벨 위치를 가까이 보여주는 장면" />
+        </figure>
+      </section>
+
+      <section data-section="cool-material" class="feature warm" aria-labelledby="cool-title">
+        <p data-edit class="feature-number">03 · COOL MATERIAL</p>
+        <h2 data-edit id="cool-title">뜨거운 하루 위,<br />한 겹 더 시원한 선택.</h2>
+        <p data-edit class="feature-copy">여름을 위해 고른 시원한 쿨 소재.<br />높았던 열감이 차분히 내려가는 방향으로.</p>
+        <div class="cool-scene">
+          <img data-edit-image data-asset-id="rev021-media-13" src="../deliverables/rev021-commercial/media/images/cool-material.png" alt="따뜻한 색에서 시원한 푸른색으로 이어지는 쿨토시 착용 장면" />
+          <p data-edit>따뜻한 바깥 공기에서<br />산뜻한 여름 착용감으로.</p>
+        </div>
+        <figure class="proof-block">
+          <figcaption><strong>한눈에 읽히는 쿨링의 방향</strong><span data-edit>WARM → COOL</span></figcaption>
+          <img data-edit-image data-asset-id="rev021-media-14" src="../deliverables/rev021-commercial/media/gifs/gif-017-cooling-bar-drop-v03.gif" alt="막대와 꺾인 선이 단계적으로 낮아지는 쿨 소재 그래픽" />
+        </figure>
+      </section>
+
+      <section data-section="daily-style" class="feature blue" aria-labelledby="style-title">
+        <p data-edit class="feature-number">04 · DAILY STYLE</p>
+        <h2 data-edit id="style-title">기능은 가볍게,<br />오늘의 룩은 그대로.</h2>
+        <p data-edit class="feature-copy">스포티한 장비 대신 화이트 플리츠.<br />캐주얼부터 출근 룩, 원피스까지 자연스럽게.</p>
+        <div class="style-grid" aria-label="세 가지 스타일">
+          <figure class="style-card">
+            <img data-edit-image data-asset-id="rev021-media-15" src="../deliverables/rev021-commercial/media/images/style-casual.png" alt="화이트 상의와 데님에 매치한 쿨토시" />
+            <figcaption>CASUAL</figcaption>
+          </figure>
+          <figure class="style-card">
+            <img data-edit-image data-asset-id="rev021-media-16" src="../deliverables/rev021-commercial/media/images/style-office.png" alt="블랙 상의와 아이보리 팬츠에 매치한 쿨토시" />
+            <figcaption>OFFICE</figcaption>
+          </figure>
+          <figure class="style-card">
+            <img data-edit-image data-asset-id="rev021-media-17" src="../deliverables/rev021-commercial/media/images/style-dress.png" alt="페일 블루 원피스에 매치한 쿨토시" />
+            <figcaption>DRESS</figcaption>
+          </figure>
+        </div>
+        <figure class="proof-block">
+          <figcaption><strong>같은 화이트 플리츠, 세 가지 무드</strong><span data-edit>STYLE MATCH CUT</span></figcaption>
+          <img data-edit-image data-asset-id="rev021-media-18" src="../deliverables/rev021-commercial/media/gifs/gif-018-style-matchcut-v03.gif" alt="같은 모델의 캐주얼, 모노톤, 원피스 착장이 차례로 바뀌는 장면" />
+        </figure>
+      </section>
+
+      <section data-section="how-to" class="howto" aria-labelledby="howto-title">
+        <span data-edit class="eyebrow">EASY 3 STEP</span>
+        <h2 data-edit id="howto-title">팔을 넣고,<br />엄지를 쏙.</h2>
+        <p data-edit class="lead">상단은 평평하게 정돈하고<br />손등 커프를 자연스럽게 맞춰 주세요.</p>
+        <div class="steps" aria-label="착용 순서">
+          <p data-edit class="step"><b>1</b>팔 넣기 🫳</p>
+          <p data-edit class="step"><b>2</b>위로 올리기 ↗</p>
+          <p data-edit class="step"><b>3</b>엄지를 쏙 👍</p>
+        </div>
+        <figure class="proof-block">
+          <figcaption><strong>세 장면으로 끝나는 간단한 착용</strong><span data-edit>NO TWIST</span></figcaption>
+          <img data-edit-image data-asset-id="rev021-media-19" src="../deliverables/rev021-commercial/media/gifs/gif-019-howto-no-twist-v03.gif" alt="팔을 넣고 위로 올린 뒤 엄지를 넣는 세 단계 착용 장면" />
+        </figure>
+        <figure class="proof-block">
+          <figcaption><strong>접으면 가볍게, 필요할 때 꺼내서</strong><span data-edit>DAILY CARRY</span></figcaption>
+          <img data-edit-image data-asset-id="rev021-media-20" src="../deliverables/rev021-commercial/media/gifs/gif-010-folded-storage-form-v01.gif" alt="쿨토시 한 쌍을 접어 보관하는 모습" />
+        </figure>
+      </section>
+
+      <section data-section="customer-voice" class="voice" aria-labelledby="voice-title">
+        <span data-edit class="eyebrow">BEFORE YOU CHOOSE</span>
+        <h2 data-edit id="voice-title">처음의 망설임마다,<br />살랑의 답을 하나씩.</h2>
+        <div class="chat-list">
+          <p data-edit class="chat">“팔에 꼭 붙는 느낌은 싫어요.”</p>
+          <p data-edit class="chat answer-chat">가늘고 긴 플리츠가 남겨둔 루즈한 여유.</p>
+          <p data-edit class="chat">“손목에서 끝나면 손등이 신경 쓰여요.”</p>
+          <p data-edit class="chat answer-chat">엄지홀에서 손등까지 자연스럽게 이어지는 커프.</p>
+          <p data-edit class="chat">“오늘 옷과 겉도는 스포츠 토시는 부담스러워요.”</p>
+          <p data-edit class="chat answer-chat">화이트 플리츠로 가볍게 이어지는 데일리 스타일.</p>
+        </div>
+      </section>
+
+      <section data-section="composition" class="composition" aria-labelledby="composition-title">
+        <span data-edit class="eyebrow">ONE SET · TWO SLEEVES</span>
+        <h2 data-edit id="composition-title">오늘의 그늘,<br />한 쌍으로.</h2>
+        <p data-edit class="lead">화이트 루즈핏 쿨토시 1세트 · 2개입</p>
+        <figure class="proof-block">
+          <figcaption><strong>같은 길이와 형태로 나란히</strong><span data-edit>PAIR REVEAL</span></figcaption>
+          <img data-edit-image data-asset-id="rev021-media-21" src="../deliverables/rev021-commercial/media/gifs/gif-020-pair-reveal-v03.gif" alt="화이트 쿨토시 두 개를 차례로 강조하는 상품 구성 장면" />
+        </figure>
+        <figure class="pair-still">
+          <img data-edit-image data-asset-id="rev021-media-22" src="../deliverables/rev021-commercial/media/images/product-pair.png" alt="같은 길이와 크기로 나란히 놓인 화이트 쿨토시 한 쌍" />
+        </figure>
+      </section>
+
+      <section data-section="spec" class="spec" aria-labelledby="spec-title">
+        <h2 data-edit id="spec-title">고르기 전,<br />크기와 구성을 확인하세요.</h2>
+        <table class="spec-table">
+          <tbody>
+            <tr>
+              <th data-edit scope="row">상품명</th>
+              <td data-edit>루즈핏 쿨토시</td>
+            </tr>
+            <tr>
+              <th data-edit scope="row">색상</th>
+              <td data-edit>화이트</td>
+            </tr>
+            <tr>
+              <th data-edit scope="row">구성</th>
+              <td data-edit>1세트 · 2개입</td>
+            </tr>
+            <tr>
+              <th data-edit scope="row">크기</th>
+              <td data-edit>길이 약 47cm · 평면 폭 약 14cm</td>
+            </tr>
+            <tr>
+              <th data-edit scope="row">특징</th>
+              <td data-edit>루즈핏 플리츠 · 손등 커프 · 엄지홀 · 쿨 소재</td>
+            </tr>
+            <tr>
+              <th data-edit scope="row">제조사</th>
+              <td data-edit>살랑</td>
+            </tr>
+          </tbody>
+        </table>
+        <p data-edit class="size-note">크기는 공급처 표기 기준이며 측정 위치와 방식에 따라 차이가 있을 수 있습니다. 밝은 빛과 피부톤에 따라 화이트 소재의 얇은 인상이 느껴질 수 있습니다.</p>
+      </section>
+
+      <section data-section="finale" class="finale" aria-labelledby="final-title">
+        <img data-edit-image data-asset-id="rev021-media-23" src="../deliverables/rev021-commercial/media/images/finale.png" alt="화이트 루즈핏 쿨토시를 상완부터 손등까지 길게 착용한 여성" />
         <div class="finale-copy">
-          <p class="finale-points" data-layer-id="finale-points" data-edit>
-            루즈핏 / 손등 커버 / 화이트 플리츠 / 실물 기준
-          </p>
-          <h2 data-layer-id="finale-title" data-edit>
-            조이지 않아 살랑,<br>
-            손등까지 가볍게.
-          </h2>
-          <p data-layer-id="finale-body" data-edit>
-            여름 일상에 자연스럽게 이어지는 살랑 루즈핏 쿨토시
-          </p>
+          <h2 data-edit id="final-title">오늘의 옷에 살랑,<br />여름의 매일에 가볍게.</h2>
+          <p data-edit>루즈핏 쿨토시</p>
+          <div class="finale-tags" aria-label="최종 핵심 특징">
+            <span data-edit>LOOSE FIT</span>
+            <span data-edit>HAND COVER</span>
+            <span data-edit>COOL MATERIAL</span>
+            <span data-edit>DAILY STYLE</span>
+          </div>
         </div>
-        <figure class="finale-model media-frame">
-          <img
-            src="../asset/generated/approved/image/c08-neutral-full-body-v01.png"
-            alt="화이트 쿨토시를 양팔에 착용한 전신 모습"
-            width="1024"
-            height="1536"
-            loading="lazy"
-            data-edit-image
-            data-asset-id="C08">
-        </figure>
-        <div class="finale-brand" data-layer-id="finale-brand" data-edit>살랑</div>
       </section>
     </main>
-    <script src="app.js"></script>
+    <script>
+      (() => {
+        const localHost =
+          location.protocol === "file:" ||
+          location.hostname === "127.0.0.1" ||
+          location.hostname === "localhost";
+        const reviewEntry =
+          location.protocol === "file:" ||
+          decodeURIComponent(location.pathname).includes(
+            "/deliverables/rev021-commercial/",
+          );
+        if (!localHost || !reviewEntry) return;
+
+        const launcher = document.createElement("a");
+        launcher.href = "http://127.0.0.1:8898/studio.html";
+        launcher.textContent = "Studio에서 편집";
+        launcher.setAttribute("aria-label", "현재 상세페이지를 Studio에서 편집");
+        Object.assign(launcher.style, {
+          position: "fixed",
+          zIndex: "9999",
+          top: "16px",
+          right: "16px",
+          padding: "12px 18px",
+          border: "1px solid rgba(255,255,255,.72)",
+          borderRadius: "999px",
+          background: "rgba(12,63,159,.94)",
+          color: "#fff",
+          boxShadow: "0 12px 32px rgba(12,63,159,.28)",
+          fontSize: "14px",
+          fontWeight: "900",
+          lineHeight: "1",
+          textDecoration: "none",
+          backdropFilter: "blur(10px)",
+        });
+        document.body.append(launcher);
+      })();
+    </script>
+      <script src="app.js"></script>
   </body>
 </html>
