@@ -9,6 +9,13 @@ Studio v1, `output/detail-page.html`, 쿠팡 Wing CDN 출력을 만드는 단일
 
 macOS, Ubuntu, Windows에서 대상 프로젝트 폴더를 연 뒤 같은 명령을 실행한다.
 GitHub 저장소에서 `detail-page-maker-skill` 하나만 프로젝트 로컬로 받는다.
+현재 비공개 저장소에 처음 연결하는 컴퓨터는 접근 권한이 있는 계정으로 아래
+인증을 한 번 마친다.
+
+```sh
+gh auth login
+gh auth setup-git
+```
 
 ```sh
 npx skills add https://github.com/csm-kr/detail-page-maker-skill --skill detail-page-maker-skill --agent codex --yes --copy
@@ -31,7 +38,7 @@ npx skills update detail-page-maker-skill --project --yes
 
 ## 실행 검사
 
-Node.js 22.15.0 이상이 필요하다. GIF 제작에는 `ffmpeg`가 필요하고, motion 작업 시
+Node.js 22.15.0 이상과 GitHub CLI가 필요하다. GIF 제작에는 `ffmpeg`가 필요하고, motion 작업 시
 내장 HyperFrames 절차가 `npx hyperframes`로 프로젝트 로컬 런타임을 준비한다.
 실제 브라우저 수집·검수에는 `browser-harness` 실행 파일이 필요하다. 이들은
 별도 스킬이 아니라 세 운영체제에서 사용하는 실행 프로그램이다.

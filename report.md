@@ -128,6 +128,8 @@ worker, native addon, WASI 권한은 받지 않는다.
 ## 7. 설치와 재사용
 
 사용자는 다음 Git 기반 명령으로 본 스킬 하나만 프로젝트 로컬에 설치한다.
+저장소가 비공개인 동안 새 컴퓨터에서는 접근 권한이 있는 계정으로
+`gh auth login`과 `gh auth setup-git`을 최초 한 번 실행한다.
 
 ```sh
 npx skills add https://github.com/csm-kr/detail-page-maker-skill --skill detail-page-maker-skill --agent codex --yes --copy

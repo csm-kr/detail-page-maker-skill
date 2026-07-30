@@ -14,6 +14,14 @@
 
 대상 프로젝트 폴더에서 실행한다.
 
+현재 비공개 저장소를 새 컴퓨터에서 처음 받는 경우 먼저 접근 권한이 있는
+GitHub 계정을 Git에 연결한다.
+
+```sh
+gh auth login
+gh auth setup-git
+```
+
 ```sh
 npx skills add https://github.com/csm-kr/detail-page-maker-skill --skill detail-page-maker-skill --agent codex --yes --copy
 ```
@@ -43,7 +51,7 @@ node .agents/skills/detail-page-maker-skill/scripts/e2e.mjs
 ## 런타임
 
 - Node.js 22.15.0 이상: 필수
-- Git 및 npm/npx: 설치·업데이트에 필수
+- Git, GitHub CLI 및 npm/npx: 비공개 Git 원본의 설치·업데이트에 필수
 - HyperFrames: motion 단계에서 `npx hyperframes`로 프로젝트 로컬 준비
 - ffmpeg: GIF·motion 제작에 필수
 - browser-harness 실행 파일: 공급처·쿠팡·Behance 수집과 브라우저 QA에 필수
