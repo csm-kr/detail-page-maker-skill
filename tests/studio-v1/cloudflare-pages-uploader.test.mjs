@@ -4,6 +4,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  realpath,
   rm,
   writeFile,
 } from "node:fs/promises";
@@ -30,8 +31,9 @@ const PUBLIC_BASE_URL = `https://${PAGES_PROJECT}.pages.dev`;
 const PUBLISHER_ID = "studio-publisher-test";
 const TEST_WRITER_ID = "writer-test-machine-0001";
 const TEST_OWNER_SECRET = Buffer.alloc(32, 0x5a);
+const TEST_TEMP_ROOT = await realpath(os.tmpdir());
 const TEST_LOCK_ROOT = path.join(
-  os.tmpdir(),
+  TEST_TEMP_ROOT,
   `detail-page-maker-pages-lock-test-${process.pid}`,
 );
 
@@ -79,7 +81,7 @@ async function fixture({
   extraRuntimeFiles = [],
 } = {}) {
   const projectRoot = await mkdtemp(
-    path.join(os.tmpdir(), "cloudflare-pages-uploader-"),
+    path.join(TEST_TEMP_ROOT, "cloudflare-pages-uploader-"),
   );
   const runtimeRoot = path.join(
     projectRoot,
@@ -1430,7 +1432,7 @@ test("seal 뒤 package main·exports drift는 다른 pinned module 선택 전에
 
 test("permission launcher는 pinned child_process helper를 side effect 전에 차단한다", async () => {
   const markerRoot = await mkdtemp(
-    path.join(os.tmpdir(), "wrangler-child-permission-"),
+    path.join(TEST_TEMP_ROOT, "wrangler-child-permission-"),
   );
   const markerPath = path.join(markerRoot, "child-executed");
   const childSource = `require("node:fs").writeFileSync(${JSON.stringify(markerPath)}, "executed")`;
@@ -1574,7 +1576,7 @@ test("sealed launcher는 preflight 뒤 import 직전 변조된 module을 실행�
 
 test("기본 secure owner provider는 machine-local record를 wx로 만들고 안정적으로 재사용한다", async () => {
   const stateRoot = await mkdtemp(
-    path.join(os.tmpdir(), "cloudflare-owner-provider-"),
+    path.join(TEST_TEMP_ROOT, "cloudflare-owner-provider-"),
   );
   try {
     const first = await defaultCloudflareOwnerProvider({ stateRoot });
@@ -1582,7 +1584,7 @@ test("기본 secure owner provider는 machine-local record를 wx로 만들고 �
     assert.equal(first.writerId, second.writerId);
     assert.deepEqual(first.secret, second.secret);
     assert.equal(first.secret.length, 32);
-    assert.equal(first.stateRoot, path.resolve(stateRoot));
+    assert.equal(first.stateRoot, await realpath(stateRoot));
     const ownerRecord = JSON.parse(
       await readFile(
         path.join(stateRoot, "cloudflare-pages-writer-v1.json"),

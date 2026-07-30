@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import {
   mkdir,
   readFile,
+  realpath,
   rename,
   writeFile,
 } from "node:fs/promises";
@@ -484,7 +485,21 @@ export function createStudioG4Pipeline({
         "현재 G4A의 fresh page.html_revision과 assembly ID/hash가 정확히 같아야 합니다.",
       );
     }
-    resolveInside(root, workingState?.root, "working_state.root");
+    let canonicalWorkingRoot;
+    try {
+      canonicalWorkingRoot = await realpath(
+        path.resolve(String(workingState?.root ?? "")),
+      );
+    } catch {
+      fail(
+        "STUDIO_PATH_OUTSIDE_PROJECT",
+        "working_state.root는 프로젝트 내부의 실제 디렉터리여야 합니다.",
+        403,
+        { field: "working_state.root" },
+      );
+    }
+    resolveInside(root, canonicalWorkingRoot, "working_state.root");
+    workingState.root = canonicalWorkingRoot;
     const snapshot = await inspectStudioWorkingState({
       projectRoot: root,
       assembly,
