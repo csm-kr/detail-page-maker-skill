@@ -4,6 +4,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  realpath,
   readdir,
   rm,
   writeFile,
@@ -299,8 +300,8 @@ function qaBundle(snapshot, {
 }
 
 async function createFixture() {
-  const projectRoot = await mkdtemp(
-    path.join(os.tmpdir(), "studio-commit-"),
+  const projectRoot = await realpath(
+    await mkdtemp(path.join(os.tmpdir(), "studio-commit-")),
   );
   const assemblyRoot = path.join(projectRoot, "html", "assembly-source");
   const workingRoot = path.join(projectRoot, "studio", "working", "working-1");
