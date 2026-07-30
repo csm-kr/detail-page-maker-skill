@@ -372,6 +372,7 @@ export function createStudioG4Pipeline({
   baseUrlFor,
 }) {
   const root = path.resolve(projectRoot);
+  const canonicalRootPromise = realpath(root);
   const sessionRoot = path.join(
     root,
     ".detail-page",
@@ -498,7 +499,11 @@ export function createStudioG4Pipeline({
         { field: "working_state.root" },
       );
     }
-    resolveInside(root, canonicalWorkingRoot, "working_state.root");
+    resolveInside(
+      await canonicalRootPromise,
+      canonicalWorkingRoot,
+      "working_state.root",
+    );
     workingState.root = canonicalWorkingRoot;
     const snapshot = await inspectStudioWorkingState({
       projectRoot: root,
@@ -580,7 +585,11 @@ export function createStudioG4Pipeline({
       path.resolve(session.working_state.root),
       "index.html",
     );
-    resolveInside(root, htmlPath, "working index.html");
+    resolveInside(
+      await canonicalRootPromise,
+      htmlPath,
+      "working index.html",
+    );
     const previousBytes = await readFile(htmlPath);
     try {
       await atomicWrite(htmlPath, payload.html);
@@ -752,7 +761,10 @@ export function createStudioG4Pipeline({
       );
     }
     const revisionRelativePath = posix(
-      path.relative(root, committed.revision_path),
+      path.relative(
+        await canonicalRootPromise,
+        committed.revision_path,
+      ),
     );
     const committedArtifact = {
       artifact_id: committed.revision.artifact_id,

@@ -1683,7 +1683,7 @@ export async function startStudioV1Server({
   cloudflareUploadImpl = uploadCloudflarePagesExport,
   wingVerifyImpl = verifyCdnWingExport,
 }) {
-  const root = await realpath(path.resolve(projectRoot));
+  const root = path.resolve(projectRoot);
   const rootInfo = await stat(root);
   if (!rootInfo.isDirectory()) {
     throw new Error(`프로젝트 폴더가 아닙니다: ${root}`);
