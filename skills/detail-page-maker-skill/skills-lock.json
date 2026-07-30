@@ -6,7 +6,7 @@
       "sourceType": "generated-local",
       "skillPath": "skills/browser-harness/SKILL.md",
       "computedHash": "4cbf53edc1aa424f143cc4b44fedb838a77c1e2cf97e10236a762639c4c8a139",
-      "skillFileSha256": "4cbf53edc1aa424f143cc4b44fedb838a77c1e2cf97e10236a762639c4c8a139"
+      "skillFileSha256": "5f1fe24c7a59cfbc5ea55b3ab8716f51fc1726b2a60bb1c435ff05ef9e7ad485"
     },
     "coupang-extractor": {
       "source": "project-vendored skill",
@@ -20,7 +20,7 @@
       "sourceType": "github",
       "skillPath": "skills/taste-skill/SKILL.md",
       "computedHash": "899b84384f74f540ea5284d9b2e9234e050998b42eacc805410b518d4226c0b3",
-      "skillFileSha256": "2e064e92aca020b2e0bad69326fe7ea55d59005ed53d1a8cbce1bd135d44b8b3"
+      "skillFileSha256": "aa194351b246b8b4799099d4ed7b033d29eab6e6e3d58d8d2172978be7b3ec89"
     },
     "dmk-extractor": {
       "source": "project-vendored skill",
@@ -34,7 +34,7 @@
       "sourceType": "github",
       "skillPath": "skills/god-tibo-gpt-image2-skill/SKILL.md",
       "computedHash": "f76659d544cb092a6c7853f246d679780ecd7df758bccbdef8e5d8a587ac11e7",
-      "skillFileSha256": "6460b741b4f01188cdd2377b6997ca430ba77eeb8641b9dd99466eaaa6fb933c"
+      "skillFileSha256": "4ec656be4be7278fb85add5c7283b5d2b9fb93aeafd8f7a258d541d12591430d"
     },
     "hyperframes": {
       "source": "heygen-com/hyperframes",

@@ -15,9 +15,10 @@ function sorted(values) {
   return [...values].sort((left, right) => left.localeCompare(right));
 }
 
-async function sha256(filePath) {
-  const body = await readFile(filePath);
-  return createHash("sha256").update(body).digest("hex");
+async function sha256Text(filePath) {
+  const body = await readFile(filePath, "utf8");
+  const canonicalBody = body.replace(/\r\n?/gu, "\n");
+  return createHash("sha256").update(canonicalBody, "utf8").digest("hex");
 }
 
 function hashValue(value) {
@@ -50,7 +51,7 @@ export async function inspectDependencyClosure(skillRoot) {
       const expected = String(
         lock.skills?.[skillName]?.skillFileSha256 || "",
       ).toLowerCase();
-      const actual = await sha256(skillFile);
+      const actual = await sha256Text(skillFile);
       if (!expected || expected !== actual) {
         hashMismatches.push({
           skillName,
@@ -112,9 +113,9 @@ export async function createDependencyClosureReceipt(
     skillLockSha256,
     validatorCodeSha256,
   ] = await Promise.all([
-    sha256(path.join(root, "dependencies.json")),
-    sha256(path.join(root, "skills-lock.json")),
-    sha256(new URL(import.meta.url)),
+    sha256Text(path.join(root, "dependencies.json")),
+    sha256Text(path.join(root, "skills-lock.json")),
+    sha256Text(new URL(import.meta.url)),
   ]);
   const unsigned = {
     schema_version: "1.0",

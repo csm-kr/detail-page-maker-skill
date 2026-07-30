@@ -127,6 +127,31 @@ test("스킬 폴더 하나만 복사해도 dependency closure와 E2E가 통과�
   assert.match(`${stdout}\n${stderr}`, /PASS/);
 });
 
+test("번들 잠금 해시는 LF와 CRLF 체크아웃에서 동일하게 검증된다", async (t) => {
+  const fixture = await mkdtemp(path.join(os.tmpdir(), "detail-crlf-skill-"));
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const copiedSkill = path.join(fixture, "detail-page-maker-skill");
+  await cp(SKILL_ROOT, copiedSkill, { recursive: true });
+
+  for (const skillName of REQUIRED_SKILLS) {
+    const skillFile = path.join(
+      copiedSkill,
+      ".agents",
+      "skills",
+      skillName,
+      "SKILL.md",
+    );
+    const body = (await readFile(skillFile, "utf8"))
+      .replace(/\r\n?/gu, "\n")
+      .replace(/\n/gu, "\r\n");
+    await writeFile(skillFile, body, "utf8");
+  }
+
+  const closure = await inspectDependencyClosure(copiedSkill);
+  assert.equal(closure.ok, true);
+  assert.deepEqual(closure.hashMismatches, []);
+});
+
 test("내장 스킬 누락이나 잠금 hash 불일치는 fail-closed한다", async (t) => {
   const fixture = await mkdtemp(path.join(os.tmpdir(), "detail-bundle-fail-"));
   t.after(() => rm(fixture, { recursive: true, force: true }));
