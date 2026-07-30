@@ -111,7 +111,9 @@ function imageItemSpecs(referenceRoot) {
 }
 
 async function withStaging(run) {
-  const root = await mkdtemp(path.join(os.tmpdir(), "production-adapter-"));
+  const root = await realpath(
+    await mkdtemp(path.join(os.tmpdir(), "production-adapter-")),
+  );
   const stagingRoot = path.join(root, "staging");
   await mkdir(stagingRoot);
   try {
@@ -122,7 +124,9 @@ async function withStaging(run) {
 }
 
 async function createHyperframesProject() {
-  const root = await mkdtemp(path.join(os.tmpdir(), "hf-adapter-"));
+  const root = await realpath(
+    await mkdtemp(path.join(os.tmpdir(), "hf-adapter-")),
+  );
   const packageRoot = path.join(
     root,
     "node_modules",
