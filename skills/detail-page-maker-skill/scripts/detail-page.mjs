@@ -1,17 +1,33 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+} from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   adoptProject,
   createProject,
   defaultProjectsRoot,
-} from "./new-project.mjs";
+} from "./lib/new-project.mjs";
 import {
   listProjects,
   validateProjectIsolation,
-} from "./project-manager.mjs";
-import { startStudioV1Server } from "./studio-v1-server.mjs";
+} from "./lib/project-manager.mjs";
+import {
+  buildLearningStatus,
+  renderLearningStatus,
+} from "./maintenance/learning-status.mjs";
+import {
+  createDependencyClosureReceipt,
+  inspectDependencyClosure,
+} from "./orchestration/dependency-closure.mjs";
+import {
+  dispatchParallelProductionFrontier,
+} from "./orchestration/parallel-dispatcher.mjs";
+import { createWorkflowEngine } from "./orchestration/workflow-engine.mjs";
+import { startStudioV1Server } from "./runtime/studio-v1-server.mjs";
 
 const CURRENT_SKILL_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -135,7 +151,7 @@ function probeGodTiboRuntime(localSkill) {
     path: skillRoot || null,
     runnerPath: existsSync(runnerPath || "") ? runnerPath : null,
     runtimeInstalled: existsSync(runtimePackagePath || ""),
-    defaultBatchSize: 8,
+    orchestratorItemChunkSize: 8,
     detail: ok
       ? null
       : "God Tibo GPT Image 2 실행 환경이 없습니다. scripts/setup-local.ps1을 실행하세요.",
@@ -147,6 +163,28 @@ function printHelp() {
 
 Commands:
   doctor
+  workflow-status --project <project-folder> --project-id <ID> --input-digest <SHA-256>
+  workflow-advance --project <project-folder> --project-id <ID> --input-digest <SHA-256>
+                   [--worker-capacity <N> --worker-sessions <ID[,ID]>]
+                   [--production-plan <JSON-file|JSON> --plan-approval <JSON-file|JSON>]
+                   [--approved-image-job-ids <ID[,ID]>]
+  workflow-resume --project <project-folder> --project-id <ID> --input-digest <SHA-256>
+  workflow-decide --project <project-folder> --challenge <ID> --proof <JSON-file>
+  workflow-revision-plan --project <project-folder> --project-id <ID> --input-digest <SHA-256>
+                         --change <JSON-file|JSON> [--agent-session <ID>]
+  workflow-revision-commit --project <project-folder> --project-id <ID> --input-digest <SHA-256>
+                           --plan-digest <SHA-256> --decided-by <ID> --reason <TEXT>
+                           [--agent-session <ID>]
+  workflow-rubric-record --project <project-folder> --project-id <ID> --input-digest <SHA-256>
+                         --result <JSON-file|JSON> --evaluator-session <ID>
+                         [--budget <JSON-file|JSON>] [--scope <full_page|section>]
+  workflow-rubric-status --project <project-folder> --project-id <ID> --input-digest <SHA-256>
+  worker-lease --project <project-folder> --project-id <ID> --input-digest <SHA-256>
+               --agent-session <ID> [--stage <stage-id[,stage-id]>]
+  worker-heartbeat --project <project-folder> --project-id <ID> --input-digest <SHA-256>
+                   --agent-session <ID> --work-order <ID> --fencing-token <TOKEN> --attempt <N>
+  worker-submit --project <project-folder> --work-order <ID> --result <JSON-file>
+  learning-status [--workspace <workspace 폴더>] [--json]
   list [--root <projects 폴더>] [--json]
   validate [--project <프로젝트 폴더> | --root <projects 폴더>] [--json]
   new --name <상품명> --supplier-url <URL> [--root <폴더>] [--no-start]
@@ -159,10 +197,116 @@ Default projects root:
 `);
 }
 
+function workflowContext(args) {
+  if (!args.project || !args["project-id"] || !args["input-digest"]) {
+    throw new Error(
+      "workflow 명령에는 --project, --project-id, --input-digest가 필요합니다.",
+    );
+  }
+  return {
+    projectRoot: path.resolve(args.project),
+    projectRef: {
+      project_id: String(args["project-id"]),
+      input_digest: String(args["input-digest"]),
+      agent_session_id: args["agent-session"]
+        ? String(args["agent-session"])
+        : "cli-coordinator",
+    },
+  };
+}
+
+const ACTUAL_PRODUCT_PHOTO_EXTENSIONS = new Set([
+  ".avif",
+  ".gif",
+  ".heic",
+  ".heif",
+  ".jpeg",
+  ".jpg",
+  ".png",
+  ".webp",
+]);
+
+function explicitBoolean(value, label) {
+  if (value === true) return true;
+  const normalized = String(value).trim().toLowerCase();
+  if (["1", "true", "yes"].includes(normalized)) return true;
+  if (["0", "false", "no"].includes(normalized)) return false;
+  throw new Error(
+    `${label}은 true 또는 false여야 합니다.`,
+  );
+}
+
+function containsActualProductPhoto(directory) {
+  if (!existsSync(directory)) return false;
+  for (const entry of readdirSync(directory, {
+    withFileTypes: true,
+  })) {
+    if (entry.name.startsWith(".")) continue;
+    const entryPath = path.join(directory, entry.name);
+    if (
+      entry.isDirectory() &&
+      containsActualProductPhoto(entryPath)
+    ) {
+      return true;
+    }
+    if (
+      entry.isFile() &&
+      ACTUAL_PRODUCT_PHOTO_EXTENSIONS.has(
+        path.extname(entry.name).toLowerCase(),
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function workflowInputOptions(args, projectRoot) {
+  const explicitField = "actual-product-photos-present";
+  const actualProductPhotosPresent =
+    Object.prototype.hasOwnProperty.call(args, explicitField)
+      ? explicitBoolean(args[explicitField], `--${explicitField}`)
+      : containsActualProductPhoto(
+          path.join(projectRoot, "input", "product"),
+        );
+  return {
+    actual_product_photos_present: actualProductPhotosPresent,
+  };
+}
+
+function readJsonFile(filePath, label) {
+  try {
+    return JSON.parse(readFileSync(path.resolve(filePath), "utf8"));
+  } catch (error) {
+    throw new Error(`${label} JSON을 읽지 못했습니다: ${error.message}`);
+  }
+}
+
+function readJsonArgument(value, label) {
+  if (existsSync(path.resolve(value))) {
+    return readJsonFile(value, label);
+  }
+  try {
+    return JSON.parse(String(value));
+  } catch (error) {
+    throw new Error(`${label} JSON을 읽지 못했습니다: ${error.message}`);
+  }
+}
+
 async function doctor() {
-  const hyperframes = probe("npx", ["hyperframes", "--version"]);
+  // `doctor` is diagnostic-only. Never let npx download or update a runtime.
+  const hyperframes = probe("npx", [
+    "--no-install",
+    "hyperframes",
+    "--version",
+  ]);
   const browserHarness = probe("browser-harness", ["--version"]);
   const ffmpeg = probe("ffmpeg", ["-version"]);
+  const dependencyClosure =
+    await inspectDependencyClosure(CURRENT_SKILL_ROOT);
+  const dependencyClosureReceipt = dependencyClosure.ok
+    ? await createDependencyClosureReceipt(CURRENT_SKILL_ROOT)
+    : null;
   const localSkills = Object.fromEntries(
     requiredLocalSkills().map((skillName) => [
       skillName,
@@ -180,6 +324,7 @@ async function doctor() {
       hyperframes.ok &&
       browserHarness.ok &&
       ffmpeg.ok &&
+      dependencyClosure.ok &&
       localSkillsOk &&
       godTiboGptImage2.ok,
     node: {
@@ -199,6 +344,8 @@ async function doctor() {
       ok: ffmpeg.ok,
       version: ffmpeg.output.split(/\r?\n/)[0] || null,
     },
+    dependencyClosure,
+    dependencyClosureReceipt,
     localSkillRoot: path.join(CURRENT_SKILL_ROOT, ".agents", "skills"),
     localSkills,
     designTasteFrontend: {
@@ -223,6 +370,240 @@ async function main() {
   }
   if (command === "doctor") {
     await doctor();
+    return;
+  }
+  if (command === "learning-status") {
+    const report = await buildLearningStatus({
+      workspaceRoot: path.resolve(args.workspace || process.cwd()),
+    });
+    if (args.json === true) {
+      console.log(JSON.stringify(report, null, 2));
+    } else {
+      process.stdout.write(renderLearningStatus(report));
+    }
+    return;
+  }
+  if (
+    command === "workflow-revision-plan" ||
+    command === "workflow-revision-commit"
+  ) {
+    const { projectRoot, projectRef } = workflowContext(args);
+    const engine = createWorkflowEngine({ projectRoot });
+    let output;
+    if (command === "workflow-revision-plan") {
+      if (!args.change) {
+        throw new Error(
+          "workflow-revision-plan에는 --change가 필요합니다.",
+        );
+      }
+      output = await engine.planRevision(
+        projectRef,
+        readJsonArgument(args.change, "RevisionChange"),
+      );
+    } else {
+      if (
+        !args["plan-digest"] ||
+        !args["decided-by"] ||
+        !args.reason
+      ) {
+        throw new Error(
+          "workflow-revision-commit에는 --plan-digest, --decided-by, --reason이 필요합니다.",
+        );
+      }
+      output = await engine.commitRevision(projectRef, {
+        planDigest: String(args["plan-digest"]),
+        decidedBy: String(args["decided-by"]),
+        reason: String(args.reason),
+      });
+    }
+    console.log(JSON.stringify(output, null, 2));
+    return;
+  }
+  if (
+    command === "workflow-rubric-record" ||
+    command === "workflow-rubric-status"
+  ) {
+    const { projectRoot, projectRef } = workflowContext(args);
+    const engine = createWorkflowEngine({ projectRoot });
+    if (command === "workflow-rubric-status") {
+      const inspected = await engine.inspect(
+        projectRef,
+        workflowInputOptions(args, projectRoot),
+      );
+      console.log(
+        JSON.stringify(
+          {
+            project_id: inspected.project_id,
+            repair_loop: inspected.repair_loop,
+          },
+          null,
+          2,
+        ),
+      );
+      return;
+    }
+    if (!args.result || !args["evaluator-session"]) {
+      throw new Error(
+        "workflow-rubric-record에는 --result와 --evaluator-session이 필요합니다.",
+      );
+    }
+    const output = await engine.recordRubricIteration(
+      projectRef,
+      {
+        evaluator_agent_session_id: String(
+          args["evaluator-session"],
+        ),
+        rubric_result: readJsonArgument(
+          args.result,
+          "RubricResult",
+        ),
+        budget: args.budget
+          ? readJsonArgument(args.budget, "RunBudget")
+          : { state: "AVAILABLE" },
+        scope_kind: args.scope
+          ? String(args.scope)
+          : "full_page",
+      },
+    );
+    console.log(JSON.stringify(output, null, 2));
+    return;
+  }
+  if (
+    [
+      "workflow-status",
+      "workflow-advance",
+      "workflow-resume",
+      "worker-lease",
+      "worker-heartbeat",
+    ].includes(command)
+  ) {
+    const { projectRoot, projectRef } = workflowContext(args);
+    const engine = createWorkflowEngine({ projectRoot });
+    const inputOptions = workflowInputOptions(args, projectRoot);
+    let output;
+    if (command === "workflow-status") {
+      output = await engine.inspect(projectRef, inputOptions);
+    } else if (command === "workflow-advance") {
+      output = await engine.advance(projectRef, {
+        until: args.until || "next_user_gate",
+        ...inputOptions,
+      });
+      const workerSessionIds = String(
+        args["worker-sessions"] ?? "",
+      )
+        .split(",")
+        .map((sessionId) => sessionId.trim())
+        .filter(Boolean);
+      output = await dispatchParallelProductionFrontier({
+        engine,
+        project_ref: projectRef,
+        advance_result: output,
+        production_plan: args["production-plan"]
+          ? readJsonArgument(
+              args["production-plan"],
+              "ProductionPlan",
+            )
+          : null,
+        plan_approval: args["plan-approval"]
+          ? readJsonArgument(
+              args["plan-approval"],
+              "PlanApproval",
+            )
+          : null,
+        approved_image_job_ids: String(
+          args["approved-image-job-ids"] ?? "",
+        )
+          .split(",")
+          .map((jobId) => jobId.trim())
+          .filter(Boolean),
+        worker_capacity: Number(args["worker-capacity"]),
+        worker_session_ids: workerSessionIds,
+        failed_members: args["failed-members"]
+          ? readJsonArgument(
+              args["failed-members"],
+              "FailedMembers",
+            )
+          : [],
+        retry_member_ids: String(
+          args["retry-member-ids"] ?? "",
+        )
+          .split(",")
+          .map((workItemId) => workItemId.trim())
+          .filter(Boolean),
+      });
+    } else if (command === "workflow-resume") {
+      output = await engine.resume(projectRef, {
+        until: args.until || "next_user_gate",
+        ...inputOptions,
+      });
+    } else if (command === "worker-lease") {
+      output = await engine.lease(projectRef, {
+        stage_ids: args.stage
+          ? String(args.stage)
+              .split(",")
+              .map((stageId) => stageId.trim())
+              .filter(Boolean)
+          : [],
+      });
+    } else {
+      if (
+        !args["work-order"] ||
+        !args["fencing-token"] ||
+        !Number.isInteger(Number(args.attempt))
+      ) {
+        throw new Error(
+          "worker-heartbeat에는 --work-order, --fencing-token, --attempt가 필요합니다.",
+        );
+      }
+      output = await engine.heartbeat(
+        String(args["work-order"]),
+        {
+          project_ref: projectRef,
+          fencing_token: String(args["fencing-token"]),
+          attempt: Number(args.attempt),
+        },
+      );
+    }
+    console.log(JSON.stringify(output, null, 2));
+    return;
+  }
+  if (command === "worker-submit") {
+    if (!args.project || !args["work-order"] || !args.result) {
+      throw new Error(
+        "worker-submit에는 --project, --work-order, --result가 필요합니다.",
+      );
+    }
+    const resultEnvelope = readJsonFile(args.result, "ResultEnvelope");
+    const engine = createWorkflowEngine({
+      projectRoot: path.resolve(args.project),
+    });
+    const output = resultEnvelope?.failure_receipt
+      ? await engine.failFrontierWorkItem(
+          String(args["work-order"]),
+          resultEnvelope,
+        )
+      : await engine.submit(
+          String(args["work-order"]),
+          resultEnvelope,
+        );
+    console.log(JSON.stringify(output, null, 2));
+    return;
+  }
+  if (command === "workflow-decide") {
+    if (!args.project || !args.challenge || !args.proof) {
+      throw new Error(
+        "workflow-decide에는 --project, --challenge, --proof가 필요합니다.",
+      );
+    }
+    const decisionProof = readJsonFile(args.proof, "DecisionProof");
+    const engine = createWorkflowEngine({
+      projectRoot: path.resolve(args.project),
+    });
+    const output = await engine.decide(
+      String(args.challenge),
+      decisionProof,
+    );
+    console.log(JSON.stringify(output, null, 2));
     return;
   }
   if (command === "list") {
@@ -328,7 +709,11 @@ async function main() {
 
 if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {
   main().catch((error) => {
-    console.error(error.message || error);
+    const code = error?.code ? `[${error.code}] ` : "";
+    console.error(`ERROR ${code}${error.message || error}`);
+    if (error?.details && Object.keys(error.details).length > 0) {
+      console.error(JSON.stringify({ details: error.details }, null, 2));
+    }
     process.exitCode = 1;
   });
 }

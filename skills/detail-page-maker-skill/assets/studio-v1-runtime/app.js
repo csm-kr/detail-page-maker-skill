@@ -1,5 +1,5 @@
 (() => {
-  const STATE_VERSION = 4;
+  const STATE_VERSION = 5;
   const OBJECT_SELECTOR =
     "[data-edit],[data-edit-image],[data-edit-object],[data-studio-object]";
   const AUTO_SELECTABLE_SELECTOR =
@@ -16,13 +16,14 @@
     '"Black Han Sans", "Arial Black", sans-serif',
     '"Jalnan", "JalnanGothic", sans-serif',
   ]);
-  const projectKey =
-    document.documentElement.dataset.studioProject ||
-    location.pathname.replace(/[^a-z0-9가-힣]+/gi, "-");
-  const STORAGE_KEY = `detail-page-maker:studio-v1:${projectKey}`;
   const body = document.body;
   const page = document.querySelector("#detailPage");
   if (!page) return;
+  if (window.self !== window.top) {
+    document
+      .querySelectorAll("[data-studio-launcher]")
+      .forEach((launcher) => launcher.remove());
+  }
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 
   const editableNodes = () => [...document.querySelectorAll(TEXT_SELECTOR)];
@@ -33,11 +34,14 @@
     [...page.querySelectorAll(":scope > section[data-section]")];
   const objectTransforms = new WeakMap();
   let selectedObject = null;
+  let selectedObjects = new Set();
   let dragState = null;
   let historyStack = [];
   let historyTimer = 0;
   let restoringHistory = false;
   let editorMode = "layout";
+  let sectionCrops = { mobile: {}, desktop: {} };
+  let pendingSerializationNonce = null;
   const SNAP_DISTANCE = 8;
 
   function ensureEditIds() {
@@ -101,14 +105,83 @@
   ensureEditIds();
   body.dataset.editorMode = editorMode;
 
+  const sectionCropStyle =
+    document.querySelector("#studio-section-crop-rules") ||
+    document.createElement("style");
+  sectionCropStyle.id = "studio-section-crop-rules";
+  if (!sectionCropStyle.isConnected) document.head.append(sectionCropStyle);
+
+  function viewportMode() {
+    return window.innerWidth <= 520 ? "mobile" : "desktop";
+  }
+
+  function normalizeSectionCrops(value = {}) {
+    const ids = new Set(
+      sectionNodes().map((section) => section.dataset.section),
+    );
+    const normalized = { mobile: {}, desktop: {} };
+    for (const mode of ["mobile", "desktop"]) {
+      for (const [id, rawHeight] of Object.entries(value?.[mode] || {})) {
+        const height = Math.round(Number(rawHeight));
+        if (ids.has(id) && Number.isFinite(height) && height >= 180) {
+          normalized[mode][id] = Math.min(100000, height);
+        }
+      }
+    }
+    return normalized;
+  }
+
+  function renderSectionCropRules() {
+    const rules = [];
+    for (const [mode, media] of [
+      ["mobile", "(max-width: 520px)"],
+      ["desktop", "(min-width: 521px)"],
+    ]) {
+      const declarations = Object.entries(sectionCrops[mode] || {}).map(
+        ([id, height]) =>
+          `#detailPage > section[data-section="${CSS.escape(id)}"]{height:${height}px!important;min-height:0!important;overflow:hidden!important;}`,
+      );
+      if (declarations.length) {
+        rules.push(`@media ${media}{${declarations.join("")}}`);
+      }
+    }
+    sectionCropStyle.textContent = rules.join("\n");
+  }
+
+  function setSectionCrop(id, rawHeight, requestedMode) {
+    const mode = ["mobile", "desktop"].includes(requestedMode)
+      ? requestedMode
+      : viewportMode();
+    if (!sectionNodes().some((section) => section.dataset.section === id)) {
+      return;
+    }
+    checkpointHistory();
+    if (rawHeight === null || rawHeight === undefined || rawHeight === "") {
+      delete sectionCrops[mode][id];
+    } else {
+      const height = Math.round(Number(rawHeight));
+      if (!Number.isFinite(height) || height < 180) return;
+      sectionCrops[mode][id] = Math.min(100000, height);
+    }
+    renderSectionCropRules();
+    scheduleNotifyReady();
+  }
+
   const interactionStyle = document.createElement("style");
   interactionStyle.dataset.studioInteraction = "";
   interactionStyle.textContent = `
     .is-editing[data-editor-mode="layout"] [data-studio-object] { cursor: grab !important; }
     .is-editing[data-editor-mode="text"] [data-studio-object] { cursor: default !important; }
     .is-editing [data-studio-object].studio-object-selected {
-      outline: 2px solid #176bff !important;
+      outline: 2px solid #4b8df8 !important;
       outline-offset: 3px !important;
+    }
+    .is-editing [data-studio-object].studio-object-selected:not(.studio-object-active) {
+      outline-style: dashed !important;
+      outline-color: #22d3ee !important;
+    }
+    .is-editing [data-studio-object].studio-object-active {
+      box-shadow: 0 0 0 2px rgba(255,255,255,.92), 0 0 0 5px rgba(75,141,248,.52) !important;
     }
     .is-editing[data-editor-mode="layout"] [data-studio-object].studio-object-dragging { cursor: grabbing !important; }
     .is-editing[data-editor-mode="text"] ${TEXT_SELECTOR} { cursor: text !important; }
@@ -131,12 +204,24 @@
   const guideLayer = document.createElement("div");
   guideLayer.dataset.studioInteraction = "";
   guideLayer.setAttribute("aria-hidden", "true");
-  const guideNames = ["safe-left", "center-x", "safe-right", "section-center-y"];
+  const horizontalGuideNames = new Set([
+    "section-safe-top",
+    "section-center-y",
+    "section-safe-bottom",
+  ]);
+  const guideNames = [
+    "safe-left",
+    "center-x",
+    "safe-right",
+    "section-safe-top",
+    "section-center-y",
+    "section-safe-bottom",
+  ];
   const guides = new Map();
   guideNames.forEach((name) => {
     const guide = document.createElement("div");
     guide.className = `studio-guide ${
-      name === "section-center-y" ? "horizontal" : "vertical"
+      horizontalGuideNames.has(name) ? "horizontal" : "vertical"
     }`;
     guide.dataset.guide = name;
     guideLayer.append(guide);
@@ -166,6 +251,28 @@
       node.classList[0] ||
       node.tagName.toLowerCase()
     );
+  }
+
+  function objectLayerMetadata(node) {
+    const section = node.closest("section[data-section]") || page;
+    const layers = objectNodes().filter(
+      (candidate) =>
+        section.contains(candidate) &&
+        !candidate.hasAttribute("data-studio-deleted"),
+    );
+    let domDepth = 0;
+    let current = node;
+    while (current && current !== section) {
+      domDepth += 1;
+      current = current.parentElement;
+    }
+    const computedZIndex = getComputedStyle(node).zIndex;
+    return {
+      layerIndex: Math.max(1, layers.indexOf(node) + 1),
+      layerCount: layers.length,
+      domDepth,
+      zIndex: computedZIndex === "auto" ? "auto" : computedZIndex,
+    };
   }
 
   function currentObjectTransform(node) {
@@ -258,6 +365,9 @@
         src: imageIndex >= 0 ? node.getAttribute("src") || "" : "",
         alt: imageIndex >= 0 ? node.getAttribute("alt") || "" : "",
         text: isText ? node.textContent || "" : "",
+        selectedCount: selectedObjects.size,
+        selectedObjectIds: [...selectedObjects].map(objectId),
+        ...objectLayerMetadata(node),
         ...transform,
         fontFamily: transform.fontFamily || computed.fontFamily,
         color: transform.color || computed.color,
@@ -274,26 +384,56 @@
         objectId: objectId(node),
         label: objectLabel(node),
         isText: node.matches(TEXT_SELECTOR),
+        selectedCount: selectedObjects.size,
+        ...objectLayerMetadata(node),
         ...currentObjectTransform(node),
       },
       "*",
     );
   }
 
-  function selectObject(node) {
-    if (selectedObject !== node) {
-      selectedObject?.classList.remove("studio-object-selected");
+  function syncSelectionClasses() {
+    objectNodes().forEach((node) => {
+      node.classList.toggle("studio-object-selected", selectedObjects.has(node));
+      node.classList.toggle("studio-object-active", node === selectedObject);
+    });
+  }
+
+  function selectObject(node, { additive = false, preserveGroup = false } = {}) {
+    if (additive) {
+      if (selectedObjects.has(node)) {
+        selectedObjects.delete(node);
+        if (selectedObject === node) {
+          selectedObject = [...selectedObjects].at(-1) || null;
+        }
+      } else {
+        selectedObjects.add(node);
+        selectedObject = node;
+      }
+    } else if (!preserveGroup || !selectedObjects.has(node)) {
+      selectedObjects = new Set([node]);
       selectedObject = node;
-      selectedObject.classList.add("studio-object-selected");
+    } else {
+      selectedObject = node;
     }
-    notifyObjectSelected(node);
+    syncSelectionClasses();
+    if (selectedObject) {
+      notifyObjectSelected(selectedObject);
+    } else {
+      hideGuides();
+      window.parent.postMessage({ type: "DETAIL_SELECTION_CLEARED" }, "*");
+    }
   }
 
   function clearObjectSelection() {
-    selectedObject?.classList.remove(
-      "studio-object-selected",
-      "studio-object-dragging",
+    selectedObjects.forEach((node) =>
+      node.classList.remove(
+        "studio-object-selected",
+        "studio-object-active",
+        "studio-object-dragging",
+      ),
     );
+    selectedObjects.clear();
     selectedObject = null;
     dragState = null;
     hideGuides();
@@ -303,7 +443,7 @@
   function setGuide(name, position, active = false) {
     const guide = guides.get(name);
     if (!guide) return;
-    const vertical = name !== "section-center-y";
+    const vertical = !horizontalGuideNames.has(name);
     guide.style[vertical ? "left" : "top"] = `${Math.round(position)}px`;
     guide.classList.add("visible");
     guide.classList.toggle("active", active);
@@ -329,9 +469,19 @@
     setGuide("safe-right", pageRect.right + scrollX - pageRect.width * 0.08, active.has("safe-right"));
     const sectionRect = (section || selectedObject?.closest("section[data-section]") || page).getBoundingClientRect();
     setGuide(
+      "section-safe-top",
+      sectionRect.top + scrollY + sectionRect.height * 0.08,
+      active.has("section-safe-top"),
+    );
+    setGuide(
       "section-center-y",
       sectionRect.top + scrollY + sectionRect.height / 2,
       active.has("section-center-y"),
+    );
+    setGuide(
+      "section-safe-bottom",
+      sectionRect.bottom + scrollY - sectionRect.height * 0.08,
+      active.has("section-safe-bottom"),
     );
   }
 
@@ -359,11 +509,26 @@
       nextX += xCandidates[0].delta;
       active.add(xCandidates[0].name);
     }
-    const sectionCenter = sectionRect.top + sectionRect.height / 2;
-    const yDelta = sectionCenter - (baseTop + nextY + height / 2);
-    if (Math.abs(yDelta) <= SNAP_DISTANCE) {
-      nextY += yDelta;
-      active.add("section-center-y");
+    const topTarget = sectionRect.top + sectionRect.height * 0.08;
+    const centerYTarget = sectionRect.top + sectionRect.height / 2;
+    const bottomTarget = sectionRect.bottom - sectionRect.height * 0.08;
+    const yCandidates = [
+      {
+        name: "section-safe-top",
+        delta: topTarget - (baseTop + nextY),
+      },
+      {
+        name: "section-center-y",
+        delta: centerYTarget - (baseTop + nextY + height / 2),
+      },
+      {
+        name: "section-safe-bottom",
+        delta: bottomTarget - (baseTop + nextY + height),
+      },
+    ].sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta));
+    if (Math.abs(yCandidates[0].delta) <= SNAP_DISTANCE) {
+      nextY += yCandidates[0].delta;
+      active.add(yCandidates[0].name);
     }
     showLayoutGuides(active, node.closest("section[data-section]"));
     return { x: nextX, y: nextY };
@@ -407,16 +572,28 @@
   }
 
   function sectionPayload() {
-    return sectionNodes().map((section, index) => ({
-      id: section.dataset.section,
-      index,
-      hidden: section.hidden,
-      label:
-        section
-          .querySelector("h1,h2")
-          ?.textContent.replace(/\s+/g, " ")
-          .trim() || section.dataset.section,
-    }));
+    const mode = viewportMode();
+    return sectionNodes().map((section, index) => {
+      const id = section.dataset.section;
+      return {
+        id,
+        index,
+        hidden: section.hidden,
+        viewportMode: mode,
+        cropHeight: sectionCrops[mode]?.[id] || null,
+        cropHeights: {
+          mobile: sectionCrops.mobile[id] || null,
+          desktop: sectionCrops.desktop[id] || null,
+        },
+        renderedHeight: Math.ceil(section.getBoundingClientRect().height),
+        contentHeight: Math.ceil(section.scrollHeight),
+        label:
+          section
+            .querySelector("h1,h2")
+            ?.textContent.replace(/\s+/g, " ")
+            .trim() || id,
+      };
+    });
   }
 
   function notifyReady() {
@@ -452,139 +629,6 @@
     readyTimer = setTimeout(flushReadyNotification, 80);
   }
 
-  function blobToDataUrl(blob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () =>
-        reject(reader.error || new Error("에셋을 읽지 못했습니다."));
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  async function fetchAsDataUrl(source) {
-    if (/^data:/i.test(source)) return source;
-    const assetUrl = new URL(source, document.baseURI);
-    const response = await fetch(assetUrl, { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error(
-        `${assetUrl.pathname.split("/").pop()} 에셋을 불러오지 못했습니다.`,
-      );
-    }
-    return blobToDataUrl(await response.blob());
-  }
-
-  function outputFileName() {
-    const configured = document.body.dataset.exportName;
-    if (configured) return configured;
-    const slug = document.title
-      .replace(/상세페이지|작업본/gi, "")
-      .trim()
-      .replace(/[<>:"/\\|?*\u0000-\u001f]+/g, "-")
-      .replace(/\s+/g, "-");
-    return `${slug || "detail-page"}-standalone.html`;
-  }
-
-  async function exportEditedHtml() {
-    if (location.protocol === "file:") {
-      throw new Error(
-        "에셋 포함 내보내기는 detail-page.mjs start로 연 Studio에서 사용해 주세요.",
-      );
-    }
-    const documentCopy = document.documentElement.cloneNode(true);
-    documentCopy.querySelector("body")?.classList.remove("is-editing");
-    documentCopy
-      .querySelectorAll("[data-studio-interaction]")
-      .forEach((node) => node.remove());
-    documentCopy
-      .querySelectorAll(".studio-object-selected,.studio-object-dragging")
-      .forEach((node) =>
-        node.classList.remove(
-          "studio-object-selected",
-          "studio-object-dragging",
-        ),
-      );
-    documentCopy.querySelectorAll("[contenteditable]").forEach((node) => {
-      node.removeAttribute("contenteditable");
-    });
-    documentCopy
-      .querySelectorAll("[data-studio-deleted]")
-      .forEach((node) => node.remove());
-    documentCopy.setAttribute("data-export", "self-contained");
-
-    const sourceImages = [...document.querySelectorAll("img[src]")];
-    const copiedImages = [...documentCopy.querySelectorAll("img[src]")];
-    for (let index = 0; index < sourceImages.length; index += 1) {
-      const source = sourceImages[index].getAttribute("src");
-      copiedImages[index].setAttribute(
-        "src",
-        await fetchAsDataUrl(source),
-      );
-      copiedImages[index].removeAttribute("data-edit-image");
-      window.parent.postMessage(
-        {
-          type: "DETAIL_EXPORT_PROGRESS",
-          completed: index + 1,
-          total: sourceImages.length,
-        },
-        "*",
-      );
-    }
-
-    const sourceStylesheets = [
-      ...document.querySelectorAll('link[rel="stylesheet"][href]'),
-    ];
-    const copiedStylesheets = [
-      ...documentCopy.querySelectorAll('link[rel="stylesheet"][href]'),
-    ];
-    for (let index = 0; index < sourceStylesheets.length; index += 1) {
-      const stylesheetUrl = new URL(
-        sourceStylesheets[index].getAttribute("href"),
-        document.baseURI,
-      );
-      const response = await fetch(stylesheetUrl, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error("상세페이지 스타일을 불러오지 못했습니다.");
-      }
-      const style = documentCopy.ownerDocument.createElement("style");
-      style.textContent = await response.text();
-      copiedStylesheets[index].replaceWith(style);
-    }
-
-    documentCopy.querySelectorAll("script").forEach((node) => node.remove());
-    documentCopy
-      .querySelectorAll("[data-edit]")
-      .forEach((node) => node.removeAttribute("data-edit"));
-    documentCopy
-      .querySelectorAll("[data-edit-object]")
-      .forEach((node) => node.removeAttribute("data-edit-object"));
-    documentCopy
-      .querySelectorAll(
-        "[data-object-id],[data-object-label],[data-studio-object],[data-studio-text],[data-edit-id],[data-image-id]",
-      )
-      .forEach((node) => {
-        node.removeAttribute("data-object-id");
-        node.removeAttribute("data-object-label");
-        node.removeAttribute("data-studio-object");
-        node.removeAttribute("data-studio-text");
-        node.removeAttribute("data-edit-id");
-        node.removeAttribute("data-image-id");
-      });
-    const output = `<!doctype html>\n${documentCopy.outerHTML}`;
-    const blob = new Blob([output], { type: "text/html;charset=utf-8" });
-    const anchor = document.createElement("a");
-    const objectUrl = URL.createObjectURL(blob);
-    const filename = outputFileName();
-    anchor.href = objectUrl;
-    anchor.download = filename;
-    anchor.hidden = true;
-    document.body.append(anchor);
-    anchor.click();
-    anchor.remove();
-    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-    window.parent.postMessage({ type: "DETAIL_EXPORTED", filename }, "*");
-  }
-
   function setEditing(enabled) {
     body.classList.toggle("is-editing", enabled);
     body.dataset.editorMode = editorMode;
@@ -608,9 +652,10 @@
       node.spellcheck = false;
     });
     if (
-      selectedObject &&
+      selectedObjects.size > 0 &&
       mode === "text" &&
-      !selectedObject.matches(TEXT_SELECTOR)
+      ([...selectedObjects].some((node) => !node.matches(TEXT_SELECTOR)) ||
+        selectedObjects.size > 1)
     ) {
       clearObjectSelection();
     } else {
@@ -633,6 +678,7 @@
       hiddenSections: sectionNodes()
         .filter((section) => section.hidden)
         .map((section) => section.dataset.section),
+      sectionCrops: normalizeSectionCrops(sectionCrops),
       texts: editableNodes().map((node) => ({
         id: node.dataset.editId,
         html: node.innerHTML,
@@ -652,11 +698,13 @@
   }
 
   function migrateState(state) {
-    if (!state || ![1, 2, 3, STATE_VERSION].includes(state.version)) return null;
-    if (state.version === STATE_VERSION) return state;
+    if (!state || ![1, 2, 3, 4, STATE_VERSION].includes(state.version)) {
+      return null;
+    }
     return {
       ...state,
       version: STATE_VERSION,
+      sectionCrops: normalizeSectionCrops(state.sectionCrops),
       objects: (state.objects || []).map((item) => ({
         ...item,
         fontFamily: item.fontFamily || "",
@@ -683,6 +731,8 @@
     sectionNodes().forEach((section) => {
       section.hidden = hidden.has(section.dataset.section);
     });
+    sectionCrops = normalizeSectionCrops(state.sectionCrops);
+    renderSectionCropRules();
     const texts = new Map(
       (state.texts || []).map((item) => [item.id, item.html]),
     );
@@ -723,13 +773,47 @@
     }
   }
 
-  function save() {
+  function serializedAuthoringHtml() {
+    const clone = document.documentElement.cloneNode(true);
+    clone
+      .querySelectorAll("[contenteditable]")
+      .forEach((node) => node.removeAttribute("contenteditable"));
+    clone
+      .querySelectorAll("[data-studio-selected]")
+      .forEach((node) => node.removeAttribute("data-studio-selected"));
+    clone.querySelector("body")?.classList.remove("is-editing");
+    return `<!doctype html>\n${clone.outerHTML}`;
+  }
+
+  function serializeForSave(nonce) {
+    if (
+      pendingSerializationNonce !== null ||
+      !/^[a-f0-9]{48}$/.test(String(nonce || ""))
+    ) {
+      return;
+    }
+    pendingSerializationNonce = nonce;
     const state = collectState();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     window.parent.postMessage(
-      { type: "DETAIL_SAVED", savedAt: state.savedAt },
+      {
+        type: "DETAIL_SERIALIZED",
+        nonce,
+        savedAt: state.savedAt,
+        html: serializedAuthoringHtml(),
+      },
       "*",
     );
+  }
+
+  function acceptSaveResult(message) {
+    if (
+      pendingSerializationNonce === null ||
+      message.nonce !== pendingSerializationNonce
+    ) {
+      return;
+    }
+    pendingSerializationNonce = null;
+    body.dataset.saveState = message.ok ? "saved" : "failed";
   }
 
   function moveSection(id, direction) {
@@ -748,17 +832,6 @@
     notifyReady();
   }
 
-  try {
-    const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    const migratedState = migrateState(savedState);
-    applyState(migratedState);
-    if (migratedState && migratedState !== savedState) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedState));
-    }
-  } catch {
-    localStorage.removeItem(STORAGE_KEY);
-  }
-
   document.addEventListener("pointerdown", (event) => {
     if (!body.classList.contains("is-editing")) return;
     if (event.button !== 0 || !(event.target instanceof Element)) return;
@@ -768,21 +841,44 @@
       clearObjectSelection();
       return;
     }
-    selectObject(object);
+    const additive = event.ctrlKey || event.metaKey;
+    selectObject(object, {
+      additive: editorMode === "layout" && additive,
+      preserveGroup:
+        editorMode === "layout" &&
+        !additive &&
+        selectedObjects.size > 1 &&
+        selectedObjects.has(object),
+    });
+    if (!selectedObjects.has(object)) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     if (editorMode === "text") return;
     event.preventDefault();
     event.stopPropagation();
+    if (additive) return;
     checkpointHistory();
-    const transform = currentObjectTransform(object);
+    const members = [...selectedObjects].map((node) => ({
+      node,
+      transform: { ...currentObjectTransform(node) },
+    }));
+    const activeMember =
+      members.find((member) => member.node === object) || members[0];
     dragState = {
       node: object,
+      members,
+      activeMember,
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
-      objectX: transform.x,
-      objectY: transform.y,
+      objectX: activeMember.transform.x,
+      objectY: activeMember.transform.y,
     };
-    object.classList.add("studio-object-dragging");
+    selectedObjects.forEach((node) =>
+      node.classList.add("studio-object-dragging"),
+    );
     object.setPointerCapture?.(event.pointerId);
   });
 
@@ -793,21 +889,26 @@
       dragState.objectX + event.clientX - dragState.startX,
       dragState.objectY + event.clientY - dragState.startY,
     );
-    applyObjectTransform(dragState.node, {
-      ...currentObjectTransform(dragState.node),
-      ...snapped,
+    const deltaX = snapped.x - dragState.activeMember.transform.x;
+    const deltaY = snapped.y - dragState.activeMember.transform.y;
+    dragState.members.forEach(({ node, transform }) => {
+      applyObjectTransform(node, {
+        ...transform,
+        x: transform.x + deltaX,
+        y: transform.y + deltaY,
+      });
+      notifyObjectChanged(node);
     });
-    notifyObjectChanged(dragState.node);
   });
 
   function finishObjectDrag(event) {
     if (!dragState || event.pointerId !== dragState.pointerId) return;
-    const node = dragState.node;
-    node.classList.remove("studio-object-dragging");
-    node.releasePointerCapture?.(event.pointerId);
+    const nodes = dragState.members.map(({ node }) => node);
+    nodes.forEach((node) => node.classList.remove("studio-object-dragging"));
+    dragState.node.releasePointerCapture?.(event.pointerId);
     dragState = null;
     hideGuides();
-    notifyObjectChanged(node);
+    if (selectedObject) notifyObjectSelected(selectedObject);
     scheduleNotifyReady();
   }
 
@@ -863,6 +964,46 @@
     }
   });
 
+  function confirmDeletion() {
+    const count = selectedObjects.size;
+    if (!count) return false;
+    const target =
+      count > 1
+        ? `선택한 ${count}개 요소`
+        : `"${objectLabel(selectedObject)}" 요소`;
+    return window.confirm(
+      `${target}를 삭제할까요?\n실행 취소(Ctrl/Cmd+Z)로 되돌릴 수 있습니다.`,
+    );
+  }
+
+  function deleteSelectedObjects() {
+    if (!selectedObjects.size) return;
+    checkpointHistory();
+    [...selectedObjects].forEach((node) => {
+      applyObjectTransform(node, {
+        ...currentObjectTransform(node),
+        deleted: true,
+      });
+    });
+    clearObjectSelection();
+    scheduleNotifyReady();
+  }
+
+  function moveSelectedObjects(dx, dy) {
+    if (!selectedObjects.size) return;
+    [...selectedObjects].forEach((node) => {
+      const transform = currentObjectTransform(node);
+      applyObjectTransform(node, {
+        ...transform,
+        x: transform.x + dx,
+        y: transform.y + dy,
+      });
+      notifyObjectChanged(node);
+    });
+    if (selectedObject) notifyObjectSelected(selectedObject);
+    scheduleNotifyReady();
+  }
+
   document.addEventListener("keydown", (event) => {
     if (!body.classList.contains("is-editing")) return;
     const typing =
@@ -871,6 +1012,12 @@
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
       event.preventDefault();
       undo();
+      return;
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setEditing(false);
+      window.parent.postMessage({ type: "DETAIL_EDITING_STOPPED" }, "*");
       return;
     }
     if (
@@ -908,24 +1055,13 @@
         setEditorMode("text");
         return;
       }
-      if (event.key === "Escape") {
-        event.preventDefault();
-        clearObjectSelection();
-        return;
-      }
       if (
         editorMode === "layout" &&
-        selectedObject &&
+        selectedObjects.size > 0 &&
         ["Delete", "Backspace"].includes(event.key)
       ) {
         event.preventDefault();
-        checkpointHistory();
-        applyObjectTransform(selectedObject, {
-          ...currentObjectTransform(selectedObject),
-          deleted: true,
-        });
-        clearObjectSelection();
-        scheduleNotifyReady();
+        if (confirmDeletion()) deleteSelectedObjects();
         return;
       }
     }
@@ -944,17 +1080,11 @@
     event.preventDefault();
     checkpointHistoryOnce();
     const amount = event.shiftKey ? 10 : 1;
-    const transform = currentObjectTransform(selectedObject);
-    applyObjectTransform(selectedObject, {
-      ...transform,
-      x: transform.x + direction[0] * amount,
-      y: transform.y + direction[1] * amount,
-    });
-    notifyObjectChanged(selectedObject);
-    scheduleNotifyReady();
+    moveSelectedObjects(direction[0] * amount, direction[1] * amount);
   });
 
   window.addEventListener("message", (event) => {
+    if (event.source !== window.parent) return;
     const message = event.data || {};
     if (message.type === "DETAIL_SET_EDITING") {
       setEditing(Boolean(message.enabled));
@@ -962,9 +1092,13 @@
     if (message.type === "DETAIL_SET_MODE") {
       setEditorMode(String(message.mode || ""));
     }
-    if (message.type === "DETAIL_SAVE") save();
+    if (message.type === "DETAIL_SERIALIZE_REQUEST") {
+      serializeForSave(message.nonce);
+    }
+    if (message.type === "DETAIL_SAVE_RESULT") {
+      acceptSaveResult(message);
+    }
     if (message.type === "DETAIL_RESET") {
-      localStorage.removeItem(STORAGE_KEY);
       location.reload();
     }
     if (
@@ -999,20 +1133,19 @@
         notifyReady();
       }
     }
+    if (message.type === "DETAIL_SET_SECTION_CROP") {
+      setSectionCrop(message.id, message.height, message.mode);
+    }
     if (
       message.type === "DETAIL_NUDGE_OBJECT" &&
-      selectedObject &&
+      selectedObjects.size > 0 &&
       editorMode === "layout"
     ) {
       checkpointHistoryOnce();
-      const transform = currentObjectTransform(selectedObject);
-      applyObjectTransform(selectedObject, {
-        ...transform,
-        x: transform.x + clamp(Number(message.dx) || 0, -100, 100),
-        y: transform.y + clamp(Number(message.dy) || 0, -100, 100),
-      });
-      notifyObjectChanged(selectedObject);
-      scheduleNotifyReady();
+      moveSelectedObjects(
+        clamp(Number(message.dx) || 0, -100, 100),
+        clamp(Number(message.dy) || 0, -100, 100),
+      );
     }
     if (
       message.type === "DETAIL_SET_OBJECT_POSITION" &&
@@ -1021,13 +1154,10 @@
     ) {
       checkpointHistory();
       const transform = currentObjectTransform(selectedObject);
-      applyObjectTransform(selectedObject, {
-        ...transform,
-        x: Number(message.x) || 0,
-        y: Number(message.y) || 0,
-      });
-      notifyObjectChanged(selectedObject);
-      scheduleNotifyReady();
+      moveSelectedObjects(
+        (Number(message.x) || 0) - transform.x,
+        (Number(message.y) || 0) - transform.y,
+      );
     }
     if (
       message.type === "DETAIL_SET_OBJECT_STYLE" &&
@@ -1074,16 +1204,10 @@
     }
     if (
       message.type === "DETAIL_DELETE_OBJECT" &&
-      selectedObject &&
+      selectedObjects.size > 0 &&
       editorMode === "layout"
     ) {
-      checkpointHistory();
-      applyObjectTransform(selectedObject, {
-        ...currentObjectTransform(selectedObject),
-        deleted: true,
-      });
-      clearObjectSelection();
-      scheduleNotifyReady();
+      deleteSelectedObjects();
     }
     if (message.type === "DETAIL_CLEAR_SELECTION") clearObjectSelection();
     if (message.type === "DETAIL_UNDO") undo();
@@ -1095,20 +1219,6 @@
       });
     }
     if (message.type === "DETAIL_REQUEST_HEIGHT") scheduleNotifyReady();
-    if (message.type === "DETAIL_EXPORT_HTML") {
-      exportEditedHtml().catch((error) => {
-        window.parent.postMessage(
-          {
-            type: "DETAIL_EXPORT_ERROR",
-            message:
-              error instanceof Error
-                ? error.message
-                : "HTML 내보내기에 실패했습니다.",
-          },
-          "*",
-        );
-      });
-    }
   });
 
   const pageResizeObserver = new ResizeObserver(scheduleNotifyReady);

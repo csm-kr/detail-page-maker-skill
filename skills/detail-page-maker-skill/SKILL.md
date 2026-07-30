@@ -1,192 +1,141 @@
 ---
 name: detail-page-maker-skill
-description: 상세페이지 제작을 라우팅한다. 실행 전 guide.md와 해당 reference를 읽는다.
+description: 공급처 URL에서 dmk-extractor·coupang-extractor 근거를 수집하고 제품 SSOT, 고정 상업 흐름, 승인 이미지, 다수의 HyperFrames motion, 390px 편집 Studio, output/detail-page.html과 버전형 CDN 쿠팡 Wing 출력을 멀티에이전트로 만든다. 상세페이지 신규 제작·카피·제품 이미지·GIF·Studio 편집·게시 QA·부분 수정·연구 학습·로컬 설치에 사용한다.
 ---
 
 # Detail Page Maker
 
-공급처 근거에서 시작해 독립 승인된 이미지·GIF만 사용하는 상업 상세페이지를 만든다.
-
-## 문서 라우팅
-
-스킬 목록의 설명은 컨텍스트 예산에 따라 축약될 수 있다. 설명 길이에 기대지 말고
-이 본문에 진입하면 반드시 다음 순서로 라우팅한다.
-
-1. [`guide.md`](guide.md)의 작업별 표에서 현재 요청과 일치하는 행을 고른다.
-2. 항상 [`workflow.md`](references/workflow.md),
-   [`approval-guide.md`](references/approval-guide.md),
-   [`asset-management.md`](references/asset-management.md),
-   [`public-output-policy.md`](references/public-output-policy.md)를 읽는다.
-3. 상업 기획은 [`commercial.md`](references/commercial.md), 이미지 생성은
-   [`asset-gen-guide.md`](references/asset-gen-guide.md), GIF는
-   [`gif-guide.md`](references/gif-guide.md)를 읽는다.
-   공개 카피는 [`commercial-copy-tone-guide.md`](references/commercial-copy-tone-guide.md),
-   판매 정보 70 : 브랜드 감성 30, 제품 우선 Hero, 구매 불안과 제품 중심 비교는
-   [`sales-copy-and-purchase-confidence.md`](references/sales-copy-and-purchase-confidence.md),
-   비교·슬라이드·전환·구성·규격 FX와 소구 직후 증명은
-   [`commercial-effects-and-claim-proof.md`](references/commercial-effects-and-claim-proof.md)를
-   읽는다.
-4. Studio는 [`studio-workflow.md`](references/studio-workflow.md), 게시 전 검사는
-   [`commercial-qa.md`](references/commercial-qa.md)를 읽는다.
-5. 쿠팡 Wing 전용 HTML을 만들거나 CDN에 게시할 때는
-   [`coupang-wing-html-cdn.md`](references/coupang-wing-html-cdn.md)를 처음부터
-   끝까지 읽고 그 절차를 따른다.
-6. 기능성 깔창은
-   [`novaface-insole-learnings.md`](references/novaface-insole-learnings.md),
-   설치·E2E는 [`portable-install.md`](references/portable-install.md)를 읽는다.
-7. 프로젝트 종료와 공용 규칙 승격은
-   [`learning-loop.md`](references/learning-loop.md)를 읽는다.
-
-### 축약 설명 환경의 요청 라우팅
-
-| 사용자 요청 단어 | 반드시 읽을 문서 |
-| --- | --- |
-| 상세페이지, 상품페이지, 카피, 소구, 판매력 | `commercial.md` → `commercial-copy-tone-guide.md` → `sales-copy-and-purchase-confidence.md` |
-| 이미지, 배경, 모델, 제품 컷 | `asset-gen-guide.md` → `product-identity-imagegen.md` |
-| GIF, 효과, 비교, 치수 | `gif-guide.md` → `commercial-effects-and-claim-proof.md` |
-| Studio, 위치, 글씨, 정렬, 삭제, 단축키 | `studio-workflow.md` |
-| 승인, pending, approved | `approval-guide.md` → `asset-management.md` |
-| 출력, Wing, CDN, 게시 | `public-output-policy.md` → `coupang-wing-html-cdn.md` → `commercial-qa.md` |
-
-한 요청이 여러 행과 맞으면 해당 문서를 모두 읽고 `workflow.md`의 게이트 순서대로
-실행한다. 축약된 설명만 보고 하위 문서를 생략하지 않는다.
-
-## 로컬 의존 스킬
-
-의존 스킬은 이 폴더의 `.agents/skills/`에 설치한다. 전역 설치를 가정하지 않는다.
-`design-taste-frontend`는 선택 참고자료가 아니라 이 스킬의 필수 의존성이다.
-디자인·카피·HTML 작업 전에
-`.agents/skills/design-taste-frontend/SKILL.md` 전체를 읽는다. 모션 작업 전에는
-같은 위치의 `hyperframes`, `hyperframes-core`, `hyperframes-animation`을 읽는다.
-모든 생성형 이미지 제작·편집 전에는
-`.agents/skills/god-tibo-gpt-image2-skill/SKILL.md` 전체를 읽고 그 스킬의
-`scripts/tibo-batch.mjs`만 사용한다. 내장 `imagegen` 도구나 다른 이미지 생성
-모델을 우회 경로로 사용하지 않는다.
-누락 시 작업을 진행하지 말고 `scripts/setup-local.ps1`을 실행한다.
-기획과 Taste 최종 pre-flight는 `qa/reports/taste-<revision>.md`에 기록한다.
+근거가 고정된 같은 SKU만 광고하고 승인된 자산만 조립한다. 판매 흐름은
+`policies/detail-page-flow-v1.json`, 실행 순서·산출물 연결·검증·승인은
+persistent Orchestrator가 강제한다.
 
 ## 실행
 
+1. 항상 [`references/content-contract.md`](references/content-contract.md)와
+   [`references/workflow.md`](references/workflow.md)를 읽는다.
+2. 두 문서와 충돌하는 레거시 문서·프로젝트 관행은 적용하지 않는다.
+3. 아래 표에서 현재 작업에 필요한 reference만 추가로 읽는다.
+4. 프로젝트 폴더의 `.agents/skills/`에서 의존 스킬을 우선 찾는다.
+5. `node scripts/detail-page.mjs doctor`로 프로젝트 로컬 의존성을 검사한다.
+6. `workflow-status`로 sealed state와 다음 gate를 확인한다.
+7. `workflow-advance` 또는 `workflow-resume`으로 다음 WorkOrder를 발급한다.
+8. 준비된 frontier WorkOrder를 가용 sub-agent 수만큼 lease한다. 작업 하나씩
+   기다리지 말고 독립 작업을 동시에 실행한다.
+9. 하위 스킬은 WorkOrder의 runner로만 호출하고 결과를
+   `worker-lease → 실행 → worker-submit`으로 제출한다.
+10. 사용자 gate는 exact digest와 nonce를 `workflow-decide`로 승인한다.
+11. `G0 → G1 → G2 → G3 → G4 → G5` 승인 순서를 건너뛰지 않는다.
+12. 승인 후 사진·이미지·GIF를 바꿀 때는
+   `workflow-revision-plan → 사용자 검토 → workflow-revision-commit`을 따른다.
+
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/setup-local.ps1 -NoProject
 node scripts/detail-page.mjs doctor
-node scripts/e2e.mjs
-node scripts/detail-page.mjs list
-node scripts/detail-page.mjs validate
-node scripts/detail-page.mjs new `
-  --name "상품명" `
-  --supplier-url "https://supplier.example/item/123456"
+node scripts/detail-page.mjs workflow-status `
+  --project "<project-path>" --project-id "<project-id>" `
+  --input-digest "<sha256>"
+node scripts/detail-page.mjs workflow-advance `
+  --project "<project-path>" --project-id "<project-id>" `
+  --input-digest "<sha256>"
 ```
 
-기존 프로젝트는 `node scripts/detail-page.mjs start --project "<project-path>"`로 연다.
-저장소 프로젝트 목록은 `list`, 외부 파일 경로 의존성은 `validate`로 검사한다.
-`config/workspace.json`이 발견되면 해당 `projectsRoot`를 사용하고, 없으면 사용자
-문서 폴더를 사용한다.
+나머지 CLI 인자는 [`references/install.md`](references/install.md)와
+[`references/workflow.md`](references/workflow.md)를 따른다.
 
-## 절대 게이트
+## 작업별 reference
 
-1. 공급처 원문·locator와 실제품 사진으로 제품 SSOT를 잠근다.
-2. G0 SSOT 트랙과 G1 시장·상업 기획 초안을 병렬로 진행한다. G0 진행 중에도 동종
-   제품 3개 이상과 공개 후기를 조사하고 `COMMERCIAL.md`, `DESIGN.md`,
-   `BUYER-JOURNEY.md`, `GIF.md`, `APPROVALS.md`를 초안으로 작성한다. 제품 답,
-   선택 이유, 주장-증거 연결은 `provisional`로 표시하고 G0 승인 뒤 확정한다.
-   최종 승인은 `G0 → G1 → G2 → G3 → G4 → G5` 순서를 지키며 G1 승인 전에는
-   이미지 생성을 시작하지 않는다.
-3. 고객 화면을 최우선으로 설계한다. 기본적으로 서로 다른 불편 3개를
-   `우리 제품의 답 → 선택 이유 3~5개 → 직접 증거`로 연결하되, 제품 근거가
-   부족하면 수를 억지로 채우지 않는다. 문제는 고객의 장면·감정으로 말하고
-   제작 방식·근거 분류·승인 상태는 공개하지 않는다. 카피와 정보 밀도는
-   판매 정보 70 : 브랜드 감성 30을 기본으로 하고, 첫 화면의 가장 큰 시각 대상은
-   제품으로 둔다. 일반 설득 장은 `특징 → 고객 효익 → 사용 장면 → 즉시 증거`로
-   작성한다. 같은 장점은 최대 두 번만 말하고 라벨은 구매 이유로 강조하지 않는다.
-4. 공개 주장마다
-   `claim_id → component_id → fact_id → evidence_asset_id → section_id`를 고정한다.
-   `fact_id`는 검증된 제품 사실 또는 출처가 고정된 `MANUFACTURER_CLAIM` 레코드다.
-   제조사·브랜드 소유자·제조사를 대표하는 사용자가 확인한 기능은 제조사 제공
-   제품 사실로 받아들여 공개할 수 있다. 공개 화면에서는 `제조사 확인`이나
-   `MANUFACTURER_CLAIM`을 말하지 않고 고객의 상황·변화로 번역한다. 각 핵심
-   장점에는 정지 이미지와 전용 GIF를 각각 연결하고 그 증거를 소구 바로 다음에
-   둔다. 제조사가 주지 않은 온도·비율·시간·시험 조건은 만들지 않는다.
-5. God Tibo GPT Image 2는 기본 8개 `items` 작업을 한 배치로 병렬 실행한다.
-   8개를 넘으면 입력 순서를 보존해 8개씩 나누고, 모든 프롬프트에
-   `QUALITY_GATE:CLEAN_COMMERCIAL`을 적용한다. 생성은 `controllable`과 명시된
-   W×H, 편집은 Image 1 크기를 보존하는 `invariant`를 사용한다.
-6. 모든 신규 이미지·GIF는 `asset/generated/pending/image|gif`에서 시작한다.
-   제작 세션의 QA를 사용자 승인으로 간주하지 않는다.
-7. 제품 동일성·무노이즈 QA 실패본은 새 버전으로 생성한다. 기존 파일을 덮어쓰지
-   않고 승인본만 조립한다.
-8. GIF 하나는 주장 하나·부품 하나·상태 변화 하나만 설명한다. 모든 GIF에는 그
-   주장과 직접 연결된 주 FX를 최소 1개 넣는다. 슬라이드 비교, 스타일 매치컷,
-   쿨 스윕, 절차 진행, 구성 리빌과 실제 좌표 강조를 적극 사용하되 장식만 움직이는
-   GIF는 만들지 않는다. 외부 HTML 카피와 GIF 내부 카피는 같은 문장을 반복하지
-   않으며, GIF 내부 문구는 상태명·단계명 중심으로 더 짧게 쓴다. 여러 GIF를 페이지
-   후반 proof 갤러리에 모으지 않는다.
-9. 규격에 길이·폭·높이처럼 위치를 알아야 하는 치수가 있으면 규격표 바로 위에
-   전용 치수 위치 GIF를 반드시 둔다. 승인 제품 이미지 위에서 측정 시작점과 끝점을
-   실제 외곽에 맞춰 애니메이션하고, 치수 라벨을 고정한다. 단순 숫자 표기만으로
-   대체하지 않는다.
-10. 정량 시험 근거가 없는 냉감·통풍·열감 주장은 그래프·막대·꺾은선·가짜
-    열화상 범례로 만들지 않는다. 제품과 착용 장면 위의 짧은 쿨 스윕·공기 흐름처럼
-    정성 방향을 보여 주는 FX로 표현하고, 제품과 무관한 얼음·서리 연출이나
-    온도·비율·시간을 생성하지 않는다.
-11. 고객 HTML에서 프롬프트·파일명·해시·QA·승인 상태와 `제조사 확인`,
-   `실물 구조를 기준으로 재구성` 같은 제작자 언어를 제거한다.
-12. 각 프로젝트는 근거·자산·HyperFrames 원본·QA·HTML을 자기 폴더 안에 보존하고
-    다른 프로젝트나 저장소 공용 폴더를 파일 의존성으로 참조하지 않는다. 프로젝트
-    자산 루트는 단수 `asset/` 하나만 사용한다. 프로젝트 루트의 복수형 `assets/`는
-    금지하며 발견 시 `scripts/migrate-legacy-asset-root.mjs`로 해시 보존
-    마이그레이션을 완료한 뒤 작업한다. 스킬 자체의 런타임 리소스 폴더와 Wing 출력
-    패키지 내부의 `assets/`는 이 금지 대상이 아니다.
-13. 한 프로젝트의 학습은 먼저 `planning/LEARNINGS.md`에 기록한다. 다른 프로젝트
-    또는 회귀 테스트로 재검증하기 전에는 공용 스킬 규약으로 승격하지 않는다.
-14. 작업 자산은 `asset/`과 `hyperframes/`에 보존하고, 사용자가 여는 결과는
-    `deliverables/<revision>/index.html` 하나로 고정한다. 그 HTML이 참조하는
-    이미지·GIF·manifest·최종 QA만 같은 revision 폴더에 패키징한다.
+| 작업 | 읽을 문서 |
+| --- | --- |
+| 고정 판매 흐름·입출력·공개 형식 | [`content-contract.md`](references/content-contract.md) |
+| 공급처 근거·실제품·권리·SSOT | [`evidence.md`](references/evidence.md) |
+| 시장 조사·상업 기획·카피 | [`commercial.md`](references/commercial.md) |
+| ImageGen·pending·에셋 승인 | [`assets.md`](references/assets.md) |
+| GIF·HyperFrames·필수 motion coverage | [`motion.md`](references/motion.md) |
+| Studio 편집·덮어쓰기·복구 snapshot | [`studio.md`](references/studio.md) |
+| 게시 QA·Wing·전달본 | [`publish.md`](references/publish.md) |
+| Cloudflare owner·bootstrap·runtime integrity | [`cloudflare-security.md`](references/cloudflare-security.md) |
+| 설치·진단·프로젝트 격리 | [`install.md`](references/install.md) |
+| 연구·피드백·규칙 승격 | [`learning.md`](references/learning.md) |
+| 디자인·어투 규칙 | [`taste.md`](references/taste.md) |
+| 상태·artifact·adapter 내부 구조 | [`orchestration.md`](references/orchestration.md) |
+| aisync 이미지형 flow 비교 | [`aisync-flow-comparison.md`](references/aisync-flow-comparison.md) |
+| Behance 평가·부분 repair | [`behance-rubric.md`](references/behance-rubric.md) |
 
-## Studio v1
+## 하위 스킬
 
-활성 CLI는 `studio-v1-server.mjs`만 시작한다. 작업면은
-`상세 편집 → 에셋 승인 → 최종 출력`이다. pending과 필수 미승인이 0개일 때만
-자립형 HTML을 내보낸다. G5·상용 QA 97점·사용자 게시 승인까지 충족하면 같은
-최종 출력 화면에서 `쿠팡 Wing 포맷으로 내보내기`를 사용할 수 있다. 이 출력은
-각 섹션을 780px 완성형 WebP로 평탄화하고 `<img>`만 세로로 연결한 Wing HTML과
-CDN 업로드 매니페스트를 만든다. Studio 승인 클릭만 사용자의 명시적 결정으로
-기록한다.
+의존 스킬은 대상 프로젝트의 `.agents/skills/`를 먼저 읽고, 없으면 이 배포 폴더의
+`.agents/skills/`를 읽는다. 전역 스킬을 정상 경로로 사용하지 않는다.
 
-복잡한 Studio v2 작업 센터는 사용자 화면으로 실행하지 않는다. God Tibo, 제품
-SSOT와 회귀 검사가 사용하는 확장 도메인·서버·런타임은 지원 라이브러리이므로
-삭제하거나 deprecated로 옮기지 않는다.
+- 공급처 근거: `dmk-extractor`와 `browser-harness`
+- 쿠팡 경쟁상품·상세·후기 근거: `coupang-extractor`와 `browser-harness`
+- 기획·HTML: `design-taste-frontend`
+- 이미지: `god-tibo-gpt-image2-skill`
+- GIF: `hyperframes`, `hyperframes-core`, `hyperframes-animation`,
+  `hyperframes-creative`, `hyperframes-cli`, `motion-graphics`
 
-상세 편집에서 모든 의미 있는 텍스트·이미지·GIF·시각 요소를 선택할 수 있어야 한다.
-선택 요소의 X/Y 위치와 1px·10px 이동, 드래그, 이미지 크기, 텍스트 비우기,
-글자색, `Noto Sans KR`, `Gmarket Sans`, `S-Core Dream`, `Wanted Sans`,
-`Black Han Sans`, `Jalnan` 글꼴을 변경할 수 있어야 한다. 실행 취소 버튼과
-`Ctrl/Cmd+Z`를 제공하고 상태 저장 전에도 최근 변경을 되돌릴 수 있어야 한다.
-`요소 배치`와 `텍스트 변환`은 별도 모드로 동작한다. 요소 배치 모드에서는
-텍스트 내용을 바꾸지 않고 선택·드래그·좌표·화살표 이동·삭제만 수행한다. 텍스트
-변환 모드에서는 비텍스트 요소를 움직이지 않고 문구·글꼴·글자색·왼쪽·가운데·
-오른쪽·양쪽 정렬만 수행한다. 캔버스 중심, 현재 섹션 중심과 좌우 안전 여백
-보조선을 제공하고 중심·안전 여백 가까이에서 스냅한다. `V`는 요소 배치, `T`는
-텍스트 변환, `Delete/Backspace`는 선택 요소 삭제, `Esc`는 선택 해제,
-`Ctrl/Cmd+Shift+L/E/R/J`는 텍스트 정렬로 고정한다.
+누락 시 `scripts/setup-local.ps1 -NoProject`를 실행한다. 이미지 작업은 God Tibo의
+`scripts/tibo-batch.mjs`만 사용하고 작업 단위는 8개 `items`로 명시한다.
 
-## 완료 조건
+## 멀티에이전트 실행
 
-- 제품 동일성 하드 실패, 가짜 후기, 출처 없는 효능과 임의 생성 수치가 0건이다.
-- 제조사 제공 기능은 `MANUFACTURER_CLAIM` 출처·원문·조건을 기록했고, 정량 근거가
-  없는 냉감·열감 표현의 그래프·막대·꺾은선·임의 눈금·온도·시험 결과 문구가 0건이다.
-- 고객 화면의 제작 방식·근거 분류·승인 상태·제조사 확인 문구가 0건이다.
-- 모든 핵심 소구와 전용 증거의 거리가 `same-section` 또는 `next-section`이며,
-  후반 일괄 proof 갤러리가 0건이다.
-- 모든 GIF에 주장 연관 주 FX가 1개 이상이고, 외부 카피와 GIF 내부 카피의 문장
-  중복이 0건이다.
-- 위치형 규격이 있는 상품은 규격표 바로 위 치수 위치 GIF가 있고 측정 시작·끝점이
-  승인 제품 외곽과 일치한다.
-- pending 필수 에셋과 rejected 경로 참조가 0건이다.
-- HyperFrames `check --strict` 오류·경고가 0건이다.
-- 320·360·390·768·800px 오버플로·잘림이 0건이다.
-- Taste pre-flight, 상용 QA 97점 이상과 G5 사용자 승인을 기록했다.
-- 게시용 단일 HTML, Studio 프로젝트 묶음, GIF 기록과 `LEARNINGS.md`를 만들었다.
-- 사용자 검토 진입점은 `deliverables/<revision>/index.html` 하나다.
-- 공용 후보는 검증 이슈 또는 다음 검증 계획에 연결했고 상품 한정 학습은 프로젝트
-  안에 유지했다.
+- G0 공급처 추출과 G1 시장 조사를 병렬 준비한다. 승인만 G0→G1 순서로 잠근다.
+- G2는 한 이미지 cut당 한 worker를 배정하고 가용 slot을 채운다.
+- G3는 한 motion module당 한 worker를 배정한다. 입력 이미지가 승인된 module은
+  다른 이미지·motion과 병렬 실행한다.
+- Commercial·Evidence·Identity·Visual·Motion·Technical QA는 서로 다른
+  validator session으로 병렬 실행한다.
+- 생산 agent가 자기 결과의 유일한 검수자가 될 수 없다.
+- 실패 member와 실제 descendant만 다시 실행하고 통과한 형제 산출물은 재사용한다.
+- artifact ID, 입력 digest, 실제 출력 위치, 다음 consumer, ExecutionReceipt,
+  독립 ValidationReceipt가 하나라도 없으면 완료로 세지 않는다.
+
+## 하드 계약
+
+- 공급처 URL과 같은 SKU의 공급처 원문·이미지·locator·권리로 G0 제품 SSOT를
+  잠근다. 실제 제품 사진은 선택 사항이며 없으면 최초 한 번만 알리고 계속한다.
+- 도매꾹은 `dmk-extractor`, 쿠팡은 `coupang-extractor`의 실제 portable bundle과
+  검증 receipt를 사용한다. agent의 기억이나 검색 요약으로 대체하지 않는다.
+- 공급처 이미지는 제품 동일성 SSOT와 ImageGen 참조로 사용하고 고객 광고에
+  원본을 직접 싣지 않는다. 쿠팡·Behance 자산은 research-only다.
+- G0 근거와 G1 시장 조사는 병렬 준비할 수 있지만 최종 승인은 순차로 한다.
+- 공개 주장은 `claim → fact → evidence → section → media/HTML`로 추적한다.
+- 확인되지 않은 효능·수치·후기·시험 결과를 만들지 않는다.
+- `Hero → 불편 → 제품 답 → 해결 → 사용 → 비교 → 선택 → 사양·주의 → FAQ →
+  리마인드` 순서를 지킨다.
+- Hero는 화려한 정적 화면, 제품 최대 크기, 핵심 장점 한 개로 제한한다.
+- 불편 인용 말풍선은 3~5개, 문제 motion은 2개 이상이며 각 불편은 같은 순서의
+  해결 장점에 1:1로 연결한다.
+- 해결 장점은 3~5개이며 각각 정지 이미지·전용 motion·검증 근거·무기명 체감
+  의견을 갖는다.
+- motion hard floor는 5개지만 필수 역할을 적용한 실제 최소는 7개이며 기본
+  범위는 7~9개다. 시간 변화가 더 명확하면 상한 없이 늘린다. 문제 2+, 해결
+  장점별 1+, 사용 1+, 비교 1+ 역할을 빠뜨리지 않는다.
+- 기획은 `policies/detail-page-flow-v1.json`의 deterministic validator를
+  통과하기 전 G2 WorkOrder를 받을 수 없다.
+- 각 artifact에 exact input digest, ExecutionReceipt, 독립
+  ValidationReceipt와 immutable record를 남긴다.
+- materialized member는 inspect·advance·resume·export 때 실제 bytes를 다시
+  해시한다. 누락·변조·경로 이탈·symlink는 fail-closed한다.
+- worker는 staging에만 쓴다. Orchestrator만 검증 후 state와 artifact graph를
+  commit한다.
+- 이미지·GIF는 `pending`에서 시작하고 승인된 member만 조립한다.
+- 이미지 job은 one-cut-per-worker로 실행하고 실패 member만 재시도한다.
+- 판매 본문·사양·시험 조건·주의사항의 편집 정본은 Studio HTML section이다.
+- 디자인 기준은 390 CSS px, 전달 자산은 폭 780px다.
+- 명시적 저장은 현재 `output/detail-page.html`을 덮어쓰고 콘텐츠 높이에 맞춘다.
+  내부 복구 snapshot은 최근 20개만 유지한다.
+- 고객 진입점은 `output/detail-page.html`이다. `deliverables/`와 공개
+  `index.html`을 만들지 않는다.
+- Wing Export마다 새 `{project_key}/{export_id}/section-NN.webp` CDN 경로를
+  만들고 이전 경로를 덮어쓰지 않는다.
+- 고객 HTML과 Wing에는 내부 ID·프롬프트·파일명·hash·QA·agent·생성 방식이
+  0건이어야 한다.
+- 현재 run은 승인된 KnowledgeSnapshot과 현재 상품 연구를 사용한다. 공용 규칙은
+  독립 검증과 사용자 승인 뒤에만 다음 run의 active reference로 승격한다.
+
+## 완료
+
+일반 HTML과 쿠팡 Wing은 같은 서버측 G5 gate를 사용한다. fresh artifact graph와
+state seal, 게시 QA 97 이상, Behance quality 90 이상, critical dimension 85 이상,
+content-flow hard failure 0, fresh G5 QA record, 사용자 게시 승인, versioned CDN
+원격 검증을 모두 확인한 뒤에만 완료로 보고한다. plateau·budget 대기 또는
+근거·권리 부족 상태는 완료가 아니라 `HOLD`다.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "쿠팡 추출기"
+  short_description: "쿠팡 상품의 썸네일·상세페이지·공개 후기를 구조화 수집"
+  default_prompt: "$coupang-extractor로 이 쿠팡 상품 URL의 썸네일·상세페이지·공개 후기를 수집하고 검증해 주세요."

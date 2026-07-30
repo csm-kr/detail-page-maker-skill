@@ -1,67 +1,97 @@
 {
-  "schemaVersion": 1,
-  "installScope": "skill-folder",
-  "localSkillDirectory": ".agents/skills",
+  "schemaVersion": 2,
+  "installScope": "project-local",
+  "defaultTargetSkillDirectory": ".agents/skills",
+  "vendoredSkillDirectory": ".agents/skills",
+  "networkFallback": "explicit-only",
+  "runtimes": {
+    "node": ">=22",
+    "powershell": ">=5.1",
+    "ffmpeg": "required-for-motion",
+    "browser-harness": "required-for-browser-qa"
+  },
   "skills": [
     {
       "name": "browser-harness",
-      "source": "browser-harness skill",
+      "source": "vendored-local",
+      "networkSource": "browser-harness skill",
       "group": "browser"
     },
     {
+      "name": "coupang-extractor",
+      "source": "vendored-local",
+      "group": "market-evidence"
+    },
+    {
       "name": "design-taste-frontend",
-      "source": "Leonxlnx/taste-skill",
-      "group": "taste"
+      "source": "vendored-local",
+      "networkSource": "Leonxlnx/taste-skill",
+      "group": "design"
+    },
+    {
+      "name": "dmk-extractor",
+      "source": "vendored-local",
+      "group": "supplier-evidence"
     },
     {
       "name": "god-tibo-gpt-image2-skill",
-      "source": "csm-kr/god-tibo-gpt-image2-skill",
-      "group": "image-generation"
+      "source": "vendored-local",
+      "networkSource": "csm-kr/god-tibo-gpt-image2-skill",
+      "group": "image"
     },
     {
       "name": "hyperframes",
-      "source": "heygen-com/hyperframes",
-      "group": "hyperframes"
+      "source": "vendored-local",
+      "networkSource": "heygen-com/hyperframes",
+      "group": "motion"
     },
     {
       "name": "hyperframes-animation",
-      "source": "heygen-com/hyperframes",
-      "group": "hyperframes"
+      "source": "vendored-local",
+      "networkSource": "heygen-com/hyperframes",
+      "group": "motion"
     },
     {
       "name": "hyperframes-cli",
-      "source": "heygen-com/hyperframes",
-      "group": "hyperframes"
+      "source": "vendored-local",
+      "networkSource": "heygen-com/hyperframes",
+      "group": "motion"
     },
     {
       "name": "hyperframes-core",
-      "source": "heygen-com/hyperframes",
-      "group": "hyperframes"
+      "source": "vendored-local",
+      "networkSource": "heygen-com/hyperframes",
+      "group": "motion"
     },
     {
       "name": "hyperframes-creative",
-      "source": "heygen-com/hyperframes",
-      "group": "hyperframes"
+      "source": "vendored-local",
+      "networkSource": "heygen-com/hyperframes",
+      "group": "motion"
     },
     {
       "name": "hyperframes-keyframes",
-      "source": "heygen-com/hyperframes",
-      "group": "hyperframes"
+      "source": "vendored-local",
+      "networkSource": "heygen-com/hyperframes",
+      "group": "motion"
     },
     {
       "name": "hyperframes-registry",
-      "source": "heygen-com/hyperframes",
-      "group": "hyperframes"
+      "source": "vendored-local",
+      "networkSource": "heygen-com/hyperframes",
+      "group": "motion"
     },
     {
       "name": "media-use",
-      "source": "heygen-com/hyperframes",
-      "group": "hyperframes"
+      "source": "vendored-local",
+      "networkSource": "heygen-com/hyperframes",
+      "group": "motion"
     },
     {
       "name": "motion-graphics",
-      "source": "heygen-com/hyperframes",
-      "group": "hyperframes"
+      "source": "vendored-local",
+      "networkSource": "heygen-com/hyperframes",
+      "group": "motion-workflow"
     }
   ]
 }

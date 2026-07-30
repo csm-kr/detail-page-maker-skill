@@ -9,19 +9,33 @@ import {
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { createProject } from "../../skills/detail-page-maker-skill/scripts/new-project.mjs";
-import { startStudioV1Server } from "../../skills/detail-page-maker-skill/scripts/studio-v1-server.mjs";
+import { createProject } from "../../skills/detail-page-maker-skill/scripts/lib/new-project.mjs";
+import { startStudioV1Server } from "../../skills/detail-page-maker-skill/scripts/runtime/studio-v1-server.mjs";
 
 const ONE_PIXEL_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Wl2kAAAAASUVORK5CYII=",
   "base64",
 );
+const CAPABILITY_BY_ORIGIN = new Map();
+
+function registerStudio(started) {
+  const origin = new URL(started.url).origin;
+  CAPABILITY_BY_ORIGIN.set(origin, started.capabilityToken);
+  return origin;
+}
 
 async function requestJson(baseUrl, pathname, body) {
+  const capabilityToken = CAPABILITY_BY_ORIGIN.get(
+    new URL(baseUrl).origin,
+  );
   const response = await fetch(new URL(pathname, baseUrl), {
     method: body === undefined ? "GET" : "POST",
-    headers:
-      body === undefined ? undefined : { "Content-Type": "application/json" },
+    headers: {
+      "X-Detail-Page-Studio-Capability": capabilityToken,
+      ...(body === undefined
+        ? {}
+        : { "Content-Type": "application/json" }),
+    },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   return { response, payload: await response.json() };
@@ -45,7 +59,7 @@ test("사용자 확인이 있는 Studio v1 결정만 pending 파일을 승인 �
       root: temporaryRoot,
     });
     const pendingRelative =
-      "asset/generated/pending/image/03-flex-hybrid-v01.png";
+      ".detail-page/generation/pending/image/03-flex-hybrid-v01.png";
     await writeFile(
       path.join(created.projectRoot, pendingRelative),
       ONE_PIXEL_PNG,
@@ -57,7 +71,7 @@ test("사용자 확인이 있는 Studio v1 결정만 pending 파일을 승인 �
       open: false,
     });
     server = started.server;
-    const baseUrl = new URL(started.url).origin;
+    const baseUrl = registerStudio(started);
 
     const listed = await requestJson(baseUrl, "/api/v1/assets");
     assert.equal(listed.response.status, 200);
@@ -92,14 +106,17 @@ test("사용자 확인이 있는 Studio v1 결정만 pending 파일을 승인 �
 
     const approvedPath = path.join(
       created.projectRoot,
-      "asset/generated/approved/image/03-flex-hybrid-v01.png",
+      ".detail-page/generation/approved/image/03-flex-hybrid-v01.png",
     );
     await access(approvedPath);
     await assert.rejects(access(path.join(created.projectRoot, pendingRelative)));
 
     const manifest = JSON.parse(
       await readFile(
-        path.join(created.projectRoot, "asset/asset-manifest.json"),
+        path.join(
+          created.projectRoot,
+          ".detail-page/generation/asset-manifest.json",
+        ),
         "utf8",
       ),
     );
@@ -129,7 +146,7 @@ test("반려 파일은 rejected로 이동하고 기존 대상 파일은 덮어�
       root: temporaryRoot,
     });
     const pendingRelative =
-      "asset/generated/pending/gif/03-flex-hybrid-v01.gif";
+      ".detail-page/generation/pending/gif/03-flex-hybrid-v01.gif";
     await writeFile(
       path.join(created.projectRoot, pendingRelative),
       ONE_PIXEL_PNG,
@@ -140,7 +157,7 @@ test("반려 파일은 rejected로 이동하고 기존 대상 파일은 덮어�
       open: false,
     });
     server = started.server;
-    const baseUrl = new URL(started.url).origin;
+    const baseUrl = registerStudio(started);
 
     const rejected = await requestJson(
       baseUrl,
@@ -156,7 +173,7 @@ test("반려 파일은 rejected로 이동하고 기존 대상 파일은 덮어�
     await access(
       path.join(
         created.projectRoot,
-        "asset/generated/rejected/gif/03-flex-hybrid-v01.gif",
+        ".detail-page/generation/rejected/gif/03-flex-hybrid-v01.gif",
       ),
     );
 
@@ -167,7 +184,7 @@ test("반려 파일은 rejected로 이동하고 기존 대상 파일은 덮어�
     await writeFile(
       path.join(
         created.projectRoot,
-        "asset/generated/approved/gif/03-flex-hybrid-v01.gif",
+        ".detail-page/generation/approved/gif/03-flex-hybrid-v01.gif",
       ),
       Buffer.from("do-not-overwrite"),
     );

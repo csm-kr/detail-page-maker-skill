@@ -1,26 +1,33 @@
 import assert from "node:assert/strict";
-import { access, mkdtemp, readFile, rm } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { createProject } from "../../skills/detail-page-maker-skill/scripts/new-project.mjs";
+import {
+  adoptProject,
+  createProject,
+} from "../../skills/detail-page-maker-skill/scripts/lib/new-project.mjs";
 
 const REQUIRED_DIRECTORIES = [
-  "asset/input",
-  "asset/ssot",
-  "asset/generated/pending/image",
-  "asset/generated/pending/gif",
-  "asset/generated/approved/image",
-  "asset/generated/approved/gif",
-  "asset/generated/rejected/image",
-  "asset/generated/rejected/gif",
-  "asset/output/page",
-  "asset/output/gif",
-  "asset/deprecated",
-  "evidence",
-  "research",
-  "hyperframes/projects",
-  "hyperframes/renders",
+  "input/product",
+  "output/media/images",
+  "output/media/gifs",
+  "output/wing",
+  ".detail-page/backups",
+  ".detail-page/evidence",
+  ".detail-page/research",
+  ".detail-page/generation",
+  ".detail-page/workflow",
+  ".detail-page/qa",
+  ".detail-page/authoring",
+  ".detail-page/studio",
 ];
 
 test("Studio v1 새 프로젝트는 승인 상태별 Asset 폴더를 만든다", async () => {
@@ -44,6 +51,61 @@ test("Studio v1 새 프로젝트는 승인 상태별 Asset 폴더를 만든다",
     );
     assert.equal(state.workspace.isolation, "self-contained");
     assert.equal(state.workspace.externalFileDependencies, false);
+    await access(path.join(created.projectRoot, "output/detail-page.html"));
+    await access(
+      path.join(
+        created.projectRoot,
+        ".detail-page/authoring/detail-page.html",
+      ),
+    );
+    await assert.rejects(access(path.join(created.projectRoot, "deliverables")));
+    await assert.rejects(access(path.join(created.projectRoot, "index.html")));
+    await assert.rejects(access(path.join(created.projectRoot, "html/index.html")));
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
+test("legacy adopt는 index.html을 입력 locator로만 읽고 신규 output projection을 만든다", async () => {
+  const temporaryRoot = await mkdtemp(
+    path.join(os.tmpdir(), "detail-page-studio-v1-adopt-"),
+  );
+  const projectRoot = path.join(temporaryRoot, "legacy-product");
+  try {
+    await mkdir(path.join(projectRoot, "detail-page"), {
+      recursive: true,
+    });
+    await writeFile(
+      path.join(projectRoot, "detail-page", "index.html"),
+      "<!doctype html><html><body><main id=\"detailPage\"><section data-claim-id=\"legacy\"><h1>기존 상세페이지</h1></section></main></body></html>",
+      "utf8",
+    );
+    await adoptProject({
+      projectRoot,
+      name: "기존 상품",
+      supplierUrl: "https://supplier.example/123456",
+    });
+    const state = JSON.parse(
+      await readFile(path.join(projectRoot, "project.json"), "utf8"),
+    );
+    assert.equal(
+      state.html.entry,
+      ".detail-page/authoring/detail-page.html",
+    );
+    assert.equal(
+      state.html.importedLegacyEntry,
+      "detail-page/index.html",
+    );
+    assert.match(
+      await readFile(path.join(projectRoot, "output/detail-page.html"), "utf8"),
+      /기존 상세페이지/,
+    );
+    assert.doesNotMatch(
+      await readFile(path.join(projectRoot, "output/detail-page.html"), "utf8"),
+      /data-claim-id/,
+    );
+    await assert.rejects(access(path.join(projectRoot, ".studio")));
+    await assert.rejects(access(path.join(projectRoot, "planning")));
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });
   }

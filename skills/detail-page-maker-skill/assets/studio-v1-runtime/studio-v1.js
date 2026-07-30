@@ -1,10 +1,21 @@
 const preview = document.querySelector("#preview");
+const saveButton = document.querySelector("#save");
 const toggleEdit = document.querySelector("#toggleEdit");
 const statusNode = document.querySelector("#status");
 const srcInput = document.querySelector("#imageSrc");
 const altInput = document.querySelector("#imageAlt");
 const selectedLabel = document.querySelector("#selectedLabel");
+const selectionDepth = document.querySelector("#selectionDepth");
+const editingStateNode = document.querySelector("#editingState");
+const nestedStudioGuard = document.querySelector("#nestedStudioGuard");
 const sectionSelect = document.querySelector("#sectionSelect");
+const sectionCropHeight = document.querySelector("#sectionCropHeight");
+const sectionCropMode = document.querySelector("#sectionCropMode");
+const sectionCropMeasure = document.querySelector("#sectionCropMeasure");
+const sectionCropApply = document.querySelector("#sectionCropApply");
+const sectionCropClear = document.querySelector("#sectionCropClear");
+const sectionCropMinus = document.querySelector("#sectionCropMinus");
+const sectionCropPlus = document.querySelector("#sectionCropPlus");
 const autoHeight = document.querySelector("#autoHeight");
 const pageHeight = document.querySelector("#pageHeight");
 const heightMeasure = document.querySelector("#heightMeasure");
@@ -13,9 +24,33 @@ const exportButton = document.querySelector("#exportHtml");
 const outputGate = document.querySelector("#outputGate");
 const outputSummary = document.querySelector("#outputSummary");
 const wingExportButton = document.querySelector("#exportCoupangWing");
-const wingCdnBaseUrl = document.querySelector("#wingCdnBaseUrl");
 const wingExportGate = document.querySelector("#wingExportGate");
+const wingConnectionStatus = document.querySelector("#wingConnectionStatus");
 const wingExportResult = document.querySelector("#wingExportResult");
+const workflowStageList = document.querySelector("#workflowStageList");
+const workflowCurrentStage = document.querySelector("#workflowCurrentStage");
+const workflowStageCount = document.querySelector("#workflowStageCount");
+const workflowReadyCount = document.querySelector("#workflowReadyCount");
+const workflowBlockedCount = document.querySelector("#workflowBlockedCount");
+const workflowStaleCount = document.querySelector("#workflowStaleCount");
+const workflowArtifactCount = document.querySelector("#workflowArtifactCount");
+const workflowValidatorSummary = document.querySelector("#workflowValidatorSummary");
+const workflowApprovalSummary = document.querySelector("#workflowApprovalSummary");
+const workflowExportSummary = document.querySelector("#workflowExportSummary");
+const workflowMessage = document.querySelector("#workflowMessage");
+const workflowG5Gate = document.querySelector("#workflowG5Gate");
+const workflowAdvanceButton = document.querySelector("#workflowAdvance");
+const workflowResumeButton = document.querySelector("#workflowResume");
+const workflowRefreshButton = document.querySelector("#workflowRefresh");
+const workflowChallengeNode = document.querySelector("#workflowChallenge");
+const workflowChallengeId = document.querySelector("#workflowChallengeId");
+const workflowChallengeStage = document.querySelector("#workflowChallengeStage");
+const workflowChallengeDigest = document.querySelector("#workflowChallengeDigest");
+const workflowChallengeNonce = document.querySelector("#workflowChallengeNonce");
+const workflowProofConfirmed = document.querySelector("#workflowProofConfirmed");
+const workflowRejectReason = document.querySelector("#workflowRejectReason");
+const workflowApproveButton = document.querySelector("#workflowApprove");
+const workflowRejectButton = document.querySelector("#workflowReject");
 const applyImageButton = document.querySelector("#applyImage");
 const imageFileInput = document.querySelector("#imageFile");
 const undoButton = document.querySelector("#undo");
@@ -29,7 +64,7 @@ const deleteObjectButton = document.querySelector("#deleteObject");
 const nudgeButtons = [...document.querySelectorAll("[data-nudge-x]")];
 const modeButtons = [...document.querySelectorAll("[data-editor-mode]")];
 const textAlignButtons = [...document.querySelectorAll("[data-text-align]")];
-const wingCdnStorageKey = `detail-page-maker:wing-cdn:${location.pathname}`;
+const nestedStudio = window.self !== window.top;
 
 let editing = false;
 let editorMode = "layout";
@@ -38,16 +73,38 @@ let selectedImageCurrentSrc = "";
 let selectedObjectState = null;
 let sections = [];
 let measuredHeight = 1200;
+let previewWidth = 390;
 let activeAssetFilter = "pending";
 let assets = [];
 let gate = {
   pendingCount: 0,
   missingRequiredCount: 0,
   exportAllowed: false,
+  htmlExportAllowed: false,
   coupangWingExportAllowed: false,
   coupangWingBlockers: [],
 };
 let wingExportBusy = false;
+let cloudflareConnection = {
+  connected: false,
+  loading: true,
+  error: null,
+};
+let workflow = null;
+let workflowChallenge = null;
+let workflowBusy = false;
+let workflowApprovalNotice = {
+  substitutesStageApproval: false,
+  ledgerScope: "asset-file-only",
+  requiredStages: [
+    "G2U_APPROVAL",
+    "G3U_APPROVAL",
+    "G4U_APPROVAL",
+    "G5U_APPROVAL",
+  ],
+};
+let pendingSaveRequest = null;
+const SAVE_SERIALIZATION_TIMEOUT_MS = 10_000;
 
 function post(type, payload = {}) {
   preview.contentWindow.postMessage({ type, ...payload }, "*");
@@ -55,6 +112,130 @@ function post(type, payload = {}) {
 
 function setStatus(message) {
   statusNode.textContent = message;
+}
+
+function createSaveNonce() {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(
+    bytes,
+    (byte) => byte.toString(16).padStart(2, "0"),
+  ).join("");
+}
+
+function finishPendingSave(nonce) {
+  if (!pendingSaveRequest || pendingSaveRequest.nonce !== nonce) {
+    return null;
+  }
+  const request = pendingSaveRequest;
+  pendingSaveRequest = null;
+  clearTimeout(request.timeoutId);
+  saveButton.disabled = false;
+  return request;
+}
+
+function requestAuthoringSave() {
+  if (pendingSaveRequest) {
+    setStatus("현재 편집 내용을 직렬화하는 중입니다.");
+    return;
+  }
+  const nonce = createSaveNonce();
+  const timeoutId = setTimeout(() => {
+    if (!finishPendingSave(nonce)) return;
+    post("DETAIL_SAVE_RESULT", {
+      nonce,
+      ok: false,
+      message: "편집 문서 응답 시간이 초과되었습니다.",
+    });
+    setStatus("저장 실패 · 편집 문서 응답 시간이 초과되었습니다.");
+  }, SAVE_SERIALIZATION_TIMEOUT_MS);
+  pendingSaveRequest = { nonce, timeoutId };
+  saveButton.disabled = true;
+  setStatus("현재 편집 내용을 안전하게 직렬화하는 중입니다.");
+  post("DETAIL_SERIALIZE_REQUEST", { nonce });
+}
+
+async function saveSerializedAuthoring(message) {
+  const request = finishPendingSave(message.nonce);
+  if (!request) return;
+  if (
+    typeof message.html !== "string" ||
+    !message.html.startsWith("<!doctype html>") ||
+    message.html.length > 20_000_000
+  ) {
+    post("DETAIL_SAVE_RESULT", {
+      nonce: request.nonce,
+      ok: false,
+      message: "직렬화된 편집 문서 형식이 올바르지 않습니다.",
+    });
+    setStatus("저장 실패 · 직렬화된 편집 문서 형식이 올바르지 않습니다.");
+    return;
+  }
+  try {
+    const payload = await api("/api/v1/output/save", {
+      method: "POST",
+      body: JSON.stringify({ html: message.html }),
+    });
+    post("DETAIL_SAVE_RESULT", {
+      nonce: request.nonce,
+      ok: true,
+      savedAt: message.savedAt,
+      backupId: payload.backup_id || null,
+      wingExportRequired: payload.wing_export_required === true,
+    });
+    setStatus(
+      `로컬 저장 완료 · ${new Date(message.savedAt).toLocaleTimeString("ko-KR")}`,
+    );
+  } catch (error) {
+    post("DETAIL_SAVE_RESULT", {
+      nonce: request.nonce,
+      ok: false,
+      message: error?.message || String(error),
+    });
+    setStatus(
+      `저장 실패 · 이전 파일을 보존했습니다 · ${error?.message || "다시 시도해 주세요"}`,
+    );
+  }
+}
+
+function renderEditingState() {
+  editingStateNode.dataset.state = editing ? "editing" : "idle";
+  editingStateNode.textContent = editing
+    ? editorMode === "layout"
+      ? "배치 편집 중"
+      : "텍스트 편집 중"
+    : "보기 모드";
+  toggleEdit.textContent = editing ? "편집 종료" : "편집 시작";
+  toggleEdit.classList.toggle("primary", !editing);
+}
+
+function stopEditing({ syncPreview = true, announce = true } = {}) {
+  if (!editing && !syncPreview) return;
+  editing = false;
+  if (syncPreview) post("DETAIL_SET_EDITING", { enabled: false });
+  selectedObjectState = null;
+  selectedImageIndex = -1;
+  selectedImageCurrentSrc = "";
+  setElementControlsEnabled(false);
+  setImageControlsEnabled(false);
+  selectionDepth.innerHTML =
+    "<span>선택 0</span><span>레이어 -</span><span>깊이 -</span>";
+  selectedLabel.textContent = "편집 시작을 누른 뒤 요소를 선택해 주세요.";
+  renderEditingState();
+  if (announce) setStatus("편집을 종료했습니다. 다시 시작하려면 V 또는 T를 누르세요.");
+}
+
+function startEditing(mode = editorMode) {
+  if (nestedStudio) {
+    nestedStudioGuard.hidden = false;
+    setStatus("중첩 Studio에서는 편집을 시작할 수 없습니다.");
+    return false;
+  }
+  editing = true;
+  post("DETAIL_SET_EDITING", { enabled: true });
+  setEditorMode(mode);
+  renderEditingState();
+  return true;
 }
 
 function setImageControlsEnabled(enabled) {
@@ -105,6 +286,7 @@ function setEditorMode(mode, announce = true, syncPreview = true) {
     button.setAttribute("aria-pressed", String(active));
   });
   if (syncPreview) post("DETAIL_SET_MODE", { mode });
+  renderEditingState();
   setElementControlsEnabled(Boolean(selectedObjectState), Boolean(selectedObjectState?.isText));
   if (announce) {
     setStatus(
@@ -132,6 +314,17 @@ function renderSelectedObject(message) {
     )})`,
   );
   selectedLabel.replaceChildren(selected, detail);
+  selectionDepth.replaceChildren(
+    Object.assign(document.createElement("span"), {
+      textContent: `선택 ${Number(message.selectedCount) || 1}`,
+    }),
+    Object.assign(document.createElement("span"), {
+      textContent: `레이어 ${Number(message.layerIndex) || 1}/${Number(message.layerCount) || 1}`,
+    }),
+    Object.assign(document.createElement("span"), {
+      textContent: `깊이 ${Number(message.domDepth) || 0} · z ${message.zIndex || "auto"}`,
+    }),
+  );
   elementX.value = String(Math.round(Number(message.x) || 0));
   elementY.value = String(Math.round(Number(message.y) || 0));
   const fontOption = [...elementFont.options].find(
@@ -169,7 +362,12 @@ async function api(pathname, options = {}) {
   });
   const payload = await response.json();
   if (!response.ok) {
-    throw new Error(payload?.error?.message || "Studio 요청에 실패했습니다.");
+    const error = new Error(
+      payload?.error?.message || "Studio 요청에 실패했습니다.",
+    );
+    error.code = payload?.error?.code;
+    error.state = payload?.error?.state;
+    throw error;
   }
   return payload;
 }
@@ -192,19 +390,60 @@ function fitPreviewHeight() {
   setStatus(`내용 높이 ${measuredHeight.toLocaleString("ko-KR")}px에 맞췄습니다.`);
 }
 
+function cropModeForWidth(width = previewWidth) {
+  return Number(width) <= 520 ? "mobile" : "desktop";
+}
+
+function refreshSectionCropControls() {
+  const section = sections.find((item) => item.id === sectionSelect.value);
+  const mode = cropModeForWidth();
+  const controls = [
+    sectionCropHeight,
+    sectionCropApply,
+    sectionCropClear,
+    sectionCropMinus,
+    sectionCropPlus,
+  ];
+  controls.forEach((control) => {
+    control.disabled = !section;
+  });
+  sectionCropMode.textContent =
+    mode === "mobile"
+      ? `${previewWidth}px 모바일`
+      : `${previewWidth}px 데스크톱`;
+  if (!section) {
+    sectionCropMeasure.textContent = "자를 섹션을 먼저 선택해 주세요.";
+    return;
+  }
+  const cropHeight = Number(section.cropHeights?.[mode]) || null;
+  const contentHeight = Math.max(
+    Number(section.contentHeight) || 0,
+    Number(section.renderedHeight) || 0,
+  );
+  if (document.activeElement !== sectionCropHeight) {
+    sectionCropHeight.value = String(cropHeight || contentHeight || 900);
+  }
+  sectionCropMeasure.textContent = cropHeight
+    ? `현재 ${cropHeight.toLocaleString("ko-KR")}px에서 하단 자름 · 전체 내용 ${contentHeight.toLocaleString("ko-KR")}px`
+    : `현재 자동 높이 · 전체 내용 ${contentHeight.toLocaleString("ko-KR")}px`;
+}
+
 function refreshSectionSelect(nextId) {
   const current = nextId || sectionSelect.value;
-  sectionSelect.innerHTML = sections
-    .map(
-      (section) =>
-        `<option value="${section.id}">${section.index + 1}. ${
-          section.hidden ? "숨김 · " : ""
-        }${section.label}</option>`,
-    )
-    .join("");
+  sectionSelect.replaceChildren(
+    ...sections.map((section) => {
+      const option = document.createElement("option");
+      option.value = String(section.id || "");
+      option.textContent = `${Number(section.index) + 1}. ${
+        section.hidden ? "숨김 · " : ""
+      }${String(section.label || "")}`;
+      return option;
+    }),
+  );
   if (sections.some((section) => section.id === current)) {
     sectionSelect.value = current;
   }
+  refreshSectionCropControls();
 }
 
 function setView(view) {
@@ -218,7 +457,12 @@ function setView(view) {
     workspace.hidden = workspace.dataset.workspace !== view;
   });
   if (view === "approval") refreshAssets();
-  if (view === "output") refreshGate();
+  if (view === "workflow") {
+    Promise.all([refreshWorkflow(), refreshGate()]);
+  }
+  if (view === "output") {
+    Promise.all([refreshGate(), refreshCloudflareConnection()]);
+  }
 }
 
 function updateCounts() {
@@ -292,7 +536,7 @@ function renderAssets() {
     empty.className = "empty-state";
     empty.innerHTML =
       activeAssetFilter === "pending"
-        ? "승인을 기다리는 에셋이 없습니다.<br>새 이미지와 GIF는 asset/generated/pending에 먼저 저장하세요."
+        ? "승인을 기다리는 에셋이 없습니다.<br>새 이미지와 GIF는 .detail-page/generation/pending에 먼저 저장하세요."
         : "이 상태의 에셋이 없습니다.";
     assetReviewGrid.append(empty);
     return;
@@ -300,10 +544,261 @@ function renderAssets() {
   filtered.forEach((asset) => assetReviewGrid.append(assetCard(asset)));
 }
 
+function workflowStatusLabel(status, ready = false) {
+  if (ready && status === "pending") return "실행 가능";
+  return (
+    {
+      pending: "선행 단계 대기",
+      running: "실행 중",
+      completed: "실행 완료",
+      awaiting_user: "사용자 결정 대기",
+      approved: "사용자 승인 완료",
+      rejected: "사용자 반려",
+      stale: "재검증 필요",
+      failed: "실행 실패",
+      blocked: "차단",
+      blocked_external: "외부 요인 차단",
+    }[status] || `알 수 없는 상태: ${status || "없음"}`
+  );
+}
+
+function renderWorkflow() {
+  if (!workflow) {
+    workflowStageList.replaceChildren();
+    workflowCurrentStage.textContent = "persistent workflow에 연결되지 않았습니다.";
+    workflowStageCount.textContent = "단계 —";
+    workflowReadyCount.textContent = "—";
+    workflowBlockedCount.textContent = "—";
+    workflowStaleCount.textContent = "—";
+    workflowArtifactCount.textContent = "—";
+    workflowValidatorSummary.textContent = "—";
+    workflowApprovalSummary.textContent = "—";
+    workflowMessage.textContent =
+      "project.json의 id와 inputDigest를 확인한 뒤 다시 시도하세요.";
+    return;
+  }
+
+  const entries = Object.entries(workflow.stages || {});
+  const ready = new Set(workflow.ready_stages || []);
+  const blocked = entries.filter(
+    ([stageId, state]) =>
+      (state.status === "pending" && !ready.has(stageId)) ||
+      ["rejected", "failed", "blocked", "blocked_external", "stale"].includes(
+        state.status,
+      ),
+  );
+  const current =
+    entries.find(([, state]) =>
+      ["awaiting_user", "running"].includes(state.status),
+    ) ||
+    entries.find(([stageId]) => ready.has(stageId)) ||
+    [...entries]
+      .reverse()
+      .find(([, state]) =>
+        ["approved", "completed"].includes(state.status),
+      );
+  const qaStages = entries.filter(([stageId]) =>
+    /(?:Q\d*|_QA|RUBRIC)/.test(stageId),
+  );
+  const completedQa = qaStages.filter(([, state]) =>
+    ["completed", "approved"].includes(state.status),
+  );
+  const approvalStages = entries.filter(([stageId]) =>
+    /(?:APPROVAL|SELECTION)$/.test(stageId),
+  );
+  const approvedStages = approvalStages.filter(
+    ([, state]) => state.status === "approved",
+  );
+
+  workflowCurrentStage.textContent = current
+    ? `현재 단계 · ${current[0]} · ${workflowStatusLabel(
+        current[1].status,
+        ready.has(current[0]),
+      )}`
+    : "현재 단계 · 전체 workflow 완료";
+  workflowStageCount.textContent = `${entries.length} 단계`;
+  workflowReadyCount.textContent = String(ready.size);
+  workflowBlockedCount.textContent = String(blocked.length);
+  workflowStaleCount.textContent = String(
+    workflow.stale_artifact_count || 0,
+  );
+  workflowArtifactCount.textContent = String(workflow.artifact_count || 0);
+  workflowValidatorSummary.textContent =
+    `${completedQa.length} / ${qaStages.length}`;
+  workflowApprovalSummary.textContent =
+    `${approvedStages.length} / ${approvalStages.length}`;
+  workflowMessage.textContent =
+    ready.size > 0
+      ? `실행 가능한 stage ${ready.size}개가 있습니다. 진행 버튼은 Orchestrator에 다음 작업 계산만 요청합니다.`
+      : "실행 가능한 stage가 없습니다. 실행 중 작업, 사용자 challenge 또는 blocker를 확인하세요.";
+
+  const cards = entries.map(([stageId, state], index) => {
+    const isReady = ready.has(stageId);
+    const card = document.createElement("article");
+    card.className = "workflow-stage-card";
+    card.dataset.state = isReady ? "ready" : state.status;
+    card.setAttribute(
+      "aria-label",
+      `${index + 1}. ${stageId}, ${workflowStatusLabel(
+        state.status,
+        isReady,
+      )}`,
+    );
+
+    const order = document.createElement("span");
+    order.className = "workflow-stage-order";
+    order.textContent = String(index + 1).padStart(2, "0");
+    const title = document.createElement("strong");
+    title.textContent = stageId;
+    const status = document.createElement("span");
+    status.className = "workflow-status-label";
+    status.textContent =
+      `상태: ${workflowStatusLabel(state.status, isReady)}`;
+    const runs = document.createElement("small");
+    runs.textContent = `실행 기록 ${(state.run_ids || []).length}개`;
+    card.append(order, title, status, runs);
+    return card;
+  });
+  workflowStageList.replaceChildren(...cards);
+}
+
+function renderWorkflowChallenge() {
+  workflowChallengeNode.hidden = !workflowChallenge;
+  if (!workflowChallenge) {
+    workflowChallengeId.textContent = "";
+    workflowChallengeStage.textContent = "";
+    workflowChallengeDigest.textContent = "";
+    workflowChallengeNonce.textContent = "";
+    workflowProofConfirmed.checked = false;
+    workflowRejectReason.value = "";
+    workflowApproveButton.disabled = true;
+    workflowRejectButton.disabled = true;
+    return;
+  }
+  workflowChallengeId.textContent = workflowChallenge.challenge_id;
+  workflowChallengeStage.textContent = workflowChallenge.stage_id;
+  workflowChallengeDigest.textContent =
+    workflowChallenge.subject_artifact_set_digest;
+  workflowChallengeNonce.textContent = workflowChallenge.nonce;
+  workflowProofConfirmed.checked = false;
+  workflowRejectReason.value = "";
+  workflowApproveButton.disabled = true;
+  workflowRejectButton.disabled = true;
+}
+
+function renderWorkflowG5Gate() {
+  const ready = Boolean(gate.coupangWingExportAllowed);
+  workflowG5Gate.className = `gate-card ${ready ? "ready" : "blocked"}`;
+  workflowG5Gate.textContent = ready
+    ? "G5 export 가능 · G5U 사용자 승인 완료 · artifact fresh · QA 97 이상"
+    : `G5 export 차단 · ${(gate.coupangWingBlockers || []).join(" · ") || "persistent workflow 상태를 확인하세요."}`;
+  workflowExportSummary.textContent = ready ? "READY" : "LOCKED";
+}
+
+async function refreshWorkflow() {
+  try {
+    const payload = await api("/api/v1/workflow");
+    workflow = payload.workflow;
+    workflowApprovalNotice =
+      payload.workflowApproval || workflowApprovalNotice;
+    renderWorkflow();
+    setStatus(
+      `persistent workflow ${Object.keys(workflow.stages || {}).length}개 stage를 불러왔습니다.`,
+    );
+  } catch (error) {
+    workflow = null;
+    renderWorkflow();
+    workflowMessage.textContent = `workflow 조회 실패 · ${error.message}`;
+    setStatus(error.message);
+  }
+}
+
+async function advanceWorkflow(resume = false) {
+  if (workflowBusy) return;
+  workflowBusy = true;
+  workflowAdvanceButton.disabled = true;
+  workflowResumeButton.disabled = true;
+  workflowMessage.textContent = resume
+    ? "중단 지점에서 재개 가능한 작업을 계산하는 중입니다."
+    : "다음 실행 가능 작업을 계산하는 중입니다.";
+  try {
+    const payload = await api("/api/v1/workflow/advance", {
+      method: "POST",
+      body: JSON.stringify({
+        until: resume ? "resume_to_next_user_gate" : "next_user_gate",
+      }),
+    });
+    workflow = payload.workflow;
+    let resultMessage;
+    if (payload.result?.kind === "AwaitUser") {
+      workflowChallenge = payload.result.challenge;
+      renderWorkflowChallenge();
+      resultMessage =
+        `${payload.result.stage_id} exact 사용자 결정을 기다립니다.`;
+    } else {
+      resultMessage =
+        payload.result?.kind === "WorkAvailable"
+          ? `실행 가능한 작업: ${(payload.result.ready_stages || []).join(", ")}`
+          : `Orchestrator 응답: ${payload.result?.kind || "Waiting"}`;
+    }
+    renderWorkflow();
+    workflowMessage.textContent = resultMessage;
+    await refreshGate();
+  } catch (error) {
+    workflowMessage.textContent = `진행 실패 · ${error.message}`;
+    setStatus(error.message);
+  } finally {
+    workflowBusy = false;
+    workflowAdvanceButton.disabled = false;
+    workflowResumeButton.disabled = false;
+  }
+}
+
+async function decideWorkflow(decision) {
+  if (!workflowChallenge || !workflowProofConfirmed.checked) {
+    workflowMessage.textContent =
+      "challenge ID, exact digest와 nonce 확인에 체크해야 결정할 수 있습니다.";
+    return;
+  }
+  const reason = workflowRejectReason.value.trim();
+  if (decision === "rejected" && !reason) {
+    workflowMessage.textContent =
+      "반려 사유는 필수입니다. REJECTION_REASON_REQUIRED";
+    workflowRejectReason.focus();
+    return;
+  }
+  workflowApproveButton.disabled = true;
+  workflowRejectButton.disabled = true;
+  try {
+    const payload = await api("/api/v1/workflow/decision", {
+      method: "POST",
+      body: JSON.stringify({
+        challenge_id: workflowChallenge.challenge_id,
+        nonce: workflowChallenge.nonce,
+        subject_artifact_set_digest:
+          workflowChallenge.subject_artifact_set_digest,
+        decision,
+        reason: decision === "rejected" ? reason : undefined,
+      }),
+    });
+    workflow = payload.workflow;
+    workflowChallenge = null;
+    renderWorkflowChallenge();
+    renderWorkflow();
+    workflowMessage.textContent =
+      `${payload.result.stage_id} ${decision === "approved" ? "승인" : "반려"} 완료`;
+    await refreshGate();
+  } catch (error) {
+    workflowMessage.textContent = `결정 실패 · ${error.message}`;
+    workflowApproveButton.disabled = !workflowProofConfirmed.checked;
+    workflowRejectButton.disabled = !workflowProofConfirmed.checked;
+  }
+}
+
 function absoluteAssetPath(source) {
   try {
     return decodeURIComponent(
-      new URL(source, preview.contentWindow.location.href).pathname,
+      new URL(source, `${window.location.origin}/`).pathname,
     );
   } catch {
     return "";
@@ -320,58 +815,70 @@ function isApprovedSource(source) {
 }
 
 function renderGate() {
-  exportButton.disabled = !gate.exportAllowed;
+  const publishReady = Boolean(gate.coupangWingExportAllowed);
+  exportButton.disabled = !publishReady;
   outputGate.className = `gate-card ${
-    gate.exportAllowed ? "ready" : "blocked"
+    publishReady ? "ready" : "blocked"
   }`;
-  outputGate.textContent = gate.exportAllowed
-    ? "승인 게이트 통과 · 게시용 단일 HTML을 내보낼 수 있습니다."
-    : `내보내기 잠김 · 승인 대기 ${gate.pendingCount}개 · 필수 미승인 ${gate.missingRequiredCount}개`;
+  outputGate.textContent = publishReady
+    ? "G5 게시 게이트 통과 · 검증된 단일 HTML을 내보낼 수 있습니다."
+    : `내보내기 잠김 · ${(gate.coupangWingBlockers || []).join(" · ") || "G5 승인·97/90/85·hard 0 상태를 확인해 주세요."}`;
   const approvedCount = assets.filter(
     (asset) => asset.status === "approved",
   ).length;
-  outputSummary.innerHTML = `
-    <div class="summary-metric"><span>승인 에셋</span><strong>${approvedCount}</strong></div>
-    <div class="summary-metric"><span>승인 대기</span><strong>${gate.pendingCount}</strong></div>
-    <div class="summary-metric"><span>출력 상태</span><strong>${gate.exportAllowed ? "READY" : "LOCKED"}</strong></div>
-  `;
-  const wingReady = Boolean(gate.coupangWingExportAllowed);
+  outputSummary.replaceChildren(
+    ...[
+      ["승인 에셋", approvedCount],
+      ["승인 대기", Number(gate.pendingCount) || 0],
+      ["출력 상태", publishReady ? "READY" : "LOCKED"],
+    ].map(([label, value]) => {
+      const metric = document.createElement("div");
+      metric.className = "summary-metric";
+      const name = document.createElement("span");
+      name.textContent = label;
+      const result = document.createElement("strong");
+      result.textContent = String(value);
+      metric.append(name, result);
+      return metric;
+    }),
+  );
+  const wingReady = publishReady;
   wingExportGate.className = `gate-card ${wingReady ? "ready" : "blocked"}`;
   wingExportGate.textContent = wingReady
     ? `쿠팡 Wing 게이트 통과 · 상용 QA ${gate.finalQaScore}점 · 사용자 게시 승인 완료`
     : `쿠팡 Wing 내보내기 잠김 · ${(gate.coupangWingBlockers || []).join(" · ") || "G5 상태를 확인해 주세요."}`;
   wingExportButton.disabled =
-    wingExportBusy || !wingReady || !isValidCdnBaseUrl(wingCdnBaseUrl.value);
+    wingExportBusy || !wingReady || !cloudflareConnection.connected;
   wingExportButton.classList.toggle("busy", wingExportBusy);
   wingExportButton.textContent = wingExportBusy
-    ? "780px WebP 패키지 생성 중…"
+    ? "Cloudflare 게시·검증 중…"
     : "쿠팡 Wing 포맷으로 내보내기";
-}
-
-function isValidCdnBaseUrl(value) {
-  try {
-    const url = new URL(value.trim());
-    return (
-      url.protocol === "https:" &&
-      !url.username &&
-      !url.password &&
-      !url.search &&
-      !url.hash
-    );
-  } catch {
-    return false;
+  if (cloudflareConnection.loading) {
+    wingConnectionStatus.className = "gate-card waiting";
+    wingConnectionStatus.textContent =
+      "프로젝트 로컬 Wrangler와 Cloudflare keyring 연결을 확인하는 중입니다.";
+  } else if (cloudflareConnection.connected) {
+    const connection = cloudflareConnection.connection;
+    wingConnectionStatus.className = "gate-card ready";
+    wingConnectionStatus.textContent =
+      `Cloudflare Pages 연결됨 · ${connection.pagesProject} · ${connection.publicBaseUrl}`;
+  } else {
+    wingConnectionStatus.className = "gate-card blocked";
+    wingConnectionStatus.textContent =
+      `Cloudflare 연결 필요 · ${cloudflareConnection.error?.code || "CONFIG_REQUIRED"} · ${cloudflareConnection.error?.message || ".detail-page/cloudflare-pages.json과 OS keyring을 확인해 주세요."}`;
   }
+  renderWorkflowG5Gate();
 }
 
 function renderWingExportResult(result) {
   wingExportResult.replaceChildren();
   const title = document.createElement("strong");
-  title.textContent = `완성형 WebP ${result.assetCount}개 생성 완료`;
+  title.textContent = `완성형 WebP ${result.assetCount}개 게시 완료`;
   const path = document.createElement("p");
   path.textContent = result.relativeOutputRoot;
   const summary = document.createElement("p");
   summary.textContent =
-    `정적 ${result.staticCount}개 · 애니메이션 ${result.animatedCount}개 · CDN 원격 검증 대기`;
+    `정적 ${result.staticCount}개 · 애니메이션 ${result.animatedCount}개 · Cloudflare 원격 검증 통과`;
   const previewLink = document.createElement("a");
   previewLink.href = result.previewUrl;
   previewLink.target = "_blank";
@@ -380,15 +887,50 @@ function renderWingExportResult(result) {
   wingExportResult.append(title, path, summary, previewLink);
 }
 
+async function refreshCloudflareConnection() {
+  cloudflareConnection = {
+    connected: false,
+    loading: true,
+    error: null,
+  };
+  renderGate();
+  try {
+    const payload = await api("/api/v1/cloudflare-pages/status");
+    cloudflareConnection = {
+      ...payload,
+      loading: false,
+    };
+  } catch (error) {
+    cloudflareConnection = {
+      connected: false,
+      loading: false,
+      error: {
+        code: error.code || "CONNECTION_STATUS_FAILED",
+        message: error.message,
+        state: error.state,
+      },
+    };
+  }
+  renderGate();
+}
+
 async function refreshGate() {
   try {
     gate = await api("/api/v1/gate");
+    workflowApprovalNotice =
+      gate.workflowApproval || workflowApprovalNotice;
     renderGate();
   } catch (error) {
+    gate = {
+      ...gate,
+      coupangWingExportAllowed: false,
+      coupangWingBlockers: [`gate 조회 실패: ${error.message}`],
+    };
     exportButton.disabled = true;
     outputGate.className = "gate-card blocked";
     outputGate.textContent =
       "승인 서버에 연결할 수 없습니다. detail-page.mjs start로 Studio v1을 실행하세요.";
+    renderWorkflowG5Gate();
     setStatus(error.message);
   }
 }
@@ -397,6 +939,8 @@ async function refreshAssets() {
   try {
     const payload = await api("/api/v1/assets");
     assets = payload.assets || [];
+    workflowApprovalNotice =
+      payload.workflowApproval || workflowApprovalNotice;
     updateCounts();
     renderAssets();
     await refreshGate();
@@ -449,37 +993,48 @@ document.querySelectorAll("[data-asset-filter]").forEach((button) => {
   });
 });
 
+workflowAdvanceButton.addEventListener("click", () =>
+  advanceWorkflow(false),
+);
+workflowResumeButton.addEventListener("click", () =>
+  advanceWorkflow(true),
+);
+workflowRefreshButton.addEventListener("click", async () => {
+  await Promise.all([refreshWorkflow(), refreshGate()]);
+});
+workflowProofConfirmed.addEventListener("change", () => {
+  const enabled =
+    Boolean(workflowChallenge) && workflowProofConfirmed.checked;
+  workflowApproveButton.disabled = !enabled;
+  workflowRejectButton.disabled = !enabled;
+});
+workflowApproveButton.addEventListener("click", () =>
+  decideWorkflow("approved"),
+);
+workflowRejectButton.addEventListener("click", () =>
+  decideWorkflow("rejected"),
+);
+
 toggleEdit.addEventListener("click", () => {
-  editing = !editing;
-  toggleEdit.textContent = editing ? "편집 종료" : "편집 시작";
-  toggleEdit.classList.toggle("primary", !editing);
-  post("DETAIL_SET_EDITING", { enabled: editing });
-  if (editing) post("DETAIL_SET_MODE", { mode: editorMode });
-  setStatus(
-    editing
-      ? editorMode === "layout"
-        ? "요소 배치 · 클릭한 요소를 이동하거나 크기를 조절하세요."
-        : "텍스트 변환 · 클릭한 문구의 내용과 정렬을 바꾸세요."
-      : "미리보기 모드입니다.",
-  );
-  if (!editing) {
-    selectedObjectState = null;
-    setElementControlsEnabled(false);
-    setImageControlsEnabled(false);
+  if (editing) {
+    stopEditing();
+    return;
+  }
+  if (startEditing(editorMode)) {
+    setStatus(
+      editorMode === "layout"
+        ? "요소 배치 · 클릭하거나 Ctrl/Cmd+클릭으로 묶음을 선택하세요."
+        : "텍스트 변환 · 클릭한 문구의 내용과 정렬을 바꾸세요.",
+    );
   }
 });
 modeButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    if (!editing) {
-      editing = true;
-      toggleEdit.textContent = "편집 종료";
-      toggleEdit.classList.remove("primary");
-      post("DETAIL_SET_EDITING", { enabled: true });
-    }
-    setEditorMode(button.dataset.editorMode);
+    if (!editing) startEditing(button.dataset.editorMode);
+    else setEditorMode(button.dataset.editorMode);
   });
 });
-document.querySelector("#save").addEventListener("click", () => post("DETAIL_SAVE"));
+saveButton.addEventListener("click", requestAuthoringSave);
 undoButton.addEventListener("click", () => post("DETAIL_UNDO"));
 document.querySelector("#replay").addEventListener("click", () => post("DETAIL_REPLAY_GIFS"));
 document.querySelector("#reset").addEventListener("click", () => {
@@ -507,6 +1062,46 @@ document.querySelector("#toggleSection").addEventListener("click", () => {
       hidden: !section.hidden,
     });
   }
+});
+sectionSelect.addEventListener("change", refreshSectionCropControls);
+sectionCropMinus.addEventListener("click", () => {
+  sectionCropHeight.value = String(
+    Math.max(180, (Number(sectionCropHeight.value) || 900) - 100),
+  );
+});
+sectionCropPlus.addEventListener("click", () => {
+  sectionCropHeight.value = String(
+    Math.min(100000, (Number(sectionCropHeight.value) || 900) + 100),
+  );
+});
+sectionCropApply.addEventListener("click", () => {
+  const section = sections.find((item) => item.id === sectionSelect.value);
+  if (!section) return;
+  const height = Math.max(
+    180,
+    Math.min(100000, Math.round(Number(sectionCropHeight.value) || 900)),
+  );
+  sectionCropHeight.value = String(height);
+  post("DETAIL_SET_SECTION_CROP", {
+    id: section.id,
+    height,
+    mode: cropModeForWidth(),
+  });
+  setStatus(
+    `${previewWidth}px ${cropModeForWidth() === "mobile" ? "모바일" : "데스크톱"}에서 ‘${section.label}’ 하단을 ${height.toLocaleString("ko-KR")}px로 잘랐습니다. 상단 ‘로컬 저장’으로 보관할 수 있습니다.`,
+  );
+});
+sectionCropClear.addEventListener("click", () => {
+  const section = sections.find((item) => item.id === sectionSelect.value);
+  if (!section) return;
+  post("DETAIL_SET_SECTION_CROP", {
+    id: section.id,
+    height: null,
+    mode: cropModeForWidth(),
+  });
+  setStatus(
+    `${previewWidth}px ${cropModeForWidth() === "mobile" ? "모바일" : "데스크톱"}에서 ‘${section.label}’을 자동 높이로 복원했습니다.`,
+  );
 });
 document.querySelector("#accent").addEventListener("input", (event) =>
   post("DETAIL_SET_ACCENT", { value: event.target.value }),
@@ -553,10 +1148,22 @@ textAlignButtons.forEach((button) => {
     post("DETAIL_SET_TEXT_ALIGN", { value: button.dataset.textAlign });
   });
 });
+function confirmDelete() {
+  if (!selectedObjectState || editorMode !== "layout") return false;
+  const count = Number(selectedObjectState.selectedCount) || 1;
+  return confirm(
+    `${count > 1 ? `선택한 ${count}개 요소` : "선택한 요소"}를 삭제할까요?\n실행 취소(Ctrl/Cmd+Z)로 되돌릴 수 있습니다.`,
+  );
+}
+
 deleteObjectButton.addEventListener("click", () => {
   if (!selectedObjectState || editorMode !== "layout") return;
+  if (!confirmDelete()) {
+    setStatus("삭제를 취소했습니다.");
+    return;
+  }
   post("DETAIL_DELETE_OBJECT");
-  setStatus("선택한 요소를 삭제했습니다. 실행 취소로 되돌릴 수 있습니다.");
+  setStatus("확인한 요소를 삭제했습니다. 실행 취소로 되돌릴 수 있습니다.");
 });
 autoHeight.addEventListener("change", () => {
   if (autoHeight.checked) fitPreviewHeight();
@@ -616,25 +1223,40 @@ document.querySelectorAll("[data-width]").forEach((button) => {
     document.querySelectorAll("[data-width]").forEach((item) => {
       item.classList.toggle("primary", item === button);
     });
-    preview.style.width = `${button.dataset.width}px`;
+    previewWidth = Number(button.dataset.width);
+    preview.style.width = `${previewWidth}px`;
+    refreshSectionCropControls();
     setStatus(`${button.dataset.width}px 너비와 높이를 다시 계산하는 중입니다.`);
     requestAnimationFrame(() => post("DETAIL_REQUEST_HEIGHT"));
   });
 });
 document.querySelector("#refreshAssets").addEventListener("click", refreshAssets);
 exportButton.addEventListener("click", async () => {
-  await refreshGate();
-  if (!gate.exportAllowed) {
-    setStatus("승인 대기 에셋을 먼저 결정해 주세요.");
-    return;
+  try {
+    await refreshGate();
+    if (!gate.htmlExportAllowed) {
+      setStatus("G5 게시 승인과 97/90/85·hard 0 검수를 먼저 통과해 주세요.");
+      return;
+    }
+    exportButton.disabled = true;
+    setStatus("서버가 sealed workflow와 immutable Studio revision을 다시 검증하는 중입니다.");
+    const payload = await api("/api/v1/exports/html", {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+    const anchor = document.createElement("a");
+    anchor.href = payload.result.download_url;
+    anchor.target = "_blank";
+    anchor.rel = "noopener";
+    anchor.click();
+    setStatus(
+      `일반 HTML 전달본 준비 완료 · ${payload.result.revision_id}`,
+    );
+  } catch (error) {
+    setStatus(`일반 HTML 내보내기 실패 · ${error.message}`);
+  } finally {
+    exportButton.disabled = false;
   }
-  post("DETAIL_EXPORT_HTML");
-  setStatus("CSS와 승인 에셋을 포함한 단일 HTML을 준비하는 중입니다.");
-});
-wingCdnBaseUrl.value = localStorage.getItem(wingCdnStorageKey) || "";
-wingCdnBaseUrl.addEventListener("input", () => {
-  localStorage.setItem(wingCdnStorageKey, wingCdnBaseUrl.value.trim());
-  renderGate();
 });
 wingExportButton.addEventListener("click", async () => {
   await refreshGate();
@@ -642,28 +1264,32 @@ wingExportButton.addEventListener("click", async () => {
     setStatus("G5 게시 승인과 상용 QA 97점 이상이 필요합니다.");
     return;
   }
-  const cdnBaseUrl = wingCdnBaseUrl.value.trim().replace(/\/+$/, "");
-  if (!isValidCdnBaseUrl(cdnBaseUrl)) {
-    setStatus("새 revision이 포함된 HTTPS CDN 기본 주소를 입력해 주세요.");
+  await refreshCloudflareConnection();
+  if (!cloudflareConnection.connected) {
+    setStatus(
+      cloudflareConnection.error?.message ||
+        "Cloudflare Pages 프로젝트 config와 OS keyring 연결이 필요합니다.",
+    );
     return;
   }
   wingExportBusy = true;
   wingExportResult.textContent =
-    "섹션을 평면화하고 정적·애니메이션 WebP를 만드는 중입니다.";
+    "새 namespace를 만들고 WebP 평면화·Cloudflare 업로드·원격 검증을 진행합니다.";
   renderGate();
-  setStatus("쿠팡 Wing 780px WebP 패키지를 생성하는 중입니다.");
+  setStatus("쿠팡 Wing을 새 Cloudflare namespace에 게시하는 중입니다.");
   try {
     const payload = await api("/api/v1/exports/coupang-wing", {
       method: "POST",
-      body: JSON.stringify({ cdnBaseUrl }),
+      body: JSON.stringify({}),
     });
     renderWingExportResult(payload.result);
     setStatus(
-      `쿠팡 Wing 패키지 생성 완료 · ${payload.result.assetCount}개 WebP · CDN 업로드 후 원격 검증 필요`,
+      `쿠팡 Wing 게시 완료 · ${payload.result.assetCount}개 WebP · 원격 검증 통과`,
     );
   } catch (error) {
-    wingExportResult.textContent = `생성 실패 · ${error.message}`;
-    setStatus(error.message);
+    wingExportResult.textContent =
+      `게시 실패 · ${error.code || "EXPORT_FAILED"} · ${error.message}`;
+    setStatus(`${error.state || "failed"} · ${error.message}`);
   } finally {
     wingExportBusy = false;
     renderGate();
@@ -672,27 +1298,22 @@ wingExportButton.addEventListener("click", async () => {
 
 document.addEventListener("keydown", (event) => {
   const inControl = event.target.closest("input,select,textarea,[contenteditable]");
+  if (event.key === "Escape" && editing) {
+    event.preventDefault();
+    stopEditing();
+    return;
+  }
   if (!inControl && !event.ctrlKey && !event.metaKey && !event.altKey) {
     if (event.key.toLowerCase() === "v") {
       event.preventDefault();
-      if (!editing) {
-        editing = true;
-        toggleEdit.textContent = "편집 종료";
-        toggleEdit.classList.remove("primary");
-        post("DETAIL_SET_EDITING", { enabled: true });
-      }
-      setEditorMode("layout");
+      if (!editing) startEditing("layout");
+      else setEditorMode("layout");
       return;
     }
     if (event.key.toLowerCase() === "t") {
       event.preventDefault();
-      if (!editing) {
-        editing = true;
-        toggleEdit.textContent = "편집 종료";
-        toggleEdit.classList.remove("primary");
-        post("DETAIL_SET_EDITING", { enabled: true });
-      }
-      setEditorMode("text");
+      if (!editing) startEditing("text");
+      else setEditorMode("text");
       return;
     }
   }
@@ -707,7 +1328,12 @@ document.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("message", (event) => {
+  if (event.source !== preview.contentWindow) return;
   const message = event.data || {};
+  if (message.type === "DETAIL_SERIALIZED") {
+    void saveSerializedAuthoring(message);
+    return;
+  }
   if (message.type === "DETAIL_READY") {
     if (Number(message.height) > 0) {
       measuredHeight = Math.ceil(Number(message.height));
@@ -721,11 +1347,6 @@ window.addEventListener("message", (event) => {
         `${message.sectionCount}개 섹션 · 수정 문구 ${message.editableCount}개 · 이미지 ${message.imageCount}개 준비됨`,
       );
     }
-  }
-  if (message.type === "DETAIL_SAVED") {
-    setStatus(
-      `로컬 저장 완료 · ${new Date(message.savedAt).toLocaleTimeString("ko-KR")}`,
-    );
   }
   if (message.type === "DETAIL_HISTORY_CHANGED") {
     undoButton.disabled = !message.canUndo;
@@ -744,9 +1365,15 @@ window.addEventListener("message", (event) => {
     selectedImageCurrentSrc = message.src;
     srcInput.value = message.src;
     altInput.value = message.alt;
-    selectedLabel.innerHTML = `<span class="selected">${
-      message.assetId || `이미지 #${message.index + 1}`
-    }</span> 선택됨`;
+    const selected = document.createElement("span");
+    selected.className = "selected";
+    selected.textContent = String(
+      message.assetId || `이미지 #${Number(message.index) + 1}`,
+    );
+    selectedLabel.replaceChildren(
+      selected,
+      document.createTextNode(" 선택됨"),
+    );
     setImageControlsEnabled(true);
   }
   if (message.type === "DETAIL_OBJECT_SELECTED") {
@@ -779,6 +1406,11 @@ window.addEventListener("message", (event) => {
         : "텍스트 변환 모드에서 바꿀 문구를 선택해 주세요.";
     setElementControlsEnabled(false);
     setImageControlsEnabled(false);
+    selectionDepth.innerHTML =
+      "<span>선택 0</span><span>레이어 -</span><span>깊이 -</span>";
+  }
+  if (message.type === "DETAIL_EDITING_STOPPED") {
+    stopEditing({ syncPreview: false });
   }
   if (message.type === "DETAIL_MODE_CHANGED") {
     setEditorMode(message.mode, false, false);
@@ -787,4 +1419,13 @@ window.addEventListener("message", (event) => {
 
 setImageControlsEnabled(false);
 setElementControlsEnabled(false);
+renderEditingState();
+if (nestedStudio) {
+  nestedStudioGuard.hidden = false;
+  const app = document.querySelector(".app");
+  app.inert = true;
+  app.setAttribute("aria-hidden", "true");
+}
 refreshGate();
+refreshWorkflow();
+refreshCloudflareConnection();

@@ -6,11 +6,11 @@ import test from "node:test";
 import {
   createProject,
   defaultProjectsRoot,
-} from "../../skills/detail-page-maker-skill/scripts/new-project.mjs";
+} from "../../skills/detail-page-maker-skill/scripts/lib/new-project.mjs";
 import {
   listProjects,
   validateProjectIsolation,
-} from "../../skills/detail-page-maker-skill/scripts/project-manager.mjs";
+} from "../../skills/detail-page-maker-skill/scripts/lib/project-manager.mjs";
 
 async function listFiles(rootPath) {
   let entries;
@@ -76,13 +76,16 @@ test("새 프로젝트는 목록에 나타나고 외부 파일 의존성이 없�
     assert.equal(projects.length, 1);
     assert.equal(projects[0].isolation, "self-contained");
     await assert.rejects(access(path.join(created.projectRoot, "assets")));
-    await access(path.join(created.projectRoot, "asset"));
+    await assert.rejects(access(path.join(created.projectRoot, "asset")));
+    await access(path.join(created.projectRoot, "input", "product"));
+    await access(path.join(created.projectRoot, "output", "detail-page.html"));
 
     const report = await validateProjectIsolation(created.projectRoot);
     assert.equal(report.ok, true);
 
     const learningsPath = path.join(
       created.projectRoot,
+      ".detail-page",
       "planning",
       "LEARNINGS.md",
     );
@@ -100,7 +103,12 @@ test("새 프로젝트는 목록에 나타나고 외부 파일 의존성이 없�
     await writeFile(learningsPath, "# Project learnings\n", "utf8");
 
     await writeFile(
-      path.join(created.projectRoot, "research", "bad-path.json"),
+      path.join(
+        created.projectRoot,
+        ".detail-page",
+        "research",
+        "bad-path.json",
+      ),
       '{"source":"../../../shared/file.json"}\n',
       "utf8",
     );
@@ -112,7 +120,12 @@ test("새 프로젝트는 목록에 나타나고 외부 파일 의존성이 없�
     );
 
     await writeFile(
-      path.join(created.projectRoot, "research", "legacy-root.json"),
+      path.join(
+        created.projectRoot,
+        ".detail-page",
+        "research",
+        "legacy-root.json",
+      ),
       '{"bundle":".artifacts/capture","otherProject":"projects/other"}\n',
       "utf8",
     );
@@ -141,9 +154,9 @@ test("새 프로젝트는 목록에 나타나고 외부 파일 의존성이 없�
   }
 });
 
-test("저장소는 prototypes 또는 공유 videos 루트를 사용하지 않는다", async () => {
+test("저장소는 projects, prototypes 또는 공유 videos 데이터를 배포하지 않는다", async () => {
   const repositoryRoot = path.resolve(import.meta.dirname, "../..");
   assert.deepEqual(await listFiles(path.join(repositoryRoot, "prototypes")), []);
   assert.deepEqual(await listFiles(path.join(repositoryRoot, "videos")), []);
-  await access(path.join(repositoryRoot, "projects", "README.md"));
+  await assert.rejects(access(path.join(repositoryRoot, "projects", "README.md")));
 });

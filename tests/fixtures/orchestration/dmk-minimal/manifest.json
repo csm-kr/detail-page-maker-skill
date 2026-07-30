@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "artifact_type": "dmk_extractor_snapshot",
+  "product_id": "56328525",
+  "canonical_supplier_url": "https://domeggook.com/56328525",
+  "requested_url": "https://domeggook.com/56328525",
+  "final_url": "https://domeggook.com/56328525",
+  "captured_at": "2026-07-01T00:00:00.000Z",
+  "browser_mode": "isolated_headless_browser_harness",
+  "gif_summary": {
+    "target_scope": "expanded_seller_product_detail_only",
+    "animated_gif_count": 0,
+    "numbered_frame_count": 0
+  },
+  "review_summary": {
+    "visible_review_count": 1,
+    "captured_review_count": 1,
+    "complete": true
+  },
+  "artifacts": [
+    {
+      "path": "detail/detail-page.txt",
+      "kind": "assembled_seller_detail_page",
+      "size_bytes": 65,
+      "sha256": "1acaea0fa6c22a9dc0efbff0802db4bbfdadd156809662a174c1eaec87937807"
+    },
+    {
+      "path": "evidence/browser-harness/recordings/dmk-56328525-extract/events.jsonl",
+      "kind": "browser_harness_recording",
+      "size_bytes": 69,
+      "sha256": "9ce80a02be998d5a6b9f963009da50b3d10eeda855d8e9f9a5efe76e6124b691"
+    },
+    {
+      "path": "page.json",
+      "kind": "structured_product_page",
+      "size_bytes": 596,
+      "sha256": "0a56f92b9401302a4edaec3dfcaadee9bcdabd0f9fd1893d50a00c37cc83fe92"
+    },
+    {
+      "path": "reviews/reviews.json",
+      "kind": "sanitized_public_reviews",
+      "size_bytes": 617,
+      "sha256": "e9f0671bcc063721997536d313d2d7ddb6b9da10b91fe7bf6a2c4f84b4f55851"
+    },
+    {
+      "path": "thumbnail/thumbnail.txt",
+      "kind": "product_thumbnail",
+      "size_bytes": 54,
+      "sha256": "9304cd0b4de331893ae8b5a7fb4bba1edc1af4e141f8889066c21ba018623361"
+    }
+  ]
+}

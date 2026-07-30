@@ -4,7 +4,7 @@
 
 - `supplier_url`: {{SUPPLIER_URL}}
 - `revision_id`: rev-001
-- `guide`: `detail-page-maker-skill/references/approval-guide.md`
+- `guide`: `detail-page-maker-skill/references/assets.md`
 
 제작 세션은 이 문서의 결정을 자가 작성하지 않는다. 옆 승인 세션의 결정과 사용자의
 명시적 확인을 함께 기록한다.
@@ -71,6 +71,11 @@
 - `findings`:
 - `required_changes`:
 - `user_confirmation`: pending
+- `total_motion_count`: pending
+- `problem_motion_2_plus`: pending
+- `solution_motion_one_each`: pending
+- `usage_motion_1_plus`: pending
+- `comparison_motion_1_plus`: pending
 
 ## G4 ASSEMBLED_HTML
 
@@ -93,3 +98,7 @@
 - `findings`:
 - `required_changes`:
 - `user_confirmation`: pending
+- `output_entry`: `output/detail-page.html`
+- `wing_export_id`:
+- `versioned_cdn_namespace`:
+- `remote_verification`: pending

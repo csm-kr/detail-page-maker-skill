@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/skills/coupang-extractor/capture-schema.json",
+  "title": "Coupang product evidence capture",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "capture_id",
+    "captured_at",
+    "status",
+    "collector",
+    "product",
+    "thumbnails",
+    "detail",
+    "reviews",
+    "rights"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "artifact_type": { "const": "coupang_product_evidence_capture" },
+    "capture_id": { "type": "string", "minLength": 16 },
+    "captured_at": { "type": "string", "format": "date-time" },
+    "status": {
+      "enum": ["READY", "PARTIAL", "ACCESS_BLOCKED", "VALIDATION_FAILED"]
+    },
+    "collector": {
+      "type": "object",
+      "required": ["method", "version"],
+      "properties": {
+        "method": { "enum": ["browser-harness", "bookmarklet"] },
+        "version": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "product": { "$ref": "#/$defs/product" },
+    "thumbnails": { "$ref": "#/$defs/imageSection" },
+    "detail": { "$ref": "#/$defs/imageSection" },
+    "reviews": { "$ref": "#/$defs/reviewSection" },
+    "rights": {
+      "type": "object",
+      "required": ["scope", "production_use_allowed", "reviewer_identity_stored"],
+      "properties": {
+        "scope": { "const": "research_reference_only" },
+        "production_use_allowed": { "const": false },
+        "reviewer_identity_stored": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "files_manifest": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/file" }
+    }
+  },
+  "$defs": {
+    "product": {
+      "type": "object",
+      "required": ["requested_url", "normalized_url", "product_id", "item_id"],
+      "properties": {
+        "requested_url": { "type": "string" },
+        "final_url": { "type": ["string", "null"] },
+        "normalized_url": { "type": "string" },
+        "product_id": { "type": "string", "pattern": "^[0-9]+$" },
+        "item_id": { "type": "string", "pattern": "^[0-9]+$" },
+        "vendor_item_id": { "type": ["string", "null"], "pattern": "^[0-9]+$" },
+        "title": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "asset": {
+      "type": "object",
+      "required": ["order", "source_asset_url", "status"],
+      "properties": {
+        "order": { "type": "integer", "minimum": 1 },
+        "source_asset_url": { "type": "string", "pattern": "^https://" },
+        "natural_width": { "type": ["integer", "null"], "minimum": 0 },
+        "natural_height": { "type": ["integer", "null"], "minimum": 0 },
+        "status": { "enum": ["READY", "TIMEOUT", "INVALID_URL", "DOWNLOAD_FAILED"] },
+        "file": { "$ref": "#/$defs/file" }
+      },
+      "additionalProperties": true
+    },
+    "imageSection": {
+      "type": "object",
+      "required": ["status", "assets", "diagnostics"],
+      "properties": {
+        "status": { "type": "string" },
+        "assets": { "type": "array", "items": { "$ref": "#/$defs/asset" } },
+        "diagnostics": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "review": {
+      "type": "object",
+      "required": ["position", "rating", "review_text", "source_page", "dedupe_key"],
+      "properties": {
+        "position": { "type": "integer", "minimum": 1 },
+        "sample_group": { "enum": ["latest_baseline", "rating_stratified_supplement"] },
+        "rating": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+        "rating_filter": { "type": "integer", "enum": [1, 2, 4, 5] },
+        "review_text": { "type": "string", "maxLength": 10000 },
+        "option_name": { "type": ["string", "null"], "maxLength": 1000 },
+        "reviewed_at": { "type": ["string", "null"], "maxLength": 100 },
+        "helpful_count": { "type": ["integer", "null"], "minimum": 0 },
+        "source_page": { "type": "integer", "minimum": 1 },
+        "dedupe_key": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "content_key": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "dedupe_occurrence": { "type": "integer", "minimum": 1 },
+        "media_count": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "reviewSection": {
+      "type": "object",
+      "required": ["status", "scope", "items", "diagnostics"],
+      "properties": {
+        "status": { "type": "string" },
+        "scope": {
+          "type": "object",
+          "required": ["requested_max_pages", "requested_max_reviews", "pages_observed", "reviews_observed", "complete_all_reviews"],
+          "properties": {
+            "requested_max_pages": { "type": "integer", "minimum": 1, "maximum": 60 },
+            "requested_latest_max_pages": { "type": "integer", "minimum": 1, "maximum": 30 },
+            "requested_supplement_max_pages": { "type": "integer", "minimum": 1, "maximum": 30 },
+            "requested_max_reviews": { "type": "integer", "minimum": 1, "maximum": 300 },
+            "requested_latest_reviews": { "type": "integer", "minimum": 100, "maximum": 299 },
+            "requested_supplement_reviews": { "type": "integer", "minimum": 1, "maximum": 200 },
+            "pages_observed": { "type": "integer", "minimum": 0 },
+            "reviews_observed": { "type": "integer", "minimum": 0 },
+            "latest_reviews_observed": { "type": "integer", "minimum": 0 },
+            "supplement_reviews_observed": { "type": "integer", "minimum": 0 },
+            "complete_all_reviews": { "const": false },
+            "sampling_strategy": { "type": "string" },
+            "target_low_high_ratio": { "type": "string" },
+            "target_low_count": { "type": "integer", "minimum": 0 },
+            "target_high_count": { "type": "integer", "minimum": 0 },
+            "observed_low_count": { "type": "integer", "minimum": 0 },
+            "observed_high_count": { "type": "integer", "minimum": 0 },
+            "observed_neutral_count": { "type": "integer", "minimum": 0 },
+            "observed_low_high_ratio": { "type": ["number", "null"], "minimum": 0 }
+          },
+          "additionalProperties": true
+        },
+        "items": { "type": "array", "maxItems": 300, "items": { "$ref": "#/$defs/review" } },
+        "diagnostics": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "file": {
+      "type": "object",
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": { "type": "string" },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "content_type": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

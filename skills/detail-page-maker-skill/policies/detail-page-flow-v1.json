@@ -1,0 +1,328 @@
+{
+  "schema_version": "1.0",
+  "policy_id": "detail-page-flow",
+  "version": "1.0.0",
+  "status": "required",
+  "authority": "user-confirmed-house-standard",
+  "canvas": {
+    "authoring_width_css_px": 390,
+    "delivery_asset_width_px": 780,
+    "desktop_variant_required": false,
+    "hidden_responsive_qa_widths_px": [320, 360, 390]
+  },
+  "inputs": {
+    "user_product_photo_directory": "input/product",
+    "actual_product_photos": "optional",
+    "missing_photo_notice_maximum": 1,
+    "supplier_url": "required",
+    "supplier_same_sku_media": {
+      "required": true,
+      "roles": ["product_identity_ssot", "image_generation_reference"],
+      "direct_publication": false
+    },
+    "image_generation_references": {
+      "allowed_source_kinds": [
+        "supplier_same_sku",
+        "actual_product_photo"
+      ],
+      "allowed_classifications": [
+        "identity_reference",
+        "production_licensed"
+      ],
+      "research_only_allowed": false
+    },
+    "market_and_behance_media": {
+      "role": "research_only",
+      "production_asset_reuse": false
+    }
+  },
+  "content": {
+    "required_order": [
+      "hero",
+      "pain",
+      "product_answer",
+      "solution_group",
+      "usage",
+      "comparison",
+      "choice_and_fit",
+      "specification_and_caution",
+      "objection_and_faq",
+      "decision_recap"
+    ],
+    "hero": {
+      "required": true,
+      "static": true,
+      "primary_benefit_count": 1,
+      "product_visual_priority": "largest",
+      "commercial_intensity": "high",
+      "atmosphere_is_evidence": false,
+      "product_identity_change_allowed": false,
+      "output_assurance": {
+        "policy_id": "policy.hero-output-assurance.v1",
+        "version": "1.0.0",
+        "capture_viewport_css_width": 390,
+        "capture_device_scale_factor": 2,
+        "minimum_product_section_area_ratio": 0.35,
+        "commercial_visual_minimum_score": 90,
+        "commercial_validator_id": "HeroCommercialVisualValidator",
+        "commercial_validator_version": "1.0.0",
+        "commercial_validator_code_sha256": "655d49af1f55d65caa8c4458b74c67e3bc9f9cdcb95141168fb3fde481b496f6",
+        "commercial_prompt_sha256": "38eb0eb7547978f31eb3b6ed652c35c6adf71e5e6e23fad2a6766fab9e2fd094",
+        "identity_validator_id": "HeroProductIdentityValidator",
+        "identity_validator_version": "1.0.0",
+        "identity_validator_code_sha256": "31817136d9d323b1fe6c753031722c2afed99255d1d3ed8f989d72e4bd6f7f82",
+        "primary_benefit_count": 1,
+        "allowed_hero_media_kinds": ["image"],
+        "required_checks": [
+          "hero.identity_preserved",
+          "hero.product_largest",
+          "hero.commercial_intensity_high",
+          "hero.static",
+          "hero.single_primary_benefit"
+        ]
+      }
+    },
+    "pain": {
+      "required": true,
+      "statement_count": {"minimum": 3, "maximum": 5},
+      "public_form": "unattributed_first_person_quote",
+      "question_form": false,
+      "review_ui_allowed": false,
+      "public_reconstruction_metadata_allowed": false,
+      "must_map_to_solution": true,
+      "motion_count_minimum": 2
+    },
+    "product_answer": {
+      "required": true,
+      "sentence_count": 1,
+      "must_separate_pain_and_solution_groups": true
+    },
+    "solution_group": {
+      "required": true,
+      "solution_count": {"minimum": 3, "maximum": 5},
+      "pain_solution_mapping": "one_to_one_in_order",
+      "each_solution_requires": [
+        "customer_benefit_copy",
+        "approved_still",
+        "dedicated_motion",
+        "verified_fact_or_condition",
+        "unattributed_experiential_quote"
+      ]
+    },
+    "usage": {
+      "required": true,
+      "sequence": ["preparation", "use", "result"],
+      "motion_count_minimum": 1
+    },
+    "comparison": {
+      "required": true,
+      "sequence": ["prior_inconvenience", "verified_product_difference"],
+      "motion_count_minimum": 1,
+      "competitor_attack_allowed": false
+    },
+    "actual_review": {
+      "optional": true,
+      "requires_verified_same_sku_review": true,
+      "fabrication_allowed": false,
+      "fallback": "omit_review_section"
+    },
+    "decision_recap": {
+      "required": true,
+      "fake_interactive_purchase_button_allowed": false
+    }
+  },
+  "motion": {
+    "total_count_minimum": 5,
+    "effective_minimum_from_required_roles": 7,
+    "planning_default_range": {"minimum": 7, "maximum": 9},
+    "total_count_maximum": null,
+    "increase_when_temporal_evidence_is_clearer": true,
+    "one_motion_one_claim": true,
+    "required_roles": {
+      "pain": 2,
+      "solution_per_item": 1,
+      "usage": 1,
+      "comparison": 1
+    },
+    "normal_html": {
+      "play_only_when_visible": true,
+      "restart_on_reentry": true,
+      "offscreen_poster": true
+    },
+    "wing": {
+      "format": "animated_webp",
+      "viewport_playback_control": false
+    }
+  },
+  "copy": {
+    "pain_and_experiential_quotes_are_actual_reviews": false,
+    "actual_review_badges_for_generated_copy_allowed": false,
+    "public_internal_metadata_allowed": false,
+    "unique_reference_expression_copy_allowed": false,
+    "message_intent_and_purchase_flow_learning_allowed": true
+  },
+  "studio": {
+    "authoring_layer": "editable_html_sections",
+    "explicit_save_overwrites_current_working_output": true,
+    "automatic_public_overwrite": false,
+    "save_sets_state": "wing_export_required",
+    "restore_snapshot_limit": 20,
+    "restore_snapshots_are_internal": true,
+    "saved_page_height_must_fit_content": true
+  },
+  "output": {
+    "root": "output",
+    "customer_entry": "output/detail-page.html",
+    "media_images": "output/media/images",
+    "media_gifs": "output/media/gifs",
+    "wing_root": "output/wing",
+    "legacy_deliverables_allowed": false,
+    "legacy_index_entry_allowed": false,
+    "save_preview_must_match_authoring_visual_order": true,
+    "customer_entry_matches_latest_wing_visual_stack_after_export": true
+  },
+  "cdn": {
+    "new_path_per_export": true,
+    "overwrite_existing_export_path": false,
+    "path_template": "{cdn_root}/{project_key}/{export_id}/section-{section_order_2d}.webp",
+    "export_id_required": true,
+    "local_and_remote_manifest_required": true,
+    "remote_http_mime_size_hash_verification_required": true,
+    "successful_export_clears_wing_export_required": true,
+    "rollback_uses_prior_export_manifest": true,
+    "writer_owner_digest_config_pin_required": true,
+    "writer_owner_digest_binds_runtime_and_security_pins": true,
+    "bootstrap_receipt_machine_hmac_required": true,
+    "normal_writer_owner_migration_allowed": false,
+    "writer_transfer_requires_new_pages_project_and_base_url": true,
+    "wrangler_execution": {
+      "minimum_node_version": "22.15.0",
+      "execution_policy_id": "node-permission-register-hooks-memory-v1",
+      "disk_snapshot_allowed": false,
+      "memory_sealed_sources_required": true,
+      "module_register_hooks_required": true,
+      "loaded_source_must_equal_pinned_bytes": true,
+      "package_resolution_graph_memory_sealed": true,
+      "disk_package_metadata_resolution_allowed": false,
+      "node_builtin_only_next_resolve": true,
+      "sealed_commonjs_loader_required": true,
+      "runtime_symlink_or_reparse_allowed": false,
+      "node_permission_required": true,
+      "allow_child_process": false,
+      "allow_worker_threads": false,
+      "allow_native_addons": false,
+      "allow_wasi": false
+    }
+  },
+  "public_output": {
+    "allowed_internal_metadata_count": 0,
+    "strip": [
+      "claim_id",
+      "fact_id",
+      "evidence_id",
+      "prompt",
+      "model",
+      "agent",
+      "qa_score",
+      "approval_state",
+      "local_path",
+      "source_file_name",
+      "generation_method",
+      "reconstruction_label"
+    ],
+    "accessibility_alt_is_customer_content": true
+  },
+  "orchestration": {
+    "final_gate_order": ["G0", "G1", "G2", "G3", "G4", "G5"],
+    "parallel_preparation_allowed": true,
+    "fill_available_worker_capacity": true,
+    "one_image_cut_per_worker": true,
+    "one_motion_module_per_worker": true,
+    "producer_self_validation_allowed": false,
+    "independent_qa_lanes": [
+      "commercial",
+      "evidence",
+      "identity",
+      "visual",
+      "motion",
+      "technical"
+    ],
+    "retry_scope": "failed_member_and_descendants_only",
+    "artifact_location_receipt_and_next_consumer_required": true
+  },
+  "planning_compiler_contract": {
+    "root_field": "commercial_flow",
+    "required_fields": [
+      "hero",
+      "section_role_order",
+      "problem_quotes",
+      "product_answer",
+      "solution_modules",
+      "problem_motion_brief_ids",
+      "usage",
+      "usage_motion_brief_ids",
+      "comparison",
+      "comparison_motion_brief_ids",
+      "motion_target",
+      "actual_review",
+      "public_presentation"
+    ],
+    "hero_fields": [
+      "section_id",
+      "static",
+      "primary_benefit_claim_ids",
+      "product_visual_priority",
+      "commercial_intensity",
+      "product_identity_change_allowed"
+    ],
+    "product_answer_fields": [
+      "section_id",
+      "sentence"
+    ],
+    "problem_quote_fields": [
+      "quote_id",
+      "pain_id",
+      "text",
+      "claim_id"
+    ],
+    "solution_module_fields": [
+      "solution_id",
+      "pain_id",
+      "claim_id",
+      "section_id",
+      "still_image_job_id",
+      "benefit_motion_brief_id",
+      "fact_or_condition_id",
+      "experiential_quote"
+    ],
+    "usage_fields": [
+      "section_id",
+      "sequence"
+    ],
+    "comparison_fields": [
+      "section_id",
+      "prior_inconvenience",
+      "verified_difference"
+    ],
+    "public_presentation_fields": [
+      "review_ui",
+      "fake_transaction_ui"
+    ],
+    "actual_review_fields": [
+      "section_present",
+      "verified_same_sku_receipt_id"
+    ],
+    "one_to_one": {
+      "pain_to_solution": true,
+      "benefit_motion_per_solution": true,
+      "preserve_order": true
+    },
+    "motion_role_fields": [
+      "problem_motion_brief_ids",
+      "benefit_motion_brief_id",
+      "usage_motion_brief_ids",
+      "comparison_motion_brief_ids"
+    ],
+    "default_range_exception_field": "default_exception_reason"
+  }
+}

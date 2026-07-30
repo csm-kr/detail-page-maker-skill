@@ -1,0 +1,4 @@
+interface:
+  display_name: "God Tibo GPT Image 2"
+  short_description: "Tibo 이미지 배치의 detail과 출력 사이즈 제어"
+  default_prompt: "$god-tibo-gpt-image2-skill을 사용해 출력 사이즈를 먼저 확인하고, 생성 수를 생략하면 기본 24장·24 workers로 이미지를 병렬 생성해 주세요."

@@ -1,8 +1,8 @@
 import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { createProject } from "./new-project.mjs";
-import { startStudioV1Server } from "./studio-v1-server.mjs";
+import { createProject } from "./lib/new-project.mjs";
+import { startStudioV1Server } from "./runtime/studio-v1-server.mjs";
 
 const ONE_PIXEL_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Wl2kAAAAASUVORK5CYII=",
@@ -17,11 +17,15 @@ const PLANNING_FILES = [
   "LEARNINGS.md",
 ];
 
-async function requestJson(baseUrl, pathname, body) {
+async function requestJson(baseUrl, pathname, body, capabilityToken) {
   const response = await fetch(new URL(pathname, baseUrl), {
     method: body === undefined ? "GET" : "POST",
-    headers:
-      body === undefined ? undefined : { "Content-Type": "application/json" },
+    headers: {
+      "X-Detail-Page-Studio-Capability": capabilityToken,
+      ...(body === undefined
+        ? {}
+        : { "Content-Type": "application/json" }),
+    },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   return {
@@ -35,6 +39,15 @@ async function closeServer(server) {
   await new Promise((resolve, reject) =>
     server.close((error) => (error ? reject(error) : resolve())),
   );
+}
+
+async function exists(target) {
+  try {
+    await access(target);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function runE2E() {
@@ -58,13 +71,69 @@ async function runE2E() {
 
     await Promise.all(
       PLANNING_FILES.map((fileName) =>
-        access(path.join(created.projectRoot, "planning", fileName)),
+        access(
+          path.join(
+            created.projectRoot,
+            ".detail-page",
+            "planning",
+            fileName,
+          ),
+        ),
       ),
     );
     report.checks.planningTemplates = [...PLANNING_FILES];
+    await Promise.all([
+      access(
+        path.join(created.projectRoot, "input", "product"),
+      ),
+      access(
+        path.join(created.projectRoot, "output", "detail-page.html"),
+      ),
+      access(
+        path.join(created.projectRoot, "output", "media", "images"),
+      ),
+      access(
+        path.join(created.projectRoot, "output", "media", "gifs"),
+      ),
+      access(
+        path.join(created.projectRoot, "output", "wing"),
+      ),
+      access(
+        path.join(
+          created.projectRoot,
+          ".detail-page",
+          "authoring",
+          "detail-page.html",
+        ),
+      ),
+    ]);
+    report.checks.currentProjectContract = {
+      input: "input/product",
+      publicHtml: "output/detail-page.html",
+      authoringHtml: ".detail-page/authoring/detail-page.html",
+    };
+    const forbiddenPublicRoots = [
+      "index.html",
+      "deliverables",
+      path.join("html", "index.html"),
+      path.join("planning", "COMMERCIAL.md"),
+      path.join("asset", "asset-manifest.json"),
+    ];
+    const forbiddenFound = [];
+    for (const relativePath of forbiddenPublicRoots) {
+      if (await exists(path.join(created.projectRoot, relativePath))) {
+        forbiddenFound.push(relativePath);
+      }
+    }
+    report.checks.forbiddenPublicRoots = forbiddenFound;
+    if (forbiddenFound.length > 0) {
+      throw new Error(
+        `legacy 공개 경로가 생성되었습니다: ${forbiddenFound.join(", ")}`,
+      );
+    }
 
     const pendingRelative =
-      "asset/generated/pending/image/01-e2e-hybrid-v01.png";
+      ".detail-page/generation/pending/image/01-e2e-hybrid-v01.png";
     await writeFile(
       path.join(created.projectRoot, pendingRelative),
       ONE_PIXEL_PNG,
@@ -84,7 +153,12 @@ async function runE2E() {
       throw new Error(`Studio HTTP status: ${studioResponse.status}`);
     }
 
-    const before = await requestJson(baseUrl, "/api/v1/gate");
+    const before = await requestJson(
+      baseUrl,
+      "/api/v1/gate",
+      undefined,
+      started.capabilityToken,
+    );
     report.checks.gateBefore = before.payload;
     if (before.status !== 200 || before.payload.exportAllowed !== false) {
       throw new Error("pending Asset이 있는데 출력 게이트가 잠기지 않았습니다.");
@@ -98,6 +172,7 @@ async function runE2E() {
         decision: "approved",
         confirmedByUser: false,
       },
+      started.capabilityToken,
     );
     report.checks.unconfirmedDecisionStatus = unconfirmed.status;
     if (
@@ -115,6 +190,7 @@ async function runE2E() {
         decision: "approved",
         confirmedByUser: true,
       },
+      started.capabilityToken,
     );
     report.checks.approvedDecisionStatus = approved.status;
     if (
@@ -124,7 +200,12 @@ async function runE2E() {
       throw new Error("승인 Asset의 이동 또는 SHA-256 기록이 실패했습니다.");
     }
 
-    const after = await requestJson(baseUrl, "/api/v1/gate");
+    const after = await requestJson(
+      baseUrl,
+      "/api/v1/gate",
+      undefined,
+      started.capabilityToken,
+    );
     report.checks.gateAfter = after.payload;
     if (after.status !== 200 || after.payload.exportAllowed !== true) {
       throw new Error("승인 뒤 최종 출력 게이트가 열리지 않았습니다.");
@@ -132,7 +213,12 @@ async function runE2E() {
 
     const manifest = JSON.parse(
       await readFile(
-        path.join(created.projectRoot, "asset", "asset-manifest.json"),
+        path.join(
+          created.projectRoot,
+          ".detail-page",
+          "generation",
+          "asset-manifest.json",
+        ),
         "utf8",
       ),
     );

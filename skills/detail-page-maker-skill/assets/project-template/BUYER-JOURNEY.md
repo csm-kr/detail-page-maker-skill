@@ -36,23 +36,27 @@ Create three to five reason cards. Each card must contain:
 
 ## Journey
 
-1. Pain Recognition
-2. Product Answer
-3. Reason 1
-4. Reason 2
-5. Reason 3
-6. Optional Reason 4 or 5
-7. How to Use
-8. Primary Use Case
-9. Verified Same-SKU Reviews
-10. Problem-Solution Recap
-11. Construction Details
-12. Configuration and Size
-13. Care and Final Questions
-14. Decision Recap
+1. Hero
+2. Pain Recognition — 인용형 불편 말풍선 3~5개
+3. Pain Motion — 핵심 불편 motion 2개 이상
+4. Product Answer — 한 문장 전환
+5. Solution Group — pain과 같은 순서의 해결 3~5개
+6. 각 Solution — 효익·still·전용 motion·근거·체감 의견
+7. How to Use — 준비→사용→결과
+8. Comparison — 기존 불편→검증된 차이
+9. Choice and Fit
+10. Configuration, Size, Specification and Caution
+11. Objection and FAQ
+12. Decision Recap
 
-페이지 수는 고정값이 아니다. 중복 없는 구매 질문과 직접 증거 수에 맞게 합치거나
-나누되 위의 읽기 순서를 유지한다.
+위 읽기 순서는 고정한다. 해결 장점과 증거가 많으면 같은 역할 안에서 section을
+나눌 수 있지만 문제와 해결을 합치거나 후반 선택 정보를 앞당기지 않는다.
 
 각 페이지에 `page_job`, `headline`, `supporting_copy`, `customer_benefit`,
 `visual_proof`, `planned_assets`, `next_reason`을 기록한다.
+
+말풍선은 제품별로 확인·재구성된 불편만 사용하고, 의견끼리 의미가 겹치지 않으며,
+모바일에서도 빈 칸이나 카드 겹침 없이 자동 높이로 쌓이게 설계한다.
+
+실제 동일 SKU 후기가 검증된 경우에만 별도 후기 section을 추가한다. 없으면
+후기처럼 보이는 section을 만들지 않는다.
