@@ -33,6 +33,7 @@ const CURRENT_SKILL_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+const MINIMUM_NODE_VERSION = Object.freeze([22, 15, 0]);
 
 function parseArgs(argv) {
   const result = { _: [] };
@@ -59,8 +60,14 @@ function versionTuple(version) {
 }
 
 function nodeSupported() {
-  const [major] = versionTuple(process.version);
-  return major >= 22;
+  const current = versionTuple(process.version);
+  for (let index = 0; index < MINIMUM_NODE_VERSION.length; index += 1) {
+    const currentPart = current[index] || 0;
+    const minimumPart = MINIMUM_NODE_VERSION[index];
+    if (currentPart > minimumPart) return true;
+    if (currentPart < minimumPart) return false;
+  }
+  return true;
 }
 
 function quoteWindowsArg(value) {
@@ -330,7 +337,7 @@ async function doctor() {
     node: {
       ok: nodeSupported(),
       version: process.version,
-      required: ">=22",
+      required: ">=22.15.0",
     },
     hyperframes: {
       ok: hyperframes.ok,

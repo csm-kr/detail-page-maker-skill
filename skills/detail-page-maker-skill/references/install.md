@@ -6,7 +6,7 @@
 - 사용자는 `detail-page-maker-skill` 하나만 프로젝트 로컬로 설치한다.
 - 실행 의존 스킬 14개는 설치된 스킬의 `.agents/skills/`에 내장한다.
 - sibling·전역 스킬을 추가로 설치하거나 정상 실행 경로로 사용하지 않는다.
-- macOS, Ubuntu, Windows 모두 Node.js 22 이상의 같은 Node 진입점을 사용한다.
+- macOS, Ubuntu, Windows 모두 Node.js 22.15.0 이상의 같은 Node 진입점을 사용한다.
 - PowerShell, Bash, 운영체제별 설치 스크립트를 요구하지 않는다.
 - 불완전한 번들은 네트워크에서 조각을 보충하지 않고 즉시 실패한다.
 
@@ -42,7 +42,7 @@ node .agents/skills/detail-page-maker-skill/scripts/e2e.mjs
 
 ## 런타임
 
-- Node.js 22 이상: 필수
+- Node.js 22.15.0 이상: 필수
 - Git 및 npm/npx: 설치·업데이트에 필수
 - HyperFrames: motion 단계에서 `npx hyperframes`로 프로젝트 로컬 준비
 - ffmpeg: GIF·motion 제작에 필수

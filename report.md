@@ -155,7 +155,7 @@ motion-graphics
 내장 스킬은 `skills-lock.json` hash로 검증하며 하나라도 누락·변조되면
 fail-closed한다. sibling·전역 스킬이나 부분 네트워크 fallback을 사용하지 않는다.
 설치와 업데이트는 상위 스킬 하나를 Git 원본에서 다시 받는 방식이다. 핵심
-실행과 Behance·HyperFrames 학습 유지보수는 Node.js로 통일해
+실행과 Behance·HyperFrames 학습 유지보수는 Node.js 22.15.0 이상으로 통일해
 macOS·Ubuntu·Windows에서 같은 argv를 사용한다.
 
 ## 8. 검증 결과
@@ -165,13 +165,13 @@ macOS·Ubuntu·Windows에서 같은 argv를 사용한다.
 | 프로젝트 로컬 dependency doctor | PASS — 선언·lock·설치 14/14 |
 | skill-creator quick validation | PASS |
 | Git 단일 스킬 실제 설치 스모크 | PASS — 설치 1개, 내장 의존성 14개, 설치본 E2E |
-| portable 설치·정책 회귀 | PASS — 29/29 |
+| portable 설치·정책 회귀 | PASS — 30/30 |
 | persistent orchestration 회귀 | PASS — 307/307 |
 | G0→G5 fixture E2E | PASS |
 | Studio·Wing·runtime 경계 회귀 | PASS — 86/86, 기본 스위트의 브라우저 선택 1건 SKIP |
 | 실제 브라우저 390@2x→780 animated Wing | PASS — 1/1 |
 | JavaScript·Python·JSON 구문·파싱 | PASS — 추적 JS 249, Python 17, JSON 12 |
-| GitHub Actions OS matrix | 구성 — Node 22 Ubuntu·macOS·Windows에서 세 기본 suite 실행 |
+| GitHub Actions OS matrix | PASS — Node 22.15.0 Ubuntu·macOS·Windows에서 세 기본 suite와 실제 Git 설치·업데이트 실행 |
 | 독립 명세 교차검수 | PASS — 14개 기준과 실제 G0A/G1A 경로 포함 |
 | 최종 CDN runtime 계약 검토 | PASS — uploader 26/26, 명확한 결함 0 |
 

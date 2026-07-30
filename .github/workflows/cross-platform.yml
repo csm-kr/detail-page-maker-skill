@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   validate:
-    name: Node 22 · ${{ matrix.os }}
+    name: Node 22.15+ · ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
@@ -26,10 +26,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 22
+      - name: Use Node.js 22.15+
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "22.15.0"
 
       - name: Validate single-skill bundle
         run: node tests/run-suite.mjs portable-skill
@@ -39,3 +39,7 @@ jobs:
 
       - name: Validate Studio runtime
         run: node tests/run-suite.mjs studio-v1
+
+      - name: Validate real Git install and update
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: node tests/remote-git-install.mjs

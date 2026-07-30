@@ -31,7 +31,7 @@ npx skills update detail-page-maker-skill --project --yes
 
 ## 실행 검사
 
-Node.js 22 이상이 필요하다. GIF 제작에는 `ffmpeg`가 필요하고, motion 작업 시
+Node.js 22.15.0 이상이 필요하다. GIF 제작에는 `ffmpeg`가 필요하고, motion 작업 시
 내장 HyperFrames 절차가 `npx hyperframes`로 프로젝트 로컬 런타임을 준비한다.
 실제 브라우저 수집·검수에는 `browser-harness` 실행 파일이 필요하다. 이들은
 별도 스킬이 아니라 세 운영체제에서 사용하는 실행 프로그램이다.

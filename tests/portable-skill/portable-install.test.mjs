@@ -79,6 +79,7 @@ test("배포 계약은 Git에서 받는 단일 스킬과 내장 의존성 14개�
     "https://github.com/csm-kr/detail-page-maker-skill.git",
   );
   assert.equal(manifest.distribution.bundledDependenciesRequired, true);
+  assert.equal(manifest.runtimes.node, ">=22.15.0");
   assert.equal(
     manifest.runtimes.hyperframes,
     "project-local-npx-required-for-motion",

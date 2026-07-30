@@ -9,7 +9,7 @@
     "bundledDependenciesRequired": true
   },
   "runtimes": {
-    "node": ">=22",
+    "node": ">=22.15.0",
     "hyperframes": "project-local-npx-required-for-motion",
     "ffmpeg": "required-for-motion",
     "browser-harness": "required-for-browser-qa"

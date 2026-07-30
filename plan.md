@@ -142,7 +142,7 @@ HTML과 `wing_export_required`를 바꾸지 않는다.
 - 내장 스킬은 `skills-lock.json`의 `SKILL.md` SHA-256으로 고정
 - sibling·전역 스킬 설치와 부분 네트워크 fallback은 사용하지 않음
 - 설치·업데이트는 Git 원본의 상위 스킬 하나를 단위로 수행
-- 핵심 실행·유지보수 진입점은 Node.js 22 이상으로 통일
+- 핵심 실행·유지보수 진입점은 Node.js 22.15.0 이상으로 통일
 - 운영체제별 PowerShell/Bash 설치 스크립트를 요구하지 않음
 
 ## 7. 구현 단계와 상태
