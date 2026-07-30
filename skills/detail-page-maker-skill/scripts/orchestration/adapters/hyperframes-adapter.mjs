@@ -194,10 +194,7 @@ async function resolveProjectLocalCli(projectRoot) {
 
 async function verifyBrief(project, briefPath, briefDigest) {
   const resolvedBrief = path.resolve(String(briefPath ?? ""));
-  if (
-    !isWithin(project, resolvedBrief) ||
-    path.basename(resolvedBrief).toUpperCase() !== "BRIEF.MD"
-  ) {
+  if (path.basename(resolvedBrief).toUpperCase() !== "BRIEF.MD") {
     throw new HyperframesAdapterError(
       "PROJECT_BRIEF_REQUIRED",
       "BRIEF.md는 HyperFrames project 안에 있어야 합니다.",
@@ -206,8 +203,10 @@ async function verifyBrief(project, briefPath, briefDigest) {
   }
   let info;
   let bytes;
+  let canonicalBrief;
   try {
     info = await lstat(resolvedBrief);
+    canonicalBrief = await realpath(resolvedBrief);
     bytes = await readFile(resolvedBrief);
   } catch (error) {
     throw new HyperframesAdapterError(
@@ -221,6 +220,13 @@ async function verifyBrief(project, briefPath, briefDigest) {
       "PROJECT_BRIEF_REQUIRED",
       "BRIEF.md는 프로젝트 내부 일반 파일이어야 합니다.",
       { brief_path: resolvedBrief },
+    );
+  }
+  if (!isWithin(project, canonicalBrief)) {
+    throw new HyperframesAdapterError(
+      "PROJECT_BRIEF_REQUIRED",
+      "BRIEF.md는 HyperFrames project 안에 있어야 합니다.",
+      { brief_path: canonicalBrief },
     );
   }
   const actualDigest = sha256(bytes);
@@ -237,7 +243,7 @@ async function verifyBrief(project, briefPath, briefDigest) {
       },
     );
   }
-  return { briefPath: resolvedBrief, briefSha256: actualDigest };
+  return { briefPath: canonicalBrief, briefSha256: actualDigest };
 }
 
 function assertMotionPrefix(chain) {

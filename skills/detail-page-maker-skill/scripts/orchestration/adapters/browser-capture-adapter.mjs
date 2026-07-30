@@ -183,12 +183,12 @@ function resolveOutputRoots(allowedOutputRoot, outputRoot) {
   return { allowed, output };
 }
 
-function materializedCaptureLocator(workOrder, absolutePath) {
-  const target = path.resolve(absolutePath);
-  const projectRoot = path.resolve(workOrder.project_root);
-  const allowedOutputRoot = path.resolve(
-    workOrder.allowed_output_root,
-  );
+async function materializedCaptureLocator(workOrder, absolutePath) {
+  const [target, projectRoot, allowedOutputRoot] = await Promise.all([
+    realpath(path.resolve(absolutePath)),
+    realpath(path.resolve(workOrder.project_root)),
+    realpath(path.resolve(workOrder.allowed_output_root)),
+  ]);
   const [rootId, root] = isWithin(projectRoot, target)
     ? ["project", projectRoot]
     : ["allowed_output", allowedOutputRoot];
@@ -1276,16 +1276,19 @@ export async function completeBrowserCaptureWorkOrder({
     member_manifest: {
       schema_version: "1.0",
       policy: "materialized",
-      members: verifiedCaptures
-        .map((capture) => ({
+      members: (
+        await Promise.all(
+          verifiedCaptures.map(async (capture) => ({
           member_id: capture.capture_id,
-          ...materializedCaptureLocator(
+          ...(await materializedCaptureLocator(
             workOrder,
             capture.locator,
-          ),
+          )),
           sha256: capture.png_sha256,
           size_bytes: capture.png_bytes,
-        }))
+          })),
+        )
+      )
         .sort((left, right) =>
           left.member_id.localeCompare(right.member_id),
         ),

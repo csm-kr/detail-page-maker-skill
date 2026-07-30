@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import {
   mkdir,
   mkdtemp,
+  realpath,
   rm,
   writeFile,
 } from "node:fs/promises";
@@ -18,9 +19,11 @@ import {
   buildHyperframesExecutionReceipt,
 } from "../../skills/detail-page-maker-skill/scripts/orchestration/adapters/hyperframes-adapter.mjs";
 
-const SKILL_ROOT = path.resolve(
-  import.meta.dirname,
-  "../../skills/detail-page-maker-skill",
+const SKILL_ROOT = await realpath(
+  path.resolve(
+    import.meta.dirname,
+    "../../skills/detail-page-maker-skill",
+  ),
 );
 const SHA = Object.freeze({
   idempotency: "0".repeat(64),

@@ -159,9 +159,19 @@ function parseJson(bytes, code, filePath) {
   }
 }
 
-function resolveProjectFile(projectRoot, filePath, code) {
-  const resolved = path.resolve(String(filePath ?? ""));
-  if (!isWithin(projectRoot, resolved)) {
+async function resolveProjectFile(projectRoot, filePath, code) {
+  const lexicalPath = path.resolve(String(filePath ?? ""));
+  let info;
+  let resolved;
+  try {
+    [info, resolved] = await Promise.all([
+      lstat(lexicalPath),
+      realpath(lexicalPath),
+    ]);
+  } catch {
+    return lexicalPath;
+  }
+  if (info.isSymbolicLink() || !isWithin(projectRoot, resolved)) {
     throw new StudioCommitAdapterError(
       code,
       "파일 경로가 project root 밖을 가리킵니다.",
@@ -456,16 +466,18 @@ async function inspectAssembly(projectRoot, assembly) {
   ]) {
     assertSha256(assembly[field], `assembly.${field}`);
   }
-  const manifestPath = resolveProjectFile(
-    projectRoot,
-    assembly.manifest_path,
-    "ASSEMBLY_PATH_OUTSIDE_PROJECT",
-  );
-  const htmlPath = resolveProjectFile(
-    projectRoot,
-    assembly.html_path,
-    "ASSEMBLY_PATH_OUTSIDE_PROJECT",
-  );
+  const [manifestPath, htmlPath] = await Promise.all([
+    resolveProjectFile(
+      projectRoot,
+      assembly.manifest_path,
+      "ASSEMBLY_PATH_OUTSIDE_PROJECT",
+    ),
+    resolveProjectFile(
+      projectRoot,
+      assembly.html_path,
+      "ASSEMBLY_PATH_OUTSIDE_PROJECT",
+    ),
+  ]);
   const [manifestBytes, htmlBytes] = await Promise.all([
     readRegularFile(
       manifestPath,
