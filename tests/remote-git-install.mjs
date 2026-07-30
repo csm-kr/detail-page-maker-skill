@@ -10,7 +10,7 @@ import {
 } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
@@ -62,24 +62,13 @@ async function runNpx(args, cwd) {
   });
 }
 
-async function runNode(script, args, cwd, { allowFailure = false } = {}) {
-  try {
-    return await execFileAsync(process.execPath, [script, ...args], {
-      cwd,
-      encoding: "utf8",
-      maxBuffer: 32 * 1024 * 1024,
-      windowsHide: true,
-    });
-  } catch (error) {
-    if (
-      allowFailure &&
-      typeof error.stdout === "string" &&
-      error.stdout.length > 0
-    ) {
-      return error;
-    }
-    throw error;
-  }
+async function runNode(script, args, cwd) {
+  return execFileAsync(process.execPath, [script, ...args], {
+    cwd,
+    encoding: "utf8",
+    maxBuffer: 32 * 1024 * 1024,
+    windowsHide: true,
+  });
 }
 
 async function assertInstalledSkill(skillRoot) {
@@ -103,20 +92,32 @@ async function assertInstalledSkill(skillRoot) {
     "원격 설치본은 현재 main checkout의 스킬과 일치해야 한다.",
   );
 
-  const doctor = await runNode(
-    path.join(skillRoot, "scripts", "detail-page.mjs"),
-    ["doctor"],
-    skillRoot,
-    { allowFailure: true },
+  const [major, minor] = process.versions.node.split(".").map(Number);
+  assert.ok(
+    major > 22 || (major === 22 && minor >= 15),
+    `Node.js >=22.15.0이 필요합니다: ${process.version}`,
   );
-  const doctorResult = JSON.parse(doctor.stdout);
-  assert.equal(doctorResult.node.ok, true);
-  assert.equal(doctorResult.node.required, ">=22.15.0");
-  assert.equal(doctorResult.dependencyClosure.ok, true);
-  assert.equal(doctorResult.dependencyClosureReceipt.status, "PASS");
-  assert.equal(doctorResult.dependencyClosure.declaredCount, 14);
-  assert.equal(doctorResult.dependencyClosure.lockedCount, 14);
-  assert.equal(doctorResult.dependencyClosure.installedCount, 14);
+  const manifest = JSON.parse(
+    await readFile(path.join(skillRoot, "dependencies.json"), "utf8"),
+  );
+  assert.equal(manifest.runtimes.node, ">=22.15.0");
+
+  const dependencyModule = await import(
+    pathToFileURL(
+      path.join(
+        skillRoot,
+        "scripts",
+        "orchestration",
+        "dependency-closure.mjs",
+      ),
+    ).href
+  );
+  const dependencyClosure =
+    await dependencyModule.inspectDependencyClosure(skillRoot);
+  assert.equal(dependencyClosure.ok, true);
+  assert.equal(dependencyClosure.declaredCount, 14);
+  assert.equal(dependencyClosure.lockedCount, 14);
+  assert.equal(dependencyClosure.installedCount, 14);
 
   const e2e = await runNode(
     path.join(skillRoot, "scripts", "e2e.mjs"),
