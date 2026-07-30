@@ -166,5 +166,10 @@ try {
     `PASS remote Git install/update · ${process.platform} · 1 top-level skill · 14 bundled skills`,
   );
 } finally {
-  await rm(temporaryRoot, { recursive: true, force: true });
+  await rm(temporaryRoot, {
+    recursive: true,
+    force: true,
+    maxRetries: 10,
+    retryDelay: 300,
+  });
 }
