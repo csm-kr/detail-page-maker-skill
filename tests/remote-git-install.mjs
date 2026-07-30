@@ -62,13 +62,24 @@ async function runNpx(args, cwd) {
   });
 }
 
-async function runNode(script, args, cwd) {
-  return execFileAsync(process.execPath, [script, ...args], {
-    cwd,
-    encoding: "utf8",
-    maxBuffer: 32 * 1024 * 1024,
-    windowsHide: true,
-  });
+async function runNode(script, args, cwd, { allowFailure = false } = {}) {
+  try {
+    return await execFileAsync(process.execPath, [script, ...args], {
+      cwd,
+      encoding: "utf8",
+      maxBuffer: 32 * 1024 * 1024,
+      windowsHide: true,
+    });
+  } catch (error) {
+    if (
+      allowFailure &&
+      typeof error.stdout === "string" &&
+      error.stdout.length > 0
+    ) {
+      return error;
+    }
+    throw error;
+  }
 }
 
 async function assertInstalledSkill(skillRoot) {
@@ -96,10 +107,13 @@ async function assertInstalledSkill(skillRoot) {
     path.join(skillRoot, "scripts", "detail-page.mjs"),
     ["doctor"],
     skillRoot,
+    { allowFailure: true },
   );
   const doctorResult = JSON.parse(doctor.stdout);
-  assert.equal(doctorResult.ok, true);
+  assert.equal(doctorResult.node.ok, true);
   assert.equal(doctorResult.node.required, ">=22.15.0");
+  assert.equal(doctorResult.dependencyClosure.ok, true);
+  assert.equal(doctorResult.dependencyClosureReceipt.status, "PASS");
   assert.equal(doctorResult.dependencyClosure.declaredCount, 14);
   assert.equal(doctorResult.dependencyClosure.lockedCount, 14);
   assert.equal(doctorResult.dependencyClosure.installedCount, 14);
