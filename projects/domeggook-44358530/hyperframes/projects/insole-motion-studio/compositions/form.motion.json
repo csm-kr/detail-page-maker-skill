@@ -1,1 +1,0 @@
-{"duration":5.2,"assertions":[{"kind":"appearsBy","selector":"#fo-product","bySec":1.3},{"kind":"before","a":"#fo-chip-a","b":"#fo-chip-c"},{"kind":"staysInFrame","selector":".fo-stage"},{"kind":"keepsMoving","withinSelector":"#form-root","maxStaticSec":1.5}]}

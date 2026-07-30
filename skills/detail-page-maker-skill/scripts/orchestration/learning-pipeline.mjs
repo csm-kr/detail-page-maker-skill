@@ -182,13 +182,13 @@ function maintenancePlan(sourceType) {
       ? {
           adapter: "existing-maintenance-script",
           command:
-            "powershell -File scripts/maintenance/refresh-behance-study.ps1",
+            "node scripts/maintenance/refresh-browser-study.mjs --kind behance",
         }
       : source === "motion"
         ? {
             adapter: "existing-maintenance-script",
             command:
-              "powershell -File scripts/maintenance/refresh-hyperframes-study.ps1",
+              "node scripts/maintenance/refresh-browser-study.mjs --kind hyperframes",
           }
         : null;
   return Object.freeze({

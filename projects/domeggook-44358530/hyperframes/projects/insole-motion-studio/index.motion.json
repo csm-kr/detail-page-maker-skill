@@ -1,9 +1,0 @@
-{
-  "duration": 36.4,
-  "assertions": [
-    {"kind":"appearsBy","selector":"#form-slot","bySec":0.2},
-    {"kind":"before","a":"#form-slot","b":"#adapt-slot"},
-    {"kind":"staysInFrame","selector":"#root"},
-    {"kind":"keepsMoving","withinSelector":"#root","maxStaticSec":1.8}
-  ]
-}

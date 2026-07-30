@@ -123,7 +123,7 @@ function probeLocalSkill(skillName) {
     path: available ? skillDirectory : null,
     detail: available
       ? null
-      : `로컬 의존 스킬 '${skillName}'이 없습니다. scripts/setup-local.ps1을 실행하세요.`,
+      : `내장 의존 스킬 '${skillName}'이 없습니다. Git 원본에서 detail-page-maker-skill 하나를 다시 설치하거나 업데이트하세요.`,
   };
 }
 
@@ -154,7 +154,7 @@ function probeGodTiboRuntime(localSkill) {
     orchestratorItemChunkSize: 8,
     detail: ok
       ? null
-      : "God Tibo GPT Image 2 실행 환경이 없습니다. scripts/setup-local.ps1을 실행하세요.",
+      : "내장 God Tibo GPT Image 2 실행 환경이 없습니다. Git 원본에서 상위 스킬 하나를 다시 설치하거나 업데이트하세요.",
   };
 }
 

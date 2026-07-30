@@ -1,9 +1,0 @@
-{
-  "duration": 5.2,
-  "assertions": [
-    { "kind": "appearsBy", "selector": "#prep-product", "bySec": 2.0 },
-    { "kind": "before", "a": "#prep-time", "b": "#prep-freezer" },
-    { "kind": "staysInFrame", "selector": ".prep-timer" },
-    { "kind": "keepsMoving", "withinSelector": "#prep-scene", "maxStaticSec": 1.6 }
-  ]
-}

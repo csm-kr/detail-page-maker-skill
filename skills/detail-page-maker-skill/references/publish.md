@@ -95,17 +95,10 @@ memory loader에서 실행하므로 package metadata 변조로 다른 pinned mod
 최초 연결은 소비 프로젝트 루트에서 사용자가 명시적으로 수행한다. 아래 `<version>`과
 config의 `wrangler_version`은 정확히 같아야 한다.
 
-```powershell
-npm install --prefix .agents/runtime/cloudflare-pages `
-  --save-exact "wrangler@<version>"
-
-$wranglerEntry = `
-  ".agents/runtime/cloudflare-pages/node_modules/wrangler/bin/wrangler.js"
-(Get-FileHash -Algorithm SHA256 -LiteralPath $wranglerEntry).Hash.ToLowerInvariant()
-
-$env:CLOUDFLARE_AUTH_USE_KEYRING = "true"
-node .agents/runtime/cloudflare-pages/node_modules/wrangler/bin/wrangler.js `
-  login --use-keyring
+```sh
+npm install --prefix .agents/runtime/cloudflare-pages --save-exact "wrangler@<version>"
+node .agents/skills/detail-page-maker-skill/scripts/runtime/cloudflare-setup.mjs entry-hash --file .agents/runtime/cloudflare-pages/node_modules/wrangler/bin/wrangler.js
+node .agents/runtime/cloudflare-pages/node_modules/wrangler/bin/wrangler.js login --use-keyring
 ```
 
 Studio는 로그인이나 Pages 프로젝트 생성을 대신 수행하지 않는다. config에 적은 실제

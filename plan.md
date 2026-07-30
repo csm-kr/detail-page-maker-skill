@@ -131,26 +131,26 @@ G5 gate
 배포하지 않는다. 인증·업로드·검증 실패는 job에 typed state로 남기고 현재 고객
 HTML과 `wing_export_required`를 바꾸지 않는다.
 
-## 6. 프로젝트 로컬 배포
+## 6. Git 단일 스킬 배포
 
-`skills/detail-page-maker-skill/scripts/install-local.ps1`은 선택한 로컬 스킬
-폴더를 다른 프로젝트의 `.agents/skills/`로 복사한다.
+사용자는 macOS·Ubuntu·Windows의 대상 프로젝트에서 GitHub 원본의
+`detail-page-maker-skill` 하나만 설치한다.
 
-- main skill과 관련 스킬 14개를 sibling으로 설치
-- `dmk-extractor`, `coupang-extractor`, Browser Harness, God Tibo,
-  HyperFrames 계열 포함
-- vendored local 우선
-- 네트워크 fallback은 `-AllowNetwork`를 명시한 경우만 허용
-- 전역 `$CODEX_HOME`, 사용자 skill 폴더, PATH, 로그인 상태를 변경하지 않음
-- 대상에 다른 사용자 변경이 있으면 덮어쓰지 않고 중단
-- dry-run, staging hash, 설치 receipt, 동일 재실행을 지원
+- `npx skills add ... --skill detail-page-maker-skill --agent codex --copy`
+- `dmk-extractor`, `coupang-extractor`, Browser Harness skill, God Tibo,
+  HyperFrames 계열 14개는 상위 스킬의 `.agents/skills/`에 내장
+- 내장 스킬은 `skills-lock.json`의 `SKILL.md` SHA-256으로 고정
+- sibling·전역 스킬 설치와 부분 네트워크 fallback은 사용하지 않음
+- 설치·업데이트는 Git 원본의 상위 스킬 하나를 단위로 수행
+- 핵심 실행·유지보수 진입점은 Node.js 22 이상으로 통일
+- 운영체제별 PowerShell/Bash 설치 스크립트를 요구하지 않음
 
 ## 7. 구현 단계와 상태
 
 | 단계 | 내용 | 상태 |
 | --- | --- | --- |
 | 1 | 확정 대화 내용을 기계 정책과 사람용 계약으로 고정 | 완료 |
-| 2 | dmk/coupang 포함 14개 로컬 의존성과 설치기 구현 | 완료 |
+| 2 | dmk/coupang 포함 14개 내장 의존성의 단일 Git 스킬 배포 구현 | 완료 |
 | 3 | ProductionPlan 콘텐츠 compiler와 negative gate 구현 | 완료 |
 | 4 | persistent artifact graph·receipt·승인·부분 무효화 구현 | 완료 |
 | 5 | G2/G3 실제 병렬 frontier와 CLI dispatcher 연결 | 완료 |
@@ -161,12 +161,15 @@ HTML과 `wing_export_required`를 바꾸지 않는다.
 | 10 | 포터블·오케스트레이션·Studio·실브라우저 회귀 | 완료 |
 | 11 | 독립 명세 및 코드·runtime 경계 교차검수 | 완료 |
 | 12 | 최종 report와 구조 정리 | 완료 |
+| 13 | macOS·Ubuntu·Windows 공통 Node 진입점과 한 줄 설치로 정리 | 완료 |
 
 ## 8. 완료 판정
 
 스킬 코드는 다음 조건에서 완료다.
 
 - 정책·설치·오케스트레이션·Studio 전체 회귀가 실패 0
+- Git 설치 결과가 상위 스킬 1개와 내장 의존성 14개만 포함
+- Ubuntu·macOS·Windows Node 22 CI가 같은 suite를 실행
 - 실제 브라우저에서 390@2x→780 Wing 렌더가 통과
 - quick validation, doctor, portable E2E가 통과
 - 독립 감사에서 발견한 P0/P1과 명세 FAIL을 모두 수정
@@ -182,11 +185,13 @@ HTML과 `wing_export_required`를 바꾸지 않는다.
 
 - 프로젝트 로컬 dependency doctor: 선언·lock·설치 14/14 PASS
 - skill-creator quick validation: PASS
-- portable: 30/30 PASS
+- Git 단일 스킬 실제 설치: 1개 설치·내장 14개·설치본 E2E PASS
+- portable: 29/29 PASS
 - persistent orchestration: 307/307 PASS
 - Studio: 86 PASS, 0 FAIL, 실제 브라우저 선택 테스트 1건은 기본 실행에서 SKIP
 - 실제 브라우저 animated Wing: 1/1 PASS
 - G0→G5 fixture E2E: PASS
-- JavaScript 109개, Python 17개, JSON 14개 구문·파싱: PASS
+- 추적 JavaScript 249개, Python 17개, JSON 12개 구문·파싱: PASS
+- GitHub Actions: Ubuntu·macOS·Windows Node 22 matrix 구성
 - 독립 14개 명세 trace: PASS
 - 최종 CDN runtime 계약 검토: 26/26 및 전체 PASS

@@ -1,1 +1,0 @@
-{"duration":5.2,"assertions":[{"kind":"appearsBy","selector":"#ad-point-a","bySec":1.7},{"kind":"before","a":"#ad-card-a","b":"#ad-card-c"},{"kind":"staysInFrame","selector":".ad-board"},{"kind":"keepsMoving","withinSelector":"#adapt-root","maxStaticSec":1.3}]}

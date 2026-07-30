@@ -1,9 +1,0 @@
-{
-  "duration": 5.2,
-  "assertions": [
-    { "kind": "appearsBy", "selector": "#care-card-1", "bySec": 1.3 },
-    { "kind": "before", "a": "#care-card-1", "b": "#care-bar" },
-    { "kind": "staysInFrame", "selector": ".care-cards" },
-    { "kind": "keepsMoving", "withinSelector": "#care-scene", "maxStaticSec": 1.5 }
-  ]
-}

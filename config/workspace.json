@@ -1,5 +1,5 @@
 {
   "schemaVersion": 1,
-  "projectsRoot": "projects",
+  "projectsRoot": ".workspace/projects",
   "projectIsolation": "self-contained"
 }

@@ -115,11 +115,11 @@ test("intake routes Behance, motion, and feedback through existing maintenance s
   assert.equal(feedbackTaste.route.target_reference, "references/taste.md");
   assert.match(
     behance.maintenance_plan.capture.command,
-    /refresh-behance-study\.ps1/,
+    /refresh-browser-study\.mjs --kind behance/,
   );
   assert.match(
     motion.maintenance_plan.capture.command,
-    /refresh-hyperframes-study\.ps1/,
+    /refresh-browser-study\.mjs --kind hyperframes/,
   );
   assert.equal(feedbackTaste.maintenance_plan.capture, null);
   for (const captured of [behance, motion, feedbackMotion, feedbackTaste]) {

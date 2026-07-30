@@ -1,1 +1,0 @@
-{"duration":5.2,"assertions":[{"kind":"appearsBy","selector":"#si-bar-s","bySec":2.0},{"kind":"before","a":"#si-bar-s","b":"#si-bar-xl"},{"kind":"staysInFrame","selector":".si-board"},{"kind":"keepsMoving","withinSelector":"#size-root","maxStaticSec":1.35}]}

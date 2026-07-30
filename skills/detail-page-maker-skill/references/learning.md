@@ -86,42 +86,32 @@ Browser Harness로 HyperFrames 공식 저장소 조사
 
 Behance 후보를 수집한다.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File `
-  scripts/maintenance/refresh-behance-study.ps1 `
-  -WorkspaceRoot "<workspace-root>"
+```sh
+node scripts/maintenance/refresh-browser-study.mjs --kind behance --workspace "<workspace-root>" --max 12
 ```
 
 HyperFrames 공식 모션 후보를 수집한다.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File `
-  scripts/maintenance/refresh-hyperframes-study.ps1 `
-  -WorkspaceRoot "<workspace-root>"
+```sh
+node scripts/maintenance/refresh-browser-study.mjs --kind hyperframes --workspace "<workspace-root>" --max 24
 ```
 
 두 경로의 후보를 한 보고서로 모은다.
 
-```powershell
-node scripts/maintenance/distill-learnings.mjs `
-  --root "<projects-root>" `
-  --source "<workspace-root>/.workspace/learning/behance/reviewed.md" `
-  --source "<workspace-root>/.workspace/learning/gif/reviewed.md" `
-  --output "<workspace-root>/.workspace/learning/candidates.md"
+```sh
+node scripts/maintenance/distill-learnings.mjs --root "<projects-root>" --source "<workspace-root>/.workspace/learning/behance/reviewed.md" --source "<workspace-root>/.workspace/learning/gif/reviewed.md" --output "<workspace-root>/.workspace/learning/candidates.md"
 ```
 
 현재 저장 위치·최근 수정 시각·누적 규칙 수를 확인한다.
 
-```powershell
+```sh
 node scripts/detail-page.mjs learning-status --workspace "<workspace-root>"
 ```
 
 공개 카피에서 분위기 문구와 설명 없는 장점명 반복을 검사한다.
 
-```powershell
-node scripts/maintenance/validate-copy-terminology.mjs `
-  --file "<output/detail-page.html>" `
-  --brand "<제조사 또는 브랜드명>"
+```sh
+node scripts/maintenance/validate-copy-terminology.mjs --file "<output/detail-page.html>" --brand "<제조사 또는 브랜드명>"
 ```
 
 ## 원문 보존과 active rule 분리
@@ -145,8 +135,8 @@ node scripts/maintenance/validate-copy-terminology.mjs `
 다음 프로젝트 로컬 allowlist를 고정한 뒤, 별도 `execute()`에서 같은 계약을 다시
 검증한다.
 
-- `scripts/maintenance/refresh-behance-study.ps1`
-- `scripts/maintenance/refresh-hyperframes-study.ps1`
+- `scripts/maintenance/refresh-browser-study.mjs --kind behance`
+- `scripts/maintenance/refresh-browser-study.mjs --kind hyperframes`
 - `scripts/maintenance/distill-learnings.mjs`
 - `scripts/maintenance/learning-status.mjs`
 

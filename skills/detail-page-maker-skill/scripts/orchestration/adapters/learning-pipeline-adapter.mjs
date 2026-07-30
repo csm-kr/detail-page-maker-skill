@@ -38,15 +38,15 @@ export const LEARNING_MAINTENANCE_ACTIONS = Object.freeze({
 
 const ACTION_ALLOWLIST = Object.freeze({
   [LEARNING_MAINTENANCE_ACTIONS.REFRESH_BEHANCE]: Object.freeze({
-    runtime: "powershell",
+    runtime: "node",
     script_locator:
-      "scripts/maintenance/refresh-behance-study.ps1",
+      "scripts/maintenance/refresh-browser-study.mjs",
   }),
   [LEARNING_MAINTENANCE_ACTIONS.REFRESH_HYPERFRAMES]:
     Object.freeze({
-      runtime: "powershell",
+      runtime: "node",
       script_locator:
-        "scripts/maintenance/refresh-hyperframes-study.ps1",
+        "scripts/maintenance/refresh-browser-study.mjs",
     }),
   [LEARNING_MAINTENANCE_ACTIONS.DISTILL]: Object.freeze({
     runtime: "node",
@@ -63,16 +63,24 @@ const ENVIRONMENT_KEYS = Object.freeze([
   "COMSPEC",
   "HOMEDRIVE",
   "HOMEPATH",
+  "HOME",
+  "LANG",
+  "LC_ALL",
   "LOCALAPPDATA",
   "PATH",
   "Path",
   "PROGRAMDATA",
   "SYSTEMROOT",
+  "SHELL",
   "SystemRoot",
   "TEMP",
   "TMP",
+  "TMPDIR",
   "USERPROFILE",
   "WINDIR",
+  "XDG_CACHE_HOME",
+  "XDG_CONFIG_HOME",
+  "XDG_DATA_HOME",
 ]);
 
 export class LearningPipelineExecutionError extends Error {
@@ -412,25 +420,6 @@ function fixedEnvironment(source = process.env) {
   );
 }
 
-function powershellExecutable(environment) {
-  const systemRoot =
-    environment.SystemRoot ||
-    environment.SYSTEMROOT ||
-    environment.WINDIR;
-  if (systemRoot) {
-    return path.join(
-      systemRoot,
-      "System32",
-      "WindowsPowerShell",
-      "v1.0",
-      "powershell.exe",
-    );
-  }
-  return process.platform === "win32"
-    ? "powershell.exe"
-    : "pwsh";
-}
-
 function commandArguments(actionId, roots, scriptPath) {
   const projectsRoot = path.join(
     roots.workspaceRoot,
@@ -461,15 +450,12 @@ function commandArguments(actionId, roots, scriptPath) {
     actionId === LEARNING_MAINTENANCE_ACTIONS.REFRESH_BEHANCE
   ) {
     return [
-      "-NoProfile",
-      "-NonInteractive",
-      "-ExecutionPolicy",
-      "Bypass",
-      "-File",
       scriptPath,
-      "-WorkspaceRoot",
+      "--kind",
+      "behance",
+      "--workspace",
       roots.workspaceRoot,
-      "-MaxProjects",
+      "--max",
       "12",
     ];
   }
@@ -478,15 +464,12 @@ function commandArguments(actionId, roots, scriptPath) {
     LEARNING_MAINTENANCE_ACTIONS.REFRESH_HYPERFRAMES
   ) {
     return [
-      "-NoProfile",
-      "-NonInteractive",
-      "-ExecutionPolicy",
-      "Bypass",
-      "-File",
       scriptPath,
-      "-WorkspaceRoot",
+      "--kind",
+      "hyperframes",
+      "--workspace",
       roots.workspaceRoot,
-      "-MaxSources",
+      "--max",
       "24",
     ];
   }
@@ -547,10 +530,7 @@ async function buildCommand({
     "skill",
     scriptLocator,
   );
-  const executable =
-    descriptor.runtime === "node"
-      ? process.execPath
-      : powershellExecutable(environment);
+  const executable = process.execPath;
   return {
     sequence,
     action_id: actionId,

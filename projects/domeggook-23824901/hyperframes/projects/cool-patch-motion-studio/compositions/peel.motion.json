@@ -1,9 +1,0 @@
-{
-  "duration": 5.2,
-  "assertions": [
-    { "kind": "appearsBy", "selector": "#peel-step-1", "bySec": 1.2 },
-    { "kind": "before", "a": "#peel-step-1", "b": "#peel-final" },
-    { "kind": "staysInFrame", "selector": ".peel-stage" },
-    { "kind": "keepsMoving", "withinSelector": "#peel-scene", "maxStaticSec": 1.5 }
-  ]
-}

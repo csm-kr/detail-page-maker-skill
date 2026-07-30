@@ -126,13 +126,19 @@ function statusScript() {
 
 function refreshBehanceScript() {
   return [
-    "param([string]$WorkspaceRoot, [int]$MaxProjects)",
-    "$learningRoot = Join-Path $WorkspaceRoot '.workspace\\learning\\behance'",
-    "New-Item -ItemType Directory -Path $learningRoot -Force | Out-Null",
-    "$utf8 = [System.Text.UTF8Encoding]::new($false)",
-    "[System.IO.File]::WriteAllText((Join-Path $learningRoot 'inbox.md'), '# fixture inbox', $utf8)",
-    "[System.IO.File]::WriteAllText((Join-Path $learningRoot 'reviewed.md'), '### LEARN-BEHANCE-001', $utf8)",
-    'Write-Output "candidates=$MaxProjects"',
+    'import { mkdirSync, writeFileSync } from "node:fs";',
+    'import path from "node:path";',
+    "const args = process.argv.slice(2);",
+    'const workspaceIndex = args.indexOf("--workspace");',
+    'const kindIndex = args.indexOf("--kind");',
+    'const maxIndex = args.indexOf("--max");',
+    'if (workspaceIndex < 0 || kindIndex < 0 || maxIndex < 0) throw new Error("fixed args missing");',
+    'const track = args[kindIndex + 1] === "behance" ? "behance" : "gif";',
+    'const learningRoot = path.join(args[workspaceIndex + 1], ".workspace", "learning", track);',
+    "mkdirSync(learningRoot, { recursive: true });",
+    'writeFileSync(path.join(learningRoot, "inbox.md"), "# fixture inbox");',
+    'writeFileSync(path.join(learningRoot, "reviewed.md"), "### LEARN-BEHANCE-001");',
+    'process.stdout.write("candidates=" + args[maxIndex + 1] + "\\n");',
     "",
   ].join("\n");
 }
@@ -183,15 +189,7 @@ async function createFixture(mode = "success") {
       "utf8",
     ),
     writeFile(
-      path.join(maintenanceRoot, "refresh-behance-study.ps1"),
-      refreshBehanceScript(),
-      "utf8",
-    ),
-    writeFile(
-      path.join(
-        maintenanceRoot,
-        "refresh-hyperframes-study.ps1",
-      ),
+      path.join(maintenanceRoot, "refresh-browser-study.mjs"),
       refreshBehanceScript(),
       "utf8",
     ),
@@ -395,7 +393,6 @@ test("실패와 timeout은 exit/timeout receipt를 남기고 active reference by
 
 test(
   "fixture refresh→distill→status 전체 allowlist chain을 실제 실행한다",
-  { skip: process.platform !== "win32" },
   async (t) => {
     const fixture = await createFixture();
     t.after(() =>
@@ -563,7 +560,7 @@ test("production plan은 기존 refresh/distill/status maintenance scripts를 �
   assert.deepEqual(
     plan.commands.map((command) => command.script_locator),
     [
-      "scripts/maintenance/refresh-behance-study.ps1",
+      "scripts/maintenance/refresh-browser-study.mjs",
       "scripts/maintenance/distill-learnings.mjs",
       "scripts/maintenance/learning-status.mjs",
     ],

@@ -15,8 +15,8 @@ persistent Orchestrator가 강제한다.
    [`references/workflow.md`](references/workflow.md)를 읽는다.
 2. 두 문서와 충돌하는 레거시 문서·프로젝트 관행은 적용하지 않는다.
 3. 아래 표에서 현재 작업에 필요한 reference만 추가로 읽는다.
-4. 프로젝트 폴더의 `.agents/skills/`에서 의존 스킬을 우선 찾는다.
-5. `node scripts/detail-page.mjs doctor`로 프로젝트 로컬 의존성을 검사한다.
+4. 이 스킬 폴더의 `.agents/skills/`에서 내장 의존 스킬을 찾는다.
+5. `node scripts/detail-page.mjs doctor`로 단일 스킬 번들의 의존성을 검사한다.
 6. `workflow-status`로 sealed state와 다음 gate를 확인한다.
 7. `workflow-advance` 또는 `workflow-resume`으로 다음 WorkOrder를 발급한다.
 8. 준비된 frontier WorkOrder를 가용 sub-agent 수만큼 lease한다. 작업 하나씩
@@ -28,14 +28,10 @@ persistent Orchestrator가 강제한다.
 12. 승인 후 사진·이미지·GIF를 바꿀 때는
    `workflow-revision-plan → 사용자 검토 → workflow-revision-commit`을 따른다.
 
-```powershell
+```sh
 node scripts/detail-page.mjs doctor
-node scripts/detail-page.mjs workflow-status `
-  --project "<project-path>" --project-id "<project-id>" `
-  --input-digest "<sha256>"
-node scripts/detail-page.mjs workflow-advance `
-  --project "<project-path>" --project-id "<project-id>" `
-  --input-digest "<sha256>"
+node scripts/detail-page.mjs workflow-status --project "<project-path>" --project-id "<project-id>" --input-digest "<sha256>"
+node scripts/detail-page.mjs workflow-advance --project "<project-path>" --project-id "<project-id>" --input-digest "<sha256>"
 ```
 
 나머지 CLI 인자는 [`references/install.md`](references/install.md)와
@@ -62,8 +58,9 @@ node scripts/detail-page.mjs workflow-advance `
 
 ## 하위 스킬
 
-의존 스킬은 대상 프로젝트의 `.agents/skills/`를 먼저 읽고, 없으면 이 배포 폴더의
-`.agents/skills/`를 읽는다. 전역 스킬을 정상 경로로 사용하지 않는다.
+의존 스킬은 이 배포 폴더의 `.agents/skills/`만 사용한다. 하위 작업을 시작하기
+전에 해당 폴더의 `SKILL.md` 원문을 끝까지 읽고 그 절차를 WorkOrder 안에서
+실행한다. 별도 sibling·전역 스킬을 정상 경로로 사용하지 않는다.
 
 - 공급처 근거: `dmk-extractor`와 `browser-harness`
 - 쿠팡 경쟁상품·상세·후기 근거: `coupang-extractor`와 `browser-harness`
@@ -72,7 +69,8 @@ node scripts/detail-page.mjs workflow-advance `
 - GIF: `hyperframes`, `hyperframes-core`, `hyperframes-animation`,
   `hyperframes-creative`, `hyperframes-cli`, `motion-graphics`
 
-누락 시 `scripts/setup-local.ps1 -NoProject`를 실행한다. 이미지 작업은 God Tibo의
+하나라도 누락되면 불완전한 배포본이므로 실행하지 않고 Git 원본에서 이 스킬
+하나를 다시 설치하거나 업데이트한다. 이미지 작업은 내장 God Tibo의
 `scripts/tibo-batch.mjs`만 사용하고 작업 단위는 8개 `items`로 명시한다.
 
 ## 멀티에이전트 실행

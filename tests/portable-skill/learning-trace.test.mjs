@@ -101,7 +101,7 @@ test("Behance 수집기는 배경 Browser Harness를 쓰고 Markdown만 저장�
       SKILL_ROOT,
       "scripts",
       "maintenance",
-      "refresh-behance-study.ps1",
+      "refresh-browser-study.mjs",
     ),
     "utf8",
   );
@@ -109,9 +109,9 @@ test("Behance 수집기는 배경 Browser Harness를 쓰고 Markdown만 저장�
   assert.match(script, /document\.hasFocus/);
   assert.match(script, /inbox\.md/);
   assert.match(script, /reviewed\.md/);
-  assert.match(script, /promotion=references\/commercial\.md/);
+  assert.match(script, /promotion: "references\/commercial\.md"/);
   assert.doesNotMatch(script, /state\.json/);
-  assert.doesNotMatch(script, /WriteAllText\([^)]*\.(?:png|jpe?g|gif)/i);
+  assert.doesNotMatch(script, /writeFile\([^)]*\.(?:png|jpe?g|gif)/i);
 });
 
 test("HyperFrames 수집기는 공식 저장소를 배경 조사하고 motion.md로만 승격한다", async () => {
@@ -120,15 +120,15 @@ test("HyperFrames 수집기는 공식 저장소를 배경 조사하고 motion.md
       SKILL_ROOT,
       "scripts",
       "maintenance",
-      "refresh-hyperframes-study.ps1",
+      "refresh-browser-study.mjs",
     ),
     "utf8",
   );
   assert.match(script, /new_background_tab/);
   assert.match(script, /document\.hasFocus/);
   assert.match(script, /heygen-com\/hyperframes/);
-  assert.match(script, /promotion=references\/motion\.md/);
-  assert.doesNotMatch(script, /WriteAllText\([^)]*\.(?:png|jpe?g|gif)/i);
+  assert.match(script, /promotion: "references\/motion\.md"/);
+  assert.doesNotMatch(script, /writeFile\([^)]*\.(?:png|jpe?g|gif)/i);
 });
 
 test("승격된 Behance 규칙은 적용 경계와 출처 게이트만 남긴다", async () => {

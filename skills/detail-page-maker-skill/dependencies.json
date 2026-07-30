@@ -1,12 +1,16 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "installScope": "project-local",
   "defaultTargetSkillDirectory": ".agents/skills",
   "vendoredSkillDirectory": ".agents/skills",
-  "networkFallback": "explicit-only",
+  "distribution": {
+    "transport": "git",
+    "repository": "https://github.com/csm-kr/detail-page-maker-skill.git",
+    "bundledDependenciesRequired": true
+  },
   "runtimes": {
     "node": ">=22",
-    "powershell": ">=5.1",
+    "hyperframes": "project-local-npx-required-for-motion",
     "ffmpeg": "required-for-motion",
     "browser-harness": "required-for-browser-qa"
   },
@@ -14,7 +18,6 @@
     {
       "name": "browser-harness",
       "source": "vendored-local",
-      "networkSource": "browser-harness skill",
       "group": "browser"
     },
     {
@@ -25,7 +28,6 @@
     {
       "name": "design-taste-frontend",
       "source": "vendored-local",
-      "networkSource": "Leonxlnx/taste-skill",
       "group": "design"
     },
     {
@@ -36,61 +38,51 @@
     {
       "name": "god-tibo-gpt-image2-skill",
       "source": "vendored-local",
-      "networkSource": "csm-kr/god-tibo-gpt-image2-skill",
       "group": "image"
     },
     {
       "name": "hyperframes",
       "source": "vendored-local",
-      "networkSource": "heygen-com/hyperframes",
       "group": "motion"
     },
     {
       "name": "hyperframes-animation",
       "source": "vendored-local",
-      "networkSource": "heygen-com/hyperframes",
       "group": "motion"
     },
     {
       "name": "hyperframes-cli",
       "source": "vendored-local",
-      "networkSource": "heygen-com/hyperframes",
       "group": "motion"
     },
     {
       "name": "hyperframes-core",
       "source": "vendored-local",
-      "networkSource": "heygen-com/hyperframes",
       "group": "motion"
     },
     {
       "name": "hyperframes-creative",
       "source": "vendored-local",
-      "networkSource": "heygen-com/hyperframes",
       "group": "motion"
     },
     {
       "name": "hyperframes-keyframes",
       "source": "vendored-local",
-      "networkSource": "heygen-com/hyperframes",
       "group": "motion"
     },
     {
       "name": "hyperframes-registry",
       "source": "vendored-local",
-      "networkSource": "heygen-com/hyperframes",
       "group": "motion"
     },
     {
       "name": "media-use",
       "source": "vendored-local",
-      "networkSource": "heygen-com/hyperframes",
       "group": "motion"
     },
     {
       "name": "motion-graphics",
       "source": "vendored-local",
-      "networkSource": "heygen-com/hyperframes",
       "group": "motion-workflow"
     }
   ]

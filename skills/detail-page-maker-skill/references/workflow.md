@@ -95,13 +95,8 @@ receipt를 사후 합성하지 말고 저장된 원본 evidence bundle에서 새
 직접 편집하거나 `workflow-resume`부터 실행하지 않는다. 먼저 변경 요청 JSON을
 파일 또는 인라인 JSON으로 전달한다.
 
-```powershell
-node scripts/detail-page.mjs workflow-revision-plan `
-  --project "<project-path>" `
-  --project-id "<project-id>" `
-  --input-digest "<sha256>" `
-  --change "<change.json|JSON>" `
-  --agent-session "<planner-session-id>"
+```sh
+node scripts/detail-page.mjs workflow-revision-plan --project "<project-path>" --project-id "<project-id>" --input-digest "<sha256>" --change "<change.json|JSON>" --agent-session "<planner-session-id>"
 ```
 
 출력의 `RevisionPlanned`에는 `plan_digest`, `graph_snapshot_digest`,
@@ -117,15 +112,8 @@ node scripts/detail-page.mjs workflow-revision-plan `
 plan은 이 두 기록만 생성하고 graph artifact status, stage, challenge/gate는 바꾸지
 않는다. stale·reset·reopen 집합을 검토한 뒤 별도 승인 명령을 실행한다.
 
-```powershell
-node scripts/detail-page.mjs workflow-revision-commit `
-  --project "<project-path>" `
-  --project-id "<project-id>" `
-  --input-digest "<sha256>" `
-  --plan-digest "<RevisionPlanned.plan_digest>" `
-  --decided-by "<operator-id>" `
-  --reason "<변경 승인 사유>" `
-  --agent-session "<approver-session-id>"
+```sh
+node scripts/detail-page.mjs workflow-revision-commit --project "<project-path>" --project-id "<project-id>" --input-digest "<sha256>" --plan-digest "<RevisionPlanned.plan_digest>" --decided-by "<operator-id>" --reason "<변경 승인 사유>" --agent-session "<approver-session-id>"
 ```
 
 commit은 다음 순서를 원자적으로 적용한다.
@@ -253,20 +241,10 @@ Commercial, Evidence, Identity, Visual, Motion, Technical QA agent는 동일한
 한다. RubricAggregator가 결과를 합치고 RepairPlanner가 제안하면
 RepairScopeResolver가 수정 가능한 artifact와 보호 artifact를 결정한다.
 
-```powershell
-node scripts/detail-page.mjs workflow-rubric-record `
-  --project "<project-path>" `
-  --project-id "<project-id>" `
-  --input-digest "<sha256>" `
-  --result "<rubric-result.json|JSON>" `
-  --evaluator-session "<evaluator-session-id>" `
-  --budget "<run-budget.json|JSON>" `
-  --scope "<full_page|section>"
+```sh
+node scripts/detail-page.mjs workflow-rubric-record --project "<project-path>" --project-id "<project-id>" --input-digest "<sha256>" --result "<rubric-result.json|JSON>" --evaluator-session "<evaluator-session-id>" --budget "<run-budget.json|JSON>" --scope "<full_page|section>"
 
-node scripts/detail-page.mjs workflow-rubric-status `
-  --project "<project-path>" `
-  --project-id "<project-id>" `
-  --input-digest "<sha256>"
+node scripts/detail-page.mjs workflow-rubric-status --project "<project-path>" --project-id "<project-id>" --input-digest "<sha256>"
 ```
 
 `--budget`을 생략하면 `{ "state": "AVAILABLE" }`, `--scope`를 생략하면
@@ -334,16 +312,14 @@ Learning intake의 `source_type`에 따라 `LearningPipelineExecutionAdapter`가
 | `feedback` | `distill → status` |
 
 계획에 봉인되는 실제 argv 형태는 다음과 같다. `<node>`는 현재
-`process.execPath`, `<powershell>`은 플랫폼의 `pwsh` 또는 `powershell`이다.
+`process.execPath`이며 macOS·Ubuntu·Windows에서 같은 Node 진입점을 쓴다.
 
 ```text
-<powershell> -NoProfile -NonInteractive -ExecutionPolicy Bypass
-  -File <skill-root>/scripts/maintenance/refresh-behance-study.ps1
-  -WorkspaceRoot <workspace-root> -MaxProjects 12
+<node> <skill-root>/scripts/maintenance/refresh-browser-study.mjs
+  --kind behance --workspace <workspace-root> --max 12
 
-<powershell> -NoProfile -NonInteractive -ExecutionPolicy Bypass
-  -File <skill-root>/scripts/maintenance/refresh-hyperframes-study.ps1
-  -WorkspaceRoot <workspace-root> -MaxSources 24
+<node> <skill-root>/scripts/maintenance/refresh-browser-study.mjs
+  --kind hyperframes --workspace <workspace-root> --max 24
 
 <node> <skill-root>/scripts/maintenance/distill-learnings.mjs
   --root <workspace-root>/.workspace/projects

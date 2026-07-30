@@ -85,25 +85,9 @@ effect 전에 권한 오류로 중단한다.
 아래 명령은 프로젝트 module의 동일 canonicalization·hash 알고리즘으로 lock을
 재현한다. `<version>`은 config와 정확히 같아야 한다.
 
-```powershell
-npm install --prefix .agents/runtime/cloudflare-pages `
-  --save-exact --no-bin-links "wrangler@<version>"
-
-@'
-import { writeFile } from "node:fs/promises";
-import {
-  buildWranglerRuntimeIntegrityManifest
-} from "./skills/detail-page-maker-skill/scripts/runtime/cloudflare-pages-uploader.mjs";
-
-const runtimeRoot = ".agents/runtime/cloudflare-pages";
-const manifest = await buildWranglerRuntimeIntegrityManifest({ runtimeRoot });
-await writeFile(
-  `${runtimeRoot}/wrangler-runtime-lock.json`,
-  `${JSON.stringify(manifest, null, 2)}\n`,
-  { flag: "wx" }
-);
-console.log(manifest.tree_sha256);
-'@ | node --input-type=module
+```sh
+npm install --prefix .agents/runtime/cloudflare-pages --save-exact --no-bin-links "wrangler@<version>"
+node .agents/skills/detail-page-maker-skill/scripts/runtime/cloudflare-setup.mjs runtime-lock --runtime-root .agents/runtime/cloudflare-pages
 ```
 
 출력된 `tree_sha256`을 config의 `wrangler_runtime_tree_sha256`에 복사한다.
@@ -114,34 +98,8 @@ Wing Export를 열 수 있다.
 
 같은 machine-local owner provider에서 config pin을 계산한다.
 
-```powershell
-@'
-import {
-  defaultCloudflareOwnerProvider,
-  deriveCloudflareWriterOwnerDigest
-} from "./skills/detail-page-maker-skill/scripts/runtime/cloudflare-pages-uploader.mjs";
-
-const target = {
-  pagesProject: "detail-page-assets",
-  publicBaseUrl: "https://detail-page-assets.pages.dev",
-  productionBranch: "main",
-  publisherId: "studio-publisher",
-  wranglerVersion: "4.123.0",
-  wranglerEntrySha256: "<config와 같은 entry sha256>",
-  wranglerRuntimeTreeSha256: "<config와 같은 tree sha256>",
-  runtimeRootPin: ".agents/runtime/cloudflare-pages",
-  runtimeLockPin: "wrangler-runtime-lock.json",
-  bootstrapReceiptPathPin: ".detail-page/cloudflare-pages-bootstrap.json",
-  executionPolicyId: "node-permission-register-hooks-memory-v1"
-};
-const owner = await defaultCloudflareOwnerProvider();
-console.log(deriveCloudflareWriterOwnerDigest({
-  ...target,
-  writerId: owner.writerId,
-  ownerSecret: owner.secret
-}));
-owner.secret.fill(0);
-'@ | node --input-type=module
+```sh
+node .agents/skills/detail-page-maker-skill/scripts/runtime/cloudflare-setup.mjs owner-digest --config .detail-page/cloudflare-pages.json
 ```
 
 출력 digest를 config의 `writer_owner_digest`에 고정한다. 다른 머신에서 다른
@@ -179,24 +137,8 @@ deployment가 0개여도 아래 typed receipt가 없으면
 
 아래처럼 같은 machine-local secret으로 receipt를 서명한다.
 
-```powershell
-@'
-import { readFile, writeFile } from "node:fs/promises";
-import {
-  defaultCloudflareOwnerProvider,
-  signCloudflarePagesBootstrapReceipt
-} from "./skills/detail-page-maker-skill/scripts/runtime/cloudflare-pages-uploader.mjs";
-
-const filename = ".detail-page/cloudflare-pages-bootstrap.json";
-const receipt = JSON.parse(await readFile(filename, "utf8"));
-const owner = await defaultCloudflareOwnerProvider();
-receipt.owner_hmac_sha256 =
-  signCloudflarePagesBootstrapReceipt(receipt, owner.secret);
-owner.secret.fill(0);
-await writeFile(filename, `${JSON.stringify(receipt, null, 2)}\n`, {
-  flag: "w"
-});
-'@ | node --input-type=module
+```sh
+node .agents/skills/detail-page-maker-skill/scripts/runtime/cloudflare-setup.mjs sign-receipt --receipt .detail-page/cloudflare-pages-bootstrap.json
 ```
 
 ## Owner transfer 금지

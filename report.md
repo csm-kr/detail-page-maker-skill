@@ -1,7 +1,7 @@
 # Detail Page Maker Skill 구현 보고서
 
 > 작성일: 2026-07-30
-> 범위: 프로젝트 로컬 `detail-page-maker-skill`과 잠금된 연관 스킬
+> 범위: Git으로 받는 단일 `detail-page-maker-skill`과 내부에 잠금된 연관 스킬
 > 기준 문서: `plan.md`, `policies/detail-page-flow-v1.json`
 
 ## 1. 결과
@@ -18,7 +18,7 @@ persistent 멀티에이전트 스킬로 재구성했다. 현재 스킬은 다음
 - 편집 가능한 390px Studio, `output/detail-page.html`, 780px Wing 자산
 - 저장 시 전체 콘텐츠 높이 재계산, 덮어쓰기, 내부 복구본 20개
 - export마다 새 CDN namespace를 쓰는 animated WebP Wing 출력
-- 프로젝트 로컬 설치와 연관 스킬 14개의 dependency closure
+- 한 줄 Git 설치와 단일 스킬 내부 연관 스킬 14개의 dependency closure
 
 ## 2. 정본과 읽기 순서
 
@@ -127,8 +127,13 @@ worker, native addon, WASI 권한은 받지 않는다.
 
 ## 7. 설치와 재사용
 
-`scripts/install-local.ps1`은 본 스킬과 다음 연관 스킬 14개를 대상 프로젝트의
-`.agents/skills/`에 함께 설치한다.
+사용자는 다음 Git 기반 명령으로 본 스킬 하나만 프로젝트 로컬에 설치한다.
+
+```sh
+npx skills add https://github.com/csm-kr/detail-page-maker-skill --skill detail-page-maker-skill --agent codex --yes --copy
+```
+
+다음 연관 스킬 14개는 설치된 상위 스킬 내부의 `.agents/skills/`에 포함된다.
 
 ```text
 browser-harness
@@ -147,11 +152,11 @@ media-use
 motion-graphics
 ```
 
-설치기는 vendored 프로젝트 로컬 폴더를 우선한다. `-AllowNetwork`를 명시하지
-않으면 네트워크 fallback을 사용하지 않으며 전역 Codex skill 폴더, PATH, 로그인
-상태를 바꾸지 않는다. 대상의 사용자 변경, 재귀 self-copy, 경로 탈출, 부모
-junction, staging hash 불일치가 있으면 이동 전에 중단한다. 설치 receipt와
-동일 재실행을 지원한다.
+내장 스킬은 `skills-lock.json` hash로 검증하며 하나라도 누락·변조되면
+fail-closed한다. sibling·전역 스킬이나 부분 네트워크 fallback을 사용하지 않는다.
+설치와 업데이트는 상위 스킬 하나를 Git 원본에서 다시 받는 방식이다. 핵심
+실행과 Behance·HyperFrames 학습 유지보수는 Node.js로 통일해
+macOS·Ubuntu·Windows에서 같은 argv를 사용한다.
 
 ## 8. 검증 결과
 
@@ -159,12 +164,14 @@ junction, staging hash 불일치가 있으면 이동 전에 중단한다. 설치
 | --- | --- |
 | 프로젝트 로컬 dependency doctor | PASS — 선언·lock·설치 14/14 |
 | skill-creator quick validation | PASS |
-| portable 설치·정책 회귀 | PASS — 30/30 |
+| Git 단일 스킬 실제 설치 스모크 | PASS — 설치 1개, 내장 의존성 14개, 설치본 E2E |
+| portable 설치·정책 회귀 | PASS — 29/29 |
 | persistent orchestration 회귀 | PASS — 307/307 |
 | G0→G5 fixture E2E | PASS |
 | Studio·Wing·runtime 경계 회귀 | PASS — 86/86, 기본 스위트의 브라우저 선택 1건 SKIP |
 | 실제 브라우저 390@2x→780 animated Wing | PASS — 1/1 |
-| JavaScript·Python·JSON 구문·파싱 | PASS — JS 109, Python 17, JSON 14 |
+| JavaScript·Python·JSON 구문·파싱 | PASS — 추적 JS 249, Python 17, JSON 12 |
+| GitHub Actions OS matrix | 구성 — Node 22 Ubuntu·macOS·Windows에서 세 기본 suite 실행 |
 | 독립 명세 교차검수 | PASS — 14개 기준과 실제 G0A/G1A 경로 포함 |
 | 최종 CDN runtime 계약 검토 | PASS — uploader 26/26, 명확한 결함 0 |
 

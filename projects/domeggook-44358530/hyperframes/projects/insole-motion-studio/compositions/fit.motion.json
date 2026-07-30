@@ -1,1 +1,0 @@
-{"duration":5.2,"assertions":[{"kind":"appearsBy","selector":"#fi-time","bySec":1.2},{"kind":"before","a":"#fi-a","b":"#fi-c"},{"kind":"staysInFrame","selector":".fi-card"},{"kind":"keepsMoving","withinSelector":"#fit-root","maxStaticSec":1.25}]}

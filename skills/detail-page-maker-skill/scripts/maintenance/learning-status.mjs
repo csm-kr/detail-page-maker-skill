@@ -83,13 +83,13 @@ export function resolveLearningPaths({
       skill,
       "scripts",
       "maintenance",
-      "refresh-behance-study.ps1",
+      "refresh-browser-study.mjs",
     ),
     gifRefreshScript: path.join(
       skill,
       "scripts",
       "maintenance",
-      "refresh-hyperframes-study.ps1",
+      "refresh-browser-study.mjs",
     ),
     distillScript: path.join(
       skill,

@@ -1,80 +1,60 @@
 # Detail Page Maker Skill
 
-공급처 근거에서 제품 SSOT, 상업 기획, 승인된 이미지·GIF, 편집 가능한 Studio v1
-상세페이지와 쿠팡 Wing HTML을 만드는 설치형 Codex 스킬이다.
+공급처 URL 하나에서 제품 SSOT, 시장 조사, 상업 기획, 이미지, GIF, 편집 가능한
+Studio v1, `output/detail-page.html`, 쿠팡 Wing CDN 출력을 만드는 단일 Codex
+스킬이다. 실행에 필요한 연관 스킬 14개는 이 스킬 폴더 안에 잠금된 상태로
+포함된다.
 
-실행 진입점은
-[`skills/detail-page-maker-skill/SKILL.md`](skills/detail-page-maker-skill/SKILL.md)이며,
-세부 문서는 작업별로 `references/`에서 선택해 읽는다.
+## 한 줄 설치
 
-## 활성 배포 구조
+macOS, Ubuntu, Windows에서 대상 프로젝트 폴더를 연 뒤 같은 명령을 실행한다.
+GitHub 저장소에서 `detail-page-maker-skill` 하나만 프로젝트 로컬로 받는다.
+
+```sh
+npx skills add https://github.com/csm-kr/detail-page-maker-skill --skill detail-page-maker-skill --agent codex --yes --copy
+```
+
+전역 설치는 하지 않는다. 설치 후 Codex에 다음처럼 요청하면 된다.
 
 ```text
-├─ skills/detail-page-maker-skill/   설치 가능한 단일 스킬
-├─ tests/                            portable·Studio v1 회귀 테스트
-├─ scripts/setup-windows.ps1         저장소 설치 진입점
-└─ config/workspace.json             로컬 프로젝트 위치
+$detail-page-maker-skill로 이 공급처 상품의 상세페이지를 만들어줘: <공급처 URL>
 ```
 
-상품 프로젝트, 공급처 원본, 생성 이미지, GIF, 영상, QA 캡처와 `.artifacts`는 Git
-배포물에 포함하지 않는다. 저장소에서 만든 새 프로젝트는 기본적으로
-`.workspace/projects/`에 저장된다. 2026-07-29 이전 자료는 로컬
-`deprecated/`에 보존되어 있으며 이 경로는 Git에서 제외된다.
+## 업데이트
 
-## 설치와 검사
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1 -NoProject
-node .\skills\detail-page-maker-skill\scripts\detail-page.mjs doctor
-node .\skills\detail-page-maker-skill\scripts\e2e.mjs
-node --test .\tests\portable-skill\*.test.mjs
-node --test .\tests\orchestration\*.test.mjs
-node --test .\tests\studio-v1\*.test.mjs
+```sh
+npx skills update detail-page-maker-skill --project --yes
 ```
 
-## 다른 프로젝트에 로컬 설치
+업데이트도 Git 원본의 단일 스킬 폴더를 다시 받는다. 내장된 연관 스킬은 별도로
+설치하거나 업데이트하지 않는다.
 
-전역 스킬 폴더를 바꾸지 않고 대상 프로젝트의 `.agents/skills/`에 본 스킬과
-잠금된 연관 스킬 14개를 함께 설치한다.
+## 실행 검사
 
-```powershell
-powershell -ExecutionPolicy Bypass `
-  -File .\skills\detail-page-maker-skill\scripts\install-local.ps1 `
-  -Source .\skills\detail-page-maker-skill `
-  -TargetProject "C:\path\to\target-project"
+Node.js 22 이상이 필요하다. GIF 제작에는 `ffmpeg`가 필요하고, motion 작업 시
+내장 HyperFrames 절차가 `npx hyperframes`로 프로젝트 로컬 런타임을 준비한다.
+실제 브라우저 수집·검수에는 `browser-harness` 실행 파일이 필요하다. 이들은
+별도 스킬이 아니라 세 운영체제에서 사용하는 실행 프로그램이다.
+
+```sh
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs doctor
+node .agents/skills/detail-page-maker-skill/scripts/e2e.mjs
 ```
 
-연관 스킬에는 공급처용 `dmk-extractor`, 시장 조사용 `coupang-extractor`,
-Browser Harness, 이미지 생성, HyperFrames motion 계열이 포함된다. 설치기는
-프로젝트 로컬 원본을 우선하며 명시적 `-AllowNetwork` 없이는 네트워크에서
-가져오지 않는다.
+설치된 폴더 하나를 다른 프로젝트에 수동 복사하는 방식은 지원하지 않는다.
+프로젝트마다 위 Git 설치 명령을 실행해 출처와 업데이트 경로를 유지한다.
 
-## 새 프로젝트
+## 저장 위치
 
-```powershell
-node .\skills\detail-page-maker-skill\scripts\detail-page.mjs new `
-  --name "상품명" `
-  --supplier-url "https://supplier.example/item/123456"
-```
+- 사용자가 넣는 실제 제품 사진: `<project>/input/product/`
+- 편집·복구 내부 상태: `<project>/.detail-page/`
+- 최종 고객 HTML: `<project>/output/detail-page.html`
+- 이미지·GIF: `<project>/output/media/`
+- 새 프로젝트 기본 루트: `.workspace/projects/`
 
-사용자가 직접 넣는 파일은 `<project>/input/product/`뿐이다. 실제 제품 사진이
-없어도 같은 SKU의 공급처 이미지가 확인되면 계속 진행한다. 편집·저장은 내부
-`.detail-page/`에서 수행하고 고객 진입점은
-`<project>/output/detail-page.html` 하나로 유지한다.
+공급처 원본, 생성 이미지, GIF, 영상, QA 캡처와 프로젝트 실행 상태는 Git 배포물에
+포함하지 않는다. Git에는 단일 스킬, 증류된 규칙, 회귀 테스트만 둔다.
 
-## 두 학습 단계
-
-```text
-Behance 조사 → 로컬 후보 Markdown → 검증 → references/commercial.md
-실제 제작 피드백 → 프로젝트 LEARNINGS.md → 검증 → references/taste.md
-```
-
-조사 URL·관찰 원문·피드백 원문은 `.workspace` 또는 프로젝트에 임시 저장하고,
-규칙을 승격하거나 기각한 뒤 삭제한다. Git에는 계속 갱신되는 `CR-*`·`TR-*`
-규칙과 회귀 테스트만 남긴다.
-
-현재 저장 위치와 마지막 갱신 시각은 다음 명령으로 확인한다.
-
-```powershell
-node .\skills\detail-page-maker-skill\scripts\detail-page.mjs learning-status
-```
+스킬 실행 계약은
+[`skills/detail-page-maker-skill/SKILL.md`](skills/detail-page-maker-skill/SKILL.md)에
+있다.
