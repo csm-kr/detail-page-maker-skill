@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 
 import {
@@ -193,6 +196,12 @@ function legacyPlanFixture() {
         competitor_attack: false,
       },
       comparison_motion_brief_ids: ["gif-comparison-pressure"],
+      decision_recap: {
+        section_id: "section-solution",
+        customer_outcome: "더 편안한 착용 흐름으로 하루를 마무리합니다.",
+        selection_reason: "제품 구조와 사용 조건을 함께 확인할 수 있습니다.",
+        risk_only: false,
+      },
       motion_target: { planned_total: 8 },
       actual_review: {
         section_present: false,
@@ -245,7 +254,10 @@ test("G0 공급처·사진·시장 discovery·지식 준비를 worker capacity�
   for (const workOrder of frontier.work_orders) {
     assert.match(workOrder.expected_artifact_id, /^artifact-/);
     assert.match(workOrder.exact_input_digest, /^[a-f0-9]{64}$/);
-    assert.match(workOrder.output_locator, /^orchestration\/staging\//);
+    assert.match(
+      workOrder.output_locator,
+      /^\.detail-page\/workflow\/staging\//,
+    );
     assert.equal(workOrder.requires_execution_receipt, true);
     assert.equal(
       workOrder.requires_independent_validation_receipt,
@@ -543,6 +555,9 @@ test("failed_members가 있는데 retry root가 없으면 통과 sibling 전체 
 
 test("dispatcher는 persistent failed member와 descendant를 자동 재시도하고 통과 sibling은 재발급하지 않는다", async () => {
   const productionPlan = plan();
+  const projectRoot = await mkdtemp(
+    path.join(os.tmpdir(), "parallel-frontier-project-"),
+  );
   let leasedCapabilities = null;
   const engine = {
     async inspect() {
@@ -582,6 +597,7 @@ test("dispatcher는 persistent failed member와 descendant를 자동 재시도�
 
   const result = await dispatchParallelProductionFrontier({
     engine,
+    project_root: projectRoot,
     project_ref: {
       project_id: "project-retry",
       input_digest: HASH,
@@ -614,4 +630,5 @@ test("dispatcher는 persistent failed member와 descendant를 자동 재시도�
     ),
     false,
   );
+  await rm(projectRoot, { recursive: true, force: true });
 });

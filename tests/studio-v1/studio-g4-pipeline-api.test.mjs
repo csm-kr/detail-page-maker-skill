@@ -162,6 +162,14 @@ function rubricResult(
     model_id: kind === "model" ? "pinned-visual-model" : null,
     prompt_sha256: kind === "model" ? "7".repeat(64) : null,
   }));
+  const comparisonDimensions = [
+    "desire_formation",
+    "observable_differentiation",
+    "scene_diversity",
+    "motion_semantic_delta",
+    "delivery_780",
+    "decision_close",
+  ];
   return {
     schema_version: "1.0",
     result_id: `rubric-${suffix}-${subject.manifest_sha256.slice(0, 16)}`,
@@ -189,6 +197,39 @@ function rubricResult(
         (captureId) => `artifact://${captureId}`,
       ),
     })),
+    quality_metrics: {
+      reference_comparison: {
+        status: "PASS",
+        reference_ids: ["current-output-baseline"],
+        dimensions: comparisonDimensions.map(
+          (criterionId) => ({
+            criterion_id: criterionId,
+            current_score: 100,
+            reference_score: 90,
+            observation:
+              "공개 output이 현재 기준 산출물보다 낮아지지 않았다.",
+          }),
+        ),
+      },
+      category_reference_comparison: {
+        status: "PASS",
+        library_sha256: "8".repeat(64),
+        reference_card_ids: [
+          "behance-makeon-led-mask",
+          "behance-replaceable-toothbrush",
+        ],
+        target: "meet_or_exceed_selected_cohort",
+        dimensions: comparisonDimensions.map(
+          (criterionId) => ({
+            criterion_id: criterionId,
+            current_score: 100,
+            cohort_score: 90,
+            observation:
+              "공개 output이 선택 cohort의 시각적 기준을 충족했다.",
+          }),
+        ),
+      },
+    },
     evaluated_at: "2026-07-30T12:00:00.000Z",
   };
 }
@@ -625,17 +666,18 @@ test("Studio v1 API가 320·360 내부 QA와 390@2x 전달 캡처를 사용한�
     committed.payload.capture_plan.work_order.captures.map(
       (capture) => capture.viewport.width,
     ),
-    [320, 360, 390],
+    [320, 360, 780, 390],
   );
   assert.deepEqual(
     committed.payload.capture_plan.work_order.captures.map(
       (capture) => capture.viewport.device_scale_factor,
     ),
-    [1, 1, 2],
+    [1, 1, 1, 2],
   );
   const revisionRoot = path.join(
     fixture.projectRoot,
-    "studio",
+    ".detail-page",
+    "workflow",
     "revisions",
     committed.payload.revision.revision_id,
   );
@@ -826,6 +868,9 @@ test("Studio v1 API가 320·360 내부 QA와 390@2x 전달 캡처를 사용한�
         behance_quality_score: 100,
         critical_dimension_min_score: 100,
         deterministic_hard_failure_count: 0,
+        ...structuredClone(
+          postcommitRubric.quality_metrics,
+        ),
       },
       hard_failures: [],
       verdict: "PASS",

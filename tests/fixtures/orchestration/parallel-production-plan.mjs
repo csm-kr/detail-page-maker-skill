@@ -95,7 +95,7 @@ export function createParallelProductionPlan() {
   const heroGifIds = GIF_IDS.filter((id) =>
     PRODUCT_REFERENCE_GIFS.has(id),
   );
-  return {
+  return applyCurrentProductionPlanPolicy({
     schema_version: "1.0",
     plan_id: "plan-parallel-frontier",
     provenance: {
@@ -281,6 +281,12 @@ export function createParallelProductionPlan() {
       comparison_motion_brief_ids: [
         "gif-comparison-pressure",
       ],
+      decision_recap: {
+        section_id: "section-solution",
+        customer_outcome: "더 편안한 착용 흐름으로 하루를 마무리합니다.",
+        selection_reason: "제품 구조와 사용 조건을 함께 확인할 수 있습니다.",
+        risk_only: false,
+      },
       motion_target: { planned_total: 8 },
       actual_review: {
         section_present: false,
@@ -303,5 +309,8 @@ export function createParallelProductionPlan() {
         },
       ],
     },
-  };
+  });
 }
+import {
+  applyCurrentProductionPlanPolicy,
+} from "./current-production-plan-policy.mjs";

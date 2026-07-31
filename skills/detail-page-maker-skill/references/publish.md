@@ -20,24 +20,41 @@
 - 고객 화면 제작 메타데이터 0개
 - 깨진 이미지, alt 누락, 중복 ID, 잘린 한글 0개
 - 390px 저작 화면과 780px 전달 렌더 일치
+- 공개 HTML 콘텐츠가 780px 전달 profile을 채우며 390px 중앙 열로 축소되지 않음
 - 숨은 320·360·390px 가로 오버플로 0개
 - HyperFrames strict 오류·경고 0개
 - detail-page-flow-v1 순서·count·1:1·motion coverage hard failure 0개
+- 계획 motion 수 = 공개 DOM animation 참조 수 = manifest animation 수 =
+  `output/media/gifs` 실제 animation 파일 수
+- 공개 animation frame 2개 이상, poster-only 0개
+- positive reference/current baseline과 같은 rubric의 욕구 형성·구조 차별점·
+  장면 다양성·motion delta·780 전달·구매 마무리 비교
+- 선택 category reference cohort와 같은 여섯 차원에서 현재 공개 결과가
+  cohort보다 낮은 항목 0개
 - 상용 QA 97점 이상
-- G5 사용자 게시 승인
+- G5 사용자 게시 승인 또는 원본 사진+사용자 승인 G1 계보의 plan-once publish receipt
 
 ## 일반 전달본
 
 `output/detail-page.html`을 단일 고객 진입점으로 만들고
 `output/media/{images,gifs}/`와 manifest를 함께 관리한다. Studio의 편집 가능한
-section model에서 생성하되 최신 Wing과 같은 CDN WebP stack을 표시해야 한다.
+section model에서 생성한다. Wing의 780px CDN WebP stack은
+`output/wing/<export-id>/`에 별도 파생하며 일반 전달본과 같은 파일로 취급하지
+않는다.
 `deliverables/`와 공개 `index.html`은 금지한다.
+
+저작 HTML의 `data-motion-src`는 sanitizer가 제거하기 전에 실제 공개 `<img src>`로
+승격한다. 그 다음 sanitizer, media materialization, manifest 생성을 끝낸 실제
+staging bytes에서 DOM→manifest→파일→frame count를 다시 검사한다. 이 post-export
+검사가 PASS하기 전에는 현재 output을 덮어쓰거나 완료 응답을 반환하지 않는다.
+Poster는 reduced-motion/offscreen fallback에만 쓰며 전달 motion 수에 포함하지 않는다.
 
 ## 쿠팡 Wing
 
 Wing 출력은 일반 전달본과 분리한다.
 
-1. G5, content-flow hard-0, 97점, 사용자 게시 승인과 승인 자산을 잠근다.
+1. G5, content-flow hard-0, 97점, 사용자 게시 승인 또는 plan-once publish
+   receipt와 승인 자산을 잠근다.
 2. 매 실행마다 충돌 불가능한 새 `export_id`를 만든다.
 3. CDN root 아래 `{project_key}/{export_id}/` namespace를 새로 만든다.
 4. 각 섹션을 폭 780px 완성형 WebP로 평탄화한다.
@@ -47,7 +64,9 @@ Wing 출력은 일반 전달본과 분리한다.
 8. CDN 업로드 manifest에 export ID, 순서, 파일명, 바이트, SHA-256, URL을 기록한다.
 9. 원격 URL의 상태, MIME, 길이, 해시를 닫힌 검증으로 확인한다.
 10. 기존 export namespace에 같은 경로가 있으면 덮어쓰지 않고 실패한다.
-11. `output/detail-page.html`을 검증된 최신 CDN stack으로 갱신한다.
+11. 검증된 CDN stack의 Wing HTML을
+    `output/wing/<export-id>/detail-page.html`에 확정하고 Studio Save가 만든
+    `output/detail-page.html`은 덮어쓰지 않는다.
 
 Wing 내보내기는 `scripts/runtime/studio-v1-server.mjs`가
 `scripts/runtime/coupang-wing-export.py`를 호출한다. Studio 저장은 원격 CDN을
@@ -119,7 +138,8 @@ Studio Wing Export의 서버 상태는
 `preparing → generated → uploading → verifying → completed`다. 인증·config·
 runtime·namespace·보존·업로드·검증 실패는 typed failure state와 code를 job에
 남긴다. 실패한 로컬 export는 진단용으로 남길 수 있지만 현재
-`output/detail-page.html`과 `wing_export_required`는 바꾸지 않는다.
+`output/detail-page.html`과 `wing_export_required`는 바꾸지 않는다. 성공한
+Wing도 `output/detail-page.html`의 source revision 계보를 변경하지 않는다.
 
 Pages Direct Upload는 전체 directory snapshot이므로 원격 `deploy-index.json`의
 과거 namespace를 모두 다음 staging에 복원한다. 로컬 과거 bytes가 없으면 기존
@@ -150,9 +170,12 @@ exact generation 검증은 경쟁을 탐지하지만 원격 원자적 lock을 �
 - sealed workflow state와 현재 graph digest가 일치해야 한다.
 - `G5_PUBLISH_QA`가 만든 fresh `qa.validation_receipt`의 실제 ArtifactRecord bytes를 다시 읽는다.
 - QA verdict `PASS`, publish score 97 이상, Behance quality 90 이상, critical dimension 85 이상, deterministic hard failure 0을 모두 요구한다.
-- `G5U_APPROVAL`의 exact approval receipt가 현재 G5 subject artifact-set digest와 일치해야 한다.
+- `G5U_APPROVAL`의 사용자 또는 plan-once policy exact approval receipt가 현재
+  G5 subject artifact-set digest와 일치해야 한다.
 - 일반 HTML은 `POST /api/v1/exports/html`에서 승인된
-  `studio.committed_revision`을 다시 해시한 뒤에만
-  `output/detail-page.html`을 원자적으로 덮어쓴다. 이전 bytes는 내부 backup에
-  보존한다.
+  `studio.committed_revision`과 현재 source revision을 다시 해시한 뒤에만 같은
+  source에서 `output/detail-page.html`을 원자적으로 재물질화한다. 새 편집 원본이나
+  source revision은 만들지 않으며 이전 public bytes는 내부 backup에 보존한다.
 - gate 검사와 파일 생성 사이 graph·approval·QA proof가 바뀌면 staging 결과를 폐기하고 export를 차단한다.
+- export staging이 완성된 뒤 `public_output_qa.motion_closure`가 planned/public
+  count 일치, poster-only 0, animation frame 2+를 증명해야 한다.

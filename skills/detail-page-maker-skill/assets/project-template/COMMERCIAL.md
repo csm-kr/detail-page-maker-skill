@@ -14,6 +14,17 @@
 - `market_evidence`:
 - `guide`: `detail-page-maker-skill/references/commercial.md`
 
+## Reference Artifact Set
+
+- `current_output`:
+- `positive_reference`:
+- `negative_reference`:
+- `approved_exemplar`:
+- `reference_profile_sha256`:
+- `adoption_matrix`: 각 trait의 adopt | adapt | reject, 이유, target section
+
+기준작의 고유 자산·카피·색상 조합은 복제하지 않는다.
+
 ## Core Problem and Answer
 
 - `core_problem`:
@@ -89,6 +100,11 @@ Hero 바로 다음에 소구점으로 해결할 수 있는 서로 다른 고객 
 - `product_answer`:
 - `customer_copy`:
 - `claim_id`:
+- `claim_type`: `observable_structure | manufacturer_claim | verified_efficacy | product_identity | specification | usage_condition`
+- `observation_scope`:
+- `effect_claim_allowed`: false
+- `source_conditions`:
+- `verification_artifact_ids`: []
 - `component_id`:
 - `fact_id`:
 - `evidence_asset_id`:

@@ -516,14 +516,24 @@ test("mutable working state를 exact 검수 뒤 immutable deterministic revision
     );
     assert.equal(
       path.relative(
-        path.join(fixture.projectRoot, "studio", "revisions"),
+        path.join(
+          fixture.projectRoot,
+          ".detail-page",
+          "workflow",
+          "revisions",
+        ),
         result.revision_path,
       ).startsWith(".."),
       false,
     );
 
     const revisionEntries = await readdir(
-      path.join(fixture.projectRoot, "studio", "revisions"),
+      path.join(
+        fixture.projectRoot,
+        ".detail-page",
+        "workflow",
+        "revisions",
+      ),
     );
     assert.deepEqual(revisionEntries, [result.revision.revision_id]);
   } finally {
@@ -554,7 +564,12 @@ test("같은 exact inputs는 기존 revision을 재사용하고 중복·staging�
       first.revision.commit_sha256,
     );
     const entries = await readdir(
-      path.join(fixture.projectRoot, "studio", "revisions"),
+      path.join(
+        fixture.projectRoot,
+        ".detail-page",
+        "workflow",
+        "revisions",
+      ),
     );
     assert.deepEqual(entries, [first.revision.revision_id]);
   } finally {

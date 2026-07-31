@@ -70,13 +70,13 @@ export const PINNED_BEHANCE_RUBRIC = Object.freeze({
   rubric_id: "behance-commerce",
   rubric_version: "behance-commerce-v0.1",
   rubric_sha256:
-    "443c9000adf55ecc2589d522a8048452c03dc0e5e61c86c542ac042413b498e8",
+    "2dde69f994ffaf32518fa6f66d586559d36a2cfc61835a3695877e100fac4c55",
   policy_id: "policy.qa.behance-commerce.v0.1",
   policy_sha256:
     "66a11c24f43fd1c66fa17e1dadf7aa79dd5663eae4bc5b1d09d8fba9e3de4e65",
   source_snapshot_id: "behance-detail-page-2026-07-30-s01-s08",
   source_snapshot_sha256:
-    "2ba318e9ec4882f4b5ec10f623fbf5c3d2ecd2c7cb4fe788cd732d6c74e1686a",
+    "9db5fcded9c2ef114875836c31e9a0cdef2c24081547dc2747f8959f1d7c43c6",
 });
 
 export class BrowserCaptureAdapterError extends Error {
@@ -448,7 +448,26 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import struct
+import subprocess
 import time
+import browser_harness.helpers as _bh_helpers
+
+
+def _g4_send_with_large_capture_timeout(request):
+    connection, token = _bh_helpers.ipc.connect(
+        _bh_helpers.NAME,
+        timeout=30.0,
+    )
+    try:
+        response = _bh_helpers.ipc.request(connection, token, request)
+    finally:
+        connection.close()
+    if "error" in response:
+        raise RuntimeError(response["error"])
+    return response
+
+
+_bh_helpers._send = _g4_send_with_large_capture_timeout
 
 URL = ${pythonString(url)}
 OUTPUT_ROOT = Path(${pythonString(outputRoot)})
@@ -466,8 +485,51 @@ recording_locator = start_recording(
 )
 observations = []
 try:
-    new_tab(URL, focus=False)
+    capture_target_id = cdp(
+        "Target.createTarget",
+        url="about:blank",
+    )["targetId"]
+    switch_tab(capture_target_id)
+    goto_url(URL)
     wait_for_load()
+    _capture_js = js
+    _capture_cdp = cdp
+    capture_session_id = _capture_cdp(
+        "Target.attachToTarget",
+        targetId=capture_target_id,
+        flatten=True,
+    )["sessionId"]
+    new_tab("about:blank")
+
+    def capture_js(expression):
+        return _capture_js(expression, target_id=capture_target_id)
+
+    def capture_cdp(method, **params):
+        return _capture_cdp(
+            method,
+            session_id=capture_session_id,
+            **params,
+        )
+
+    js = capture_js
+    cdp = capture_cdp
+    page_identity = js("""(() => ({
+      href: location.href,
+      sectionCount:
+        document.querySelectorAll("[data-section-id]").length,
+      heroFound:
+        document.querySelector(
+          '[data-section-id="section-hero"]'
+        ) !== null,
+      imageCount: document.images.length,
+    }))()""")
+    if (
+        page_identity["href"] != URL or
+        page_identity["sectionCount"] < 1 or
+        not page_identity["heroFound"] or
+        page_identity["imageCount"] < 1
+    ):
+        raise RuntimeError("DETAIL_PAGE_IDENTITY_MISMATCH")
     for spec in SPECS:
         viewport = spec["viewport"]
         cdp(
@@ -477,6 +539,32 @@ try:
             deviceScaleFactor=viewport["device_scale_factor"],
             mobile=False,
         )
+        actual_dpr = float(js("devicePixelRatio"))
+        zoom_factor = actual_dpr / viewport["device_scale_factor"]
+        if abs(zoom_factor - 1) > 0.001:
+            cdp(
+                "Emulation.setDeviceMetricsOverride",
+                width=round(viewport["width"] * zoom_factor),
+                height=round(viewport["height"] * zoom_factor),
+                deviceScaleFactor=(
+                    viewport["device_scale_factor"] / zoom_factor
+                ),
+                mobile=False,
+            )
+        normalized_viewport = js("""({
+          innerWidth,
+          innerHeight,
+          devicePixelRatio,
+        })""")
+        if (
+            normalized_viewport["innerWidth"] != viewport["width"] or
+            normalized_viewport["innerHeight"] != viewport["height"] or
+            abs(
+                normalized_viewport["devicePixelRatio"] -
+                viewport["device_scale_factor"]
+            ) > 0.001
+        ):
+            raise RuntimeError("VIEWPORT_NORMALIZATION_FAILED")
         cdp(
             "Emulation.setEmulatedMedia",
             media="screen",
@@ -484,7 +572,7 @@ try:
                 {"name": "prefers-reduced-motion", "value": "reduce"}
             ],
         )
-        js("""(() => {
+        motion_freeze = js("""(() => {
           document.documentElement.style.scrollBehavior = "auto";
           let style = document.querySelector("[data-g4-stable-capture]");
           if (!style) {
@@ -501,7 +589,46 @@ try:
             animation.pause();
             try { animation.currentTime = 0; } catch (_) {}
           });
+          const motionFrames = Array.from(
+            document.querySelectorAll("[data-motion-src]")
+          );
+          const posterFrames = Array.from(
+            document.querySelectorAll("[data-poster-src]")
+          );
+          let posterImagePinnedCount = 0;
+          let motionPosterPinnedCount = 0;
+          posterFrames.forEach((frame) => {
+            const wasMotionFrame =
+              frame.hasAttribute("data-motion-src");
+            const image = frame.querySelector("img");
+            if (image && frame.dataset.posterSrc) {
+              image.removeAttribute("srcset");
+              image.src = frame.dataset.posterSrc;
+              frame.removeAttribute("data-motion-src");
+              frame.classList.remove("is-playing");
+              frame.classList.add("is-fallback");
+              posterImagePinnedCount += 1;
+              if (wasMotionFrame) motionPosterPinnedCount += 1;
+            }
+          });
+          Array.from(document.images).forEach((image) => {
+            image.loading = "eager";
+          });
           window.scrollTo(0, 0);
+          return {
+            motion_frame_count: motionFrames.length,
+            poster_frame_count: posterFrames.length,
+            poster_image_pinned_count: posterImagePinnedCount,
+            poster_pinned_count: motionPosterPinnedCount,
+            unfrozen_motion_frame_count:
+              motionFrames.length - motionPosterPinnedCount,
+          };
+        })()""")
+        js("""(async () => {
+          await Promise.allSettled(
+            Array.from(document.images).map((image) => image.decode())
+          );
+          return true;
         })()""")
         for _ in range(2):
             page_height = int(js("""Math.max(
@@ -527,6 +654,47 @@ try:
             time.sleep(0.1)
         if not ready:
             raise RuntimeError("PAGE_RESOURCES_NOT_STABLE")
+        runtime_motion = js("""(() => {
+          const animatedImagePattern = /[.](?:apng|gif)(?:[?#]|$)/i;
+          const runningAnimations = document.getAnimations().filter(
+            (animation) => animation.playState === "running"
+          );
+          const playingMedia = Array.from(
+            document.querySelectorAll("video,audio")
+          ).filter((media) => !media.paused && !media.ended);
+          const animatedRasterImages = Array.from(document.images).filter(
+            (image) => animatedImagePattern.test(
+              image.currentSrc || image.src || ""
+            )
+          );
+          return {
+            remaining_motion_target_count:
+              document.querySelectorAll("[data-motion-src]").length,
+            playing_motion_frame_count:
+              document.querySelectorAll(
+                "[data-poster-src].is-playing"
+              ).length,
+            running_web_animation_count: runningAnimations.length,
+            playing_media_count: playingMedia.length,
+            animated_raster_image_count: animatedRasterImages.length,
+          };
+        })()""")
+        motion_freeze.update(runtime_motion)
+        actual_motion_detected = (
+            motion_freeze["unfrozen_motion_frame_count"] > 0 or
+            motion_freeze["remaining_motion_target_count"] > 0 or
+            motion_freeze["playing_motion_frame_count"] > 0 or
+            motion_freeze["running_web_animation_count"] > 0 or
+            motion_freeze["playing_media_count"] > 0 or
+            motion_freeze["animated_raster_image_count"] > 0
+        )
+        motion_freeze["actual_motion_detected"] = actual_motion_detected
+        if actual_motion_detected:
+            print(json.dumps({
+                "viewport": viewport,
+                "motion_freeze": motion_freeze,
+            }))
+            raise RuntimeError("ACTUAL_MOTION_PRESENT")
         metrics = js("""(() => {
           const root = document.documentElement;
           const body = document.body;
@@ -563,22 +731,292 @@ try:
             metrics["body_scroll_width"] > viewport["width"] or
             metrics["offender_count"] != 0
         ):
+            print(json.dumps({
+                "viewport": viewport,
+                "metrics": metrics,
+            }))
             raise RuntimeError("MOBILE_OVERFLOW")
-        first = cdp(
-            "Page.captureScreenshot",
-            format="png",
-            fromSurface=True,
-            captureBeyondViewport=True,
+        page_height = int(js("""Math.max(
+          document.documentElement.scrollHeight,
+          document.body ? document.body.scrollHeight : 0
+        )"""))
+        max_surface_height_physical = 16384
+        use_tiled_capture = (
+            viewport["device_scale_factor"] == 2 and
+            page_height * viewport["device_scale_factor"] >
+                max_surface_height_physical
         )
-        time.sleep(0.25)
-        second = cdp(
-            "Page.captureScreenshot",
-            format="png",
-            fromSurface=True,
-            captureBeyondViewport=True,
-        )
-        first_png = base64.b64decode(first["data"])
-        second_png = base64.b64decode(second["data"])
+        tile_stability = []
+        warmup_capture_count = 0
+        if use_tiled_capture:
+            tile_root = (
+                OUTPUT_ROOT /
+                (".tiles-" + spec["capture_id"])
+            )
+            tile_root.mkdir(parents=False, exist_ok=False)
+            tile_specs = []
+            y = 0
+            tile_index = 0
+            while y < page_height:
+                tile_height = min(700, page_height - y)
+                capture_params = {
+                    "format": "png",
+                    "fromSurface": True,
+                    "captureBeyondViewport": True,
+                    "clip": {
+                        "x": 0,
+                        "y": y,
+                        "width": viewport["width"],
+                        "height": tile_height,
+                        "scale": 1,
+                    },
+                }
+                js(f"window.scrollTo(0, {y})")
+                time.sleep(0.1)
+                for _ in range(2):
+                    cdp("Page.captureScreenshot", **capture_params)
+                    warmup_capture_count += 1
+                    time.sleep(0.1)
+                first_tile = base64.b64decode(
+                    cdp(
+                        "Page.captureScreenshot",
+                        **capture_params,
+                    )["data"]
+                )
+                time.sleep(0.25)
+                second_tile = base64.b64decode(
+                    cdp(
+                        "Page.captureScreenshot",
+                        **capture_params,
+                    )["data"]
+                )
+                if (
+                    first_tile[:8] != b"\\x89PNG\\r\\n\\x1a\\n" or
+                    second_tile[:8] != b"\\x89PNG\\r\\n\\x1a\\n"
+                ):
+                    raise RuntimeError("INVALID_TILE_PNG")
+                tile_png_width, tile_png_height = struct.unpack(
+                    ">II",
+                    first_tile[16:24],
+                )
+                first_tile_sha = hashlib.sha256(
+                    first_tile
+                ).hexdigest()
+                second_tile_sha = hashlib.sha256(
+                    second_tile
+                ).hexdigest()
+                tile_measurement = {
+                    "tile_index": tile_index,
+                    "y_css_px": y,
+                    "height_css_px": tile_height,
+                    "png_width": tile_png_width,
+                    "png_height": tile_png_height,
+                    "first_png_sha256": first_tile_sha,
+                    "second_png_sha256": second_tile_sha,
+                }
+                if first_tile_sha == second_tile_sha:
+                    tile_measurement.update({
+                        "exact_match": True,
+                        "different_pixels": 0,
+                        "total_pixels":
+                            tile_png_width * tile_png_height,
+                        "different_pixel_ratio": 0,
+                        "significant_pixel_ratio": 0,
+                        "severe_pixel_ratio": 0,
+                        "max_channel_delta": 0,
+                    })
+                else:
+                    first_temp = tile_root / ".first-temp.png"
+                    second_temp = tile_root / ".second-temp.png"
+                    first_temp.write_bytes(first_tile)
+                    second_temp.write_bytes(second_tile)
+                    compare_script = """
+                      const sharp = require("sharp");
+                      const firstPath = process.argv[1];
+                      const secondPath = process.argv[2];
+                      (async () => {
+                        const first = await sharp(firstPath)
+                          .raw().toBuffer({resolveWithObject: true});
+                        const second = await sharp(secondPath)
+                          .raw().toBuffer({resolveWithObject: true});
+                        if (
+                          first.info.width !== second.info.width ||
+                          first.info.height !== second.info.height ||
+                          first.info.channels !== second.info.channels
+                        ) {
+                          throw new Error("TILE_DIMENSION_MISMATCH");
+                        }
+                        let differentPixels = 0;
+                        let significantPixels = 0;
+                        let severePixels = 0;
+                        let maxChannelDelta = 0;
+                        const channels = first.info.channels;
+                        for (
+                          let offset = 0;
+                          offset < first.data.length;
+                          offset += channels
+                        ) {
+                          let changed = false;
+                          let pixelMaxDelta = 0;
+                          for (
+                            let channel = 0;
+                            channel < channels;
+                            channel += 1
+                          ) {
+                            const delta = Math.abs(
+                              first.data[offset + channel] -
+                              second.data[offset + channel]
+                            );
+                            if (delta > 0) changed = true;
+                            if (delta > maxChannelDelta) {
+                              maxChannelDelta = delta;
+                            }
+                            if (delta > pixelMaxDelta) {
+                              pixelMaxDelta = delta;
+                            }
+                          }
+                          if (changed) differentPixels += 1;
+                          if (pixelMaxDelta > 4) {
+                            significantPixels += 1;
+                          }
+                          if (pixelMaxDelta > 12) severePixels += 1;
+                        }
+                        const totalPixels =
+                          first.info.width * first.info.height;
+                        process.stdout.write(JSON.stringify({
+                          different_pixels: differentPixels,
+                          total_pixels: totalPixels,
+                          different_pixel_ratio:
+                            differentPixels / totalPixels,
+                          significant_pixel_ratio:
+                            significantPixels / totalPixels,
+                          severe_pixel_ratio:
+                            severePixels / totalPixels,
+                          max_channel_delta: maxChannelDelta,
+                        }));
+                      })().catch((error) => {
+                        process.stderr.write(String(error));
+                        process.exit(1);
+                      });
+                    """
+                    comparison = json.loads(
+                        subprocess.run(
+                            [
+                                "node",
+                                "-e",
+                                compare_script,
+                                str(first_temp),
+                                str(second_temp),
+                            ],
+                            check=True,
+                            capture_output=True,
+                            text=True,
+                        ).stdout
+                    )
+                    first_temp.unlink()
+                    second_temp.unlink()
+                    tile_measurement.update({
+                        "exact_match": False,
+                        **comparison,
+                    })
+                    if (
+                        comparison["different_pixel_ratio"] > 0.15 or
+                        comparison["significant_pixel_ratio"] > 0.005 or
+                        comparison["severe_pixel_ratio"] > 0.00025 or
+                        comparison["max_channel_delta"] > 20
+                    ):
+                        (
+                            OUTPUT_ROOT / "debug-first-tile.png"
+                        ).write_bytes(first_tile)
+                        (
+                            OUTPUT_ROOT / "debug-second-tile.png"
+                        ).write_bytes(second_tile)
+                        print(json.dumps({
+                            "unstable_tile": tile_measurement,
+                        }))
+                        raise RuntimeError(
+                            "ANIMATION_STABLE_TILE_MISMATCH"
+                        )
+                tile_stability.append(tile_measurement)
+                tile_path = (
+                    tile_root / f"tile-{tile_index:03d}.png"
+                )
+                tile_path.write_bytes(first_tile)
+                tile_specs.append(str(tile_path))
+                y += tile_height
+                tile_index += 1
+            output_path = OUTPUT_ROOT / spec["relative_path"]
+            stitch_script = """
+              const sharp = require("sharp");
+              const output = process.argv[1];
+              const tiles = JSON.parse(process.argv[2]);
+              (async () => {
+                const metadata = await Promise.all(
+                  tiles.map((tile) => sharp(tile).metadata())
+                );
+                const width = metadata[0].width;
+                const height = metadata.reduce(
+                  (total, item) => total + item.height,
+                  0
+                );
+                let top = 0;
+                const layers = tiles.map((tile, index) => {
+                  const layer = {input: tile, left: 0, top};
+                  top += metadata[index].height;
+                  return layer;
+                });
+                await sharp({
+                  create: {
+                    width,
+                    height,
+                    channels: 3,
+                    background: {r: 255, g: 255, b: 255},
+                  },
+                }).composite(layers).png().toFile(output);
+              })().catch((error) => {
+                process.stderr.write(String(error));
+                process.exit(1);
+              });
+            """
+            subprocess.run(
+                [
+                    "node",
+                    "-e",
+                    stitch_script,
+                    str(output_path),
+                    json.dumps(tile_specs),
+                ],
+                check=True,
+            )
+            first_png = output_path.read_bytes()
+            second_png = first_png
+            for tile_path in tile_root.iterdir():
+                tile_path.unlink()
+            tile_root.rmdir()
+        else:
+            cdp(
+                "Page.captureScreenshot",
+                format="png",
+                fromSurface=True,
+                captureBeyondViewport=True,
+            )
+            warmup_capture_count = 1
+            time.sleep(0.25)
+            first = cdp(
+                "Page.captureScreenshot",
+                format="png",
+                fromSurface=True,
+                captureBeyondViewport=True,
+            )
+            time.sleep(0.25)
+            second = cdp(
+                "Page.captureScreenshot",
+                format="png",
+                fromSurface=True,
+                captureBeyondViewport=True,
+            )
+            first_png = base64.b64decode(first["data"])
+            second_png = base64.b64decode(second["data"])
         first_sha256 = hashlib.sha256(first_png).hexdigest()
         second_sha256 = hashlib.sha256(second_png).hexdigest()
         if first_sha256 != second_sha256:
@@ -612,6 +1050,26 @@ try:
                 "reduced_motion": True,
                 "web_animations_paused": True,
                 "css_transitions_disabled": True,
+                "viewport_normalization": {
+                    "site_zoom_factor": zoom_factor,
+                    **normalized_viewport,
+                },
+                "motion_freeze": motion_freeze,
+                "warmup_capture_count": warmup_capture_count,
+                "perceptual_tiled_frame": {
+                    "used": use_tiled_capture,
+                    "surface_height_limit_physical_px":
+                        max_surface_height_physical,
+                    "page_height_css_px": page_height,
+                    "tile_height_css_px": 700,
+                    "different_pixel_ratio_max": 0.15,
+                    "significant_pixel_ratio_max": 0.005,
+                    "significant_delta_threshold": 4,
+                    "severe_pixel_ratio_max": 0.00025,
+                    "severe_delta_threshold": 12,
+                    "max_channel_delta_max": 20,
+                    "tiles": tile_stability,
+                },
             },
         })
 finally:

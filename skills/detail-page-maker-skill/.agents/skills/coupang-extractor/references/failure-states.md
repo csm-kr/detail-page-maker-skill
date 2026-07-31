@@ -4,7 +4,7 @@
 |---|---|---|
 | `URL_INVALID` | 직접 쿠팡 상품 URL 또는 숫자 ID 계약 실패 | URL을 바꾸지 말고 중단 |
 | `OUTPUT_EXISTS` | 고정 tests 출력에 기존 정상 결과가 있음 | 덮어쓰지 않고 명시적 빈 `--output`을 사용 |
-| `LOCAL_RUNTIME_FAILED` | Browser Harness 연결·실행 실패 | 진단 1회 후 수동 북마클릿 경로 제안 |
+| `LOCAL_RUNTIME_FAILED` | Browser Harness 연결·실행 실패 또는 전역 browser lock 대기 초과 | `BROWSER_HARNESS_BUSY`면 다른 local browser 작업 종료 후 직렬 재배정하고, 그 외에는 진단 1회 후 수동 북마클릿 경로 제안 |
 | `ACCESS_BLOCKED` | Access Denied, CAPTCHA, challenge | 즉시 중단, 재시도 0회 |
 | `LOGIN_REQUIRED` | 로그인·MFA·계정 선택 벽 | 자동 처리 없이 중단 |
 | `PRODUCT_MISMATCH` | 세 수집기의 상품 ID 불일치 | 합치기·다운로드 중단 |

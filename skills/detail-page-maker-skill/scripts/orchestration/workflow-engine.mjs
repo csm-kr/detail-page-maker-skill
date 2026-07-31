@@ -46,6 +46,28 @@ const REPAIR_BLOCKING_ACTIONS = new Set([
   "PLATEAU_AWAITING_USER",
   "BUDGET_AWAITING_USER",
 ]);
+const ITEM_FRONTIER_ONLY_STAGES = new Set([
+  "G2A_IMAGE",
+  "G3P_PREVIEW",
+  "G3R_RENDER",
+]);
+export const PLAN_ONCE_FAST_PATH_POLICY_ID =
+  "policy.approval.plan-once-with-actual-photos.v1";
+const PLAN_ONCE_MANUAL_GATE = "G1U_APPROVAL";
+const PLAN_ONCE_PRE_PLAN_AUTO_GATES = new Set([
+  "G0U_APPROVAL",
+  "G1DQ_SELECTION",
+]);
+const PLAN_ONCE_POST_PLAN_AUTO_GATES = new Set([
+  "G2S_CONFIG_APPROVAL",
+  "G2U_APPROVAL",
+  "G3V_PREVIEW_APPROVAL",
+  "G3U_APPROVAL",
+  "G4U_APPROVAL",
+  "G5U_APPROVAL",
+]);
+const PLAN_ONCE_AUTO_APPROVER_SESSION =
+  "orchestrator-plan-once-fast-path";
 
 export class WorkflowEngineError extends Error {
   constructor(code, message, details = {}) {
@@ -54,6 +76,114 @@ export class WorkflowEngineError extends Error {
     this.code = code;
     this.details = details;
   }
+}
+
+export function assertAggregateLeaseAllowed(stageId) {
+  if (ITEM_FRONTIER_ONLY_STAGES.has(stageId)) {
+    throw new WorkflowEngineError(
+      "ITEM_FRONTIER_REQUIRED",
+      "G2/G3 제작 단계는 aggregate lease를 허용하지 않으며 ProductionPlan item별 frontier로만 실행합니다.",
+      { stage_id: stageId },
+    );
+  }
+  return stageId;
+}
+
+function isActualProductPhotoLocator(locator) {
+  const normalized = String(locator ?? "")
+    .replaceAll("\\", "/")
+    .replace(/^\.\/+/, "");
+  return (
+    normalized.startsWith("input/product/") &&
+    normalized.length > "input/product/".length &&
+    !normalized.split("/").includes("..") &&
+    !path.posix.isAbsolute(normalized)
+  );
+}
+
+export function hasVerifiedActualProductPhotoSet(state) {
+  return (state?.graph?.artifacts ?? []).some((artifact) => {
+    if (
+      artifact?.type !== "identity.photo_set" ||
+      artifact?.status !== "fresh" ||
+      !Array.isArray(artifact.member_ids) ||
+      artifact.member_ids.length === 0
+    ) {
+      return false;
+    }
+    const members = artifact?.member_manifest?.members;
+    if (
+      artifact?.member_manifest?.policy !== "materialized" ||
+      !Array.isArray(members) ||
+      members.length !== artifact.member_ids.length
+    ) {
+      return false;
+    }
+    const expectedIds = new Set(artifact.member_ids.map(String));
+    return members.every(
+      (member) =>
+        expectedIds.has(String(member?.member_id ?? "")) &&
+        member?.root_id === "project" &&
+        Number.isSafeInteger(member?.size_bytes) &&
+        member.size_bytes > 0 &&
+        /^[a-f0-9]{64}$/.test(String(member?.sha256 ?? "")) &&
+        isActualProductPhotoLocator(member?.locator),
+    );
+  });
+}
+
+export function hasManualPlanApproval(state) {
+  return (state?.graph?.artifacts ?? []).some((artifact) => {
+    const receipt = artifact?.approval_receipt;
+    return (
+      artifact?.type === "decision.plan_approval" &&
+      artifact?.status === "fresh" &&
+      artifact?.produced_by_stage === PLAN_ONCE_MANUAL_GATE &&
+      receipt?.decision === "approved" &&
+      receipt?.approval_channel !== "policy_auto_after_plan" &&
+      typeof receipt?.decided_by === "string" &&
+      receipt.decided_by.trim().length > 0
+    );
+  });
+}
+
+export function planOnceFastPathDecision(state, stageId) {
+  if (stageId === PLAN_ONCE_MANUAL_GATE) {
+    return {
+      auto_approve: false,
+      reason: "manual_plan_approval_required",
+    };
+  }
+  if (!hasVerifiedActualProductPhotoSet(state)) {
+    return {
+      auto_approve: false,
+      reason: "verified_actual_product_photos_required",
+    };
+  }
+  if (PLAN_ONCE_PRE_PLAN_AUTO_GATES.has(stageId)) {
+    return {
+      auto_approve: true,
+      phase: "before_manual_plan",
+      policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
+    };
+  }
+  if (PLAN_ONCE_POST_PLAN_AUTO_GATES.has(stageId)) {
+    if (!hasManualPlanApproval(state)) {
+      return {
+        auto_approve: false,
+        reason: "manual_plan_approval_required",
+      };
+    }
+    return {
+      auto_approve: true,
+      phase: "after_manual_plan",
+      policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
+    };
+  }
+  return {
+    auto_approve: false,
+    reason: "gate_not_in_plan_once_fast_path",
+  };
 }
 
 function sha256(value) {
@@ -486,7 +616,7 @@ export function createWorkflowEngine({
       })
     : null,
   clock = () => new Date(),
-  leaseDurationMs = 5 * 60 * 1000,
+  leaseDurationMs = 30 * 60 * 1000,
 } = {}) {
   if (!projectRoot && !stateStore) {
     throw new WorkflowEngineError(
@@ -1815,6 +1945,7 @@ export function createWorkflowEngine({
     const inputSetDigest = artifactSetDigest(inputRefs);
     const leasedAt = nowDate();
     const stageDefinition = definitions.get(stageId);
+    assertAggregateLeaseAllowed(stageId);
     if (
       semanticValidationRequired(stageId) &&
       inputs.some(
@@ -1860,7 +1991,7 @@ export function createWorkflowEngine({
       runner_contract: structuredClone(stageDefinition.runner_contract),
       fan_out_key: stageDefinition.fan_out_key,
       allowed_staging_root:
-        `orchestration/staging/${state.project_id}/${workOrderId}`,
+        `.detail-page/workflow/staging/${state.project_id}/${workOrderId}`,
       attempt: leaseAttempt(state, stageId, inputSetDigest),
       fencing_token: `fence-${randomUUID()}`,
       status: "running",
@@ -1995,7 +2126,7 @@ export function createWorkflowEngine({
         if (
           typeof item.output_locator !== "string" ||
           !item.output_locator.startsWith(
-            "orchestration/staging/",
+            ".detail-page/workflow/staging/",
           ) ||
           item.output_locator.includes("..")
         ) {
@@ -2003,6 +2134,21 @@ export function createWorkflowEngine({
             "INVALID_PLANNED_OUTPUT_LOCATOR",
             "계획된 frontier 출력 위치는 격리된 staging root여야 합니다.",
             { output_locator: item?.output_locator ?? null },
+          );
+        }
+        if (
+          !Number.isInteger(item.time_budget_ms) ||
+          item.time_budget_ms < 60 * 1000 ||
+          item.heartbeat_policy?.required !== true ||
+          !Number.isInteger(item.heartbeat_policy?.interval_ms) ||
+          item.heartbeat_policy.interval_ms < 10 * 1000 ||
+          item.heartbeat_policy.interval_ms >
+            Math.floor(item.time_budget_ms / 2)
+        ) {
+          throw new WorkflowEngineError(
+            "FRONTIER_TIME_BUDGET_REQUIRED",
+            "각 G2/G3 item은 양수 time budget과 주기적 heartbeat 정책을 가져야 합니다.",
+            { work_item_id: item?.work_item_id ?? null },
           );
         }
         const sessionIndex = availableSessionIds.indexOf(
@@ -2073,8 +2219,18 @@ export function createWorkflowEngine({
           fencing_token: `fence-${randomUUID()}`,
           status: "running",
           leased_at: issuedAt.toISOString(),
+          time_budget_ms: item.time_budget_ms,
+          deadline_at: new Date(
+            issuedAt.getTime() + item.time_budget_ms,
+          ).toISOString(),
+          heartbeat_policy: structuredClone(
+            item.heartbeat_policy,
+          ),
           lease_expires_at: new Date(
-            issuedAt.getTime() + leaseDurationMs,
+            Math.min(
+              issuedAt.getTime() + leaseDurationMs,
+              issuedAt.getTime() + item.time_budget_ms,
+            ),
           ).toISOString(),
         };
         state.work_orders[workOrderId] = workOrder;
@@ -2239,9 +2395,30 @@ export function createWorkflowEngine({
     }
 
     const heartbeatAt = nowDate();
+    const deadlineAt = Date.parse(workOrder.deadline_at ?? "");
+    if (
+      Number.isFinite(deadlineAt) &&
+      heartbeatAt.getTime() >= deadlineAt
+    ) {
+      throw new WorkflowEngineError(
+        "WORK_ITEM_TIME_BUDGET_EXCEEDED",
+        "WorkOrder의 단계별 time budget을 넘겨 lease를 연장할 수 없습니다.",
+        {
+          work_order_id: workOrderId,
+          deadline_at: workOrder.deadline_at,
+        },
+      );
+    }
     workOrder.heartbeat_at = heartbeatAt.toISOString();
+    workOrder.heartbeat_count =
+      Number(workOrder.heartbeat_count ?? 0) + 1;
     workOrder.lease_expires_at = new Date(
-      heartbeatAt.getTime() + leaseDurationMs,
+      Number.isFinite(deadlineAt)
+        ? Math.min(
+            heartbeatAt.getTime() + leaseDurationMs,
+            deadlineAt,
+          )
+        : heartbeatAt.getTime() + leaseDurationMs,
     ).toISOString();
     await stateStore.save(state.project_id, state);
     return structuredClone({
@@ -2250,6 +2427,8 @@ export function createWorkflowEngine({
       attempt: workOrder.attempt,
       fencing_token: workOrder.fencing_token,
       heartbeat_at: workOrder.heartbeat_at,
+      heartbeat_count: workOrder.heartbeat_count,
+      deadline_at: workOrder.deadline_at ?? null,
       lease_expires_at: workOrder.lease_expires_at,
     });
   }
@@ -2481,6 +2660,33 @@ export function createWorkflowEngine({
         "ResultEnvelope attempt가 현재 lease와 다릅니다.",
       );
     }
+    const submittedAtMs = nowDate().getTime();
+    const deadlineAtMs = Date.parse(workOrder.deadline_at ?? "");
+    if (
+      Number.isFinite(deadlineAtMs) &&
+      submittedAtMs > deadlineAtMs
+    ) {
+      throw new WorkflowEngineError(
+        "WORK_ITEM_TIME_BUDGET_EXCEEDED",
+        "단계별 time budget을 넘긴 결과는 현재 frontier에 제출할 수 없습니다.",
+      );
+    }
+    const heartbeatIntervalMs =
+      workOrder.heartbeat_policy?.interval_ms;
+    const leasedAtMs = Date.parse(workOrder.leased_at ?? "");
+    if (
+      workOrder.heartbeat_policy?.required === true &&
+      Number.isFinite(heartbeatIntervalMs) &&
+      Number.isFinite(leasedAtMs) &&
+      submittedAtMs - leasedAtMs >
+        heartbeatIntervalMs * 2 &&
+      !Number.isFinite(Date.parse(workOrder.heartbeat_at ?? ""))
+    ) {
+      throw new WorkflowEngineError(
+        "WORK_ITEM_HEARTBEAT_REQUIRED",
+        "장기 G2/G3 item은 heartbeat 없이 완료 처리할 수 없습니다.",
+      );
+    }
     if (resultEnvelope.input_set_digest !== workOrder.input_set_digest) {
       throw new WorkflowEngineError(
         "INPUT_SET_DIGEST_MISMATCH",
@@ -2541,13 +2747,38 @@ export function createWorkflowEngine({
       workOrder.allowed_output_variants?.length > 0
         ? workOrder.allowed_output_variants.map(sorted)
         : [sorted(workOrder.expected_output_types)];
-    const outputMatches = allowedTypeSets.some(
+    const exactOutputMatches = allowedTypeSets.some(
       (expectedTypes) =>
         actualTypes.length === expectedTypes.length &&
         actualTypes.every(
           (type, index) => type === expectedTypes[index],
         ),
     );
+    const stageDefinition = definitions.get(workOrder.stage_id);
+    const repeatedFanOutMatches =
+      Boolean(stageDefinition?.fan_out_key) &&
+      allowedTypeSets.some((expectedTypes) => {
+        if (
+          expectedTypes.length === 0 ||
+          actualTypes.length < expectedTypes.length ||
+          actualTypes.length % expectedTypes.length !== 0
+        ) {
+          return false;
+        }
+        const repetitionCount =
+          actualTypes.length / expectedTypes.length;
+        const repeatedExpected = sorted(
+          Array.from(
+            { length: repetitionCount },
+            () => expectedTypes,
+          ).flat(),
+        );
+        return actualTypes.every(
+          (type, index) => type === repeatedExpected[index],
+        );
+      });
+    const outputMatches =
+      exactOutputMatches || repeatedFanOutMatches;
     if (!outputMatches) {
       throw new WorkflowEngineError(
         "OUTPUT_TYPE_MISMATCH",
@@ -2718,6 +2949,164 @@ export function createWorkflowEngine({
     );
   }
 
+  function createApprovalChallenge(state, userGate, inputs) {
+    const challenge = {
+      challenge_id: `challenge-${randomUUID()}`,
+      project_id: state.project_id,
+      stage_id: userGate.stage_id,
+      nonce: `nonce-${randomUUID()}`,
+      subject_artifact_ids: inputs.map(
+        (artifact) => artifact.artifact_id,
+      ),
+      subject_artifact_set_digest: artifactSetDigest(
+        workOrderInputRefs(inputs),
+      ),
+      status: "awaiting_user",
+      created_at: nowDate().toISOString(),
+    };
+    state.challenges[challenge.challenge_id] = challenge;
+    state.stages[userGate.stage_id].status = "awaiting_user";
+    return challenge;
+  }
+
+  function autoApprovePlanOnceGate(
+    state,
+    userGate,
+    challenge,
+    inputs,
+    fastPath,
+  ) {
+    const selectedCandidates = inputs.flatMap((artifact) => [
+      ...(artifact?.candidates ?? []),
+      ...(artifact?.candidate_records ?? []),
+    ]);
+    const selectedCandidateIds = selectedCandidates
+      .map((candidate) => candidate?.candidate_id)
+      .filter(Boolean);
+    const productionPlan = freshArtifacts(state).find(
+      (artifact) => artifact.type === "production.plan",
+    );
+    const manualPlanApproval = freshArtifacts(state).find(
+      (artifact) =>
+        artifact.type === "decision.plan_approval" &&
+        artifact.produced_by_stage === PLAN_ONCE_MANUAL_GATE,
+    );
+    const decisionProof = {
+      project_ref: {
+        project_id: state.project_id,
+        input_digest: state.input_digest,
+        agent_session_id: PLAN_ONCE_AUTO_APPROVER_SESSION,
+      },
+      nonce: challenge.nonce,
+      subject_artifact_set_digest:
+        challenge.subject_artifact_set_digest,
+      decision: "approved",
+      decision_id: `auto-${userGate.stage_id.toLowerCase()}-${sha256(
+        challenge.subject_artifact_set_digest,
+      ).slice(0, 12)}`,
+      reason:
+        "검증된 input/product 원본 사진과 사용자 승인 G1 ProductionPlan에 따른 자동 진행",
+      decided_by: "plan-once-fast-path-policy",
+      approval_channel: "policy_auto_after_plan",
+      policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
+      automatic: true,
+      phase: fastPath.phase,
+      source_plan_approval_artifact_id:
+        manualPlanApproval?.artifact_id ?? null,
+      subject_plan_sha256:
+        productionPlan?.manifest_sha256 ?? null,
+      selection_mode:
+        userGate.stage_id === "G1DQ_SELECTION"
+          ? "all_verified_candidates"
+          : null,
+      selected_candidate_ids:
+        userGate.stage_id === "G1DQ_SELECTION"
+          ? [...new Set(selectedCandidateIds)].sort()
+          : [],
+    };
+    const producerSessionIds = new Set(
+      inputs
+        .map((artifact) => artifact.producer_agent_session_id)
+        .filter(Boolean),
+    );
+    if (producerSessionIds.has(PLAN_ONCE_AUTO_APPROVER_SESSION)) {
+      throw new WorkflowEngineError(
+        "AUTO_APPROVER_PRODUCER_NOT_SEPARATED",
+        "plan-once 자동 승인자는 대상 산출물 producer와 달라야 합니다.",
+        { stage_id: userGate.stage_id },
+      );
+    }
+
+    state.used_nonces.push(challenge.nonce);
+    challenge.status = "approved";
+    challenge.auto_approved = true;
+    challenge.decided_at = nowDate().toISOString();
+    challenge.decision_proof = structuredClone(decisionProof);
+    const graph = new ArtifactGraph(state.graph);
+    const artifactId = `decision-${userGate.stage_id.toLowerCase()}-${sha256(
+      JSON.stringify(decisionProof),
+    ).slice(0, 12)}`;
+    const marketCandidateSet = inputs.find(
+      (artifact) =>
+        artifact.type === "market.competitor_candidates",
+    );
+    const marketSelectionFields =
+      userGate.stage_id === "G1DQ_SELECTION"
+        ? {
+            artifact_type: "market.competitor_selection",
+            selection_receipt_id: decisionProof.decision_id,
+            selected_candidates: structuredClone(
+              selectedCandidates,
+            ),
+            candidate_set_digest:
+              marketCandidateSet?.candidate_set_digest ??
+              marketCandidateSet?.manifest_sha256 ??
+              null,
+            discovery_id:
+              marketCandidateSet?.discovery_id ?? null,
+          }
+        : {};
+    graph.addArtifact(
+      {
+        artifact_id: artifactId,
+        type: userGate.produces[0],
+        manifest_sha256: sha256(JSON.stringify(decisionProof)),
+        member_ids: ["decision.json"],
+        produced_by_stage: userGate.stage_id,
+        producer_agent_session_id:
+          PLAN_ONCE_AUTO_APPROVER_SESSION,
+        approval_receipt: structuredClone(decisionProof),
+        approval_policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
+        ...marketSelectionFields,
+      },
+      challenge.subject_artifact_ids.map((artifactId) => ({
+        from: artifactId,
+        relation: "evidence_for",
+      })),
+    );
+    state.graph = graph.snapshot();
+    state.stages[userGate.stage_id].status = "approved";
+    state.flags ??= {};
+    const previous =
+      state.flags.plan_once_fast_path?.auto_approved_stage_ids ?? [];
+    state.flags.plan_once_fast_path = {
+      policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
+      actual_product_photos_verified: true,
+      manual_plan_approval_verified:
+        hasManualPlanApproval(state),
+      auto_approved_stage_ids: [
+        ...new Set([...previous, userGate.stage_id]),
+      ],
+      last_auto_approved_at: challenge.decided_at,
+    };
+    return {
+      stage_id: userGate.stage_id,
+      decision_artifact_id: artifactId,
+      policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
+      phase: fastPath.phase,
+    };
+  }
+
   async function advance(projectRef, options = {}) {
     const state = await loadOrCreate(projectRef);
     const notifications = emitMissingPhotoNotice(
@@ -2732,68 +3121,133 @@ export function createWorkflowEngine({
         noticePersisted = true;
       }
     };
-    const ready = readyStages(state, definition);
-    const userGate = definition.stages.find(
-      (item) => item.user_gate && ready.includes(item.stage_id),
-    );
-    if (userGate) {
-      let challenge = Object.values(state.challenges).find(
-        (entry) =>
-          entry.stage_id === userGate.stage_id &&
-          entry.status === "awaiting_user",
-      );
-      if (!challenge) {
+    const autoApprovals = [];
+    while (true) {
+      const ready = readyStages(state, definition);
+      const awaitingChallenge = Object.values(
+        state.challenges,
+      ).find((entry) => entry.status === "awaiting_user");
+      const userGate = awaitingChallenge
+        ? definitions.get(awaitingChallenge.stage_id)
+        : definition.stages.find(
+            (item) =>
+              item.user_gate &&
+              ready.includes(item.stage_id),
+          );
+      if (userGate) {
+        const fastPath = planOnceFastPathDecision(
+          state,
+          userGate.stage_id,
+        );
+        const workReady = ready.filter(
+          (stageId) => !definitions.get(stageId).user_gate,
+        );
+        const photoIntakeStatus =
+          state.stages.G0B_PHOTO?.status;
+        if (
+          fastPath.reason ===
+            "verified_actual_product_photos_required" &&
+          PLAN_ONCE_PRE_PLAN_AUTO_GATES.has(userGate.stage_id) &&
+          ["pending", "running"].includes(photoIntakeStatus)
+        ) {
+          await persistNotice();
+          return workReady.length > 0
+            ? {
+                kind: "WorkAvailable",
+                until:
+                  options.until ?? "next_user_gate",
+                ready_stages: workReady,
+                notifications,
+                auto_approvals: autoApprovals,
+                deferred_user_gate: userGate.stage_id,
+              }
+            : {
+                kind: "Waiting",
+                ready_stages: [],
+                notifications,
+                auto_approvals: autoApprovals,
+                deferred_user_gate: userGate.stage_id,
+              };
+        }
+        let challenge =
+          awaitingChallenge?.stage_id === userGate.stage_id
+            ? awaitingChallenge
+            : Object.values(state.challenges).find(
+                (entry) =>
+                  entry.stage_id === userGate.stage_id &&
+                  entry.status === "awaiting_user",
+              );
         const inputs = stageInputs(
           state,
           definition,
           userGate.stage_id,
         );
-        challenge = {
-          challenge_id: `challenge-${randomUUID()}`,
-          project_id: state.project_id,
-          stage_id: userGate.stage_id,
-          nonce: `nonce-${randomUUID()}`,
-          subject_artifact_ids: inputs.map(
-            (artifact) => artifact.artifact_id,
-          ),
-          subject_artifact_set_digest: artifactSetDigest(
-            workOrderInputRefs(inputs),
-          ),
-          status: "awaiting_user",
-          created_at: new Date().toISOString(),
-        };
-        state.challenges[challenge.challenge_id] = challenge;
-        state.stages[userGate.stage_id].status = "awaiting_user";
+        if (!challenge) {
+          challenge = createApprovalChallenge(
+            state,
+            userGate,
+            inputs,
+          );
+        }
+        if (fastPath.auto_approve) {
+          autoApprovals.push(
+            autoApprovePlanOnceGate(
+              state,
+              userGate,
+              challenge,
+              inputs,
+              fastPath,
+            ),
+          );
+          await stateStore.save(state.project_id, state);
+          noticePersisted = true;
+          continue;
+        }
         await stateStore.save(state.project_id, state);
         noticePersisted = true;
+        await persistNotice();
+        return {
+          kind: "AwaitUser",
+          stage_id: userGate.stage_id,
+          challenge: structuredClone(challenge),
+          notifications,
+          auto_approvals: autoApprovals,
+        };
       }
+      const workReady = ready.filter(
+        (stageId) => !definitions.get(stageId).user_gate,
+      );
+      if (workReady.length > 0) {
+        await persistNotice();
+        return {
+          kind: "WorkAvailable",
+          until: options.until ?? "next_user_gate",
+          ready_stages: workReady,
+          notifications,
+          auto_approvals: autoApprovals,
+        };
+      }
+      const unfinished = Object.values(state.stages).some(
+        (entry) =>
+          ["pending", "running", "awaiting_user"].includes(
+            entry.status,
+          ),
+      );
       await persistNotice();
-      return {
-        kind: "AwaitUser",
-        stage_id: userGate.stage_id,
-        challenge: structuredClone(challenge),
-        notifications,
-      };
+      return unfinished
+        ? {
+            kind: "Waiting",
+            ready_stages: [],
+            notifications,
+            auto_approvals: autoApprovals,
+          }
+        : {
+            kind: "Complete",
+            ready_stages: [],
+            notifications,
+            auto_approvals: autoApprovals,
+          };
     }
-    const workReady = ready.filter(
-      (stageId) => !definitions.get(stageId).user_gate,
-    );
-    if (workReady.length > 0) {
-      await persistNotice();
-      return {
-        kind: "WorkAvailable",
-        until: options.until ?? "next_user_gate",
-        ready_stages: workReady,
-        notifications,
-      };
-    }
-    const unfinished = Object.values(state.stages).some((entry) =>
-      ["pending", "running", "awaiting_user"].includes(entry.status),
-    );
-    await persistNotice();
-    return unfinished
-      ? { kind: "Waiting", ready_stages: [], notifications }
-      : { kind: "Complete", ready_stages: [], notifications };
   }
 
   async function resume(projectRef, options = {}) {

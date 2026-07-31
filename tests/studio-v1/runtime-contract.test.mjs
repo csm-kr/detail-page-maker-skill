@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {
+  access,
   mkdtemp,
   readFile,
   rm,
@@ -54,7 +55,7 @@ test("공개 runtime과 신규 template에는 deliverables/index.html 경로가 
   );
 });
 
-test("새 프로젝트에는 노바페이스 기반 Studio v1 편집기와 승인 작업면이 들어간다", async () => {
+test("새 프로젝트는 공용 Studio runtime을 복제하지 않고 편집 원본만 가진다", async () => {
   const temporaryRoot = await mkdtemp(
     path.join(os.tmpdir(), "detail-page-studio-v1-runtime-"),
   );
@@ -65,11 +66,20 @@ test("새 프로젝트에는 노바페이스 기반 Studio v1 편집기와 승�
       root: temporaryRoot,
     });
     const [studio, studioScript, app, index] = await Promise.all([
-      readFile(path.join(created.projectRoot, ".detail-page/studio/studio.html"), "utf8"),
-      readFile(path.join(created.projectRoot, ".detail-page/studio/studio-v1.js"), "utf8"),
-      readFile(path.join(created.projectRoot, ".detail-page/studio/app.js"), "utf8"),
+      repositoryFile(
+        "skills/detail-page-maker-skill/assets/studio-v1-runtime/studio.html",
+      ),
+      repositoryFile(
+        "skills/detail-page-maker-skill/assets/studio-v1-runtime/studio-v1.js",
+      ),
+      repositoryFile(
+        "skills/detail-page-maker-skill/assets/studio-v1-runtime/app.js",
+      ),
       readFile(path.join(created.projectRoot, ".detail-page/authoring/detail-page.html"), "utf8"),
     ]);
+    await assert.rejects(
+      access(path.join(created.projectRoot, ".detail-page", "studio")),
+    );
 
     assert.match(studio, /data-studio-view="edit"/);
     assert.match(studio, /data-studio-view="approval"/);

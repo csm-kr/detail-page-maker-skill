@@ -1,4 +1,10 @@
 import DETAIL_PAGE_FLOW_POLICY from "../../policies/detail-page-flow-v1.json" with { type: "json" };
+import {
+  CATEGORY_REFERENCE_LIBRARY_SHA256,
+  CATEGORY_REFERENCE_QA_DIMENSIONS,
+  getCategoryReferenceLibrary,
+  validateCategoryReferenceProfile,
+} from "./category-reference-library.mjs";
 
 const STABLE_ID = Object.freeze({
   claim: /^claim-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/,
@@ -43,6 +49,69 @@ const RULE_ID = Object.freeze({
   taste: /^TR-\d{3}$/,
   motion: /^MR-\d{3}$/,
 });
+const REFERENCE_ROLES = new Set([
+  "current_output",
+  "positive_reference",
+  "negative_reference",
+  "approved_exemplar",
+]);
+const REFERENCE_DECISIONS = new Set(["adopt", "adapt", "reject"]);
+const CLAIM_TYPES = new Set([
+  "product_identity",
+  "specification",
+  "usage_condition",
+  "observable_structure",
+  "manufacturer_claim",
+  "verified_efficacy",
+]);
+const IMAGE_ROLES = new Set([
+  "hero",
+  "desire",
+  "pain",
+  "core_feature",
+  "mechanism",
+  "usage",
+  "outcome",
+  "comparison",
+  "specification",
+  "decision_recap",
+]);
+const IMAGE_SCENE_KINDS = new Set([
+  "isolated_product",
+  "contextual_use",
+  "mechanism_macro",
+  "outcome_context",
+  "comparison",
+  "specification",
+]);
+const PRODUCT_VIEWS = new Set([
+  "top",
+  "bottom",
+  "side",
+  "front",
+  "back",
+  "detail",
+  "in_use",
+  "not_applicable",
+]);
+const MOTION_METHODS = new Set([
+  "imagegen-seq",
+  "heygenframe",
+  "hybrid",
+]);
+const MOTION_OUTPUT_FORMATS = new Set([
+  "gif",
+  "animated-webp",
+  "gif+animated-webp",
+]);
+const REQUIRED_REFERENCE_QA_DIMENSIONS = Object.freeze([
+  "desire_formation",
+  "observable_differentiation",
+  "scene_diversity",
+  "motion_semantic_delta",
+  "delivery_780",
+  "decision_close",
+]);
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -579,6 +648,98 @@ export class ProductionPlanContractError extends Error {
   }
 }
 
+function appendReferenceArtifactSetErrors(plan, addError) {
+  const artifactSet = plan?.reference_artifact_set;
+  const artifacts = asArray(artifactSet?.artifacts);
+  const matrix = asArray(artifactSet?.adoption_matrix);
+  if (!isObject(artifactSet) || artifacts.length === 0) {
+    addError(
+      "REFERENCE_ARTIFACT_SET_REQUIRED",
+      "reference_artifact_set",
+      "기존 output 또는 사용자 기준작을 profile한 ReferenceArtifactSet이 필요합니다.",
+    );
+    return;
+  }
+  if (!isSha256(artifactSet?.profile_set_sha256)) {
+    addError(
+      "REFERENCE_PROFILE_DIGEST_REQUIRED",
+      "reference_artifact_set.profile_set_sha256",
+      "ReferenceArtifactSet은 profiler가 만든 exact profile set SHA-256을 가져야 합니다.",
+    );
+  }
+  const referenceIds = artifacts.map((artifact) => artifact?.reference_id);
+  if (
+    unique(referenceIds).length !== referenceIds.length ||
+    artifacts.some(
+      (artifact) =>
+        !isNonEmptyString(artifact?.reference_id) ||
+        !REFERENCE_ROLES.has(artifact?.role) ||
+        artifact?.rights !== "research_only" ||
+        artifact?.artifact?.media_type !== "text/html" ||
+        !isNonEmptyString(artifact?.artifact?.locator) ||
+        !Number.isInteger(artifact?.artifact?.size_bytes) ||
+        artifact.artifact.size_bytes <= 0 ||
+        !isSha256(artifact?.artifact?.sha256) ||
+        !isObject(artifact?.profile) ||
+        !Number.isInteger(artifact?.profile?.section_count) ||
+        artifact.profile.section_count < 0 ||
+        !Number.isInteger(artifact?.profile?.image_reference_count) ||
+        artifact.profile.image_reference_count < 0 ||
+        !Number.isInteger(artifact?.profile?.motion_reference_count) ||
+        artifact.profile.motion_reference_count < 0 ||
+        !Array.isArray(artifact?.profile?.section_density_curve) ||
+        !Array.isArray(artifact?.profile?.section_role_sequence) ||
+        !Array.isArray(artifact?.profile?.width_hints_px),
+    )
+  ) {
+    addError(
+      "REFERENCE_ARTIFACT_INVALID",
+      "reference_artifact_set.artifacts",
+      "Reference artifact는 역할, research-only 권리, HTML bytes/hash와 구조 profile을 가져야 합니다.",
+    );
+  }
+  if (!artifacts.some((artifact) => artifact?.role === "current_output")) {
+    addError(
+      "CURRENT_OUTPUT_BASELINE_REQUIRED",
+      "reference_artifact_set.artifacts",
+      "기존 output/detail-page.html을 current_output baseline으로 등록해야 합니다.",
+    );
+  }
+  const matrixReferences = new Set();
+  matrix.forEach((entry, index) => {
+    const path = `reference_artifact_set.adoption_matrix[${index}]`;
+    if (
+      !referenceIds.includes(entry?.reference_id) ||
+      !isNonEmptyString(entry?.trait) ||
+      !REFERENCE_DECISIONS.has(entry?.decision) ||
+      !isNonEmptyString(entry?.reason) ||
+      !Array.isArray(entry?.target_section_ids) ||
+      (entry?.decision !== "reject" &&
+        entry.target_section_ids.length === 0)
+    ) {
+      addError(
+        "REFERENCE_ADOPTION_DECISION_INVALID",
+        path,
+        "각 reference trait는 adopt/adapt/reject 결정, 이유, 적용 section을 가져야 합니다.",
+      );
+    }
+    if (isNonEmptyString(entry?.reference_id)) {
+      matrixReferences.add(entry.reference_id);
+    }
+  });
+  const missingDecisions = referenceIds.filter(
+    (referenceId) => !matrixReferences.has(referenceId),
+  );
+  if (matrix.length === 0 || missingDecisions.length > 0) {
+    addError(
+      "REFERENCE_ADOPTION_MATRIX_INCOMPLETE",
+      "reference_artifact_set.adoption_matrix",
+      "모든 current/reference artifact의 채택·변형·거절 판단이 필요합니다.",
+      { missing_reference_ids: missingDecisions },
+    );
+  }
+}
+
 export function validateProductionPlan(plan, context = {}) {
   const errors = [];
   const orphans = new Set();
@@ -593,6 +754,8 @@ export function validateProductionPlan(plan, context = {}) {
   }
 
   const requiredParts = [
+    "reference_artifact_set",
+    "category_reference_profile",
     "claim_graph",
     "section_graph_draft",
     "image_job_set",
@@ -615,7 +778,48 @@ export function validateProductionPlan(plan, context = {}) {
   const imageJobs = asArray(plan?.image_job_set?.jobs);
   const gifBriefs = asArray(plan?.gif_brief_set?.briefs);
 
+  appendReferenceArtifactSetErrors(plan, addError);
   appendCommercialFlowErrors(plan, gifBriefs, addError);
+
+  const heroClaimIds = asArray(
+    plan?.commercial_flow?.hero?.primary_benefit_claim_ids,
+  );
+  const heroClaims = heroClaimIds
+    .map((claimId) =>
+      claims.find((claim) => claim?.claim_id === claimId),
+    )
+    .filter(Boolean);
+  if (
+    heroClaims.length !== 1 ||
+    heroClaims.some(
+      (claim) =>
+        ["product_identity", "specification"].includes(
+          claim?.claim_type,
+        ) ||
+        !isNonEmptyString(claim?.customer_benefit_statement) ||
+        !isNonEmptyString(claim?.evidence_boundary_statement),
+    )
+  ) {
+    addError(
+      "HERO_CUSTOMER_BENEFIT_REQUIRED",
+      "commercial_flow.hero.primary_benefit_claim_ids",
+      "Hero는 소재명·검증 절차 자체가 아니라 근거 경계가 있는 고객 구매 이유 하나를 말해야 합니다.",
+    );
+  }
+  const decisionRecap = plan?.commercial_flow?.decision_recap;
+  if (
+    !isObject(decisionRecap) ||
+    !isNonEmptyString(decisionRecap?.section_id) ||
+    !isNonEmptyString(decisionRecap?.customer_outcome) ||
+    !isNonEmptyString(decisionRecap?.selection_reason) ||
+    decisionRecap?.risk_only !== false
+  ) {
+    addError(
+      "DECISION_RECAP_PURCHASE_CLOSE_REQUIRED",
+      "commercial_flow.decision_recap",
+      "마지막 section은 위험 확인만 반복하지 않고 고객 결과와 선택 이유로 구매 질문을 닫아야 합니다.",
+    );
+  }
 
   const provenance = plan?.provenance;
   const ssotBinding = provenance?.product_ssot;
@@ -652,7 +856,12 @@ export function validateProductionPlan(plan, context = {}) {
   const validRuleBinding = (binding, pattern) =>
     isObject(binding) &&
     pattern.test(String(binding.rule_id || "")) &&
-    isSha256(binding.rule_sha256);
+    isSha256(binding.rule_sha256) &&
+    asArray(binding.target_ids).length > 0 &&
+    asArray(binding.target_ids).every(isNonEmptyString) &&
+    isNonEmptyString(binding.required_effect) &&
+    asArray(binding.acceptance_check_ids).length > 0 &&
+    asArray(binding.acceptance_check_ids).every(isNonEmptyString);
   const invalidRuleTrace =
     commercialRules.length === 0 ||
     tasteRules.length === 0 ||
@@ -670,7 +879,7 @@ export function validateProductionPlan(plan, context = {}) {
     addError(
       "PLAN_RULE_TRACE_INVALID",
       "provenance.applied_rules",
-      "기획은 CR/TR rule ID를, GIF가 있으면 MR rule ID도 KnowledgeSnapshot에 추적해야 합니다.",
+      "CR/TR/MR은 rule ID/hash뿐 아니라 target, required effect, acceptance check에 실행 바인딩해야 합니다.",
     );
   }
   if (context.knowledgeSnapshot) {
@@ -819,6 +1028,85 @@ export function validateProductionPlan(plan, context = {}) {
       }
     });
     indexes[collection.name] = index;
+  }
+
+  const executableTargetIds = new Set([
+    ...indexes.section.keys(),
+    ...indexes.slot.keys(),
+    ...indexes.image_job.keys(),
+    ...indexes.gif_brief.keys(),
+    "reference-artifact-set",
+    "planning-doc:COMMERCIAL.md",
+    "planning-doc:DESIGN.md",
+    "planning-doc:BUYER-JOURNEY.md",
+    "planning-doc:GIF.md",
+    "public-output:detail-page.html",
+    "public-output:media",
+    "public-output:manifest",
+  ]);
+  const categoryReferenceValidation =
+    validateCategoryReferenceProfile(
+      plan?.category_reference_profile,
+      {
+        sectionIds: [...indexes.section.keys()],
+        imageJobs,
+        gifBriefs,
+      },
+    );
+  for (const error of categoryReferenceValidation.errors) {
+    addError(
+      error.code,
+      error.path,
+      error.message,
+      error.details,
+    );
+  }
+  asArray(plan?.reference_artifact_set?.adoption_matrix).forEach(
+    (entry, entryIndex) => {
+      const unknownSections = asArray(entry?.target_section_ids).filter(
+        (sectionId) => !indexes.section.has(sectionId),
+      );
+      if (unknownSections.length > 0) {
+        addError(
+          "REFERENCE_ADOPTION_SECTION_NOT_FOUND",
+          `reference_artifact_set.adoption_matrix[${entryIndex}].target_section_ids`,
+          "Reference 채택 판단은 실제 ProductionPlan section에 연결되어야 합니다.",
+          { unknown_section_ids: unknownSections },
+        );
+      }
+    },
+  );
+  for (const [kind, bindings] of [
+    ["commercial", commercialRules],
+    ["taste", tasteRules],
+    ["motion", motionRules],
+  ]) {
+    bindings.forEach((binding, bindingIndex) => {
+      const path = `provenance.applied_rules.${kind}[${bindingIndex}]`;
+      const unknownTargets = asArray(binding?.target_ids).filter(
+        (targetId) => !executableTargetIds.has(targetId),
+      );
+      if (unknownTargets.length > 0) {
+        addError(
+          "RULE_TARGET_NOT_FOUND",
+          `${path}.target_ids`,
+          "적용 규칙의 target은 실제 section/job/brief/planning/public-output 계약이어야 합니다.",
+          { unknown_target_ids: unknownTargets },
+        );
+      }
+      if (
+        kind === "motion" &&
+        !asArray(binding?.target_ids).some((targetId) =>
+          indexes.gif_brief.has(targetId),
+        )
+      ) {
+        addError(
+          "MOTION_RULE_BRIEF_BINDING_REQUIRED",
+          `${path}.target_ids`,
+          "MR 규칙은 하나 이상의 실제 gif brief에 직접 연결되어야 합니다.",
+        );
+      }
+    });
   }
 
   function checkReferenceList({
@@ -1050,6 +1338,45 @@ export function validateProductionPlan(plan, context = {}) {
   });
 
   claims.forEach((claim, claimIndex) => {
+    const path = `claim_graph.claims[${claimIndex}]`;
+    if (!CLAIM_TYPES.has(claim?.claim_type)) {
+      addError(
+        "CLAIM_TYPE_REQUIRED",
+        `${path}.claim_type`,
+        "claim은 identity/specification/usage 또는 observable_structure/manufacturer_claim/verified_efficacy 경계를 명시해야 합니다.",
+      );
+    }
+    if (
+      claim?.claim_type === "observable_structure" &&
+      (!isNonEmptyString(claim?.observation_scope) ||
+        claim?.effect_claim_allowed !== false)
+    ) {
+      addError(
+        "OBSERVABLE_STRUCTURE_BOUNDARY_REQUIRED",
+        path,
+        "관찰 구조 claim은 실제 보이는 부위 범위를 적고 검증되지 않은 효과 연결을 금지해야 합니다.",
+      );
+    }
+    if (
+      claim?.claim_type === "manufacturer_claim" &&
+      !isNonEmptyString(claim?.source_conditions)
+    ) {
+      addError(
+        "MANUFACTURER_CLAIM_CONDITIONS_REQUIRED",
+        `${path}.source_conditions`,
+        "제조사 주장은 원문 적용 조건을 가져야 합니다.",
+      );
+    }
+    if (
+      claim?.claim_type === "verified_efficacy" &&
+      asArray(claim?.verification_artifact_ids).length === 0
+    ) {
+      addError(
+        "VERIFIED_EFFICACY_EVIDENCE_REQUIRED",
+        `${path}.verification_artifact_ids`,
+        "효능·정량 claim은 독립 검증 artifact에 직접 연결되어야 합니다.",
+      );
+    }
     if (
       asArray(claim?.fact_ids).length === 0 ||
       asArray(claim?.evidence_asset_ids).length === 0 ||
@@ -1061,6 +1388,23 @@ export function validateProductionPlan(plan, context = {}) {
       orphans.add(`claim:${claim?.claim_id ?? claimIndex}`);
     }
   });
+
+  for (let index = 1; index < gifBriefs.length; index += 1) {
+    const previous = gifBriefs[index - 1];
+    const current = gifBriefs[index];
+    if (
+      isNonEmptyString(previous?.semantic_contract?.pattern_id) &&
+      previous.semantic_contract.pattern_id ===
+        current?.semantic_contract?.pattern_id &&
+      !isNonEmptyString(current?.semantic_contract?.pattern_reuse_reason)
+    ) {
+      addError(
+        "ADJACENT_MOTION_PATTERN_REUSE_FORBIDDEN",
+        `gif_brief_set.briefs[${index}].semantic_contract.pattern_id`,
+        "인접 motion은 같은 패턴을 반복하지 않으며 필요한 경우 구체적인 재사용 사유를 적어야 합니다.",
+      );
+    }
+  }
 
   imageJobs.forEach((job, jobIndex) => {
     const path = `image_job_set.jobs[${jobIndex}]`;
@@ -1165,7 +1509,108 @@ export function validateProductionPlan(plan, context = {}) {
         "candidate_count는 명시적인 1~8 정수여야 합니다.",
       );
     }
+    const visual = job?.visual_contract;
+    const productViews = asArray(visual?.product_views);
+    const appliedRuleIds = asArray(job?.applied_rule_ids);
+    const allowedImageRuleIds = new Set([
+      ...commercialRules.map((binding) => binding?.rule_id),
+      ...tasteRules.map((binding) => binding?.rule_id),
+    ]);
+    const imageRuleBindings = [...commercialRules, ...tasteRules];
+    if (
+      !isObject(visual) ||
+      !IMAGE_ROLES.has(visual?.role) ||
+      !IMAGE_SCENE_KINDS.has(visual?.scene_kind) ||
+      productViews.length === 0 ||
+      productViews.some((view) => !PRODUCT_VIEWS.has(view)) ||
+      !isNonEmptyString(visual?.usage_context) ||
+      !isNonEmptyString(visual?.lighting) ||
+      !isNonEmptyString(visual?.background) ||
+      !Number.isInteger(visual?.product_occupancy_percent) ||
+      visual.product_occupancy_percent < 25 ||
+      visual.product_occupancy_percent > 90 ||
+      !isNonEmptyString(visual?.differentiation_goal)
+    ) {
+      addError(
+        "IMAGE_VISUAL_CONTRACT_REQUIRED",
+        `${path}.visual_contract`,
+        "이미지 job은 역할·장면·제품 면·사용 맥락·조명·배경·점유율·차별화 목표를 가져야 합니다.",
+      );
+    }
+    if (
+      ["hero", "core_feature"].includes(visual?.role) &&
+      (!Number.isInteger(job?.candidate_count) ||
+        job.candidate_count < 2)
+    ) {
+      addError(
+        "CORE_IMAGE_CANDIDATE_MINIMUM",
+        `${path}.candidate_count`,
+        "Hero와 핵심 기능 이미지는 비교 가능한 후보가 2개 이상이어야 합니다.",
+      );
+    }
+    if (
+      appliedRuleIds.length === 0 ||
+      appliedRuleIds.some((ruleId) => !allowedImageRuleIds.has(ruleId)) ||
+      appliedRuleIds.some(
+        (ruleId) =>
+          !imageRuleBindings.some(
+            (binding) =>
+              binding?.rule_id === ruleId &&
+              asArray(binding?.target_ids).includes(job?.job_id),
+          ),
+      )
+    ) {
+      addError(
+        "IMAGE_RULE_EFFECT_BINDING_REQUIRED",
+        `${path}.applied_rule_ids`,
+        "각 image job은 자신을 target으로 하는 CR/TR effect binding을 가져야 합니다.",
+      );
+    }
   });
+
+  const imageCoverage = plan?.image_job_set?.visual_coverage;
+  const coveredViews = new Set(
+    imageJobs.flatMap((job) =>
+      asArray(job?.visual_contract?.product_views),
+    ),
+  );
+  const coveredSceneKinds = new Set(
+    imageJobs.map((job) => job?.visual_contract?.scene_kind).filter(Boolean),
+  );
+  const requiredViews = asArray(imageCoverage?.required_product_views);
+  const requiredSceneKinds = asArray(imageCoverage?.required_scene_kinds);
+  if (
+    !isObject(imageCoverage) ||
+    requiredViews.length === 0 ||
+    requiredSceneKinds.length === 0 ||
+    requiredViews.some(
+      (view) => !PRODUCT_VIEWS.has(view) || !coveredViews.has(view),
+    ) ||
+    requiredSceneKinds.some(
+      (kind) =>
+        !IMAGE_SCENE_KINDS.has(kind) || !coveredSceneKinds.has(kind),
+    ) ||
+    !requiredSceneKinds.includes("contextual_use")
+  ) {
+    addError(
+      "IMAGE_VISUAL_COVERAGE_INCOMPLETE",
+      "image_job_set.visual_coverage",
+      "제품 면·장면 역할 coverage와 최소 한 개의 실제 사용 맥락 이미지가 필요합니다.",
+    );
+  }
+  const differentiationGoals = imageJobs
+    .map((job) => job?.visual_contract?.differentiation_goal)
+    .filter(isNonEmptyString);
+  if (
+    differentiationGoals.length !==
+    unique(differentiationGoals).length
+  ) {
+    addError(
+      "IMAGE_DIFFERENTIATION_GOAL_REUSED",
+      "image_job_set.jobs",
+      "서로 다른 image job은 같은 차별화 목표와 구도를 반복할 수 없습니다.",
+    );
+  }
 
   gifBriefs.forEach((brief, briefIndex) => {
     const path = `gif_brief_set.briefs[${briefIndex}]`;
@@ -1186,6 +1631,67 @@ export function validateProductionPlan(plan, context = {}) {
         "GIF_MOTION_NECESSITY_REQUIRED",
         `${path}.motion_necessity`,
         "GIF는 시간축이 필요한 이유와 정지 이미지의 한계를 명시해야 합니다.",
+      );
+    }
+    const semantic = brief?.semantic_contract;
+    const appliedMotionRuleIds = asArray(brief?.applied_rule_ids);
+    const allowedMotionRuleIds = new Set(
+      motionRules.map((binding) => binding?.rule_id),
+    );
+    if (
+      !isObject(semantic) ||
+      !isNonEmptyString(semantic?.customer_question) ||
+      !isNonEmptyString(semantic?.feature_part) ||
+      !MOTION_METHODS.has(semantic?.method) ||
+      !isNonEmptyString(semantic?.pattern_id) ||
+      !isNonEmptyString(semantic?.start_state) ||
+      !isNonEmptyString(semantic?.mid_state) ||
+      !isNonEmptyString(semantic?.end_state) ||
+      semantic?.start_state === semantic?.end_state ||
+      !isNonEmptyString(semantic?.visible_delta) ||
+      semantic?.overlay_only !== false ||
+      !isNonEmptyString(semantic?.background_contrast) ||
+      !Number.isFinite(semantic?.answer_within_seconds) ||
+      semantic.answer_within_seconds <= 0 ||
+      semantic.answer_within_seconds > 2 ||
+      semantic?.canvas?.width !== 780 ||
+      !Number.isInteger(semantic?.canvas?.height) ||
+      semantic.canvas.height <= 0 ||
+      ![15, 24, 30, 60].includes(semantic?.fps) ||
+      !Number.isFinite(semantic?.duration_seconds) ||
+      semantic.duration_seconds <= 0 ||
+      semantic.duration_seconds > 8 ||
+      !MOTION_OUTPUT_FORMATS.has(semantic?.output_format) ||
+      !["chapter", "full-width"].includes(semantic?.placement_scale) ||
+      !isSha256(brief?.reference_profile_digest) ||
+      brief.reference_profile_digest !==
+        plan?.reference_artifact_set?.profile_set_sha256 ||
+      !isSha256(brief?.knowledge_rule_packet_digest)
+    ) {
+      addError(
+        "GIF_SEMANTIC_CONTRACT_REQUIRED",
+        `${path}.semantic_contract`,
+        "GIF는 구매 질문, 기능 부위, 방식, 시작·중간·끝 상태, visible delta, 2초 내 답, 780 canvas, fps·형식·chapter 배치를 명시해야 합니다.",
+      );
+    }
+    if (
+      appliedMotionRuleIds.length === 0 ||
+      appliedMotionRuleIds.some(
+        (ruleId) => !allowedMotionRuleIds.has(ruleId),
+      ) ||
+      appliedMotionRuleIds.some(
+        (ruleId) =>
+          !motionRules.some(
+            (binding) =>
+              binding?.rule_id === ruleId &&
+              asArray(binding?.target_ids).includes(brief?.brief_id),
+          ),
+      )
+    ) {
+      addError(
+        "GIF_RULE_EFFECT_BINDING_REQUIRED",
+        `${path}.applied_rule_ids`,
+        "각 GIF brief는 자신을 target으로 하는 MR effect binding을 가져야 합니다.",
       );
     }
 
@@ -1297,6 +1803,95 @@ export function validateProductionPlan(plan, context = {}) {
       "버전 고정 rubric, SHA-256 snapshot, 97+ 목표, hard failure 0, 차원별 목표가 필요합니다.",
     );
   }
+  const missingReferenceDimensions =
+    REQUIRED_REFERENCE_QA_DIMENSIONS.filter(
+      (criterionId) => !dimensionIds.includes(criterionId),
+    );
+  const referenceComparison = rubric?.reference_comparison;
+  const referenceIds = asArray(
+    plan?.reference_artifact_set?.artifacts,
+  ).map((artifact) => artifact?.reference_id);
+  if (
+    missingReferenceDimensions.length > 0 ||
+    !isObject(referenceComparison) ||
+    !sameMembers(
+      asArray(referenceComparison?.reference_ids),
+      referenceIds,
+    ) ||
+    referenceComparison?.public_output_subject_required !== true ||
+    referenceComparison?.same_rubric_delta_required !== true
+  ) {
+    addError(
+      "REFERENCE_COMPARISON_RUBRIC_REQUIRED",
+      "rubric_target.reference_comparison",
+      "욕구·관찰 차별점·장면 다양성·motion delta·780 전달·구매 마무리를 동일 rubric으로 baseline과 비교해야 합니다.",
+      { missing_dimension_ids: missingReferenceDimensions },
+    );
+  }
+  const categoryLibrary = getCategoryReferenceLibrary();
+  const categoryComparison =
+    rubric?.category_reference_comparison;
+  const selectedCategoryReferenceIds = asArray(
+    plan?.category_reference_profile
+      ?.selected_reference_card_ids,
+  );
+  if (
+    !isObject(categoryComparison) ||
+    categoryComparison?.library_id !==
+      categoryLibrary.library_id ||
+    categoryComparison?.library_version !==
+      categoryLibrary.version ||
+    categoryComparison?.library_sha256 !==
+      CATEGORY_REFERENCE_LIBRARY_SHA256 ||
+    !sameMembers(
+      asArray(categoryComparison?.reference_card_ids),
+      selectedCategoryReferenceIds,
+    ) ||
+    categoryComparison?.target !==
+      "meet_or_exceed_selected_cohort" ||
+    categoryComparison?.critical_dimension_regression_allowed !==
+      false ||
+    categoryComparison?.public_output_subject_required !== true ||
+    !sameMembers(
+      asArray(categoryComparison?.required_dimensions),
+      CATEGORY_REFERENCE_QA_DIMENSIONS,
+    )
+  ) {
+    addError(
+      "CATEGORY_REFERENCE_COMPARISON_RUBRIC_REQUIRED",
+      "rubric_target.category_reference_comparison",
+      "선택한 category reference cohort보다 낮아지지 않는 공개 결과 비교 계약이 필요합니다.",
+    );
+  }
+
+  const materialization = plan?.planning_materialization;
+  const requiredPlanningDocuments = [
+    ".detail-page/planning/COMMERCIAL.md",
+    ".detail-page/planning/DESIGN.md",
+    ".detail-page/planning/BUYER-JOURNEY.md",
+    ".detail-page/planning/GIF.md",
+  ];
+  const plannedDocuments = asArray(materialization?.documents);
+  if (
+    !isObject(materialization) ||
+    materialization?.source !== "production_plan" ||
+    materialization?.empty_template_allowed !== false ||
+    !sameMembers(
+      plannedDocuments.map((document) => document?.path),
+      requiredPlanningDocuments,
+    ) ||
+    plannedDocuments.some(
+      (document) =>
+        document?.status !== "materialize_from_plan" ||
+        asArray(document?.source_fields).length === 0,
+    )
+  ) {
+    addError(
+      "PLANNING_MATERIALIZATION_REQUIRED",
+      "planning_materialization",
+      "ProductionPlan은 COMMERCIAL·DESIGN·BUYER-JOURNEY·GIF 사람용 문서를 빈 템플릿 없이 물질화해야 합니다.",
+    );
+  }
 
   for (const node of [...orphans].sort()) {
     addError(
@@ -1308,11 +1903,18 @@ export function validateProductionPlan(plan, context = {}) {
   }
 
   const summary = {
+    reference_artifacts: asArray(
+      plan?.reference_artifact_set?.artifacts,
+    ).length,
     claims: claims.length,
     sections: sections.length,
     slots: slots.length,
     image_jobs: imageJobs.length,
     gif_briefs: gifBriefs.length,
+    category_reference_cards: asArray(
+      plan?.category_reference_profile
+        ?.selected_reference_card_ids,
+    ).length,
     orphans: orphans.size,
   };
   return {

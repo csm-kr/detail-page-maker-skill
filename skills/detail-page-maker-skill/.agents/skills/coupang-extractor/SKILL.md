@@ -29,7 +29,9 @@ python -X utf8 scripts/run_capture.py `
 ## 고정 워크플로
 
 1. URL의 host, productId, itemId와 선택적 vendorItemId를 잠근다.
-2. Browser Harness가 새 탭에서 사용자가 준 URL만 연다. 다른 탭·쿠키·계정 정보를 읽지 않는다.
+2. `run_capture.py`가 OS 임시 경로의 전역 lock을 잡아 같은 로컬 Chrome을 쓰는
+   Browser Harness 캡처를 하나씩 실행한다. lock을 잡은 뒤 새 탭에서 사용자가
+   준 URL만 열고 다른 탭·쿠키·계정 정보를 읽지 않는다.
 3. 차단·CAPTCHA·로그인 벽을 확인한다. 발견하면 우회나 재시도 없이 중단한다.
 4. `thumbnail → detail → reviews` 순서로 같은 페이지 컨텍스트에서 수집한다.
 5. 세 조각의 상품 ID를 대조한다. 불일치하면 `PRODUCT_MISMATCH`로 중단한다.
@@ -93,6 +95,8 @@ python -X utf8 scripts/merge_fragments.py `
 - `rating_stratified_supplement`는 최신 표본과 중복을 제거한 저평점 1·2점 : 고평점 4·5점 = 2:1 표본이다. 필터 부족이나 페이지 상한으로 못 채우면 `supplement_contract_met:false`와 부족분을 남긴다.
 - 경쟁사 이미지와 후기는 `research_reference_only`, `production_use_allowed:false`다.
 - 실패 실행으로 기존 성공 번들을 덮어쓰지 않는다.
+- 같은 로컬 Browser Harness를 여러 agent가 동시에 직접 실행하지 않는다.
+  CPU/RAM worker capacity가 2 이상이어도 local browser lane은 1이다.
 
 ## 검증 명령
 

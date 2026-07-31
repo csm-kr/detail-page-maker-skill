@@ -345,6 +345,9 @@ test("쿠팡 Wing 내보내기는 G5 뒤 config namespace로 render·upload·ver
     assert.equal(readyGate.payload.finalQaScore, 98);
     assert.equal(readyGate.payload.userPublishApproved, true);
 
+    const sourceBefore = await readFile(
+      path.join(created.projectRoot, "output", "detail-page.html"),
+    );
     const completed = await requestJson(
       baseUrl,
       "/api/v1/exports/coupang-wing",
@@ -380,14 +383,24 @@ test("쿠팡 Wing 내보내기는 G5 뒤 config namespace로 render·upload·ver
       job.history.map((entry) => entry.status),
       ["preparing", "generated", "uploading", "verifying", "completed"],
     );
-    assert.equal(
-      (
-        await readFile(
-          path.join(created.projectRoot, "output", "detail-page.html"),
-          "utf8",
-        )
-      ).includes("configured-assets.pages.dev"),
-      true,
+    assert.deepEqual(
+      await readFile(
+        path.join(created.projectRoot, "output", "detail-page.html"),
+      ),
+      sourceBefore,
+    );
+    assert.match(
+      await readFile(
+        path.join(
+          created.projectRoot,
+          "output",
+          "wing",
+          completed.payload.result.exportId,
+          "detail-page.html",
+        ),
+        "utf8",
+      ),
+      /configured-assets\.pages\.dev/,
     );
   } finally {
     if (server) await closeServer(server);

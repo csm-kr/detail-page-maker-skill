@@ -4,6 +4,9 @@ import {
   assertProductionPlan,
   validateProductionPlan,
 } from "../../skills/detail-page-maker-skill/scripts/orchestration/production-plan.mjs";
+import {
+  applyCurrentProductionPlanPolicy,
+} from "../fixtures/orchestration/current-production-plan-policy.mjs";
 
 const SHA256 = "a".repeat(64);
 const GIF_IDS = Object.freeze([
@@ -39,7 +42,7 @@ function gifBrief(briefId) {
 }
 
 function validProductionPlan() {
-  return {
+  return applyCurrentProductionPlanPolicy({
     schema_version: "1.0",
     plan_id: "plan-cooling-shirt",
     provenance: {
@@ -269,7 +272,7 @@ function validProductionPlan() {
         },
       ],
     },
-  };
+  });
 }
 
 test("G1C ProductionPlan의 다섯 파트와 양방향 그래프가 완결되면 제작 계약으로 확정한다", () => {
@@ -282,11 +285,13 @@ test("G1C ProductionPlan의 다섯 파트와 양방향 그래프가 완결되면
   assert.equal(validation.ok, true);
   assert.deepEqual(validation.errors, []);
   assert.deepEqual(validation.summary, {
+    reference_artifacts: 1,
     claims: 1,
     sections: 1,
     slots: 1,
-    image_jobs: 1,
+    image_jobs: 5,
     gif_briefs: 7,
+    category_reference_cards: 2,
     orphans: 0,
   });
 });
@@ -568,6 +573,7 @@ test("기본 7~9개 밖의 motion 계획은 명시적인 예외 사유를 요구
     "gif-support-extra-three",
   );
   plan.commercial_flow.motion_target.planned_total = 10;
+  applyCurrentProductionPlanPolicy(plan);
 
   const withoutReason = validateProductionPlan(plan);
   assert.equal(withoutReason.ok, false);

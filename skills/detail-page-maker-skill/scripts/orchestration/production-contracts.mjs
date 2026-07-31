@@ -786,6 +786,33 @@ export function validateMotionProductionChain(chain) {
       "GIF는 hard failure가 없는 PASS QA를 통과해야 합니다.",
     );
   }
+  const semanticQa = chain.final_qa.semantic_motion_quality;
+  const semanticFrameDigests = [
+    semanticQa?.first_frame_sha256,
+    semanticQa?.mid_frame_sha256,
+    semanticQa?.last_frame_sha256,
+  ];
+  if (
+    !isObject(semanticQa) ||
+    semanticQa?.customer_question_answered !== true ||
+    semanticQa?.meaningful_state_change !== true ||
+    semanticQa?.static_superiority !== true ||
+    semanticQa?.pattern_distinct_from_adjacent !== true ||
+    semanticQa?.overlay_only !== false ||
+    !isNonEmptyString(semanticQa?.visible_delta_observation) ||
+    !Number.isFinite(semanticQa?.answer_within_seconds) ||
+    semanticQa.answer_within_seconds <= 0 ||
+    semanticQa.answer_within_seconds > 2 ||
+    semanticFrameDigests.some((digest) => !isSha256(digest)) ||
+    new Set(semanticFrameDigests).size < 2
+  ) {
+    addError(
+      errors,
+      "GIF_SEMANTIC_QA_NOT_PASSED",
+      "final_qa.semantic_motion_quality",
+      "Motion QA는 구매 질문, 의미 상태 변화, 정지 대비 설명력, 인접 패턴 차이와 first/mid/last frame evidence를 검증해야 합니다.",
+    );
+  }
   if (chain.asset_approval.decision !== "approved") {
     addError(
       errors,

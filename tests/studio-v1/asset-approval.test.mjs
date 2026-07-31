@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {
   access,
+  mkdir,
   mkdtemp,
   readFile,
   rm,
@@ -60,6 +61,10 @@ test("사용자 확인이 있는 Studio v1 결정만 pending 파일을 승인 �
     });
     const pendingRelative =
       ".detail-page/generation/pending/image/03-flex-hybrid-v01.png";
+    await mkdir(
+      path.dirname(path.join(created.projectRoot, pendingRelative)),
+      { recursive: true },
+    );
     await writeFile(
       path.join(created.projectRoot, pendingRelative),
       ONE_PIXEL_PNG,
@@ -147,9 +152,20 @@ test("반려 파일은 rejected로 이동하고 기존 대상 파일은 덮어�
     });
     const pendingRelative =
       ".detail-page/generation/pending/gif/03-flex-hybrid-v01.gif";
+    await mkdir(
+      path.dirname(path.join(created.projectRoot, pendingRelative)),
+      { recursive: true },
+    );
     await writeFile(
       path.join(created.projectRoot, pendingRelative),
       ONE_PIXEL_PNG,
+    );
+    await mkdir(
+      path.join(
+        created.projectRoot,
+        ".detail-page/generation/approved/gif",
+      ),
+      { recursive: true },
     );
     const started = await startStudioV1Server({
       projectRoot: created.projectRoot,

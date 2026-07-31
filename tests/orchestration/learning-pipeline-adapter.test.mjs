@@ -162,9 +162,9 @@ async function createFixture(mode = "success") {
     mkdir(
       path.join(
         workspaceRoot,
-        ".workspace",
         "projects",
         "fixture-project",
+        ".detail-page",
         "planning",
       ),
       { recursive: true },
@@ -196,9 +196,9 @@ async function createFixture(mode = "success") {
     writeFile(
       path.join(
         workspaceRoot,
-        ".workspace",
         "projects",
         "fixture-project",
+        ".detail-page",
         "planning",
         "LEARNINGS.md",
       ),
@@ -513,9 +513,9 @@ test("plan 뒤 project learning input drift는 첫 spawn 전에 거부한다", a
   await writeFile(
     path.join(
       fixture.workspaceRoot,
-      ".workspace",
       "projects",
       "fixture-project",
+      ".detail-page",
       "planning",
       "LEARNINGS.md",
     ),

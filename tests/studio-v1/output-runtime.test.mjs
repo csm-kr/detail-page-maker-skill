@@ -649,6 +649,7 @@ test("Save는 승인 미디어만 output/media로 복사하고 변경된 미디�
     );
     const firstBytes = Buffer.from("webp-v1");
     const secondBytes = Buffer.from("webp-v2");
+    await mkdir(path.dirname(approved), { recursive: true });
     await writeFile(approved, firstBytes);
     const withMedia = (copy) =>
       `<!doctype html><html><body><main id="detailPage"><section data-section="hero"><h1>${copy}</h1><img src="/.detail-page/generation/approved/image/product.webp" alt="상품"></section></main></body></html>`;
@@ -837,10 +838,23 @@ test("원격 CDN의 HTTP·MIME·크기·해시 검증 뒤에만 공개 HTML을 W
     assert.equal(fetchOptions.redirect, "manual");
     assert.equal(
       await readFile(
-        path.join(projectRoot, "output", "detail-page.html"),
+        path.join(
+          projectRoot,
+          "output",
+          "wing",
+          exportId,
+          "detail-page.html",
+        ),
         "utf8",
       ),
       wingHtml,
+    );
+    assert.equal(
+      await readFile(
+        path.join(projectRoot, "output", "detail-page.html"),
+        "utf8",
+      ),
+      beforeRedirectAttempt.toString("utf8"),
     );
     assert.equal(
       (await readProjectOutputState(projectRoot)).wing_export_required,

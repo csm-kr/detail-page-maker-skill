@@ -25,7 +25,7 @@ test("G0와 G1 준비 작업은 병렬이고 최종 승인은 순차다", async 
   }
   assert.match(skill, /G0 → G1 → G2 → G3 → G4 → G5/);
   assert.match(workflow, /병렬/);
-  assert.match(workflow, /G0 승인 전에는 G1을 `approved`로 기록하거나/);
+  assert.match(workflow, /G0 검증 전에는 G1을 `approved`로 기록하거나/);
 });
 
 test("G0 대기 중 G1 초안은 의존성과 임시 주장을 기록한다", async () => {

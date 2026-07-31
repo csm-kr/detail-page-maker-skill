@@ -192,7 +192,7 @@ async function resolveProjectLocalCli(projectRoot) {
   };
 }
 
-async function verifyBrief(project, briefPath, briefDigest) {
+async function verifyBrief(project, briefPath, brief) {
   const resolvedBrief = path.resolve(String(briefPath ?? ""));
   if (path.basename(resolvedBrief).toUpperCase() !== "BRIEF.MD") {
     throw new HyperframesAdapterError(
@@ -231,16 +231,57 @@ async function verifyBrief(project, briefPath, briefDigest) {
   }
   const actualDigest = sha256(bytes);
   if (
-    !SHA256.test(String(briefDigest ?? "")) ||
-    actualDigest !== briefDigest
+    !SHA256.test(String(brief?.digest ?? "")) ||
+    actualDigest !== brief.digest
   ) {
     throw new HyperframesAdapterError(
       "BRIEF_DIGEST_MISMATCH",
       "BRIEF.md bytes가 motion chain brief digest와 다릅니다.",
       {
-        expected_brief_digest: briefDigest,
+        expected_brief_digest: brief?.digest ?? null,
         actual_brief_digest: actualDigest,
       },
+    );
+  }
+  const semantic = brief?.semantic_contract;
+  const appliedRuleIds = Array.isArray(brief?.applied_rule_ids)
+    ? brief.applied_rule_ids
+    : [];
+  const compiledPacket = {
+    semantic_contract: semantic,
+    applied_rule_ids: appliedRuleIds,
+    reference_profile_digest: brief?.reference_profile_digest,
+    knowledge_rule_packet_digest:
+      brief?.knowledge_rule_packet_digest,
+  };
+  const briefText = bytes.toString("utf8");
+  const requiredLiterals = [
+    semantic?.customer_question,
+    semantic?.feature_part,
+    semantic?.start_state,
+    semantic?.mid_state,
+    semantic?.end_state,
+    semantic?.visible_delta,
+    ...appliedRuleIds,
+  ].filter((value) => typeof value === "string" && value.trim() !== "");
+  if (
+    !semantic ||
+    typeof semantic !== "object" ||
+    appliedRuleIds.length === 0 ||
+    appliedRuleIds.some(
+      (ruleId) => !/^MR-\d{3}$/.test(String(ruleId)),
+    ) ||
+    !SHA256.test(String(brief?.reference_profile_digest ?? "")) ||
+    !SHA256.test(
+      String(brief?.knowledge_rule_packet_digest ?? ""),
+    ) ||
+    brief?.compiled_contract_sha256 !==
+      sha256(canonicalJson(compiledPacket)) ||
+    requiredLiterals.some((literal) => !briefText.includes(literal))
+  ) {
+    throw new HyperframesAdapterError(
+      "BRIEF_EXECUTABLE_RULE_PACKET_REQUIRED",
+      "BRIEF.md에는 reference profile, MR rule packet과 semantic start/mid/end 계약이 실제 문구로 컴파일되어야 합니다.",
     );
   }
   return { briefPath: canonicalBrief, briefSha256: actualDigest };
@@ -427,7 +468,12 @@ function roundSeconds(value) {
   return Number(value.toFixed(6));
 }
 
-function qaSpec(durationSec, renderFps, fallback) {
+function qaSpec(
+  durationSec,
+  renderFps,
+  fallback,
+  semanticContract,
+) {
   return {
     frames: [
       { label: "first", at_seconds: 0 },
@@ -453,7 +499,13 @@ function qaSpec(durationSec, renderFps, fallback) {
       "korean_legibility",
       "unsupported_props",
       "loop_boundary",
+      "customer_question_answered",
+      "meaningful_state_change",
+      "static_superiority",
+      "pattern_distinct_from_adjacent",
+      "overlay_only_forbidden",
     ],
+    semantic_contract: structuredClone(semanticContract),
     fallback: structuredClone(fallback),
   };
 }
@@ -490,7 +542,7 @@ export async function buildHyperframesCommandPlan({
     stagingRoot,
   );
   const { briefPath: verifiedBriefPath, briefSha256 } =
-    await verifyBrief(project, briefPath, chain.brief.digest);
+    await verifyBrief(project, briefPath, chain.brief);
   const preApprovalSteps = [
     {
       kind: "brief",
@@ -502,7 +554,13 @@ export async function buildHyperframesCommandPlan({
       cliPath,
       project,
       idempotencyKey,
-      ["check", ".", "--strict", "--frame-check", "--json"],
+      [
+        "check",
+        ".",
+        "--json",
+        "--strict",
+        "--frame-check=severity=error;seek=0,.5,.991667;tol=2",
+      ],
       {
         step_id: "strict-frame-check",
         subject_motion_project_digest:
@@ -585,6 +643,7 @@ export async function buildHyperframesCommandPlan({
     durationSec,
     renderFps,
     fallback,
+    chain.brief.semantic_contract,
   );
   const planPayload = {
     adapter: "HyperFramesMotionAdapter",
@@ -596,6 +655,18 @@ export async function buildHyperframesCommandPlan({
     staging_root: staging,
     idempotency_key: idempotencyKey,
     brief_digest: chain.brief.digest,
+    semantic_contract: structuredClone(
+      chain.brief.semantic_contract,
+    ),
+    applied_motion_rule_ids: structuredClone(
+      chain.brief.applied_rule_ids,
+    ),
+    reference_profile_digest:
+      chain.brief.reference_profile_digest,
+    knowledge_rule_packet_digest:
+      chain.brief.knowledge_rule_packet_digest,
+    compiled_contract_sha256:
+      chain.brief.compiled_contract_sha256,
     motion_project_digest: chain.motion_project.digest,
     preview_digest: chain.preview.digest,
     preview_approval_digest:

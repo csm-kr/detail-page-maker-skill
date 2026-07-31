@@ -33,6 +33,16 @@ export const DEFAULT_KNOWLEDGE_SOURCES = Object.freeze([
     classification: "active_policy",
     rule_ids: ["R01-R11"],
   },
+  {
+    path: "policies/category-reference-library-v1.json",
+    classification: "active_policy",
+    rule_ids: ["CATEGORY-REFERENCE"],
+  },
+  {
+    path: "references/coupang-wing-detail-780.html",
+    classification: "research_only",
+    rule_ids: ["VISUAL-AMBITION-ANCHOR"],
+  },
 ]);
 
 export class KnowledgeSnapshotError extends Error {

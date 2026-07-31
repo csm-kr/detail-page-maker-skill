@@ -238,7 +238,7 @@ function normalizeMemberManifest(artifact) {
 
   const artifactMemberIds = [...(artifact?.member_ids ?? [])]
     .map(String)
-    .sort();
+    .sort((left, right) => left.localeCompare(right));
   if (
     artifactMemberIds.length !== memberIds.length ||
     artifactMemberIds.some(

@@ -232,6 +232,22 @@ function qualityMetrics(result, definition) {
           : result.score,
       deterministic_hard_failure_count:
         deterministicHardFailureCount,
+      ...(result?.quality_metrics?.reference_comparison
+        ? {
+            reference_comparison: structuredClone(
+              result.quality_metrics.reference_comparison,
+            ),
+          }
+        : {}),
+      ...(result?.quality_metrics
+        ?.category_reference_comparison
+        ? {
+            category_reference_comparison: structuredClone(
+              result.quality_metrics
+                .category_reference_comparison,
+            ),
+          }
+        : {}),
     },
   };
 }
@@ -471,6 +487,13 @@ export function createStudioG4Pipeline({
     const editableHtmlContract = structuredClone(
       payload.editable_html_contract,
     );
+    const workflowManifestSha256 =
+      assembly?.workflow_manifest_sha256 ??
+      assembly?.manifest_sha256;
+    assertSha256(
+      workflowManifestSha256,
+      "assembly.workflow_manifest_sha256",
+    );
     const pageCandidates = artifactByType(
       workflow,
       "page.html_revision",
@@ -478,7 +501,7 @@ export function createStudioG4Pipeline({
     ).filter(
       (artifact) =>
         artifact.artifact_id === assembly?.artifact_id &&
-        artifact.manifest_sha256 === assembly?.manifest_sha256,
+        artifact.manifest_sha256 === workflowManifestSha256,
     );
     if (pageCandidates.length !== 1) {
       fail(
@@ -853,7 +876,12 @@ export function createStudioG4Pipeline({
         projectRoot: root,
         revisionArtifact: committedArtifact,
       });
-    const allowedOutputRoot = path.join(root, "qa", "captures");
+    const allowedOutputRoot = path.join(
+      root,
+      ".detail-page",
+      "qa",
+      "captures",
+    );
     const outputRoot = path.join(
       allowedOutputRoot,
       committed.revision.revision_id,

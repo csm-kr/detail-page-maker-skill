@@ -89,19 +89,13 @@ test("새 프로젝트는 목록에 나타나고 외부 파일 의존성이 없�
       "planning",
       "LEARNINGS.md",
     );
-    await rm(learningsPath);
-    const missingLearnings = await validateProjectIsolation(
-      created.projectRoot,
-    );
-    assert.equal(missingLearnings.ok, false);
-    assert.equal(
-      missingLearnings.issues.some(
-        (issue) => issue.reason === "PROJECT_LEARNINGS_REQUIRED",
-      ),
-      true,
-    );
+    await mkdir(path.dirname(learningsPath), { recursive: true });
     await writeFile(learningsPath, "# Project learnings\n", "utf8");
 
+    await mkdir(
+      path.join(created.projectRoot, ".detail-page", "research"),
+      { recursive: true },
+    );
     await writeFile(
       path.join(
         created.projectRoot,

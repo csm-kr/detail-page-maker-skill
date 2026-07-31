@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -34,6 +34,10 @@ function extractProductId(supplierUrl) {
 
 function skillRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+}
+
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
 }
 
 function workspaceConfig(startDirectory = process.cwd()) {
@@ -84,8 +88,10 @@ function createInitialProject({
     createdAt,
     updatedAt: createdAt,
     html: {
-      entry: ".detail-page/authoring/detail-page.html",
-      publicEntry: "output/detail-page.html",
+      entry: "output/detail-page.html",
+      canonicalEntry: "output/detail-page.html",
+      internalEditableRevision:
+        ".detail-page/authoring/detail-page.html",
       layerState: {},
       viewportOverrides: {},
     },
@@ -132,24 +138,8 @@ export async function createProject({
   const projectRoot = path.resolve(root, folderName);
   const directories = [
     "input/product",
-    "output/media/images",
-    "output/media/gifs",
-    "output/wing",
-    ".detail-page/backups",
-    ".detail-page/evidence",
-    ".detail-page/research",
-    ".detail-page/generation/pending/image",
-    ".detail-page/generation/pending/gif",
-    ".detail-page/generation/approved/image",
-    ".detail-page/generation/approved/gif",
-    ".detail-page/generation/rejected/image",
-    ".detail-page/generation/rejected/gif",
-    ".detail-page/workflow/jobs",
-    ".detail-page/qa/reports",
-    ".detail-page/qa/captures",
+    "output",
     ".detail-page/authoring",
-    ".detail-page/studio",
-    ".detail-page/planning",
   ];
   await mkdir(path.resolve(root), { recursive: true });
   await mkdir(projectRoot, { recursive: false });
@@ -180,117 +170,41 @@ export async function createProject({
   const template = await readFile(templatePath, "utf8");
   const projectKey = safeSlug(productId ? `${name}-${productId}` : name);
   const exportFilename = `${projectKey}-standalone.html`;
+  const renderedTemplate = template
+    .replaceAll("{{PRODUCT_NAME}}", name)
+    .replaceAll("{{SUPPLIER_URL}}", supplierUrl)
+    .replaceAll("{{PROJECT_KEY}}", projectKey)
+    .replaceAll("{{EXPORT_FILENAME}}", exportFilename);
+  const publicTemplate = sanitizePublicHtml(renderedTemplate);
+  const sourceSha256 = sha256(renderedTemplate);
+  const publicSha256 = sha256(publicTemplate);
   await writeFile(
     path.join(projectRoot, ".detail-page", "authoring", "detail-page.html"),
-    template
-      .replaceAll("{{PRODUCT_NAME}}", name)
-      .replaceAll("{{SUPPLIER_URL}}", supplierUrl)
-      .replaceAll("{{PROJECT_KEY}}", projectKey)
-      .replaceAll("{{EXPORT_FILENAME}}", exportFilename),
+    renderedTemplate,
     "utf8",
   );
   await writeFile(
     path.join(projectRoot, "output", "detail-page.html"),
-    sanitizePublicHtml(
-      template
-        .replaceAll("{{PRODUCT_NAME}}", name)
-        .replaceAll("{{SUPPLIER_URL}}", supplierUrl)
-        .replaceAll("{{PROJECT_KEY}}", projectKey)
-        .replaceAll("{{EXPORT_FILENAME}}", exportFilename),
-    ),
-    "utf8",
-  );
-  const studioRuntimeRoot = path.join(
-    skillRoot(),
-    "assets",
-    "studio-v1-runtime",
-  );
-  const studioFiles = ["studio.html", "studio-v1.css", "studio-v1.js", "app.js"];
-  await Promise.all(
-    studioFiles.map(async (fileName) => {
-      const source = await readFile(
-        path.join(studioRuntimeRoot, fileName),
-        "utf8",
-      );
-      await writeFile(
-        path.join(projectRoot, ".detail-page", "studio", fileName),
-        source
-          .replaceAll("{{PRODUCT_NAME}}", name)
-          .replaceAll("{{PROJECT_KEY}}", projectKey),
-        "utf8",
-      );
-    }),
-  );
-  await writeFile(
-    path.join(projectRoot, ".detail-page", "generation", "asset-manifest.json"),
-    `${JSON.stringify(
-      {
-        schemaVersion: 1,
-        studioVersion: 1,
-        defaultGifMethod: "hybrid",
-        assets: [],
-      },
-      null,
-      2,
-    )}\n`,
+    publicTemplate,
     "utf8",
   );
   await writeFile(
-    path.join(projectRoot, ".detail-page", "evidence", "product-manifest.json"),
-    `${JSON.stringify(
-      {
-        schemaVersion: 1,
-        supplierUrl,
-        productId,
-        ssot: [],
-      },
-      null,
-      2,
-    )}\n`,
-    "utf8",
-  );
-  await writeFile(
-    path.join(projectRoot, ".detail-page", "workflow", "output-state.json"),
+    path.join(projectRoot, ".detail-page", "output-state.json"),
     `${JSON.stringify(
       {
         schema_version: "1.0",
         wing_export_required: true,
-        current_authoring_sha256: null,
-        current_public_sha256: null,
+        canonical_entry: "output/detail-page.html",
+        source_revision_id: `source-initial-${sourceSha256.slice(0, 12)}`,
+        current_source_revision_sha256: sourceSha256,
+        current_authoring_sha256: sourceSha256,
+        current_public_sha256: publicSha256,
         updated_at: new Date().toISOString(),
       },
       null,
       2,
     )}\n`,
     "utf8",
-  );
-  const planningTemplateRoot = path.join(
-    skillRoot(),
-    "assets",
-    "project-template",
-  );
-  const planningTemplates = [
-    "COMMERCIAL.md",
-    "DESIGN.md",
-    "BUYER-JOURNEY.md",
-    "GIF.md",
-    "APPROVALS.md",
-    "LEARNINGS.md",
-  ];
-  await Promise.all(
-    planningTemplates.map(async (fileName) => {
-      const source = await readFile(
-        path.join(planningTemplateRoot, fileName),
-        "utf8",
-      );
-      await writeFile(
-        path.join(projectRoot, ".detail-page", "planning", fileName),
-        source
-          .replaceAll("{{PRODUCT_NAME}}", name)
-          .replaceAll("{{SUPPLIER_URL}}", supplierUrl),
-        "utf8",
-      );
-    }),
   );
   await writeFile(
     path.join(projectRoot, "README.md"),
@@ -348,8 +262,10 @@ export async function adoptProject({
       adoptedLegacyProject: true,
     },
     html: {
-      entry: ".detail-page/authoring/detail-page.html",
-      publicEntry: "output/detail-page.html",
+      entry: "output/detail-page.html",
+      canonicalEntry: "output/detail-page.html",
+      internalEditableRevision:
+        ".detail-page/authoring/detail-page.html",
       importedLegacyEntry: htmlEntry,
       layerState: {},
       viewportOverrides: {},
@@ -376,107 +292,15 @@ export async function adoptProject({
   }
   const adoptedDirectories = [
     "input/product",
-    "output/media/images",
-    "output/media/gifs",
-    "output/wing",
-    ".detail-page/backups",
-    ".detail-page/evidence",
-    ".detail-page/research",
-    ".detail-page/generation/pending/image",
-    ".detail-page/generation/pending/gif",
-    ".detail-page/generation/approved/image",
-    ".detail-page/generation/approved/gif",
-    ".detail-page/generation/rejected/image",
-    ".detail-page/generation/rejected/gif",
-    ".detail-page/workflow/jobs",
-    ".detail-page/qa/reports",
-    ".detail-page/qa/captures",
+    "output",
     ".detail-page/authoring",
-    ".detail-page/studio",
-    ".detail-page/planning",
   ];
   await Promise.all(
     adoptedDirectories.map((directory) =>
       mkdir(path.join(root, directory), { recursive: true }),
     ),
   );
-  const learningsPath = path.join(
-    root,
-    ".detail-page",
-    "planning",
-    "LEARNINGS.md",
-  );
-  if (!existsSync(learningsPath)) {
-    const learningsTemplate = await readFile(
-      path.join(
-        skillRoot(),
-        "assets",
-        "project-template",
-        "LEARNINGS.md",
-      ),
-      "utf8",
-    );
-    await writeFile(
-      learningsPath,
-      learningsTemplate
-        .replaceAll("{{PRODUCT_NAME}}", name)
-        .replaceAll("{{SUPPLIER_URL}}", supplierUrl),
-      "utf8",
-    );
-  }
   await writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
-  const projectKey = safeSlug(productId || path.basename(root));
-  const studioRuntimeRoot = path.join(
-    skillRoot(),
-    "assets",
-    "studio-v1-runtime",
-  );
-  await Promise.all(
-    ["studio.html", "studio-v1.css", "studio-v1.js", "app.js"].map(
-      async (fileName) => {
-        const source = await readFile(
-          path.join(studioRuntimeRoot, fileName),
-          "utf8",
-        );
-        await writeFile(
-          path.join(root, ".detail-page", "studio", fileName),
-          source
-            .replaceAll("{{PRODUCT_NAME}}", name)
-            .replaceAll("{{PROJECT_KEY}}", projectKey),
-          "utf8",
-        );
-      },
-    ),
-  );
-  await writeFile(
-    path.join(root, ".detail-page", "generation", "asset-manifest.json"),
-    `${JSON.stringify(
-      {
-        schemaVersion: 1,
-        studioVersion: 1,
-        defaultGifMethod: "hybrid",
-        assets: [],
-      },
-      null,
-      2,
-    )}\n`,
-    "utf8",
-  );
-  await writeFile(
-    path.join(root, ".detail-page", "evidence", "product-manifest.json"),
-    `${JSON.stringify(
-      {
-        schemaVersion: 1,
-        supplierUrl,
-        productId,
-        ssot: [],
-        importedLegacyEntry: htmlEntry,
-      },
-      null,
-      2,
-    )}\n`,
-    "utf8",
-  );
   await saveProjectOutput(root, {
     html: await readFile(legacyHtmlPath, "utf8"),
     now: new Date(now),

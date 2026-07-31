@@ -40,11 +40,28 @@ GIF마다 아래 블록을 복사해 작성한다.
 - `fact_id`:
 - `motion_required`: yes
 - `motion_reason`:
+- `customer_question`:
+- `feature_part`:
 - `method`: imagegen-seq | heygenframe | hybrid
 - `start_state`:
+- `mid_state`:
 - `end_state`:
+- `visible_delta`:
+- `static_insufficiency`:
 - `pattern_id`:
+- `pattern_reuse_reason`:
 - `claim_fx`:
+- `overlay_only`: false
+- `background_contrast`:
+- `answer_within_seconds`: 2
+- `canvas`: 780x
+- `fps`:
+- `duration_seconds`:
+- `output_format`: gif | animated-webp | gif+animated-webp
+- `placement_scale`: chapter | full-width
+- `applied_rule_ids`:
+- `reference_profile_digest`:
+- `knowledge_rule_packet_digest`:
 - `source_assets`:
 - `product_ssot`:
 - `forbidden_claims`:
@@ -67,6 +84,12 @@ GIF마다 아래 블록을 복사해 작성한다.
 
 - `hyperframes_check_strict`:
 - `first_middle_last_contact_sheet`:
+- `customer_question_answered`:
+- `meaningful_state_change`:
+- `visible_delta_observation`:
+- `static_superiority`:
+- `pattern_distinct_from_adjacent`:
+- `overlay_only_zero`:
 - `product_identity`:
 - `person_head_hand_crop`:
 - `thumbhole_handback_fingers_visible`:
@@ -88,6 +111,9 @@ GIF마다 아래 블록을 복사해 작성한다.
 - `visible_only_playback`:
 - `reentry_restart`:
 - `wing_animated_webp`:
+- `public_dom_manifest_file_closure`:
+- `public_animation_frame_count_2_plus`:
+- `poster_only_count`: 0
 
 ## Project Learning
 

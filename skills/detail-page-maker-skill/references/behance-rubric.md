@@ -13,6 +13,13 @@
 
 ## Primary sources
 
+이 표의 8개 프로젝트는
+`policies/category-reference-library-v1.json`의 초기 reference card 정본과
+같다. 생산 run은 전부를 한 스타일로 평균내지 않고
+`references/category-reference-library.md`에 따라 주 아키타입 cohort를 선택한다.
+`coupang-wing-detail-780.html`은 이 표의 카테고리 source가 아니라 별도의 공통
+visual ambition anchor다.
+
 | ID | 범주 | 원문 | 제한된 관찰 용도 |
 | --- | --- | --- | --- |
 | S01 | 헤어케어 | <https://www.behance.net/gallery/246328393/_> | 감각 이미지와 조건이 표시된 비교·시험 근거의 인접성 |
@@ -64,6 +71,8 @@
 - 게시 QA: 97 이상
 - Behance 추상 속성 가중 점수: 90 이상
 - critical R01·R04·R10: 각각 85 이상
+- 선택 category cohort의 욕구·차별점·장면·motion·780 전달·마무리 차원보다
+  낮은 항목: 0
 - exact artifact에 대한 사용자 승인: 필수
 
 모델 점수가 높더라도 deterministic hard failure가 하나 있으면 게시할 수 없다.

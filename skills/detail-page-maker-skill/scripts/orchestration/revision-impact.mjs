@@ -7,6 +7,10 @@ const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 export const REVISION_CHANGE_KINDS = Object.freeze({
   ACTUAL_PRODUCT_PHOTO_SET_REVISION:
     "actual_product_photo_set_revision",
+  MARKET_CANDIDATE_SET_REVISION:
+    "market_candidate_set_revision",
+  PRODUCTION_PLAN_PROVENANCE_CORRECTION:
+    "production_plan_provenance_correction",
   G2_IMAGE_MEMBER_REJECTION: "g2_image_member_rejection",
   G3_GIF_MEMBER_REJECTION: "g3_gif_member_rejection",
 });
@@ -862,6 +866,14 @@ function isCoreProtectedArtifact(artifact, changeKind) {
   const { type } = artifact;
   if (
     changeKind ===
+      REVISION_CHANGE_KINDS.MARKET_CANDIDATE_SET_REVISION &&
+    (type.startsWith("market.") ||
+      type === "evidence.market_snapshot")
+  ) {
+    return false;
+  }
+  if (
+    changeKind ===
       REVISION_CHANGE_KINDS.ACTUAL_PRODUCT_PHOTO_SET_REVISION &&
     [
       "product.ssot",
@@ -990,6 +1002,141 @@ function buildChangeRoot({
         "G0C_NORMALIZE",
         "G0Q_QA",
         "G0U_APPROVAL",
+      ],
+    };
+  }
+  if (
+    changeKind ===
+    REVISION_CHANGE_KINDS.MARKET_CANDIDATE_SET_REVISION
+  ) {
+    if (oldArtifact.type !== "market.competitor_candidates") {
+      fail(
+        "INVALID_CHANGE_ROOT_TYPE",
+        "market candidate revision requires market.competitor_candidates.",
+        { artifact_type: oldArtifact.type },
+      );
+    }
+    const replacementCandidateIds =
+      changeRequest.replacement_candidate_ids;
+    if (
+      !Array.isArray(replacementCandidateIds) ||
+      replacementCandidateIds.length === 0 ||
+      replacementCandidateIds.some(
+        (candidateId) =>
+          typeof candidateId !== "string" ||
+          candidateId.trim() === "",
+      ) ||
+      new Set(replacementCandidateIds).size !==
+        replacementCandidateIds.length
+    ) {
+      fail(
+        "INVALID_MARKET_REPLACEMENT_SET",
+        "market candidate revision requires unique replacement_candidate_ids.",
+      );
+    }
+    const approval = changeRequest.approval_receipt;
+    assertObject(
+      approval,
+      "changeRequest.approval_receipt",
+    );
+    if (
+      approval.decision !== "APPROVED" ||
+      typeof approval.decided_by !== "string" ||
+      approval.decided_by.trim() === "" ||
+      typeof approval.approval_channel !== "string" ||
+      approval.approval_channel.trim() === "" ||
+      approval.subject?.artifact_id !==
+        oldArtifact.artifact_id ||
+      approval.subject?.manifest_sha256 !==
+        oldArtifact.manifest_sha256 ||
+      canonicalJson(approval.replacement_candidate_ids) !==
+        canonicalJson(replacementCandidateIds)
+    ) {
+      fail(
+        "INVALID_MARKET_REPLACEMENT_APPROVAL",
+        "market replacement approval must bind the old candidate set and exact replacement IDs.",
+      );
+    }
+    return {
+      oldArtifact,
+      member: null,
+      root: {
+        root_kind: "market_candidate_set_revision",
+        old_artifact_id: oldArtifact.artifact_id,
+        old_manifest_sha256: oldArtifact.manifest_sha256,
+        replacement_candidate_ids: [
+          ...replacementCandidateIds,
+        ],
+        decided_by: approval.decided_by,
+        approval_channel: approval.approval_channel,
+      },
+      requiredResetStages: [
+        "G1D_DISCOVERY",
+        "G1DQ_SELECTION",
+        "G1A_MARKET",
+        "G1C_PLAN",
+        "G1Q_QA",
+        "G1U_APPROVAL",
+      ],
+    };
+  }
+  if (
+    changeKind ===
+    REVISION_CHANGE_KINDS.PRODUCTION_PLAN_PROVENANCE_CORRECTION
+  ) {
+    if (oldArtifact.type !== "production.plan") {
+      fail(
+        "INVALID_CHANGE_ROOT_TYPE",
+        "production plan provenance correction requires production.plan.",
+        { artifact_type: oldArtifact.type },
+      );
+    }
+    const qaFailure = changeRequest.qa_failure;
+    assertObject(
+      qaFailure,
+      "changeRequest.qa_failure",
+    );
+    if (
+      qaFailure.code !== "PLAN_RULE_SNAPSHOT_MISMATCH" ||
+      qaFailure.path !== "provenance.applied_rules" ||
+      typeof qaFailure.validator_session_id !== "string" ||
+      qaFailure.validator_session_id.trim() === "" ||
+      qaFailure.validator_session_id ===
+        oldArtifact.producer_agent_session_id ||
+      !SHA256_PATTERN.test(
+        String(qaFailure.actual_manifest_sha256 ?? ""),
+      ) ||
+      !SHA256_PATTERN.test(
+        String(qaFailure.expected_manifest_sha256 ?? ""),
+      ) ||
+      qaFailure.actual_manifest_sha256 ===
+        qaFailure.expected_manifest_sha256
+    ) {
+      fail(
+        "INVALID_PRODUCTION_PLAN_QA_FAILURE",
+        "production plan provenance correction requires an independent exact KnowledgeSnapshot manifest mismatch finding.",
+      );
+    }
+    return {
+      oldArtifact,
+      member: null,
+      allowRootOnly: true,
+      root: {
+        root_kind: "production_plan_provenance_correction",
+        old_artifact_id: oldArtifact.artifact_id,
+        old_manifest_sha256: oldArtifact.manifest_sha256,
+        qa_failure_code: qaFailure.code,
+        qa_failure_path: qaFailure.path,
+        validator_session_id: qaFailure.validator_session_id,
+        actual_manifest_sha256:
+          qaFailure.actual_manifest_sha256,
+        expected_manifest_sha256:
+          qaFailure.expected_manifest_sha256,
+      },
+      requiredResetStages: [
+        "G1C_PLAN",
+        "G1Q_QA",
+        "G1U_APPROVAL",
       ],
     };
   }
@@ -1187,7 +1334,10 @@ export function createRevisionImpactPlan({
     }
   }
 
-  if (selectedRootEdgeCount === 0) {
+  if (
+    selectedRootEdgeCount === 0 &&
+    changeRoot.allowRootOnly !== true
+  ) {
     fail(
       "MISSING_IMPACT_EDGE",
       "change root has no exact member or artifact-level descendant edge.",

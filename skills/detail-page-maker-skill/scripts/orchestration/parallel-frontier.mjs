@@ -12,6 +12,12 @@ const G0_PARALLEL_PREPARATION = Object.freeze([
   "G1D_DISCOVERY",
   "G1B_KNOWLEDGE",
 ]);
+const ITEM_EXECUTION_BUDGET_MS = Object.freeze({
+  G2A_IMAGE: 30 * 60 * 1000,
+  G3P_PREVIEW: 30 * 60 * 1000,
+  G3R_RENDER: 45 * 60 * 1000,
+});
+const ITEM_HEARTBEAT_INTERVAL_MS = 60 * 1000;
 
 export class ParallelFrontierError extends Error {
   constructor(code, message, details = {}) {
@@ -124,9 +130,15 @@ function frontierItem({
     expected_artifact_id: `artifact-${artifactKey}`,
     expected_output_type: outputType,
     output_locator:
-      `orchestration/staging/${stageId.toLowerCase()}/${artifactKey}`,
+      `.detail-page/workflow/staging/${stageId.toLowerCase()}/${artifactKey}`,
     requires_execution_receipt: true,
     requires_independent_validation_receipt: true,
+    time_budget_ms:
+      ITEM_EXECUTION_BUDGET_MS[stageId] ?? 10 * 60 * 1000,
+    heartbeat_policy: {
+      required: true,
+      interval_ms: ITEM_HEARTBEAT_INTERVAL_MS,
+    },
   };
 }
 

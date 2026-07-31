@@ -658,7 +658,7 @@
         status = "REVIEW_CARD_NOT_FOUND";
         stopReason = "RATING_FILTER_INCOMPLETE";
       } else if (samplingContractMet) {
-        status = "PARTIAL";
+        status = "READY";
         stopReason = "LATEST_AND_SUPPLEMENT_TARGETS_REACHED";
       } else if (!latestMinimumMet) {
         status = "PARTIAL";

@@ -973,6 +973,62 @@ function selectedCandidate(selection, candidateId) {
   return candidate;
 }
 
+function normalizedCoupangProviderStatus({
+  manifest,
+  capture,
+  reviews,
+  validation,
+}) {
+  if (manifest.status !== "PARTIAL") {
+    return {
+      status: manifest.status,
+      normalized: false,
+      reason: null,
+    };
+  }
+  const captureReviews = capture?.reviews;
+  const diagnostics = captureReviews?.diagnostics;
+  const scope = captureReviews?.scope;
+  const requestedLatest = Number(
+    scope?.requested_latest_reviews ?? 0,
+  );
+  const requestedSupplement = Number(
+    scope?.requested_supplement_reviews ?? 0,
+  );
+  const exactSamplingContractMet =
+    capture?.status === "PARTIAL" &&
+    capture?.thumbnails?.status === "READY" &&
+    capture?.detail?.status === "READY" &&
+    captureReviews?.status === "PARTIAL" &&
+    reviews?.status === "PARTIAL" &&
+    diagnostics?.latest_minimum_met === true &&
+    diagnostics?.supplement_contract_met === true &&
+    diagnostics?.sampling_contract_met === true &&
+    diagnostics?.stop_reason ===
+      "LATEST_AND_SUPPLEMENT_TARGETS_REACHED" &&
+    Number(scope?.latest_reviews_observed ?? -1) ===
+      requestedLatest &&
+    Number(scope?.supplement_reviews_observed ?? -1) ===
+      requestedSupplement &&
+    Number(scope?.reviews_observed ?? -1) ===
+      requestedLatest + requestedSupplement &&
+    validation?.status === "VALID" &&
+    Array.isArray(validation?.errors) &&
+    validation.errors.length === 0;
+  return exactSamplingContractMet
+    ? {
+        status: "READY",
+        normalized: true,
+        reason:
+          "REVIEW_GROUP_REALLOCATION_CONTRACT_MET",
+      }
+    : {
+        status: "PARTIAL",
+        normalized: false,
+        reason: null,
+      };
+}
+
 export async function importCoupangBundle({
   bundleRoot,
   selection,
@@ -1114,6 +1170,12 @@ export async function importCoupangBundle({
       { validation },
     );
   }
+  const providerStatus = normalizedCoupangProviderStatus({
+    manifest,
+    capture,
+    reviews,
+    validation,
+  });
 
   const sourceManifestSha256 = sha256(manifestBytes);
   const digest16 = sourceManifestSha256.slice(0, 16);
@@ -1131,6 +1193,15 @@ export async function importCoupangBundle({
     canonical_url: candidate.canonical_url,
     source_bundle_path: root,
     source_manifest_sha256: sourceManifestSha256,
+    provider_reported_status: manifest.status,
+    provider_status: providerStatus.status,
+    provider_status_normalization:
+      providerStatus.normalized
+        ? {
+            normalized: true,
+            reason: providerStatus.reason,
+          }
+        : null,
     rights: "research_reference_only",
     production_use_allowed: false,
     approval_status: "not_approved",
@@ -1147,7 +1218,14 @@ export async function importCoupangBundle({
   const providerWarnings = Array.isArray(validation.warnings)
     ? clone(validation.warnings)
     : [];
-  if (manifest.status === "PARTIAL") {
+  if (providerStatus.normalized) {
+    providerWarnings.push({
+      code: "PROVIDER_STATUS_NORMALIZED_FROM_PARTIAL",
+      severity: "info",
+      message:
+        "최신 표본과 저·고평점 그룹 보강 계약을 모두 충족해 개별 별점 bucket 부족 상태를 READY로 정규화했습니다.",
+    });
+  } else if (manifest.status === "PARTIAL") {
     providerWarnings.push({
       code: "PROVIDER_PARTIAL",
       severity: "warning",
@@ -1178,8 +1256,12 @@ export async function importCoupangBundle({
   return {
     schema_version: "2.0-draft",
     stage_id: "G1A_MARKET_EVIDENCE",
-    status: manifest.status === "READY" ? "completed" : "hold",
-    provider_status: manifest.status,
+    status:
+      providerStatus.status === "READY"
+        ? "completed"
+        : "hold",
+    provider_status: providerStatus.status,
+    provider_reported_status: manifest.status,
     approval_status: "not_approved",
     outputs: [artifact],
     importer_receipt: {
@@ -1194,7 +1276,8 @@ export async function importCoupangBundle({
       importer_code_sha256: adapterSha256,
       normalized_artifact_id: artifactId,
       normalized_manifest_sha256: normalizedManifestSha256,
-      provider_status: manifest.status,
+      provider_status: providerStatus.status,
+      provider_reported_status: manifest.status,
       provider_warnings: providerWarnings,
       selection_receipt_id: selection.selection_receipt_id,
       candidate_set_digest: selection.candidate_set_digest,

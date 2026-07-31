@@ -15,10 +15,13 @@ import {
   createProject,
 } from "../../skills/detail-page-maker-skill/scripts/lib/new-project.mjs";
 
-const REQUIRED_DIRECTORIES = [
+const INITIAL_DIRECTORIES = [
   "input/product",
-  "output/media/images",
-  "output/media/gifs",
+  ".detail-page/authoring",
+  "output",
+];
+const LAZY_OR_SHARED_DIRECTORIES = [
+  "output/media",
   "output/wing",
   ".detail-page/backups",
   ".detail-page/evidence",
@@ -26,11 +29,10 @@ const REQUIRED_DIRECTORIES = [
   ".detail-page/generation",
   ".detail-page/workflow",
   ".detail-page/qa",
-  ".detail-page/authoring",
   ".detail-page/studio",
 ];
 
-test("Studio v1 새 프로젝트는 승인 상태별 Asset 폴더를 만든다", async () => {
+test("새 프로젝트는 최소 폴더만 만들고 단계별 Asset·Studio runtime은 지연한다", async () => {
   const temporaryRoot = await mkdtemp(
     path.join(os.tmpdir(), "detail-page-studio-v1-folders-"),
   );
@@ -42,8 +44,15 @@ test("Studio v1 새 프로젝트는 승인 상태별 Asset 폴더를 만든다",
     });
 
     await Promise.all(
-      REQUIRED_DIRECTORIES.map((directory) =>
+      INITIAL_DIRECTORIES.map((directory) =>
         access(path.join(created.projectRoot, directory)),
+      ),
+    );
+    await Promise.all(
+      LAZY_OR_SHARED_DIRECTORIES.map((directory) =>
+        assert.rejects(
+          access(path.join(created.projectRoot, directory)),
+        ),
       ),
     );
     const state = JSON.parse(
@@ -90,6 +99,10 @@ test("legacy adopt는 index.html을 입력 locator로만 읽고 신규 output pr
     );
     assert.equal(
       state.html.entry,
+      "output/detail-page.html",
+    );
+    assert.equal(
+      state.html.internalEditableRevision,
       ".detail-page/authoring/detail-page.html",
     );
     assert.equal(

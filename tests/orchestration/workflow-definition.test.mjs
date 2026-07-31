@@ -88,6 +88,9 @@ test("G2와 G3는 사용자 승인과 별도 QA를 우회할 수 없다", () => 
       min_behance_quality_score: 90,
       min_critical_dimension_score: 85,
       max_deterministic_hard_failures: 0,
+      reference_comparison_required: true,
+      category_reference_comparison_required: true,
+      post_export_validation_required: true,
     });
   }
 });

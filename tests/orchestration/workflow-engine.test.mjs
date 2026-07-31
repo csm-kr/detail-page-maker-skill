@@ -115,6 +115,53 @@ function result(workOrder, outputTypes, offset = 1) {
   return envelope;
 }
 
+async function leaseSingleProductionFrontier(
+  engine,
+  stageId,
+  agentSessionId,
+  memberId = "fixture-member",
+) {
+  const exactInputDigest = sha256(
+    `${project().input_digest}:${stageId}:${memberId}`,
+  );
+  const expectedArtifactId =
+    `artifact-${stageId.toLowerCase()}-${memberId}`;
+  const leased = await engine.leaseFrontier(
+    project("fixture-frontier-coordinator"),
+    {
+      worker_capacity: 1,
+      agent_session_ids: [agentSessionId],
+      stage_ids: [stageId],
+      planned_work_items: [
+        {
+          work_item_id: `${stageId}:${memberId}`,
+          member_id: memberId,
+          parallel_lane: "fixture",
+          stage_id: stageId,
+          exact_input_digest: exactInputDigest,
+          expected_artifact_id: expectedArtifactId,
+          expected_output_type:
+            stageId === "G2A_IMAGE"
+              ? "media.image_approved"
+              : "motion.preview_approved",
+          output_locator:
+            `.detail-page/workflow/staging/${stageId.toLowerCase()}/${memberId}`,
+          descendant_work_item_ids: [],
+          requires_execution_receipt: true,
+          requires_independent_validation_receipt: true,
+          producer_agent_session_id: agentSessionId,
+          time_budget_ms: 5 * 60 * 1000,
+          heartbeat_policy: {
+            required: true,
+            interval_ms: 30 * 1000,
+          },
+        },
+      ],
+    },
+  );
+  return leased.work_orders[0];
+}
+
 test("artifact record commit·verify store가 없으면 엔진 생성을 거부한다", () => {
   assert.throws(
     () =>
@@ -662,7 +709,8 @@ test("member revision commit은 선택한 member branch만 stale하고 approval�
     repair_target_stages: [],
     runner_contract: userGate ? null : internalRunner,
     validation_policy: null,
-    fan_out_key: null,
+    fan_out_key:
+      stageId === "G2A_IMAGE" ? "image_job_id" : null,
     user_gate: userGate,
     mutable_output: false,
   });
@@ -701,20 +749,31 @@ test("member revision commit은 선택한 member branch만 stale하고 approval�
   };
   const engine = createWorkflowEngine({ projectRoot: root, definition });
   await leaseAndSubmit(engine, "S0_INTAKE", ["project.intake"], 1);
-  const imageWork = await engine.lease(project("image-producer"), {
-    stage_ids: ["G2A_IMAGE"],
-  });
+  const imageWork = await leaseSingleProductionFrontier(
+    engine,
+    "G2A_IMAGE",
+    "image-producer",
+    "image-a",
+  );
   const imageResult = result(
     imageWork,
     ["media.image_approved"],
     2,
   );
+  imageResult.output_artifacts[0].artifact_id =
+    imageWork.frontier_expected_artifact_id;
   imageResult.output_artifacts[0].member_ids = ["image-a", "image-b"];
   imageResult.output_artifacts[0].members = [
     { member_id: "image-a", member_sha256: HASHES[7] },
     { member_id: "image-b", member_sha256: HASHES[8] },
   ];
   await engine.submit(imageWork.work_order_id, imageResult);
+  const imageArtifactId =
+    imageWork.frontier_expected_artifact_id;
+  await engine.completeParallelFrontier(project(), {
+    stage_id: "G2A_IMAGE",
+    expected_work_item_ids: [imageWork.work_item_id],
+  });
   await leaseAndSubmit(
     engine,
     "G4A_ASSEMBLY",
@@ -743,7 +802,7 @@ test("member revision commit은 선택한 member branch만 stale하고 approval�
   const state = await store.load(project().project_id);
   for (const edge of state.graph.edges.filter(
     (candidate) =>
-      candidate.from === "g2a_image-0" &&
+      candidate.from === imageArtifactId &&
       candidate.to.startsWith("g4a_assembly-"),
   )) {
     const branchIndex = edge.to.endsWith("-0") ? 0 : 1;
@@ -760,7 +819,7 @@ test("member revision commit은 선택한 member branch만 stale하고 approval�
     decision: "REJECTED",
     gate_stage_id: "G2U_APPROVAL",
     subject: {
-      artifact_id: "g2a_image-0",
+      artifact_id: imageArtifactId,
       manifest_sha256: HASHES[2],
       member_id: "image-a",
       member_sha256: HASHES[7],
@@ -793,7 +852,11 @@ test("member revision commit은 선택한 member branch만 stale하고 approval�
     planned.plan.stale_member_refs.map((item) => item.member_id),
     ["image-a"],
   );
-  assert.ok(planned.plan.protected_ids.includes("g2a_image-0#image-b"));
+  assert.ok(
+    planned.plan.protected_ids.includes(
+      `${imageArtifactId}#image-b`,
+    ),
+  );
 
   await createWorkflowEngine({
     projectRoot: root,
@@ -809,13 +872,13 @@ test("member revision commit은 선택한 member branch만 stale하고 approval�
   }).inspect(project());
   assert.equal(
     after.artifacts.find(
-      (artifact) => artifact.artifact_id === "g2a_image-0",
+      (artifact) => artifact.artifact_id === imageArtifactId,
     ).status,
     "partial_stale",
   );
   assert.deepEqual(
     after.artifacts.find(
-      (artifact) => artifact.artifact_id === "g2a_image-0",
+      (artifact) => artifact.artifact_id === imageArtifactId,
     ).stale_member_ids,
     ["image-a"],
   );
@@ -1332,7 +1395,10 @@ test("inspect와 advance는 commit 뒤 evidence·media·HTML member bytes를 다
               adapter_id: "FixtureMaterializedAdapter",
             },
             validation_policy: null,
-            fan_out_key: null,
+            fan_out_key:
+              fixture.stage_id === "G2A_IMAGE"
+                ? "image_job_id"
+                : null,
             user_gate: false,
             mutable_output: false,
           },
@@ -1349,12 +1415,24 @@ test("inspect와 advance는 commit 뒤 evidence·media·HTML member bytes를 다
         projectRoot: root,
         definition,
       });
-      const workOrder = await engine.lease(
-        project(`${fixture.stage_id}-producer`),
-        { stage_ids: [fixture.stage_id] },
-      );
+      const workOrder =
+        fixture.stage_id === "G2A_IMAGE"
+          ? await leaseSingleProductionFrontier(
+              engine,
+              fixture.stage_id,
+              `${fixture.stage_id}-producer`,
+              "materialized-image",
+            )
+          : await engine.lease(
+              project(`${fixture.stage_id}-producer`),
+              { stage_ids: [fixture.stage_id] },
+            );
       const envelope = result(workOrder, [fixture.type], 2);
       const artifact = envelope.output_artifacts[0];
+      if (workOrder.work_item_id) {
+        artifact.artifact_id =
+          workOrder.frontier_expected_artifact_id;
+      }
       artifact.member_ids = ["member-file"];
       artifact.member_manifest = {
         schema_version: "1.0",
@@ -1370,6 +1448,12 @@ test("inspect와 advance는 commit 뒤 evidence·media·HTML member bytes를 다
         ],
       };
       await engine.submit(workOrder.work_order_id, envelope);
+      if (workOrder.work_item_id) {
+        await engine.completeParallelFrontier(project(), {
+          stage_id: fixture.stage_id,
+          expected_work_item_ids: [workOrder.work_item_id],
+        });
+      }
 
       const unrelated = path.join(root, "unrelated.tmp");
       await writeFile(unrelated, "not in member manifest", "utf8");

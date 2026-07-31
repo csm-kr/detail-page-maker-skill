@@ -17,8 +17,18 @@ import {
 } from "./lib/project-manager.mjs";
 import {
   buildLearningStatus,
+  findWorkspaceRoot,
   renderLearningStatus,
 } from "./maintenance/learning-status.mjs";
+import {
+  ensureExperienceDrop,
+  syncTrustedExperiences,
+} from "./maintenance/experience-sync.mjs";
+import {
+  inspectAgentCapacity,
+  normalizeAgentSessionIds,
+  resolveWorkerAllocation,
+} from "./orchestration/agent-capacity.mjs";
 import {
   createDependencyClosureReceipt,
   inspectDependencyClosure,
@@ -26,6 +36,17 @@ import {
 import {
   dispatchParallelProductionFrontier,
 } from "./orchestration/parallel-dispatcher.mjs";
+import {
+  buildReferenceArtifactSet,
+  writeReferenceArtifactSet,
+} from "./orchestration/reference-artifact-set.mjs";
+import {
+  buildCategoryReferenceCohort,
+  CATEGORY_REFERENCE_LIBRARY_SHA256,
+  getCategoryReferenceLibrary,
+  validateCategoryReferenceLibrary,
+  validateCategoryReferenceLibraryFiles,
+} from "./orchestration/category-reference-library.mjs";
 import { createWorkflowEngine } from "./orchestration/workflow-engine.mjs";
 import { startStudioV1Server } from "./runtime/studio-v1-server.mjs";
 
@@ -170,9 +191,11 @@ function printHelp() {
 
 Commands:
   doctor
+  agent-capacity [--worker-capacity <N|auto>] [--worker-sessions <ID[,ID]>]
+                 [--workspace <workspace-folder>]
   workflow-status --project <project-folder> --project-id <ID> --input-digest <SHA-256>
   workflow-advance --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-                   [--worker-capacity <N> --worker-sessions <ID[,ID]>]
+                   [--worker-capacity <N|auto> --worker-sessions <ID[,ID]>]
                    [--production-plan <JSON-file|JSON> --plan-approval <JSON-file|JSON>]
                    [--approved-image-job-ids <ID[,ID]>]
   workflow-resume --project <project-folder> --project-id <ID> --input-digest <SHA-256>
@@ -192,6 +215,12 @@ Commands:
                    --agent-session <ID> --work-order <ID> --fencing-token <TOKEN> --attempt <N>
   worker-submit --project <project-folder> --work-order <ID> --result <JSON-file>
   learning-status [--workspace <workspace 폴더>] [--json]
+  experience-init [--workspace <workspace 폴더>]
+  experience-sync [--workspace <workspace 폴더>] [--json]
+  reference-library [--primary <archetype-id>] [--secondary <archetype-id>]
+  reference-profile --project <프로젝트 폴더>
+                    [--reference <기준 HTML> --role <positive_reference|negative_reference|approved_exemplar>]
+                    [--output <reference-artifact-set.json>] [--workspace <workspace 폴더>]
   list [--root <projects 폴더>] [--json]
   validate [--project <프로젝트 폴더> | --root <projects 폴더>] [--json]
   new --name <상품명> --supplier-url <URL> [--root <폴더>] [--no-start]
@@ -300,6 +329,19 @@ function readJsonArgument(value, label) {
   }
 }
 
+function readProductionPlanArgument(value) {
+  const parsed = readJsonArgument(value, "ProductionPlan");
+  if (
+    parsed?.artifact?.type === "production.plan" &&
+    parsed.artifact.payload &&
+    typeof parsed.artifact.payload === "object" &&
+    !Array.isArray(parsed.artifact.payload)
+  ) {
+    return parsed.artifact.payload;
+  }
+  return parsed;
+}
+
 async function doctor() {
   // `doctor` is diagnostic-only. Never let npx download or update a runtime.
   const hyperframes = probe("npx", [
@@ -314,6 +356,12 @@ async function doctor() {
   const dependencyClosureReceipt = dependencyClosure.ok
     ? await createDependencyClosureReceipt(CURRENT_SKILL_ROOT)
     : null;
+  const categoryReferenceLibrary =
+    validateCategoryReferenceLibrary();
+  const categoryReferenceFiles =
+    await validateCategoryReferenceLibraryFiles({
+      skillRoot: CURRENT_SKILL_ROOT,
+    });
   const localSkills = Object.fromEntries(
     requiredLocalSkills().map((skillName) => [
       skillName,
@@ -325,6 +373,11 @@ async function doctor() {
   const godTiboGptImage2 = probeGodTiboRuntime(
     localSkills["god-tibo-gpt-image2-skill"],
   );
+  const agentCapacity = inspectAgentCapacity({
+    sessionIds: normalizeAgentSessionIds(
+      process.env.DETAIL_PAGE_AGENT_SESSION_IDS,
+    ),
+  });
   const report = {
     ok:
       nodeSupported() &&
@@ -332,6 +385,8 @@ async function doctor() {
       browserHarness.ok &&
       ffmpeg.ok &&
       dependencyClosure.ok &&
+      categoryReferenceLibrary.ok &&
+      categoryReferenceFiles.ok &&
       localSkillsOk &&
       godTiboGptImage2.ok,
     node: {
@@ -353,6 +408,12 @@ async function doctor() {
     },
     dependencyClosure,
     dependencyClosureReceipt,
+    categoryReferenceLibrary: {
+      ...categoryReferenceLibrary,
+      library_sha256:
+        CATEGORY_REFERENCE_LIBRARY_SHA256,
+      files: categoryReferenceFiles,
+    },
     localSkillRoot: path.join(CURRENT_SKILL_ROOT, ".agents", "skills"),
     localSkills,
     designTasteFrontend: {
@@ -362,10 +423,24 @@ async function doctor() {
       detail: designTasteFrontend?.detail || null,
     },
     godTiboGptImage2,
+    agentCapacity,
     defaultProjectsRoot: defaultProjectsRoot(),
   };
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exitCode = 1;
+}
+
+function commandWorkspaceRoot(args) {
+  return path.resolve(
+    args.workspace || findWorkspaceRoot(process.cwd()),
+  );
+}
+
+async function reconcileTrustedExperiences(args) {
+  return syncTrustedExperiences({
+    workspaceRoot: commandWorkspaceRoot(args),
+    skillRoot: CURRENT_SKILL_ROOT,
+  });
 }
 
 async function main() {
@@ -379,15 +454,142 @@ async function main() {
     await doctor();
     return;
   }
+  if (command === "agent-capacity") {
+    const sessionIds = normalizeAgentSessionIds(
+      args["worker-sessions"] ||
+        process.env.DETAIL_PAGE_AGENT_SESSION_IDS,
+    );
+    const profile = inspectAgentCapacity({ sessionIds });
+    const requested =
+      args["worker-capacity"] ||
+      process.env.DETAIL_PAGE_WORKER_CAPACITY ||
+      "auto";
+    const allocation =
+      sessionIds.length > 0
+        ? resolveWorkerAllocation({
+            requestedCapacity: requested,
+            cliSessionIds: sessionIds,
+          })
+        : null;
+    console.log(
+      JSON.stringify(
+        {
+          workspace_root: commandWorkspaceRoot(args),
+          profile,
+          allocation,
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+  if (command === "experience-init") {
+    const output = await ensureExperienceDrop({
+      workspaceRoot: commandWorkspaceRoot(args),
+    });
+    console.log(JSON.stringify(output, null, 2));
+    return;
+  }
+  if (command === "experience-sync") {
+    const output = await reconcileTrustedExperiences(args);
+    console.log(JSON.stringify(output, null, 2));
+    if (output.quarantined > 0) process.exitCode = 2;
+    return;
+  }
   if (command === "learning-status") {
     const report = await buildLearningStatus({
-      workspaceRoot: path.resolve(args.workspace || process.cwd()),
+      workspaceRoot: commandWorkspaceRoot(args),
     });
     if (args.json === true) {
       console.log(JSON.stringify(report, null, 2));
     } else {
       process.stdout.write(renderLearningStatus(report));
     }
+    return;
+  }
+  if (command === "reference-library") {
+    const library = getCategoryReferenceLibrary();
+    const output = args.primary
+      ? {
+          cohort: buildCategoryReferenceCohort({
+            primaryArchetypeId: String(args.primary),
+            secondaryArchetypeIds: args.secondary
+              ? [String(args.secondary)]
+              : [],
+          }),
+          library_sha256:
+            CATEGORY_REFERENCE_LIBRARY_SHA256,
+        }
+      : {
+          library,
+          library_sha256:
+            CATEGORY_REFERENCE_LIBRARY_SHA256,
+        };
+    console.log(JSON.stringify(output, null, 2));
+    return;
+  }
+  if (command === "reference-profile") {
+    if (!args.project) {
+      throw new Error(
+        "reference-profile에는 --project 경로가 필요합니다.",
+      );
+    }
+    const projectRoot = path.resolve(args.project);
+    const workspaceRoot = commandWorkspaceRoot(args);
+    const references = args.reference
+      ? [
+          {
+            filePath: path.resolve(args.reference),
+            role: String(args.role || "positive_reference"),
+          },
+        ]
+      : [];
+    const artifactSet = await buildReferenceArtifactSet({
+      projectRoot,
+      workspaceRoot,
+      references,
+    });
+    const outputPath = path.resolve(
+      args.output ||
+        path.join(
+          projectRoot,
+          ".detail-page",
+          "research",
+          "reference-artifact-set.json",
+        ),
+    );
+    const referenceResearchRoot = path.join(
+      projectRoot,
+      ".detail-page",
+      "research",
+    );
+    const outputRelative = path.relative(
+      referenceResearchRoot,
+      outputPath,
+    );
+    if (
+      outputRelative.startsWith("..") ||
+      path.isAbsolute(outputRelative)
+    ) {
+      throw new Error(
+        "reference profile 출력은 프로젝트의 .detail-page/research 안에 있어야 합니다.",
+      );
+    }
+    await writeReferenceArtifactSet(outputPath, artifactSet);
+    console.log(
+      JSON.stringify(
+        {
+          output: path
+            .relative(workspaceRoot, outputPath)
+            .split(path.sep)
+            .join("/"),
+          reference_artifact_set: artifactSet,
+        },
+        null,
+        2,
+      ),
+    );
     return;
   }
   if (
@@ -491,6 +693,7 @@ async function main() {
     if (command === "workflow-status") {
       output = await engine.inspect(projectRef, inputOptions);
     } else if (command === "workflow-advance") {
+      const experienceSync = await reconcileTrustedExperiences(args);
       output = await engine.advance(projectRef, {
         until: args.until || "next_user_gate",
         ...inputOptions,
@@ -503,12 +706,12 @@ async function main() {
         .filter(Boolean);
       output = await dispatchParallelProductionFrontier({
         engine,
+        project_root: projectRoot,
         project_ref: projectRef,
         advance_result: output,
         production_plan: args["production-plan"]
-          ? readJsonArgument(
+          ? readProductionPlanArgument(
               args["production-plan"],
-              "ProductionPlan",
             )
           : null,
         plan_approval: args["plan-approval"]
@@ -523,7 +726,10 @@ async function main() {
           .split(",")
           .map((jobId) => jobId.trim())
           .filter(Boolean),
-        worker_capacity: Number(args["worker-capacity"]),
+        worker_capacity:
+          args["worker-capacity"] ||
+          process.env.DETAIL_PAGE_WORKER_CAPACITY ||
+          "auto",
         worker_session_ids: workerSessionIds,
         failed_members: args["failed-members"]
           ? readJsonArgument(
@@ -538,11 +744,18 @@ async function main() {
           .map((workItemId) => workItemId.trim())
           .filter(Boolean),
       });
+      if (output && typeof output === "object") {
+        output.experience_sync = experienceSync;
+      }
     } else if (command === "workflow-resume") {
+      const experienceSync = await reconcileTrustedExperiences(args);
       output = await engine.resume(projectRef, {
         until: args.until || "next_user_gate",
         ...inputOptions,
       });
+      if (output && typeof output === "object") {
+        output.experience_sync = experienceSync;
+      }
     } else if (command === "worker-lease") {
       output = await engine.lease(projectRef, {
         stage_ids: args.stage
@@ -665,12 +878,16 @@ async function main() {
         "new 명령에는 --name과 --supplier-url이 필요합니다.",
       );
     }
+    const experienceSync = await reconcileTrustedExperiences(args);
     const created = await createProject({
       name: args.name,
       supplierUrl: args["supplier-url"],
       root: args.root || defaultProjectsRoot(),
     });
     console.log(`Project created: ${created.projectRoot}`);
+    console.log(
+      `Experience sync: promoted=${experienceSync.promoted} reused=${experienceSync.reused} quarantined=${experienceSync.quarantined}`,
+    );
     if (args["no-start"] !== true) {
       const started = await startStudioV1Server({
         projectRoot: created.projectRoot,
@@ -687,6 +904,7 @@ async function main() {
         "adopt 명령에는 --project, --name, --supplier-url이 필요합니다.",
       );
     }
+    const experienceSync = await reconcileTrustedExperiences(args);
     const adopted = await adoptProject({
       projectRoot: args.project,
       name: args.name,
@@ -697,18 +915,25 @@ async function main() {
       htmlEntry: args["html-entry"] || "detail-page/index.html",
     });
     console.log(`Project adopted: ${adopted.projectRoot}`);
+    console.log(
+      `Experience sync: promoted=${experienceSync.promoted} reused=${experienceSync.reused} quarantined=${experienceSync.quarantined}`,
+    );
     return;
   }
   if (command === "start") {
     if (!args.project) {
       throw new Error("start 명령에는 --project 경로가 필요합니다.");
     }
+    const experienceSync = await reconcileTrustedExperiences(args);
     const started = await startStudioV1Server({
       projectRoot: path.resolve(args.project),
       port: Number(args.port || 8896),
       open: args["no-open"] !== true,
     });
     console.log(`Detail Page Studio v1: ${started.url}`);
+    console.log(
+      `Experience sync: promoted=${experienceSync.promoted} reused=${experienceSync.reused} quarantined=${experienceSync.quarantined}`,
+    );
     return;
   }
   throw new Error(`알 수 없는 명령입니다: ${command}`);

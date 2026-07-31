@@ -73,6 +73,14 @@ const STUDIO_CAPABILITY_HEADER = "x-detail-page-studio-capability";
 const WORKFLOW_APPROVAL_NOTICE = Object.freeze({
   substitutesStageApproval: false,
   ledgerScope: "asset-file-only",
+  planOncePolicy: Object.freeze({
+    policyId:
+      "policy.approval.plan-once-with-actual-photos.v1",
+    substitutesRepeatedUserConfirmation: true,
+    requiresVerifiedActualPhotos: true,
+    requiresManualG1PlanApproval: true,
+    qaBypassAllowed: false,
+  }),
   requiredStages: Object.freeze([
     "G2U_APPROVAL",
     "G3U_APPROVAL",
@@ -361,7 +369,7 @@ async function listAssets(projectRoot) {
         status,
         kind,
       );
-      await mkdir(directory, { recursive: true });
+      if (!(await exists(directory))) continue;
       const entries = await readdir(directory, { withFileTypes: true });
       for (const entry of entries) {
         if (
@@ -593,6 +601,78 @@ async function workflowProjectRef(
   );
 }
 
+export function inspectActivePublishLineageFreshness(
+  graph,
+  publishApprovalArtifactId,
+) {
+  const artifacts = Array.isArray(graph?.artifacts)
+    ? graph.artifacts
+    : [];
+  const edges = Array.isArray(graph?.edges) ? graph.edges : [];
+  const artifactById = new Map(
+    artifacts
+      .filter((artifact) => artifact?.artifact_id)
+      .map((artifact) => [artifact.artifact_id, artifact]),
+  );
+  if (
+    !publishApprovalArtifactId ||
+    !artifactById.has(publishApprovalArtifactId)
+  ) {
+    return {
+      fresh: false,
+      active_artifact_ids: [],
+      blocking_stale_artifact_ids: [],
+      unresolved_artifact_ids: publishApprovalArtifactId
+        ? [publishApprovalArtifactId]
+        : [],
+    };
+  }
+
+  const incoming = new Map();
+  for (const edge of edges) {
+    if (!edge?.from || !edge?.to) {
+      continue;
+    }
+    const dependencies = incoming.get(edge.to) ?? [];
+    dependencies.push(edge.from);
+    incoming.set(edge.to, dependencies);
+  }
+
+  const activeArtifactIds = new Set();
+  const blockingStaleArtifactIds = new Set();
+  const unresolvedArtifactIds = new Set();
+  const pending = [publishApprovalArtifactId];
+  while (pending.length > 0) {
+    const artifactId = pending.pop();
+    if (activeArtifactIds.has(artifactId)) {
+      continue;
+    }
+    activeArtifactIds.add(artifactId);
+    const artifact = artifactById.get(artifactId);
+    if (!artifact) {
+      unresolvedArtifactIds.add(artifactId);
+      continue;
+    }
+    if (artifact.status === "stale") {
+      blockingStaleArtifactIds.add(artifactId);
+    }
+    for (const dependencyId of incoming.get(artifactId) ?? []) {
+      pending.push(dependencyId);
+    }
+  }
+
+  return {
+    fresh:
+      blockingStaleArtifactIds.size === 0 &&
+      unresolvedArtifactIds.size === 0,
+    active_artifact_ids: [...activeArtifactIds].sort(),
+    blocking_stale_artifact_ids: [
+      ...blockingStaleArtifactIds,
+    ].sort(),
+    unresolved_artifact_ids: [...unresolvedArtifactIds].sort(),
+  };
+}
+
 async function inspectWorkflowGate(projectRoot, workflowEngine) {
   try {
     const projectRef = await workflowProjectRef(
@@ -604,6 +684,23 @@ async function inspectWorkflowGate(projectRoot, workflowEngine) {
       workflow?.state_integrity?.status ?? "unknown";
     const publishApprovalStatus =
       workflow?.publish_approval?.status ?? "missing";
+    const state =
+      stateIntegrity === "verified"
+        ? await createFileStateStore(projectRoot).load(
+            workflow?.project_id,
+          )
+        : null;
+    const lineageFreshness = state
+      ? inspectActivePublishLineageFreshness(
+          state.graph,
+          workflow?.publish_approval?.artifact_id,
+        )
+      : {
+          fresh: false,
+          active_artifact_ids: [],
+          blocking_stale_artifact_ids: [],
+          unresolved_artifact_ids: [],
+        };
     return {
       available: true,
       workflow,
@@ -613,7 +710,8 @@ async function inspectWorkflowGate(projectRoot, workflowEngine) {
         workflow?.publish_approval?.valid === true,
       stateIntegrity,
       publishApprovalStatus,
-      fresh: workflow.stale_artifact_count === 0,
+      fresh: lineageFreshness.fresh,
+      lineageFreshness,
       error: null,
     };
   } catch (error) {
@@ -624,6 +722,12 @@ async function inspectWorkflowGate(projectRoot, workflowEngine) {
       stateIntegrity: "unavailable",
       publishApprovalStatus: "unavailable",
       fresh: false,
+      lineageFreshness: {
+        fresh: false,
+        active_artifact_ids: [],
+        blocking_stale_artifact_ids: [],
+        unresolved_artifact_ids: [],
+      },
       error: {
         code: error?.code || "WORKFLOW_INSPECT_FAILED",
         message:
@@ -795,8 +899,10 @@ async function inspectPublishQuality(projectRoot, workflow) {
 async function gateStatus(projectRoot, workflowEngine) {
   const assets = await listAssets(projectRoot);
   const manifest = await readManifest(projectRoot);
-  const pendingCount = assets.filter((asset) => asset.status === "pending").length;
-  const missingRequired = manifest.assets.filter(
+  const rawPendingCount = assets.filter(
+    (asset) => asset.status === "pending",
+  ).length;
+  const rawMissingRequired = manifest.assets.filter(
     (asset) => asset?.required === true && asset?.status !== "approved",
   );
   let project;
@@ -809,6 +915,29 @@ async function gateStatus(projectRoot, workflowEngine) {
     projectRoot,
     workflowEngine,
   );
+  const fastPath =
+    workflowGate.workflow?.workflow_flags
+      ?.plan_once_fast_path;
+  const fastPathStageIds = new Set(
+    fastPath?.auto_approved_stage_ids ?? [],
+  );
+  const planOnceAssetApproval =
+    fastPath?.policy_id ===
+      "policy.approval.plan-once-with-actual-photos.v1" &&
+    fastPath?.actual_product_photos_verified === true &&
+    fastPath?.manual_plan_approval_verified === true &&
+    ["G2U_APPROVAL", "G3U_APPROVAL"].every(
+      (stageId) =>
+        fastPathStageIds.has(stageId) &&
+        workflowGate.workflow?.stages?.[stageId]?.status ===
+          "approved",
+    );
+  const pendingCount = planOnceAssetApproval
+    ? 0
+    : rawPendingCount;
+  const missingRequired = planOnceAssetApproval
+    ? []
+    : rawMissingRequired;
   const finalQaPassed =
     project?.finalQa?.status === "passed" &&
     Number(project?.finalQa?.score || 0) >= 97;
@@ -844,7 +973,10 @@ async function gateStatus(projectRoot, workflowEngine) {
   return {
     studioVersion: 1,
     pendingCount,
+    rawPendingCount,
     missingRequiredCount: missingRequired.length,
+    rawMissingRequiredCount: rawMissingRequired.length,
+    planOnceAssetApproval,
     exportAllowed,
     finalQaPassed,
     finalQaScore: Number(project?.finalQa?.score || 0),
@@ -853,6 +985,14 @@ async function gateStatus(projectRoot, workflowEngine) {
       project?.finalQa?.userApproved === true,
     workflowPublishApproved,
     workflowFresh,
+    workflowActiveArtifactCount:
+      workflowGate.lineageFreshness?.active_artifact_ids?.length ??
+      0,
+    workflowBlockingStaleArtifactIds:
+      workflowGate.lineageFreshness
+        ?.blocking_stale_artifact_ids ?? [],
+    workflowUnresolvedArtifactIds:
+      workflowGate.lineageFreshness?.unresolved_artifact_ids ?? [],
     workflowStateIntegrity: workflowGate.stateIntegrity,
     workflowPublishApprovalStatus:
       workflowGate.publishApprovalStatus,
@@ -901,7 +1041,9 @@ async function gateStatus(projectRoot, workflowEngine) {
           ]),
       ...(workflowFresh
         ? []
-        : ["persistent workflow artifact stale 또는 freshness 확인 실패"]),
+        : [
+            "현재 publish approval 계보에 stale 또는 확인 불가 artifact가 있음",
+          ]),
     ],
   };
 }
@@ -1081,6 +1223,10 @@ async function runGeneralHtmlExport({
   );
   const saved = await saveProjectOutput(projectRoot, {
       html: approvedHtml,
+      immutableMediaRoot: path.join(
+        approved.revisionRoot,
+        "media",
+      ),
       exportManifest: {
         schema_version: "2.0",
         export_type: "public-detail-page-html",
@@ -1592,7 +1738,7 @@ export async function verifyCdnWingExport(
     exportId,
     remoteVerification: "passed",
     manifestPath: toPosix(path.relative(projectRoot, manifestPath)),
-    outputPath: "output/detail-page.html",
+    outputPath: `output/wing/${exportId}/detail-page.html`,
   };
 }
 
@@ -1656,19 +1802,52 @@ function openBrowser(url) {
 }
 
 async function resolvePageDirectory(projectRoot) {
-  const currentStudioDirectory = path.join(
-    projectRoot,
-    ".detail-page",
-    "studio",
-  );
-  if (await exists(path.join(currentStudioDirectory, "studio.html"))) {
-    return currentStudioDirectory;
-  }
   const legacyPageDirectory = path.join(projectRoot, "detail-page");
   if (await exists(path.join(legacyPageDirectory, "studio.html"))) {
     return legacyPageDirectory;
   }
-  return path.join(projectRoot, "html");
+  return path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "..",
+    "assets",
+    "studio-v1-runtime",
+  );
+}
+
+async function readStudioHtml(projectRoot, pageDirectory) {
+  let project = {};
+  try {
+    project = JSON.parse(
+      await readFile(path.join(projectRoot, "project.json"), "utf8"),
+    );
+  } catch {
+    project = {};
+  }
+  const productName = String(
+    project?.name || path.basename(projectRoot),
+  );
+  const projectKey = String(
+    project?.productId ||
+      project?.id ||
+      path.basename(projectRoot),
+  );
+  return (
+    await readFile(path.join(pageDirectory, "studio.html"), "utf8")
+  )
+    .replaceAll("{{PRODUCT_NAME}}", productName)
+    .replaceAll("{{PROJECT_KEY}}", projectKey);
+}
+
+function serveHtml(response, html, extraHeaders = {}) {
+  const body = Buffer.from(html, "utf8");
+  response.writeHead(200, {
+    "Content-Type": "text/html; charset=utf-8",
+    "Content-Length": body.length,
+    "Cache-Control": "no-store",
+    ...extraHeaders,
+  });
+  response.end(body);
 }
 
 export async function startStudioV1Server({
@@ -1689,6 +1868,7 @@ export async function startStudioV1Server({
     throw new Error(`프로젝트 폴더가 아닙니다: ${root}`);
   }
   const pageDirectory = await resolvePageDirectory(root);
+  const studioHtml = await readStudioHtml(root, pageDirectory);
   const currentAuthoringPath = path.join(
     root,
     ".detail-page",
@@ -1697,7 +1877,7 @@ export async function startStudioV1Server({
   );
   const authoringPath = (await exists(currentAuthoringPath))
     ? currentAuthoringPath
-    : path.join(pageDirectory, "index.html");
+    : path.join(root, "output", "detail-page.html");
   const workflowEngine = createWorkflowEngine({ projectRoot: root });
   const capabilityToken = randomBytes(32).toString("base64url");
   const capabilityCookie =
@@ -2031,9 +2211,9 @@ export async function startStudioV1Server({
       }
 
       if (pathname === "/" || pathname === "/studio.html") {
-        await serveFile(
+        serveHtml(
           response,
-          await resolveExistingInside(pageDirectory, "studio.html"),
+          studioHtml,
           { "Set-Cookie": capabilityCookie },
         );
         return;
@@ -2056,6 +2236,19 @@ export async function startStudioV1Server({
         return;
       }
       if (pathname.startsWith("/.detail-page/generation/")) {
+        await serveFile(
+          response,
+          await resolveExistingInside(
+            root,
+            pathname.replace(/^\/+/, ""),
+          ),
+        );
+        return;
+      }
+      if (
+        pathname.startsWith("/studio/revisions/") ||
+        pathname.startsWith("/.detail-page/workflow/revisions/")
+      ) {
         await serveFile(
           response,
           await resolveExistingInside(

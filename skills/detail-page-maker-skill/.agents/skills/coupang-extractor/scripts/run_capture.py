@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import argparse
 import base64
+from contextlib import contextmanager
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +33,59 @@ SENTINELS = {
     "__CE_REVIEWS__": "reviews",
     "__CE_RECORDING__": "recording",
 }
+
+
+@contextmanager
+def _exclusive_browser_harness_lock(timeout_seconds: int):
+    """Serialize local Chrome control across concurrent extractor workers."""
+    lock_path = Path(tempfile.gettempdir()) / "coupang-extractor-browser-harness.lock"
+    lock_file = lock_path.open("a+b")
+    acquired = False
+    deadline = time.monotonic() + max(1, timeout_seconds)
+    try:
+        if os.name == "nt":
+            import msvcrt
+
+            lock_file.seek(0)
+            if lock_file.read(1) == b"":
+                lock_file.write(b"\0")
+                lock_file.flush()
+            while not acquired:
+                lock_file.seek(0)
+                try:
+                    msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+                    acquired = True
+                except OSError:
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError("local Browser Harness lock timeout")
+                    time.sleep(0.25)
+        else:
+            import fcntl
+
+            while not acquired:
+                try:
+                    fcntl.flock(
+                        lock_file.fileno(),
+                        fcntl.LOCK_EX | fcntl.LOCK_NB,
+                    )
+                    acquired = True
+                except BlockingIOError:
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError("local Browser Harness lock timeout")
+                    time.sleep(0.25)
+        yield str(lock_path)
+    finally:
+        if acquired:
+            if os.name == "nt":
+                import msvcrt
+
+                lock_file.seek(0)
+                msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+        lock_file.close()
 
 
 def _start_expression(
@@ -229,18 +285,22 @@ def main() -> int:
     )
     environment = os.environ.copy()
     environment["BH_AGENT_WORKSPACE"] = str(bundle_dir / "evidence" / "browser-harness")
+    browser_lock_path = None
     try:
-        completed = subprocess.run(
-            [harness],
-            input=program,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            capture_output=True,
-            timeout=args.browser_timeout,
-            check=False,
-            env=environment,
-        )
+        with _exclusive_browser_harness_lock(
+            args.browser_timeout,
+        ) as browser_lock_path:
+            completed = subprocess.run(
+                [harness],
+                input=program,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                capture_output=True,
+                timeout=args.browser_timeout,
+                check=False,
+                env=environment,
+            )
     except (OSError, subprocess.TimeoutExpired) as exc:
         write_failure(
             bundle_dir,
@@ -249,6 +309,24 @@ def main() -> int:
             details={"error_type": type(exc).__name__},
         )
         print(bundle_dir)
+        return 3
+    except TimeoutError:
+        write_failure(
+            bundle_dir,
+            code="LOCAL_RUNTIME_FAILED",
+            message="다른 작업자가 로컬 Browser Harness를 사용 중이어서 직렬 실행 대기 시간이 초과됐습니다.",
+            details={"reason": "BROWSER_HARNESS_BUSY"},
+        )
+        print(
+            json.dumps(
+                {
+                    "status": "LOCAL_RUNTIME_FAILED",
+                    "bundle": str(bundle_dir),
+                    "reason": "BROWSER_HARNESS_BUSY",
+                },
+                ensure_ascii=False,
+            )
+        )
         return 3
     values = _parse_browser_output(completed.stdout)
     diagnostics = {
@@ -260,6 +338,7 @@ def main() -> int:
         "page": values.get("page"),
         "stdout_line_count": len(completed.stdout.splitlines()),
         "stderr_tail": completed.stderr[-4000:],
+        "browser_lock": browser_lock_path,
     }
     if completed.returncode != 0 or not any(section in values for section in sections):
         write_failure(

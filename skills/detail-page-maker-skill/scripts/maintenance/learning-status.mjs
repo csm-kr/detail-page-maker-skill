@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { access, readdir, readFile, stat } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -21,6 +22,12 @@ async function exists(target) {
 export function findWorkspaceRoot(startDirectory = process.cwd()) {
   let current = path.resolve(startDirectory);
   while (true) {
+    const configPath = path.join(
+      current,
+      "config",
+      "workspace.json",
+    );
+    if (existsSync(configPath)) return current;
     if (
       path.basename(current) === ".workspace" ||
       path.basename(current) === "workspace"
@@ -31,6 +38,29 @@ export function findWorkspaceRoot(startDirectory = process.cwd()) {
     if (parent === current) return path.resolve(startDirectory);
     current = parent;
   }
+}
+
+function configuredProjectsRoot(workspace) {
+  const configPath = path.join(
+    workspace,
+    "config",
+    "workspace.json",
+  );
+  if (existsSync(configPath)) {
+    try {
+      const config = JSON.parse(readFileSync(configPath, "utf8"));
+      if (
+        config.schemaVersion === 1 &&
+        typeof config.projectsRoot === "string" &&
+        config.projectsRoot.trim()
+      ) {
+        return path.resolve(workspace, config.projectsRoot);
+      }
+    } catch {
+      // learning-status reports the canonical fallback without mutating config.
+    }
+  }
+  return path.join(workspace, "projects");
 }
 
 export function resolveLearningPaths({
@@ -74,7 +104,22 @@ export function resolveLearningPaths({
       "learning",
       "candidates.md",
     ),
-    projectsRoot: path.join(workspace, ".workspace", "projects"),
+    experienceRoot: path.join(workspace, "exps"),
+    experiencePromotions: path.join(
+      workspace,
+      ".workspace",
+      "learning",
+      "exps",
+      "promotions",
+    ),
+    experienceQuarantine: path.join(
+      workspace,
+      ".workspace",
+      "learning",
+      "exps",
+      "quarantine",
+    ),
+    projectsRoot: configuredProjectsRoot(workspace),
     learningRegistry: path.join(skill, "references", "learning.md"),
     commercialReference: path.join(skill, "references", "commercial.md"),
     tasteReference: path.join(skill, "references", "taste.md"),
@@ -149,6 +194,15 @@ async function countProjectFeedback(projectsRoot) {
   return count;
 }
 
+async function countDirectoryFiles(directory, predicate) {
+  if (!(await exists(directory))) return 0;
+  return (
+    await readdir(directory, { withFileTypes: true })
+  ).filter(
+    (entry) => entry.isFile() && predicate(entry.name),
+  ).length;
+}
+
 export async function buildLearningStatus(options = {}) {
   const paths = resolveLearningPaths(options);
   const files = Object.fromEntries(
@@ -176,6 +230,21 @@ export async function buildLearningStatus(options = {}) {
         /^#{2,3}\s+LEARN-/gm,
       ),
       projectFeedbackLearnings: await countProjectFeedback(paths.projectsRoot),
+      experienceMarkdownFiles: await countDirectoryFiles(
+        paths.experienceRoot,
+        (name) =>
+          name.toLowerCase().endsWith(".md") &&
+          name.toLowerCase() !== "readme.md" &&
+          !name.startsWith("_"),
+      ),
+      promotedExperiences: await countDirectoryFiles(
+        paths.experiencePromotions,
+        (name) => name.endsWith(".json"),
+      ),
+      quarantinedExperiences: await countDirectoryFiles(
+        paths.experienceQuarantine,
+        (name) => name.endsWith(".json"),
+      ),
       distilledCandidates: await countMatches(
         paths.candidateReport,
         /^\|\s+[^-|\n][^|\n]*\|\s+LEARN-/gm,
@@ -206,6 +275,12 @@ export async function buildLearningStatus(options = {}) {
         "candidateReport",
         "tasteReference or motionReference by category",
         "delete promoted source block",
+      ],
+      trustedExperiences: [
+        "exps/*.md",
+        "sanitize + evidence verification + independent review",
+        "commercialReference or tasteReference or motionReference",
+        "immutable flat promotion receipt",
       ],
       gifResearch: [
         "gifInbox",
@@ -253,6 +328,10 @@ export function renderLearningStatus(report) {
     "6. 증류 후보 보고서",
     `   ${files.candidateReport.path}`,
     `   ${statusLabel(files.candidateReport)} · ${report.counts.distilledCandidates}건`,
+    "6-1. 완성 결과 Trusted Experience",
+    `   ${files.experienceRoot.path}`,
+    `   ${statusLabel(files.experienceRoot)} · 입력 ${report.counts.experienceMarkdownFiles}건`,
+    `   승격 ${report.counts.promotedExperiences}건 · 격리 ${report.counts.quarantinedExperiences}건`,
     "7. Behance 검증 규칙의 실제 반영 위치",
     `   ${files.commercialReference.path}`,
     `   ${statusLabel(files.commercialReference)} · CR 규칙 ${report.counts.commercialRules}건`,

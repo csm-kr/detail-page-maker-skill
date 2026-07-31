@@ -282,7 +282,7 @@ test("immutable Studio+HTML+rubric에 고정된 deterministic Browser Harness Wo
       workOrder.captures.map(
         (capture) => capture.viewport.width,
       ),
-      [320, 360, 390],
+      [320, 360, 780, 390],
     );
     assert.deepEqual(
       workOrder.captures.map((capture) => ({
@@ -299,6 +299,11 @@ test("immutable Studio+HTML+rubric에 고정된 deterministic Browser Harness Wo
         },
         {
           width: 360,
+          device_scale_factor: 1,
+          purpose: "hidden_overflow_qa",
+        },
+        {
+          width: 780,
           device_scale_factor: 1,
           purpose: "hidden_overflow_qa",
         },
@@ -368,7 +373,11 @@ test("immutable Studio+HTML+rubric에 고정된 deterministic Browser Harness Wo
     );
     assert.match(
       captureCommand.stdin,
-      /new_tab\(URL, focus=False\)/,
+      /"Target\.createTarget"/,
+    );
+    assert.match(
+      captureCommand.stdin,
+      /goto_url\(URL\)/,
     );
     assert.match(
       captureCommand.stdin,
@@ -412,7 +421,7 @@ test("실제 PNG bytes와 viewport·recording·overflow·stable frame을 검증�
       artifact.manifest_sha256,
       /^[a-f0-9]{64}$/,
     );
-    assert.equal(artifact.captures.length, 3);
+    assert.equal(artifact.captures.length, 4);
     assert.equal(
       artifact.member_manifest.policy,
       "materialized",
@@ -423,14 +432,18 @@ test("실제 PNG bytes와 viewport·recording·overflow·stable frame을 검증�
         root_id: member.root_id,
         locator: member.locator,
       })),
-      artifact.captures.map((capture) => ({
-        member_id: capture.capture_id,
-        root_id: "allowed_output",
-        locator: path.posix.join(
-          "studio-rev-fixture",
-          capture.relative_path,
+      artifact.captures
+        .map((capture) => ({
+          member_id: capture.capture_id,
+          root_id: "allowed_output",
+          locator: path.posix.join(
+            "studio-rev-fixture",
+            capture.relative_path,
+          ),
+        }))
+        .sort((left, right) =>
+          left.member_id.localeCompare(right.member_id),
         ),
-      })),
     );
     assert.equal(
       artifact.member_manifest.members.every(
@@ -444,7 +457,7 @@ test("실제 PNG bytes와 viewport·recording·overflow·stable frame을 검증�
       artifact.captures.map(
         (capture) => capture.png_width,
       ),
-      [320, 360, 780],
+      [320, 360, 780, 780],
     );
     assert.equal(
       artifact.captures.every(

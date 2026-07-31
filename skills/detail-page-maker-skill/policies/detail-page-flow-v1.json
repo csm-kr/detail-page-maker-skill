@@ -1,14 +1,16 @@
 {
   "schema_version": "1.0",
   "policy_id": "detail-page-flow",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "required",
   "authority": "user-confirmed-house-standard",
   "canvas": {
     "authoring_width_css_px": 390,
     "delivery_asset_width_px": 780,
+    "public_html_content_width_css_px": 780,
+    "authoring_layout_may_not_be_used_as_narrow_public_column": true,
     "desktop_variant_required": false,
-    "hidden_responsive_qa_widths_px": [320, 360, 390]
+    "hidden_responsive_qa_widths_px": [320, 360, 390, 780]
   },
   "inputs": {
     "user_product_photo_directory": "input/product",
@@ -34,6 +36,34 @@
     "market_and_behance_media": {
       "role": "research_only",
       "production_asset_reuse": false
+    },
+    "reference_artifact_set": {
+      "required_before_g1": true,
+      "roles": [
+        "current_output",
+        "positive_reference",
+        "negative_reference",
+        "approved_exemplar"
+      ],
+      "current_output_baseline_required": true,
+      "adoption_matrix_required": true,
+      "allowed_learning_scope": [
+        "purchase_flow",
+        "section_density",
+        "image_role",
+        "motion_role",
+        "delivery_width"
+      ],
+      "unique_copy_or_asset_reuse_allowed": false
+    },
+    "category_reference_library": {
+      "required_before_g1": true,
+      "policy_path": "policies/category-reference-library-v1.json",
+      "primary_archetype_count": 1,
+      "secondary_archetype_maximum": 1,
+      "minimum_primary_reference_cards": 2,
+      "ambition_anchor_required": true,
+      "project_asset_copy_allowed": false
     }
   },
   "content": {
@@ -129,6 +159,19 @@
     "decision_recap": {
       "required": true,
       "fake_interactive_purchase_button_allowed": false
+    },
+    "claim_boundary": {
+      "types": [
+        "product_identity",
+        "specification",
+        "usage_condition",
+        "observable_structure",
+        "manufacturer_claim",
+        "verified_efficacy"
+      ],
+      "observable_structure_may_not_imply_unverified_effect": true,
+      "manufacturer_claim_requires_conditions": true,
+      "verified_efficacy_requires_independent_evidence": true
     }
   },
   "motion": {
@@ -138,6 +181,12 @@
     "total_count_maximum": null,
     "increase_when_temporal_evidence_is_clearer": true,
     "one_motion_one_claim": true,
+    "semantic_contract_required": true,
+    "customer_question_answer_seconds_maximum": 2,
+    "meaningful_start_mid_end_delta_required": true,
+    "overlay_only_counts_as_motion": false,
+    "adjacent_pattern_reuse_requires_reason": true,
+    "delivery_animation_frame_minimum": 2,
     "required_roles": {
       "pain": 2,
       "solution_per_item": 1,
@@ -178,6 +227,10 @@
     "wing_root": "output/wing",
     "legacy_deliverables_allowed": false,
     "legacy_index_entry_allowed": false,
+    "planned_motion_requires_public_animation_bytes": true,
+    "poster_only_motion_delivery_allowed": false,
+    "public_dom_manifest_file_closure_required": true,
+    "post_export_qa_required": true,
     "save_preview_must_match_authoring_visual_order": true,
     "customer_entry_matches_latest_wing_visual_stack_after_export": true
   },
@@ -238,7 +291,34 @@
     "fill_available_worker_capacity": true,
     "one_image_cut_per_worker": true,
     "one_motion_module_per_worker": true,
+    "aggregate_g2_g3_lease_allowed": false,
+    "item_time_budget_required": true,
+    "item_heartbeat_required": true,
     "producer_self_validation_allowed": false,
+    "plan_once_fast_path": {
+      "policy_id": "policy.approval.plan-once-with-actual-photos.v1",
+      "default_when_verified_actual_photos_exist": true,
+      "actual_photo_root": "input/product",
+      "actual_photo_materialized_bytes_and_hash_required": true,
+      "only_manual_gate": "G1U_APPROVAL",
+      "auto_gates_before_manual_plan": [
+        "G0U_APPROVAL",
+        "G1DQ_SELECTION"
+      ],
+      "auto_gates_after_manual_plan": [
+        "G2S_CONFIG_APPROVAL",
+        "G2U_APPROVAL",
+        "G3V_PREVIEW_APPROVAL",
+        "G3U_APPROVAL",
+        "G4U_APPROVAL",
+        "G5U_APPROVAL"
+      ],
+      "approval_channel": "policy_auto_after_plan",
+      "exact_subject_digest_receipt_required": true,
+      "qa_must_pass_before_auto_approval": true,
+      "manual_fallback_without_actual_photos": true,
+      "may_bypass_file_identity_claim_motion_export_or_remote_failures": false
+    },
     "independent_qa_lanes": [
       "commercial",
       "evidence",
@@ -263,6 +343,7 @@
       "usage_motion_brief_ids",
       "comparison",
       "comparison_motion_brief_ids",
+      "decision_recap",
       "motion_target",
       "actual_review",
       "public_presentation"
@@ -324,5 +405,61 @@
       "comparison_motion_brief_ids"
     ],
     "default_range_exception_field": "default_exception_reason"
+  },
+  "image_job_contract": {
+    "required_visual_fields": [
+      "role",
+      "scene_kind",
+      "product_views",
+      "usage_context",
+      "lighting",
+      "background",
+      "product_occupancy_percent",
+      "differentiation_goal"
+    ],
+    "hero_and_core_feature_candidate_minimum": 2,
+    "contextual_use_scene_required": true,
+    "duplicate_differentiation_goal_allowed": false
+  },
+  "category_reference_contract": {
+    "all_sections_require_trait_binding": true,
+    "all_image_jobs_require_trait_binding": true,
+    "all_gif_briefs_require_trait_binding": true,
+    "visual_ambition_target": "meet_or_exceed_selected_cohort",
+    "critical_dimension_regression_allowed": false,
+    "new_archetype_minimum_distinct_products": 3
+  },
+  "rule_effect_binding": {
+    "required_fields": [
+      "rule_id",
+      "rule_sha256",
+      "target_ids",
+      "required_effect",
+      "acceptance_check_ids"
+    ],
+    "id_and_hash_only_counts_as_applied": false,
+    "motion_rule_must_target_gif_brief": true
+  },
+  "reference_comparison_qa": {
+    "required_dimensions": [
+      "desire_formation",
+      "observable_differentiation",
+      "scene_diversity",
+      "motion_semantic_delta",
+      "delivery_780",
+      "decision_close"
+    ],
+    "public_output_subject_required": true,
+    "same_rubric_delta_required": true
+  },
+  "planning_materialization": {
+    "source": "production_plan",
+    "empty_template_allowed": false,
+    "documents": [
+      "COMMERCIAL.md",
+      "DESIGN.md",
+      "BUYER-JOURNEY.md",
+      "GIF.md"
+    ]
   }
 }

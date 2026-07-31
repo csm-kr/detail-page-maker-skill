@@ -40,7 +40,6 @@ test("학습 상태는 Behance·GIF 조사·제작 피드백의 최종 규칙 �
     );
     const projectLearning = path.join(
       workspace,
-      ".workspace",
       "projects",
       "product-a",
       ".detail-page",

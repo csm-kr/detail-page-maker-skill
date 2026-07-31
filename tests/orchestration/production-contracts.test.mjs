@@ -136,6 +136,19 @@ function motionChain(overrides = {}) {
       source_identity_digest: SHA.identity,
       verdict: "PASS",
       hard_failures: [],
+      semantic_motion_quality: {
+        customer_question_answered: true,
+        meaningful_state_change: true,
+        static_superiority: true,
+        pattern_distinct_from_adjacent: true,
+        overlay_only: false,
+        visible_delta_observation:
+          "제품 본체의 형태와 접촉 위치가 달라졌다.",
+        answer_within_seconds: 1.5,
+        first_frame_sha256: "1".repeat(64),
+        mid_frame_sha256: "2".repeat(64),
+        last_frame_sha256: "3".repeat(64),
+      },
       created_at: "2026-07-30T01:06:00.000Z",
     },
     asset_approval: {

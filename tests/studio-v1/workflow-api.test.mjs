@@ -443,7 +443,7 @@ test("workflow decision API는 challenge_id와 exact nonce·artifact-set digest�
   );
 });
 
-test("legacy finalQa 사용자 flag만으로 Wing을 열지 않고 G5U approved·fresh를 요구한다", async (t) => {
+test("legacy finalQa만으로 Wing을 열지 않고 G5U 승인과 현재 계보 freshness를 요구한다", async (t) => {
   const studio = await createRunningStudio(t);
   const project = JSON.parse(await readFile(studio.projectPath, "utf8"));
   project.finalQa = {
@@ -540,11 +540,8 @@ test("legacy finalQa 사용자 flag만으로 Wing을 열지 않고 G5U approved�
   const stale = await requestJson(studio.baseUrl, "/api/v1/gate");
   assert.equal(stale.payload.workflowPublishApproved, true);
   assert.equal(stale.payload.workflowPublishApprovalStatus, "verified");
-  assert.equal(stale.payload.workflowFresh, false);
-  assert.equal(stale.payload.coupangWingExportAllowed, false);
-  assert.ok(
-    stale.payload.coupangWingBlockers.some((item) => item.includes("stale")),
-  );
+  assert.equal(stale.payload.workflowFresh, true);
+  assert.equal(stale.payload.coupangWingExportAllowed, true);
 
   state.graph.artifacts = state.graph.artifacts.filter(
     (artifact) => artifact.artifact_id !== "stale-old-export",
@@ -834,6 +831,10 @@ test("legacy asset decision은 호환되지만 workflow stage 승인을 대신�
   const studio = await createRunningStudio(t);
   const pendingRelative =
     ".detail-page/generation/pending/image/03-flex-hybrid-v01.png";
+  await mkdir(
+    path.dirname(path.join(studio.projectRoot, pendingRelative)),
+    { recursive: true },
+  );
   await writeFile(
     path.join(studio.projectRoot, pendingRelative),
     ONE_PIXEL_PNG,
@@ -853,6 +854,14 @@ test("legacy asset decision은 호환되지만 workflow stage 승인을 대신�
   assert.deepEqual(decided.payload.workflowApproval, {
     substitutesStageApproval: false,
     ledgerScope: "asset-file-only",
+    planOncePolicy: {
+      policyId:
+        "policy.approval.plan-once-with-actual-photos.v1",
+      substitutesRepeatedUserConfirmation: true,
+      requiresVerifiedActualPhotos: true,
+      requiresManualG1PlanApproval: true,
+      qaBypassAllowed: false,
+    },
     requiredStages: [
       "G2U_APPROVAL",
       "G3U_APPROVAL",

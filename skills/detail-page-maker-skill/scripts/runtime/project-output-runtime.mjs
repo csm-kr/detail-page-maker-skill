@@ -44,6 +44,10 @@ async function exists(target) {
   }
 }
 
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
 function projectPaths(projectRoot) {
   const root = path.resolve(projectRoot);
   return {
@@ -53,13 +57,19 @@ function projectPaths(projectRoot) {
     exportManifest: path.join(root, "output", "export-manifest.json"),
     backups: path.join(root, ".detail-page", "backups"),
     workflow: path.join(root, ".detail-page", "workflow"),
-    outputState: path.join(root, ".detail-page", "workflow", "output-state.json"),
+    outputState: path.join(root, ".detail-page", "output-state.json"),
+    legacyOutputState: path.join(
+      root,
+      ".detail-page",
+      "workflow",
+      "output-state.json",
+    ),
   };
 }
 
 function forceContentHeight(html) {
   const style =
-    "<style>html,body,#detailPage{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}body{display:block!important}</style>";
+    "<style>html,body,#detailPage{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}body{display:block!important;margin:0 auto!important;width:100%!important;max-width:780px!important}#detailPage{box-sizing:border-box!important;width:100%!important;max-width:780px!important;margin:0 auto!important}</style>";
   if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, `${style}</head>`);
   if (/<html\b[^>]*>/i.test(html)) {
     return html.replace(/<html\b[^>]*>/i, (match) => `${match}${style}`);
@@ -129,6 +139,60 @@ function attributeValue(tag, attributeName) {
     ),
   );
   return match ? match[1] ?? match[2] ?? match[3] ?? "" : null;
+}
+
+function escapedAttributeValue(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;");
+}
+
+function replaceTagAttribute(tag, attributeName, value) {
+  const escapedName = attributeName.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&",
+  );
+  const pattern = new RegExp(
+    `(\\s+${escapedName}\\s*=\\s*)(?:"[^"]*"|'[^']*'|[^\\s>]+)`,
+    "i",
+  );
+  const encoded = `"${escapedAttributeValue(value)}"`;
+  if (pattern.test(tag)) {
+    return tag.replace(pattern, `$1${encoded}`);
+  }
+  return tag.replace(/\s*\/?>$/, (ending) =>
+    ending.startsWith("/")
+      ? ` ${attributeName}=${encoded}/>`
+      : ` ${attributeName}=${encoded}>`,
+  );
+}
+
+function promotePublicMotionSources(html) {
+  return String(html).replace(
+    /<(figure|div)\b([^>]*\sdata-motion-src\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)[^>]*)>([\s\S]*?)<\/\1\s*>/gi,
+    (block, _tagName, openingAttributes) => {
+      const openingTag = `<figure${openingAttributes}>`;
+      const motionSource = attributeValue(
+        openingTag,
+        "data-motion-src",
+      );
+      if (
+        !motionSource ||
+        isUnsafePublicUrl(motionSource, "img", "src")
+      ) {
+        return block;
+      }
+      return block.replace(
+        /<img\b[^>]*>/i,
+        (imageTag) =>
+          replaceTagAttribute(
+            imageTag,
+            "src",
+            motionSource,
+          ),
+      );
+    },
+  );
 }
 
 function isMetaRefresh(tag) {
@@ -261,9 +325,145 @@ export function sanitizePublicHtml(authoringHtml) {
   html = html
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<script\b[^>]*>[\s\S]*?(?:<\/script\s*>|$)/gi, "");
+  html = promotePublicMotionSources(html);
   html = stripBlockedPublicElementContents(html);
   html = stripUnsafePublicAttributes(html);
   return injectPublicMotionRuntime(forceContentHeight(html));
+}
+
+function gifFrameCount(bytes) {
+  if (
+    bytes.length < 10 ||
+    bytes.subarray(0, 3).toString("ascii") !== "GIF"
+  ) {
+    return 0;
+  }
+  let frames = 0;
+  for (let index = 0; index < bytes.length; index += 1) {
+    if (bytes[index] === 0x2c) frames += 1;
+  }
+  return frames;
+}
+
+function animatedWebpFrameCount(bytes) {
+  if (
+    bytes.length < 16 ||
+    bytes.subarray(0, 4).toString("ascii") !== "RIFF" ||
+    bytes.subarray(8, 12).toString("ascii") !== "WEBP"
+  ) {
+    return 0;
+  }
+  let frames = 0;
+  for (let index = 12; index + 4 <= bytes.length; index += 1) {
+    if (bytes.subarray(index, index + 4).toString("ascii") === "ANMF") {
+      frames += 1;
+      index += 3;
+    }
+  }
+  return frames;
+}
+
+function animationFrameCount(fileName, bytes) {
+  if (/\.gif$/i.test(fileName)) return gifFrameCount(bytes);
+  if (/\.webp$/i.test(fileName)) {
+    return animatedWebpFrameCount(bytes);
+  }
+  return null;
+}
+
+function localMotionSources(html, attributeName) {
+  const escaped = attributeName.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&",
+  );
+  const values = [];
+  for (const match of String(html).matchAll(
+    new RegExp(
+      `\\s+${escaped}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`,
+      "gi",
+    ),
+  )) {
+    const value = match[1] ?? match[2] ?? match[3] ?? "";
+    if (
+      /\.(?:gif|webp)(?:[?#]|$)/i.test(value) &&
+      !/^(?:data:|https?:|\/\/)/i.test(value)
+    ) {
+      values.push(value);
+    }
+  }
+  return values;
+}
+
+export function validatePublicMotionClosure({
+  authoringHtml,
+  publicHtml,
+  mediaFiles,
+}) {
+  const authoringMotionSources = localMotionSources(
+    authoringHtml,
+    "data-motion-src",
+  );
+  const publicMotionSources = localMotionSources(publicHtml, "src");
+  const publicMotionFiles = new Map(
+    asArray(mediaFiles)
+      .filter((file) => file.path.startsWith("media/gifs/"))
+      .map((file) => [file.path, file]),
+  );
+  const missing = [];
+  const posterOnly = [];
+  for (const source of authoringMotionSources) {
+    let fileName;
+    try {
+      fileName = path.basename(
+        decodeURIComponent(source.split(/[?#]/, 1)[0]),
+      );
+    } catch {
+      missing.push(source);
+      continue;
+    }
+    const publicPath = `media/gifs/${encodeURIComponent(fileName)}`;
+    const publicRefFound = publicMotionSources.some((candidate) =>
+      candidate.split(/[?#]/, 1)[0].endsWith(
+        `media/gifs/${encodeURIComponent(fileName)}`,
+      ),
+    );
+    const materialized = publicMotionFiles.get(publicPath);
+    if (!publicRefFound || !materialized) {
+      missing.push(source);
+      continue;
+    }
+    if (
+      !Number.isInteger(materialized.animation_frame_count) ||
+      materialized.animation_frame_count < 2
+    ) {
+      posterOnly.push(publicPath);
+    }
+  }
+  if (missing.length > 0 || posterOnly.length > 0) {
+    const error = new Error(
+      "공개 motion의 DOM → manifest → output/media animation bytes closure가 실패했습니다.",
+    );
+    error.code = "PUBLIC_MOTION_CLOSURE_FAILED";
+    error.details = {
+      planned_motion_count: authoringMotionSources.length,
+      public_motion_count: publicMotionSources.length,
+      missing,
+      poster_only: posterOnly,
+    };
+    throw error;
+  }
+  return {
+    status: "PASS",
+    planned_motion_count: authoringMotionSources.length,
+    public_motion_count: authoringMotionSources.length,
+    poster_only_count: 0,
+    animation_paths: authoringMotionSources.map((source) => {
+      const fileName = path.basename(
+        decodeURIComponent(source.split(/[?#]/, 1)[0]),
+      );
+      return `media/gifs/${encodeURIComponent(fileName)}`;
+    }),
+  };
 }
 
 async function atomicWrite(target, bytes) {
@@ -278,17 +478,26 @@ async function atomicWrite(target, bytes) {
 }
 
 async function readOutputState(paths) {
-  try {
-    return JSON.parse(await readFile(paths.outputState, "utf8"));
-  } catch {
-    return {
-      schema_version: "1.0",
-      wing_export_required: true,
-      current_authoring_sha256: null,
-      current_public_sha256: null,
-      updated_at: null,
-    };
+  for (const candidate of [
+    paths.outputState,
+    paths.legacyOutputState,
+  ]) {
+    try {
+      return JSON.parse(await readFile(candidate, "utf8"));
+    } catch {
+      // Continue to the legacy location before returning defaults.
+    }
   }
+  return {
+    schema_version: "1.0",
+    canonical_entry: "output/detail-page.html",
+    wing_export_required: true,
+    source_revision_id: null,
+    current_source_revision_sha256: null,
+    current_authoring_sha256: null,
+    current_public_sha256: null,
+    updated_at: null,
+  };
 }
 
 async function writeOutputState(paths, state) {
@@ -305,6 +514,15 @@ function backupId(now = new Date()) {
     .replaceAll(":", "")
     .replaceAll("-", "")
     .replace("T", "-")}-${randomUUID().slice(0, 8)}`;
+}
+
+function sourceRevisionId(now, sourceSha256) {
+  return `source-${now
+    .toISOString()
+    .replace(/\.\d{3}Z$/, "")
+    .replaceAll(":", "")
+    .replaceAll("-", "")
+    .replace("T", "-")}-${sourceSha256.slice(0, 12)}`;
 }
 
 async function createBackup(paths, previousAuthoring, previousOutput, now) {
@@ -336,7 +554,11 @@ async function createBackup(paths, previousAuthoring, previousOutput, now) {
 }
 
 async function enforceBackupRetention(paths) {
-  await mkdir(paths.backups, { recursive: true });
+  try {
+    await access(paths.backups);
+  } catch {
+    return;
+  }
   const entries = await readdir(paths.backups, { withFileTypes: true });
   const backups = [];
   for (const entry of entries) {
@@ -373,25 +595,33 @@ async function restorePrevious(target, previous) {
   await atomicWrite(target, previous);
 }
 
-async function materializeReferencedMedia(paths, publicHtml, backup) {
-  const pattern =
-    /(\bsrc=)(["'])(\/?\.detail-page\/generation\/approved\/(image|gif)\/([^"'/?#]+))\2/gi;
+async function materializeReferencedMedia(
+  paths,
+  publicHtml,
+  backup,
+  immutableMediaRoot = null,
+) {
+  const approvedPattern =
+    /(\bsrc\s*=\s*)(["'])(\/?\.detail-page\/generation\/approved\/(image|gif)\/([^"'/?#]+))\2/gi;
+  const immutablePattern =
+    /(\bsrc\s*=\s*)(["'])(media\/(images|gifs)\/([^"'/?#]+))\2/gi;
   const changes = [];
+  const files = new Map();
   let rewritten = publicHtml;
-  for (const match of publicHtml.matchAll(pattern)) {
-    const kind = match[4] === "gif" ? "gifs" : "images";
-    const fileName = path.basename(decodeURIComponent(match[5]));
-    if (fileName !== decodeURIComponent(match[5])) {
+
+  async function materialize({
+    source,
+    kind,
+    encodedFileName,
+    originalReference,
+    attributePrefix,
+    quote,
+  }) {
+    const decodedFileName = decodeURIComponent(encodedFileName);
+    const fileName = path.basename(decodedFileName);
+    if (fileName !== decodedFileName) {
       throw new Error("미디어 파일명에 경로 구분자를 사용할 수 없습니다.");
     }
-    const source = path.join(
-      paths.root,
-      ".detail-page",
-      "generation",
-      "approved",
-      match[4],
-      fileName,
-    );
     const target = path.join(
       paths.root,
       "output",
@@ -429,9 +659,58 @@ async function materializeReferencedMedia(paths, publicHtml, backup) {
     }
     const publicPath = `media/${kind}/${encodeURIComponent(fileName)}`;
     rewritten = rewritten.replaceAll(
-      `${match[1]}${match[2]}${match[3]}${match[2]}`,
-      `${match[1]}${match[2]}${publicPath}${match[2]}`,
+      `${attributePrefix}${quote}${originalReference}${quote}`,
+      `${attributePrefix}${quote}${publicPath}${quote}`,
     );
+    files.set(publicPath, {
+      path: publicPath,
+      bytes: sourceBytes.length,
+      sha256: sha256Bytes(sourceBytes),
+      animation_frame_count: animationFrameCount(
+        fileName,
+        sourceBytes,
+      ),
+    });
+  }
+
+  for (const match of publicHtml.matchAll(approvedPattern)) {
+    const kind = match[4] === "gif" ? "gifs" : "images";
+    const encodedFileName = match[5];
+    const fileName = decodeURIComponent(encodedFileName);
+    await materialize({
+      source: path.join(
+        paths.root,
+        ".detail-page",
+        "generation",
+        "approved",
+        match[4],
+        fileName,
+      ),
+      kind,
+      encodedFileName,
+      originalReference: match[3],
+      attributePrefix: match[1],
+      quote: match[2],
+    });
+  }
+  if (immutableMediaRoot) {
+    for (const match of publicHtml.matchAll(immutablePattern)) {
+      const kind = match[4];
+      const encodedFileName = match[5];
+      const fileName = decodeURIComponent(encodedFileName);
+      await materialize({
+        source: path.join(
+          immutableMediaRoot,
+          kind,
+          fileName,
+        ),
+        kind,
+        encodedFileName,
+        originalReference: match[3],
+        attributePrefix: match[1],
+        quote: match[2],
+      });
+    }
   }
   if (backup?.backup_id && backup.media?.length) {
     await writeFile(
@@ -440,7 +719,13 @@ async function materializeReferencedMedia(paths, publicHtml, backup) {
       "utf8",
     );
   }
-  return { html: rewritten, changes };
+  return {
+    html: rewritten,
+    changes,
+    files: [...files.values()].sort((left, right) =>
+      left.path.localeCompare(right.path),
+    ),
+  };
 }
 
 async function rollbackMedia(changes) {
@@ -459,6 +744,7 @@ export async function saveProjectOutput(
     failureInjection = null,
     exportManifest = null,
     validateBeforeCommit = null,
+    immutableMediaRoot = null,
   } = {},
 ) {
   if (typeof html !== "string" || Buffer.byteLength(html, "utf8") === 0) {
@@ -473,7 +759,9 @@ export async function saveProjectOutput(
     readMaybe(paths.exportManifest),
     readOutputState(paths),
     ]);
-  await mkdir(paths.backups, { recursive: true });
+  if (previousAuthoring !== null || previousOutput !== null) {
+    await mkdir(paths.backups, { recursive: true });
+  }
   const backup = await createBackup(
     paths,
     previousAuthoring,
@@ -490,8 +778,14 @@ export async function saveProjectOutput(
       paths,
       sanitizePublicHtml(html),
       backup,
+      immutableMediaRoot,
     );
     mediaChanges = materialized.changes;
+    const publicMotionQa = validatePublicMotionClosure({
+      authoringHtml: html,
+      publicHtml: materialized.html,
+      mediaFiles: materialized.files,
+    });
     const nextOutput = Buffer.from(materialized.html, "utf8");
     await atomicWrite(paths.output, nextOutput);
     if (failureInjection === "after-output") {
@@ -505,6 +799,10 @@ export async function saveProjectOutput(
           path: "output/detail-page.html",
           bytes: nextOutput.length,
           sha256: sha256Bytes(nextOutput),
+        },
+        media: materialized.files,
+        public_output_qa: {
+          motion_closure: publicMotionQa,
         },
         generated_at: now.toISOString(),
       };
@@ -532,12 +830,22 @@ export async function saveProjectOutput(
         authoring_sha256: sha256Bytes(nextAuthoring),
         public_sha256: sha256Bytes(nextOutput),
         export_manifest: sealedExportManifest,
+        public_output_qa: {
+          motion_closure: publicMotionQa,
+        },
       });
     }
     const state = {
       ...previousState,
       schema_version: "1.0",
+      canonical_entry: "output/detail-page.html",
       wing_export_required: true,
+      source_revision_id: sourceRevisionId(
+        now,
+        sha256Bytes(nextAuthoring),
+      ),
+      current_source_revision_sha256:
+        sha256Bytes(nextAuthoring),
       current_authoring_sha256: sha256Bytes(nextAuthoring),
       current_public_sha256: sha256Bytes(nextOutput),
       last_save_backup_id: backup?.backup_id ?? null,
@@ -547,6 +855,8 @@ export async function saveProjectOutput(
     await enforceBackupRetention(paths);
     return {
       status: "saved",
+      canonical_entry: state.canonical_entry,
+      source_revision_id: state.source_revision_id,
       authoring_path: posix(path.relative(paths.root, paths.authoring)),
       output_path: posix(path.relative(paths.root, paths.output)),
       authoring_sha256: state.current_authoring_sha256,
@@ -557,6 +867,10 @@ export async function saveProjectOutput(
         ? "output/export-manifest.json"
         : null,
       export_manifest: sealedExportManifest,
+      media: materialized.files,
+      public_output_qa: {
+        motion_closure: publicMotionQa,
+      },
     };
   } catch (error) {
     await Promise.all([
@@ -572,7 +886,11 @@ export async function saveProjectOutput(
 
 export async function listProjectBackups(projectRoot) {
   const paths = projectPaths(projectRoot);
-  await mkdir(paths.backups, { recursive: true });
+  try {
+    await access(paths.backups);
+  } catch {
+    return [];
+  }
   const entries = await readdir(paths.backups, { withFileTypes: true });
   const backups = [];
   for (const entry of entries) {
@@ -627,7 +945,14 @@ export async function restoreProjectBackup(projectRoot, backupId) {
     }
     const state = {
       ...previousState,
+      canonical_entry: "output/detail-page.html",
       wing_export_required: true,
+      source_revision_id: sourceRevisionId(
+        new Date(),
+        sha256Bytes(authoring),
+      ),
+      current_source_revision_sha256:
+        sha256Bytes(authoring),
       current_authoring_sha256: sha256Bytes(authoring),
       current_public_sha256: sha256Bytes(output),
       restored_from_backup_id: backupId,
@@ -655,25 +980,39 @@ export async function markWingExportCompleted(
   projectRoot,
   { exportId, cdnHtml, manifestSha256 },
 ) {
+  if (!/^[a-zA-Z0-9-]+$/.test(String(exportId || ""))) {
+    throw new Error("유효한 exportId가 필요합니다.");
+  }
   const paths = projectPaths(projectRoot);
-  const previousOutput = await readMaybe(paths.output);
   const previousState = await readOutputState(paths);
-  const nextOutput = Buffer.from(String(cdnHtml), "utf8");
+  const wingHtmlPath = path.join(
+    paths.root,
+    "output",
+    "wing",
+    String(exportId),
+    "detail-page.html",
+  );
+  const previousWingHtml = await readMaybe(wingHtmlPath);
+  const nextWingHtml = Buffer.from(String(cdnHtml), "utf8");
   try {
-    await atomicWrite(paths.output, nextOutput);
+    await atomicWrite(wingHtmlPath, nextWingHtml);
     const state = {
       ...previousState,
       wing_export_required: false,
-      current_public_sha256: sha256Bytes(nextOutput),
       completed_wing_export_id: exportId,
       completed_wing_manifest_sha256: manifestSha256,
+      completed_wing_html_path: posix(
+        path.relative(paths.root, wingHtmlPath),
+      ),
+      completed_wing_html_sha256:
+        sha256Bytes(nextWingHtml),
       updated_at: new Date().toISOString(),
     };
     await writeOutputState(paths, state);
     return state;
   } catch (error) {
     await Promise.all([
-      restorePrevious(paths.output, previousOutput),
+      restorePrevious(wingHtmlPath, previousWingHtml),
       writeOutputState(paths, previousState),
     ]);
     throw error;

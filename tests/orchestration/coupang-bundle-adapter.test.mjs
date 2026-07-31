@@ -279,6 +279,12 @@ test("G1A lease→portable import→ResultEnvelope→submit→재시작 inspect�
   );
   await leaseAndSubmitGeneric(
     engine,
+    "G0B_PHOTO",
+    ["identity.photo_set"],
+    "photo-worker",
+  );
+  await leaseAndSubmitGeneric(
+    engine,
     "G1B_KNOWLEDGE",
     ["knowledge.snapshot", "receipt.dependency_closure"],
     "knowledge-worker",

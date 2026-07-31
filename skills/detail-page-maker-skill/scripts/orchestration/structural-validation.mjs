@@ -41,11 +41,31 @@ export function createStructuralValidationReceipt({
   const errors = [];
   const outputs = Array.isArray(outputArtifacts) ? outputArtifacts : [];
   const actualTypes = sorted(outputs.map((artifact) => artifact?.type));
-  const matches = allowedOutputSets(workOrder).some(
+  const allowedSets = allowedOutputSets(workOrder);
+  const exactMatch = allowedSets.some(
     (expected) =>
       expected.length === actualTypes.length &&
       expected.every((type, index) => type === actualTypes[index]),
   );
+  const repeatedFanOutMatch =
+    Boolean(workOrder?.fan_out_key) &&
+    allowedSets.some((expected) => {
+      if (
+        expected.length === 0 ||
+        actualTypes.length < expected.length ||
+        actualTypes.length % expected.length !== 0
+      ) {
+        return false;
+      }
+      const repetitionCount = actualTypes.length / expected.length;
+      const repeatedExpected = sorted(
+        Array.from({ length: repetitionCount }, () => expected).flat(),
+      );
+      return repeatedExpected.every(
+        (type, index) => type === actualTypes[index],
+      );
+    });
+  const matches = exactMatch || repeatedFanOutMatch;
   if (!matches) errors.push("OUTPUT_TYPE_MISMATCH");
   if (
     !workOrder?.work_order_id ||

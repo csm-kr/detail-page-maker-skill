@@ -18,6 +18,9 @@ import {
   ACTIVE_RULE_REFERENCES,
   candidateHash,
 } from "../learning-pipeline.mjs";
+import {
+  resolveLearningPaths,
+} from "../../maintenance/learning-status.mjs";
 
 const ADAPTER_ID = "learning-pipeline-execution-adapter";
 const ADAPTER_VERSION = "1.0.0";
@@ -307,17 +310,30 @@ function sortFileRecords(records) {
 }
 
 async function projectLearningLocators(roots) {
-  const projectsRoot = path.join(
-    roots.workspaceRoot,
-    ".workspace",
-    "projects",
-  );
+  const projectsRoot = resolveLearningPaths({
+    workspaceRoot: roots.workspaceRoot,
+    skillRoot: roots.skillRoot,
+  }).projectsRoot;
   if (!(await exists(projectsRoot))) return [];
   await assertNoSymlinkPath(
     roots.workspaceRoot,
     projectsRoot,
   );
   const result = [];
+  const projectsRelative = path
+    .relative(roots.workspaceRoot, projectsRoot)
+    .split(path.sep)
+    .join("/");
+  if (
+    projectsRelative.startsWith("..") ||
+    path.isAbsolute(projectsRelative)
+  ) {
+    fail(
+      "MAINTENANCE_ROOT_ESCAPE",
+      "Configured projects root must remain inside the workspace.",
+      { projects_root: projectsRoot },
+    );
+  }
   for (const entry of await readdir(projectsRoot, {
     withFileTypes: true,
   })) {
@@ -330,12 +346,14 @@ async function projectLearningLocators(roots) {
     }
     if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
     const locator = [
-      ".workspace",
-      "projects",
+      projectsRelative,
       entry.name,
+      ".detail-page",
       "planning",
       "LEARNINGS.md",
-    ].join("/");
+    ]
+      .filter(Boolean)
+      .join("/");
     if (
       await exists(
         resolveLocator(roots, "workspace", locator),
@@ -421,11 +439,10 @@ function fixedEnvironment(source = process.env) {
 }
 
 function commandArguments(actionId, roots, scriptPath) {
-  const projectsRoot = path.join(
-    roots.workspaceRoot,
-    ".workspace",
-    "projects",
-  );
+  const projectsRoot = resolveLearningPaths({
+    workspaceRoot: roots.workspaceRoot,
+    skillRoot: roots.skillRoot,
+  }).projectsRoot;
   const behanceReviewed = path.join(
     roots.workspaceRoot,
     ".workspace",

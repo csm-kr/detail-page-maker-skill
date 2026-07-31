@@ -22,15 +22,26 @@ Behance 조사에서 작품 고유 색·서체·카피·레이아웃은 가져�
 | CR-012 | 해결 장점은 3~5개이며 pain과 같은 순서로 1:1 대응한다. 각 장점에는 고객 효익, 승인 still, 전용 motion, 검증 사실·조건, 무기명 체감 의견이 모두 있어야 한다. | pain/solution bijection과 다섯 필수 요소 검사 | 2026-07-30 |
 | CR-013 | Hero는 정적이고 상업 강도가 높으며 제품을 가장 크게 보여 주되 핵심 구매 이유를 한 개만 말한다. 광선·입자·조명은 분위기이고 성능 근거가 아니다. | 390px 첫 화면 제품 면적·주장 수·identity 검사 | 2026-07-30 |
 | CR-014 | 가격·평점·옵션·배송·실제 구매 CTA는 판매 플랫폼 영역을 우선한다. 상세 본문은 변동 가격과 가짜 버튼을 만들지 않고 선택 이유 리마인드로 닫는다. | 가짜 CTA·변동 거래 정보 0 검사 | 2026-07-30 |
+| CR-015 | 실제 이미지로 확인되는 형상·부품·구멍·셀·굴곡은 `observable_structure`, 제조사 문구는 `manufacturer_claim`, 독립 시험 효과는 `verified_efficacy`로 분리하고 효능 근거 부족을 이유로 관찰 차별점까지 버리지 않는다. | claim type·조건·evidence gate와 observable claim의 미검증 효과 연결 0건 | 2026-07-31 |
+| CR-016 | 근거 안전성은 모든 주장에 적용하지만 Hero와 마지막 리마인드는 검증 절차·소재명 자체가 아니라 고객이 이해할 핵심 구매 이유와 사용 결과를 말한다. | Hero/decision recap에서 내부 검증 절차 0건, 핵심 benefit 하나와 선택 이유 확인 | 2026-07-31 |
+| CR-017 | 상품명 세분류가 아니라 구매 증명 방식의 주 아키타입 하나와 보조 최대 하나를 선택하고, 주 cohort의 실제 프로젝트 2개 이상에서 고른 trait를 모든 section·image job·GIF brief에 적용한다. 공통 화려함 anchor는 수준만 정하고 기본 스타일로 복제하지 않는다. | category library hash 일치, target binding 누락 0, 선택 cohort보다 낮은 공개 시각 차원 0 | 2026-07-31 |
 
 새 공용 상업 규칙은 이 표에만 추가·수정한다. 조사 원문과 후보는 active rule에서
 분리하고 프로젝트 내부 research retention 정책에 따라 보존 또는 정리한다.
+Behance 조사 run을 `exps/*.md`에 `commercial-research`, `promotion: auto`로
+넣으면 서로 다른 실제 프로젝트 3개 이상의 해시 근거와 독립 검토를 통과한
+반복 원리만 다음 실행에서 CR로 자동 반영한다.
 
 ## G1 입력과 출력
 
 G1은 승인된 제품 사실, 동종 제품 3개 이상, 공개 후기 또는 검증 가능한 사용
 불편, 목표 고객과 판매 채널을 입력으로 사용한다. 실제 동일 SKU 후기는 선택
 사항이며 없으면 후기 섹션을 생략한다. 다음 파일을 작성한다.
+
+G1 시작 시 `references/category-reference-library.md`에 따라 주 아키타입 하나와
+보조 아키타입 최대 하나를 선택한다. 주 cohort의 실제 project card 2개 이상,
+공통 ambition anchor, 모든 제작 target의 trait binding이 없으면 아래 문서를
+물질화하거나 승인하지 않는다.
 
 - `COMMERCIAL.md`: 고객 문제, 제품 답, 주장, 근거
 - `DESIGN.md`: 시각 위계, 색, 타이포, 밀도

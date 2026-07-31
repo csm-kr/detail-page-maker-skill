@@ -7,14 +7,39 @@ template, 프로젝트 관행은 적용하지 않는다.
 
 ## 입력과 SSOT
 
+- G1 전에 기존 `output/detail-page.html`을 `current_output` baseline으로
+  profile한다. 사용자가 준 HTML·스크린샷은 `positive_reference`, 과거 실패본은
+  `negative_reference`, 승인 결과는 `approved_exemplar`로 분리한다.
+- Reference는 hash·section density·image/motion 역할·폭 profile만 연구에 쓰며
+  고유 자산·카피·색상 조합을 복제하지 않는다. 모든 reference trait는
+  `adopt | adapt | reject` 판단과 이유, 적용 section을 가진다.
+- 모든 상품은 6개 상위 증명 아키타입 중 주 아키타입 하나와 보조 아키타입
+  최대 하나를 선택한다. 주 아키타입의 Behance project card 2개 이상과 공통
+  visual ambition anchor를 모든 section·image job·GIF brief에 바인딩한다.
+  기준 원본은 스킬 안에 한 번만 두고 상품 프로젝트에 복제하지 않는다.
 - 사용자는 실제 제품 사진이 있으면 `input/product/`에만 넣는다.
 - 실제 제품 사진은 선택 사항이다. 없으면 최초 한 번만 안내하고 작업을 계속한다.
+- 실제 사진의 materialized member가 `input/product/` 아래에서 bytes/hash 검증을
+  통과하면 plan-once fast path를 기본 적용한다. G1 ProductionPlan 승인만 사람이
+  수행하고 G0의 SSOT·경쟁후보와 G2~G5 사용자 gate는 각 단계 QA PASS 뒤
+  `policy_auto_after_plan` receipt로 자동 승인한다.
+- Fast path는 사용자 확인을 줄이는 정책이다. 제품 불일치, 권리·근거 실패,
+  deterministic QA 실패, animation 누락, 원격 게시 실패는 자동 통과시키지 않는다.
 - 공급처 URL과 같은 SKU의 공급처 이미지는 필수다. 공급처 이미지는 제품 동일성
   SSOT와 ImageGen 참조로 최대한 사용하되 광고에 원본을 바로 싣지 않는다.
 - 쿠팡·Behance 이미지와 카피는 조사 전용이다. 메시지 의도·구매 흐름·추상 시각
   문법은 배울 수 있지만 원본 자산과 고유 표현을 production에 복제하지 않는다.
 - 공급처·시장 출처와 내부 재구성 경로는 evidence에 보존하되 고객 화면에는
   표시하지 않는다.
+
+제품 주장은 다음 경계를 사용한다.
+
+- `observable_structure`: 실제 이미지에서 보이는 형상·부품·구멍·셀·굴곡.
+  관찰 범위만 말하고 효과 크기를 붙이지 않는다.
+- `manufacturer_claim`: 제조사 원문과 적용 조건을 함께 보존한다.
+- `verified_efficacy`: 독립 검증 artifact가 있을 때만 성능·정량 결과를 사용한다.
+
+효능 근거가 없다고 관찰 가능한 구조까지 구매 차별점에서 제거하지 않는다.
 
 ## 고정 판매 흐름
 
@@ -86,19 +111,26 @@ Hero subtree의 GIF·video·animation·runtime 대상 0건, 핵심 benefit claim
   진입하면 처음부터 재생한다.
 - Wing은 viewport 제어가 없으므로 애니메이션 WebP로 지속 재생한다.
 - 첫·중간·끝, 반복 경계, 제품 동일성, 한글, 점멸, fallback을 모두 검증한다.
+- 고객 구매 질문, 기능 부위, 시작·중간·끝 상태, visible delta, 정지 이미지의
+  한계, 2초 내 답, 패턴 차별성까지 검증한다. 선·라벨·카드만 움직이고 제품·부품·
+  사용 과정의 의미 변화가 없는 motion은 coverage에 포함하지 않는다.
 
 ## 390 Studio와 공개 출력
 
 - Studio의 유일한 디자인 기준은 논리 폭 390 CSS px이다.
 - 이미지·motion·Wing 섹션 자산은 물리 폭 780px로 만든다.
-- Studio는 편집 가능한 HTML section을 정본으로 유지한다.
-- 사용자가 `저장`을 눌렀을 때 현재 작업본과 로컬
-  `output/detail-page.html` preview를 덮어쓰고 전체 콘텐츠 높이에 다시 맞춘다.
+- 고객 공개 HTML의 콘텐츠 폭도 780px 전달 profile을 채운다. 390px 저작
+  레이아웃을 780px 안의 좁은 중앙 열로 두는 결과는 실패다.
+- Studio는 편집 UI다. 사용자가 `저장`을 누르면 현재 working snapshot이 즉시
+  최신 편집 정본 revision이 되고 같은 저장 사건에서
+  `output/detail-page.html` 단일 사용자 진입점을 갱신한다.
 - 저장 뒤에는 `wing_export_required`로 표시한다. 이 상태의 로컬 preview는 편집
   결과와 시각 순서가 같지만 아직 새 CDN 게시본은 아니다.
 - 최근 20개 저장 snapshot은 `.detail-page/backups/`에 숨겨 복구에만 사용한다.
-- Wing Export와 원격 검증이 끝나면 고객용 `output/detail-page.html`과 Wing은
-  같은 최신 CDN WebP section stack을 사용하고 `wing_export_required`를 해제한다.
+- Wing Export와 원격 검증이 끝나면
+  `output/wing/<export-id>/detail-page.html` 파생 전달본만 확정한다.
+  Studio에서 저장한 `output/detail-page.html`은 덮어쓰지 않고
+  `wing_export_required`를 해제한다.
 
 ```text
 <project>/
@@ -111,13 +143,14 @@ Hero subtree의 GIF·video·animation·runtime 대상 0건, 핵심 benefit claim
 │  │  └─ gifs/
 │  └─ wing/
 └─ .detail-page/
-   ├─ backups/
-   ├─ evidence/
-   ├─ research/
-   ├─ generation/
-   ├─ workflow/
-   └─ qa/
+   └─ authoring/               숨은 최신 editable revision
 ```
+
+새 프로젝트가 처음 만드는 것은 위 최소 경로뿐이다. `planning`, `evidence`,
+`generation`, `workflow`, `backups`, `research`, `qa`, Wing과 media는 해당
+단계의 첫 실제 write에서만 만든다. Studio runtime은 스킬에서 직접 제공하며
+프로젝트 안에 만들지 않는다. 프로젝트 루트 directory는
+`input`, `output`, `.detail-page`, `.migration-archive`만 허용한다.
 
 `deliverables/`와 공개 `index.html`은 만들지 않는다.
 
@@ -156,8 +189,9 @@ child·worker·native addon·WASI 권한도 열지 않는다.
 Cloudflare Pages 배포는 원격 `deploy-index.json`에 기록된 모든 과거 namespace를
 새 snapshot에도 포함해야 한다. 과거 경로 보존을 증명할 수 없거나 새 namespace에
 HTTP 200 파일이 이미 있으면 fail-closed한다. 새·과거 자산의 HTTP·MIME·크기·
-SHA-256·immutable cache 검증이 모두 통과하기 전에는 고객용
-`output/detail-page.html`과 `wing_export_required`를 바꾸지 않는다.
+SHA-256·immutable cache 검증이 모두 통과하기 전에는 새 Wing export를 완료
+처리하거나 `wing_export_required`를 바꾸지 않는다. 성공한 Wing도 Studio
+Save가 만든 `output/detail-page.html` 편집 정본을 덮어쓰지 않는다.
 deploy-index의 owner는 config 문자열이 아니라 machine-local writer
 identity/secret에서 파생한 HMAC `writer_owner_digest`로 고정하고 generation은
 배포마다 정확히 1 증가한다. config pin과 local-derived owner가 다르거나 원격

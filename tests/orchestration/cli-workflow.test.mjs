@@ -492,7 +492,7 @@ test("CLI workflow-advance는 G2 직전 planParallelFrontier 결과를 가용 sl
   assert.equal(missingCapacity.status, 1);
   assert.match(
     missingCapacity.stderr,
-    /PARALLEL_DISPATCH_CONFIGURATION_REQUIRED/,
+    /AGENT_SESSIONS_REQUIRED/,
   );
   const missingPlan = run([
     ...baseAdvanceArgs,
@@ -522,7 +522,7 @@ test("CLI workflow-advance는 G2 직전 planParallelFrontier 결과를 가용 sl
   assert.equal(result.advance.kind, "WorkAvailable");
   assert.deepEqual(result.advance.ready_stages, ["G2A_IMAGE"]);
   assert.equal(result.frontier_plan.planned_count, 2);
-  assert.equal(result.frontier_plan.remaining_candidate_count, 3);
+  assert.equal(result.frontier_plan.remaining_candidate_count, 5);
   assert.equal(result.lease_result.kind, "FrontierLeased");
   assert.equal(result.lease_result.issued_count, 2);
   assert.equal(result.lease_result.capacity_filled, true);
@@ -576,15 +576,37 @@ test("CLI workflow-advance는 G2 직전 planParallelFrontier 결과를 가용 sl
     secondBatchResult.stderr,
   );
   const secondBatch = JSON.parse(secondBatchResult.stdout);
-  assert.equal(secondBatch.frontier_plan.planned_count, 1);
-  assert.equal(secondBatch.lease_result.issued_count, 1);
+  assert.equal(secondBatch.frontier_plan.planned_count, 2);
+  assert.equal(secondBatch.lease_result.issued_count, 2);
+  assert.deepEqual(
+    secondBatch.lease_result.work_orders.map(
+      (workOrder) => workOrder.work_item_id,
+    ),
+    [
+      "G2A_IMAGE:image-usage",
+      "G2A_IMAGE:image-comparison",
+    ],
+  );
+  for (const workOrder of secondBatch.lease_result.work_orders) {
+    await submitFrontierWorkOrder(engine, workOrder);
+  }
+
+  const thirdBatchResult = run(parallelArgs);
   assert.equal(
-    secondBatch.lease_result.work_orders[0].work_item_id,
-    "G2A_IMAGE:image-usage",
+    thirdBatchResult.status,
+    0,
+    thirdBatchResult.stderr,
+  );
+  const thirdBatch = JSON.parse(thirdBatchResult.stdout);
+  assert.equal(thirdBatch.frontier_plan.planned_count, 1);
+  assert.equal(thirdBatch.lease_result.issued_count, 1);
+  assert.equal(
+    thirdBatch.lease_result.work_orders[0].work_item_id,
+    "G2A_IMAGE:image-outcome",
   );
   await submitFrontierWorkOrder(
     engine,
-    secondBatch.lease_result.work_orders[0],
+    thirdBatch.lease_result.work_orders[0],
   );
 
   const g2CompletedResult = run(parallelArgs);
@@ -604,7 +626,9 @@ test("CLI workflow-advance는 G2 직전 planParallelFrontier 결과를 가용 sl
     g2Completed.completion.completed_work_item_ids,
     [
       "G2A_IMAGE:image-benefit",
+      "G2A_IMAGE:image-comparison",
       "G2A_IMAGE:image-hero",
+      "G2A_IMAGE:image-outcome",
       "G2A_IMAGE:image-usage",
     ],
   );

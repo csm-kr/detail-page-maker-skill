@@ -21,15 +21,27 @@ WorkOrder를 발급하지 않는다.
 
 ## 제작 순서
 
-1. `claim_id`, 부품, 시작·끝 상태를 잠근다.
+1. 고객 구매 질문, `claim_id`, 부품, 시작·중간·끝 상태와 눈에 보이는 변화량을
+   잠근다.
 2. `imagegen-seq | heygenframe | hybrid` 중 증명에 필요한 최소 방법을 고른다.
 3. 주장과 직접 연결된 주 FX를 하나 고르고, 장식 FX는 보조로만 둔다.
 4. 승인 제품 이미지와 실제 좌표를 입력으로 사용한다.
-5. HyperFrames 원본을 `hyperframes/projects/`에 만든다.
+5. HyperFrames 원본을 `.detail-page/generation/hyperframes/projects/`에 만든다.
 6. `check --strict --frame-check`를 통과한다.
 7. 첫·중간·마지막 프레임과 반복 경계를 검사한다.
 8. 결과를 `asset/generated/pending/gif/`에 등록한다.
-9. 사용자 승인 뒤 해당 주장 바로 다음에 배치한다.
+9. 사용자 승인 또는 원본 사진+G1 승인 계보의 plan-once policy 승인 뒤 해당
+   주장 바로 다음에 배치한다.
+
+각 motion BRIEF에는 다음 필드가 모두 필요하다.
+
+- `customer_question`, `feature_part`, `method`, `pattern_id`
+- `start_state`, `mid_state`, `end_state`, `visible_delta`
+- `motion_reason`, `static_insufficiency`, `background_contrast`
+- `answer_within_seconds` 2 이하, `overlay_only: false`
+- 폭 780 canvas, FPS, 길이, `gif | animated-webp | gif+animated-webp`
+- `placement_scale: chapter | full-width`
+- `applied_rule_ids`, frozen rule packet digest, reference profile digest
 
 각 motion은 별도 WorkOrder와 worker session으로 병렬 제작한다. 입력 이미지가
 승인된 motion은 다른 이미지·motion과 동시에 실행할 수 있다. 생산자와 Motion QA
@@ -59,6 +71,9 @@ session은 달라야 하며 실패한 motion과 실제 descendant만 다시 실�
 | 분위기·상태가 어떻게 바뀌는가 | 짧은 매치컷·쿨 스윕 |
 
 장식만 움직이는 줌·광선·입자는 증거로 인정하지 않는다.
+제품·부품·사용 과정은 그대로인데 선·원·라벨·카드만 움직이는 결과도 장식으로
+판정한다. 인접 motion은 같은 `pattern_id`를 반복하지 않으며 꼭 필요한 경우
+구매 질문이 달라지는 구체적 사유를 남긴다.
 
 ## 검증된 누적 모션 규칙
 
@@ -73,6 +88,18 @@ session은 달라야 하며 실패한 motion과 실제 descendant만 다시 실�
 | MR-007 | 보관·정돈 장면에는 실제 구성품이 아닌 파우치·주머니·보따리·바구니·포장·끈을 제품 옆에 두지 않는다. 포함 근거가 확인된 소품만 보여 주며, 그 외에는 판매 제품만 사용한다. | 미제공 소품 0건, `included_prop_gate` 통과, 제품만 남긴 첫·중간·끝 프레임 검사 | 2026-07-29 |
 | MR-008 | GIF 내부 카피는 제목·설명·상태 라벨·미디어의 안전영역을 분리하고, 한 영역의 문구가 다른 영역이나 증거 FX 위로 침범하지 않게 한다. | 800×800 첫·중간·끝 프레임에서 문자 상자 교차 0건, 잘림 0건 | 2026-07-29 |
 | MR-009 | 내부 카피·측정선·비교선이 들어간 GIF는 제작 캔버스 비율을 그대로 표시한다. 정사각 GIF를 `16:10`이나 다른 비율의 `cover` 박스에 넣지 않고 `contain`으로 전체 프레임을 보존한다. | 360px에서 렌더 비율=원본 비율, `object-fit: contain`, 내부 문자·선 잘림 0건 | 2026-07-29 |
+| MR-010 | 외부 모션 도구의 복합 옵션은 분할 추정하지 않고 검증된 단일 인자 값으로 보존하며 strict check와 render 영수증에 실제 실행 인자 전체를 기록한다. | preview와 render가 같은 정규화 옵션을 쓰고 실행 영수증의 exact 인자로 재현되며 strict 오류·경고가 0건이다. | 2026-07-30 |
+| MR-011 | 여러 motion의 preview와 render 결과는 member 식별자를 정렬한 manifest로 집계하고 fan-out 전체를 반복 검증한 뒤 독립 QA에 제출한다. | 계획된 motion 집합과 제출 집합이 정확히 같고 중복·누락 0건이며 모든 first·mid·last와 반복 경계가 PASS한다. | 2026-07-30 |
+| MR-012 | 정지 QA는 승인 poster로 모션 소스를 제거하고 이미지 decode를 마친 뒤 두 번 촬영하며 GPU 재샘플링은 변화 픽셀 비율과 유의·심각 차이 임계치를 함께 기록해 실제 모션과 구분한다. | 실제 모션 잔존 0건, 두 촬영의 구조 동일, 유의·심각 차이가 허용 임계치 이하이고 최대 채널 차이가 기록된다. | 2026-07-30 |
+| MR-013 | 각 motion은 고객 질문, 기능 부위, 시작·중간·끝 상태, visible delta, 정지 한계, 2초 내 답, 배경 대비를 잠그며 제품·부품·사용 과정은 그대로이고 overlay만 움직이는 결과를 coverage로 세지 않는다. | first/mid/last semantic frame evidence, 질문 답변 2초 이하, overlay-only 0건 | 2026-07-31 |
+| MR-014 | 인접 motion은 같은 pattern과 구도를 반복하지 않고 주장에 맞는 비교·구조 추적·국소 작동·절차·구성·치수 패턴을 구분한다. | 인접 pattern ID 중복 0건 또는 구매 질문이 달라지는 구체적 재사용 사유 | 2026-07-31 |
+| MR-015 | 공개 export는 저작 motion source를 실제 animation src로 보존하고 public DOM·manifest·`output/media/gifs` bytes·frame count를 post-export에서 닫는다. Poster는 fallback일 뿐 전달 motion으로 세지 않는다. | planned/public/manifest/file 수 일치, animation frame 2+, poster-only 0건 | 2026-07-31 |
+| MR-016 | 선택 category cohort의 필수 motion family를 실제 GIF brief에 바인딩하고 전체에서 서로 다른 pattern을 4종 이상 사용한다. G5 공개 결과의 motion semantic delta가 cohort보다 낮으면 개수와 기술 점수에 관계없이 실패한다. | family→brief 누락 0, distinct pattern 4+, category cohort motion delta 회귀 0 | 2026-07-31 |
+
+HeyGenFrame/HyperFrames 제작 run을 `exps/*.md`에 `frame-production`,
+`promotion: auto`로 넣으면 strict frame-check PASS, 시작·중간·끝 근거,
+독립 reviewer를 통과한 일반화 규칙만 MR로 자동 반영한다. Studio 조작·레이아웃
+경험은 이 표가 아니라 `taste.md`의 TR로 분리한다.
 
 ## 정성 주장
 
@@ -133,5 +160,9 @@ session은 달라야 하며 실패한 motion과 실제 descendant만 다시 실�
 - `check --strict --frame-check` 오류·경고 0개
 - 승인된 원본, 렌더 명령, FPS, 길이, 해시 기록
 - `detail-page-flow-v1`의 역할 coverage와 전체 motion 개수 통과
+- 구매 질문 하나를 2초 안에 답하고 first/mid/last 중 적어도 두 상태가 의미적으로
+  다르며 정지 이미지보다 설명력이 크다는 독립 QA
+- 인접 pattern 차별성, overlay-only 0건, visible delta observation
 - 일반 HTML offscreen poster·재진입 재시작·reduced-motion 검사
-- Wing 애니메이션 WebP 프레임 수·반복·780px·파일 hash 검사
+- 일반 HTML과 Wing의 public DOM→manifest→실파일 closure, animation frame 2+,
+  780px·반복·파일 hash 검사. Poster는 fallback일 뿐 전달 motion으로 세지 않는다.

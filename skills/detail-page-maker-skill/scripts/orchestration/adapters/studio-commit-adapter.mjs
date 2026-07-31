@@ -851,7 +851,8 @@ async function validateParent(projectRoot, previousRevision) {
   }
   const revisionPath = path.join(
     projectRoot,
-    "studio",
+    ".detail-page",
+    "workflow",
     "revisions",
     previousRevision.revision_id,
   );
@@ -1193,7 +1194,8 @@ export async function commitStudioRevision({
     revisionInputs,
   ).slice(0, 20)}`;
   const heroAssuranceMemberLocator = [
-    "studio",
+    ".detail-page",
+    "workflow",
     "revisions",
     revisionId,
     "hero-assurance.json",
@@ -1252,7 +1254,8 @@ export async function commitStudioRevision({
 
   const revisionsRoot = path.join(
     project,
-    "studio",
+    ".detail-page",
+    "workflow",
     "revisions",
   );
   const revisionPath = path.join(revisionsRoot, revisionId);

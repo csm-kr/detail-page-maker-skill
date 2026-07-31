@@ -423,6 +423,16 @@ export async function importDmkBundle({
   }
 
   assertProductId(manifest.product_id, expected, "manifest.json#/product_id");
+  if (
+    typeof manifest.canonical_supplier_url !== "string" ||
+    manifest.canonical_supplier_url.trim() === ""
+  ) {
+    throw new DmkBundleImportError(
+      "SUPPLIER_URL_REQUIRED",
+      "same-SKU 공급처 근거에는 manifest의 canonical supplier URL이 필요합니다.",
+      { supplier_url: manifest.canonical_supplier_url ?? null },
+    );
+  }
   const canonicalSupplier = canonicalizeDmkSupplierUrl(
     manifest.canonical_supplier_url,
     expected,
@@ -654,6 +664,35 @@ function withBundleLocator(imported, locator) {
     Buffer.from(JSON.stringify(relocated.outputs[0]), "utf8"),
   );
   return relocated;
+}
+
+export async function importProjectDmkBundle({
+  bundleRoot,
+  projectRoot,
+  expectedProductId,
+  expectedSupplierUrl,
+}) {
+  const source = path.resolve(String(bundleRoot ?? ""));
+  const root = path.resolve(String(projectRoot ?? ""));
+  const relative = path.relative(root, source);
+  if (
+    !relative ||
+    relative.startsWith("..") ||
+    path.isAbsolute(relative)
+  ) {
+    throw new DmkBundleImportError(
+      "INVALID_PROJECT_BUNDLE_ROOT",
+      "기존 dmk bundle은 project 내부의 하위 경로여야 합니다.",
+      { bundle_root: source, project_root: root },
+    );
+  }
+  const locator = relative.split(path.sep).join("/");
+  const imported = await importDmkBundle({
+    bundleRoot: source,
+    expectedProductId,
+    expectedSupplierUrl,
+  });
+  return withBundleLocator(imported, locator);
 }
 
 export async function materializeDmkBundle({

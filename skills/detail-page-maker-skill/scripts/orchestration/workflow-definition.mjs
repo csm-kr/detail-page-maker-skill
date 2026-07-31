@@ -77,13 +77,14 @@ function stage(
       : null,
     fan_out_key: options.fanOutKey ?? null,
     user_gate: options.userGate === true,
+    plan_once_approval: options.planOnceApproval ?? null,
     mutable_output: options.mutableOutput === true,
   });
 }
 
 export const WORKFLOW_DEFINITION = Object.freeze({
   workflow_id: "detail-page-maker",
-  version: "3.0.0",
+  version: "3.1.0",
   stages: Object.freeze([
     stage(
       "S0_INTAKE",
@@ -139,6 +140,7 @@ export const WORKFLOW_DEFINITION = Object.freeze({
       ["G1C_PLAN"],
       {
         userGate: true,
+        planOnceApproval: "before_manual_plan",
         inputProducers: {
           "product.ssot": ["G0C_NORMALIZE"],
           "qa.validation_receipt": ["G0Q_QA"],
@@ -158,7 +160,10 @@ export const WORKFLOW_DEFINITION = Object.freeze({
       ["market.competitor_selection"],
       "policy.market.relevance.v1",
       ["G1A_MARKET"],
-      { userGate: true },
+      {
+        userGate: true,
+        planOnceApproval: "before_manual_plan",
+      },
     ),
     stage(
       "G1A_MARKET",
@@ -201,6 +206,7 @@ export const WORKFLOW_DEFINITION = Object.freeze({
       ["G2S_CONFIG_APPROVAL"],
       {
         userGate: true,
+        planOnceApproval: "manual_plan",
         inputProducers: {
           "production.plan": ["G1C_PLAN"],
           "qa.validation_receipt": ["G1Q_QA"],
@@ -213,7 +219,10 @@ export const WORKFLOW_DEFINITION = Object.freeze({
       ["decision.image_config_approval"],
       "policy.image.config.v1",
       ["G2A_IMAGE"],
-      { userGate: true },
+      {
+        userGate: true,
+        planOnceApproval: "after_manual_plan",
+      },
     ),
     stage(
       "G2A_IMAGE",
@@ -244,6 +253,7 @@ export const WORKFLOW_DEFINITION = Object.freeze({
       ["G3N_MOTION_DECISION"],
       {
         userGate: true,
+        planOnceApproval: "after_manual_plan",
         fanOutKey: "image_job_id",
         inputProducers: {
           "media.image_candidate_set": ["G2A_IMAGE"],
@@ -277,7 +287,11 @@ export const WORKFLOW_DEFINITION = Object.freeze({
       ["decision.motion_preview_approval"],
       "policy.approval.motion-preview.v1",
       ["G3R_RENDER"],
-      { userGate: true, fanOutKey: "gif_brief_id" },
+      {
+        userGate: true,
+        planOnceApproval: "after_manual_plan",
+        fanOutKey: "gif_brief_id",
+      },
     ),
     stage(
       "G3R_RENDER",
@@ -303,6 +317,7 @@ export const WORKFLOW_DEFINITION = Object.freeze({
       ["G4A_ASSEMBLY"],
       {
         userGate: true,
+        planOnceApproval: "after_manual_plan",
         fanOutKey: "gif_brief_id",
         inputProducers: {
           "media.gif_candidate": ["G3R_RENDER"],
@@ -362,6 +377,9 @@ export const WORKFLOW_DEFINITION = Object.freeze({
           min_behance_quality_score: 90,
           min_critical_dimension_score: 85,
           max_deterministic_hard_failures: 0,
+          reference_comparison_required: true,
+          category_reference_comparison_required: true,
+          post_export_validation_required: true,
         },
         inputProducers: {
           "studio.committed_revision": ["G4C_STUDIO_COMMIT"],
@@ -377,6 +395,7 @@ export const WORKFLOW_DEFINITION = Object.freeze({
       ["G5_PUBLISH_QA"],
       {
         userGate: true,
+        planOnceApproval: "after_manual_plan",
         inputProducers: {
           "studio.committed_revision": ["G4C_STUDIO_COMMIT"],
           "qa.rubric_result": ["G4Q_RUBRIC"],
@@ -396,6 +415,9 @@ export const WORKFLOW_DEFINITION = Object.freeze({
           min_behance_quality_score: 90,
           min_critical_dimension_score: 85,
           max_deterministic_hard_failures: 0,
+          reference_comparison_required: true,
+          category_reference_comparison_required: true,
+          post_export_validation_required: true,
         },
       },
     ),
@@ -407,6 +429,7 @@ export const WORKFLOW_DEFINITION = Object.freeze({
       [],
       {
         userGate: true,
+        planOnceApproval: "after_manual_plan",
         inputProducers: {
           "page.publish_bundle": ["G5_PUBLISH_QA"],
           "qa.validation_receipt": ["G5_PUBLISH_QA"],
@@ -419,6 +442,11 @@ export const WORKFLOW_DEFINITION = Object.freeze({
 export function validateWorkflowDefinition(definition) {
   const errors = [];
   const stages = definition?.stages ?? [];
+  const planOnceModes = new Set([
+    "before_manual_plan",
+    "manual_plan",
+    "after_manual_plan",
+  ]);
   const ids = new Set(stages.map((item) => item.stage_id));
   if (ids.size !== stages.length) errors.push("duplicate stage_id");
   for (const item of stages) {
@@ -486,7 +514,9 @@ export function validateWorkflowDefinition(definition) {
         policy.min_score > 100 ||
         !Number.isFinite(policy.min_behance_quality_score) ||
         !Number.isFinite(policy.min_critical_dimension_score) ||
-        policy.max_deterministic_hard_failures !== 0
+        policy.max_deterministic_hard_failures !== 0 ||
+        policy.reference_comparison_required !== true ||
+        policy.post_export_validation_required !== true
       ) {
         errors.push(`${item.stage_id}: invalid validation policy`);
       }
@@ -498,6 +528,30 @@ export function validateWorkflowDefinition(definition) {
     ) {
       errors.push(`${item.stage_id}: invalid runner contract`);
     }
+    if (
+      item.user_gate &&
+      !planOnceModes.has(item.plan_once_approval)
+    ) {
+      errors.push(
+        `${item.stage_id}: user gate requires plan_once_approval mode`,
+      );
+    }
+    if (!item.user_gate && item.plan_once_approval !== null) {
+      errors.push(
+        `${item.stage_id}: non-user gate cannot declare plan_once_approval`,
+      );
+    }
+  }
+  const manualPlanGates = stages.filter(
+    (item) => item.plan_once_approval === "manual_plan",
+  );
+  if (
+    manualPlanGates.length !== 1 ||
+    manualPlanGates[0]?.stage_id !== "G1U_APPROVAL"
+  ) {
+    errors.push(
+      "plan-once fast path requires G1U_APPROVAL as the only manual gate",
+    );
   }
   return { ok: errors.length === 0, errors };
 }

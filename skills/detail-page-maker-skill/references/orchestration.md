@@ -11,6 +11,7 @@
 4. 저장 구조
 5. Revision과 repair
 6. Studio와 export 경계
+7. Agent capacity와 저장 예산
 
 ## 상태 변경 경계
 
@@ -79,8 +80,9 @@ CLI의 `workflow-advance`는 G2/G3 frontier가 준비되면
 `parallel-dispatcher.mjs`를 반드시 거친다. 디스패처는
 `planParallelFrontier`를 먼저 호출하고, 반환된 `work_orders`를
 `WorkflowEngine.leaseFrontier({ planned_work_items })`에 그대로 넘긴다.
-이때 `--worker-capacity`, capacity 이상 개수의 `--worker-sessions`,
-`--production-plan`, exact `--plan-approval`이 없으면 fail-closed한다.
+이때 `--worker-capacity auto`가 기본이며 capacity 이상 개수의 실제
+`--worker-sessions`, `--production-plan`, exact `--plan-approval`이 없으면
+fail-closed한다.
 완료된 member는 다음 계획에서 제외하고, active member는 중복 발급하지
 않으며, 모든 candidate member가 commit된 뒤에만
 `completeParallelFrontier`가 해당 stage를 완료한다.
@@ -134,6 +136,7 @@ ValidationReceipt 중 하나라도 없으면 QA bundle digest를 만들지 않�
 | `market-evidence.mjs` | 경쟁상품 후보·선택·bundle import와 QA |
 | `dependency-closure.mjs` | 프로젝트 로컬 skill 선언·잠금·설치 검사 |
 | `knowledge-snapshot.mjs` | CR/TR/MR·rubric·dependency hash 동결 |
+| `category-reference-library.mjs` | 상품 archetype 선택·reference cohort·시각 ambition hard gate |
 | `production-plan.mjs` | claim·section·media·GIF·rubric 실행 계획 |
 | `production-contracts.mjs` | 이미지·GIF·HTML·Studio 제작 계약 |
 | `parallel-frontier.mjs` | G0/G2/G3/독립 QA item frontier와 capacity 배정 |
@@ -170,6 +173,30 @@ materialized artifact는 모든 member의 root, canonical locator, size와 SHA-2
 열거한다. Engine inspect와 두 export는 record뿐 아니라 실제 bytes를 재검증한다.
 새 프로젝트에는 레거시 `.detail-page-workflow/`를 만들지 않는다.
 
+## Agent capacity와 저장 예산
+
+`agent-capacity.mjs`는 처음 dispatch할 때 `os.availableParallelism()`과 총 RAM으로
+machine worker 상한을 계산한다. CPU 상한은 `floor(cpu/2)`, RAM 상한은
+`floor((GiB-2)/2)`, 전체 상한은 8이며 최소 1이다. 실제 할당은 다음 값의 최솟값이다.
+
+```text
+machine 추천
+∩ host가 허용한 worker slot
+∩ 실제 전달된 서로 다른 agent session 수
+```
+
+머신 자원은 실제 Codex agent session을 생성하지 않는다. host slot 또는 session
+ID를 탐지할 수 없으면 이를 발명하지 않고 dispatch를 중단한다. host는
+`DETAIL_PAGE_AGENT_TOTAL_SLOTS` 또는 `DETAIL_PAGE_AGENT_MAX_WORKERS`,
+`DETAIL_PAGE_AGENT_SESSION_IDS`를 전달할 수 있다. 총 slot에는 coordinator 한
+자리를 포함하므로 worker 상한은 `total-1`이다. `agent-capacity` 명령은 계산만
+보고하며 state를 바꾸지 않는다.
+
+폴더 수는 기능별 최상위 경계를 늘리는 방식으로 확장하지 않는다. 프로젝트 루트는
+`.detail-page`, `.migration-archive`, `input`, `output`만 허용하며 단계별 내부
+directory는 최초 실제 write에 lazy-create한다. 공용 경험도 단일 `exps/`에
+Markdown만 두고 promotion/quarantine 기록은 각각 한 평면 directory에 저장한다.
+
 ## Revision과 repair
 
 승인 후 변경은 `revision-plan`에서 영향 범위를 계산하고 별도 사용자 승인
@@ -183,8 +210,12 @@ Rubric 실패는 failure owner를 G1·G2·G3·G4에 연결해 필요한 branch�
 
 ## Studio와 export 경계
 
-Studio working session은 mutable하지만 downstream 입력이 아니다. save 결과를
-새 immutable revision으로 commit하고 390 CSS px authoring을 DPR 2의 780 physical
-px로 capture하며, 숨은 320·360 overflow 진단 capture와 독립 rubric 결과를
-기록한다. 일반 HTML과 Wing export는 같은 서버측 G5 gate에서 state seal, fresh
-graph, publish approval, G5 QA와 97·90·85·hard-0를 다시 검증한다.
+Studio는 스킬의 공용 runtime으로 제공하는 편집 UI이며 상품 프로젝트에 runtime
+파일을 복제하지 않는다. working session은 mutable하지만 downstream 입력이 아니다.
+명시적 Save가 숨은 authoring과 `output/detail-page.html`을 같은 사건에서 갱신하고
+새 source revision ID·hash를 만든다. commit·QA는 그 exact revision을 검증·봉인할
+뿐 새 편집 원본을 만들지 않는다. 390 CSS px authoring을 DPR 2의 780 physical px로
+capture하며 숨은 320·360 overflow 진단 capture와 독립 rubric 결과를 기록한다.
+일반 HTML과 Wing export는 같은 서버측 G5 gate에서 state seal, fresh graph,
+publish approval, G5 QA와 97·90·85·hard-0를 다시 검증한다. Wing은
+`output/wing/<export-id>/` 파생본만 만들고 현재 output을 덮어쓰지 않는다.

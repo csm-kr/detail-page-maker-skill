@@ -15,6 +15,13 @@ import {
   createWorkflowEngine,
 } from "../../skills/detail-page-maker-skill/scripts/orchestration/workflow-engine.mjs";
 import {
+  planParallelFrontier,
+  productionPlanDigest,
+} from "../../skills/detail-page-maker-skill/scripts/orchestration/parallel-frontier.mjs";
+import {
+  createParallelProductionPlan,
+} from "../fixtures/orchestration/parallel-production-plan.mjs";
+import {
   attachValidHeroAssurance,
 } from "../helpers/hero-assurance-fixture.mjs";
 
@@ -47,7 +54,7 @@ function canonicalJsonBytes(value) {
 async function materializedG4Envelope(root, workOrder) {
   const revisionId = "studio-rev-e2e-materialized";
   const revisionRelativeRoot =
-    `studio/revisions/${revisionId}`;
+    `.detail-page/workflow/revisions/${revisionId}`;
   const revisionRoot = path.join(
     root,
     ...revisionRelativeRoot.split("/"),
@@ -385,6 +392,47 @@ function envelope(workOrder, motionRequired = true) {
         behance_quality_score: 100,
         critical_dimension_min_score: 100,
         deterministic_hard_failure_count: 0,
+        reference_comparison: {
+          status: "PASS",
+          reference_ids: ["current-output-baseline"],
+          dimensions: [
+            "desire_formation",
+            "observable_differentiation",
+            "scene_diversity",
+            "motion_semantic_delta",
+            "delivery_780",
+            "decision_close",
+          ].map((criterionId) => ({
+            criterion_id: criterionId,
+            current_score: 100,
+            reference_score: 90,
+            observation:
+              "공개 output이 기준 산출물보다 낮아지지 않았다.",
+          })),
+        },
+        category_reference_comparison: {
+          status: "PASS",
+          library_sha256: "a".repeat(64),
+          reference_card_ids: [
+            "behance-makeon-led-mask",
+            "behance-replaceable-toothbrush",
+          ],
+          target: "meet_or_exceed_selected_cohort",
+          dimensions: [
+            "desire_formation",
+            "observable_differentiation",
+            "scene_diversity",
+            "motion_semantic_delta",
+            "delivery_780",
+            "decision_close",
+          ].map((criterionId) => ({
+            criterion_id: criterionId,
+            current_score: 100,
+            cohort_score: 90,
+            observation:
+              "공개 output이 선택 cohort의 시각적 기준을 충족했다.",
+          })),
+        },
       },
       hard_failures: [],
       verdict: "PASS",
@@ -395,10 +443,89 @@ function envelope(workOrder, motionRequired = true) {
   return result;
 }
 
+async function completeParallelProductionStage(
+  engine,
+  stageId,
+  productionPlan,
+) {
+  const workerSessionIds = Array.from(
+    { length: 16 },
+    (_, index) => `frontier-${stageId.toLowerCase()}-${index + 1}`,
+  );
+  const frontierPlan = planParallelFrontier({
+    ready_stage_ids: [stageId],
+    project_input_digest: project().input_digest,
+    production_plan: productionPlan,
+    plan_approval: {
+      decision_id: "decision-plan-e2e",
+      decision: "approved",
+      subject_plan_sha256:
+        productionPlanDigest(productionPlan),
+    },
+    approved_image_job_ids:
+      productionPlan.image_job_set.jobs.map(
+        (job) => job.job_id,
+      ),
+    worker_capacity: workerSessionIds.length,
+    worker_session_ids: workerSessionIds,
+  });
+  const leased = await engine.leaseFrontier(
+    project(`frontier-coordinator-${stageId}`),
+    {
+      worker_capacity: workerSessionIds.length,
+      agent_session_ids: workerSessionIds,
+      stage_ids: [stageId],
+      planned_work_items: frontierPlan.work_orders,
+    },
+  );
+  for (const workOrder of leased.work_orders) {
+    const outputArtifacts =
+      workOrder.expected_output_types.map((type, index) => ({
+        artifact_id:
+          index === 0
+            ? workOrder.frontier_expected_artifact_id
+            : `${workOrder.frontier_expected_artifact_id}-${index}`,
+        type,
+        manifest_sha256: hash(
+          `${workOrder.work_item_id}:${type}:${index}`,
+        ),
+        member_ids: [
+          `${workOrder.member_id}-${type.replaceAll(".", "-")}.json`,
+        ],
+      }));
+    await engine.submit(workOrder.work_order_id, {
+      project_ref: project(
+        workOrder.assigned_agent_session_id,
+      ),
+      producer_agent_session_id:
+        workOrder.assigned_agent_session_id,
+      input_set_digest: workOrder.input_set_digest,
+      fencing_token: workOrder.fencing_token,
+      attempt: workOrder.attempt,
+      output_artifacts: outputArtifacts,
+      execution_receipt: {
+        execution_id:
+          `execution-${workOrder.work_item_id}`,
+        adapter_id: workOrder.runner_contract.adapter_id,
+        adapter_version: "1.0.0",
+        adapter_code_sha256: hash(
+          `adapter:${workOrder.work_item_id}`,
+        ),
+      },
+    });
+  }
+  await engine.completeParallelFrontier(project(), {
+    stage_id: stageId,
+    expected_work_item_ids:
+      frontierPlan.candidate_work_item_ids,
+  });
+}
+
 test("fixture adapter로 G0→G5 전체가 receipt와 exact approval을 거쳐 완료된다", async (t) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "detail-page-e2e-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   const engine = createWorkflowEngine({ projectRoot: root });
+  const productionPlan = createParallelProductionPlan();
 
   for (let iteration = 0; iteration < 100; iteration += 1) {
     const status = await engine.inspect(project());
@@ -420,6 +547,18 @@ test("fixture adapter로 G0→G5 전체가 receipt와 exact approval을 거쳐 �
     }
     assert.equal(progress.kind, "WorkAvailable");
     const stageId = progress.ready_stages[0];
+    if (
+      ["G2A_IMAGE", "G3P_PREVIEW", "G3R_RENDER"].includes(
+        stageId,
+      )
+    ) {
+      await completeParallelProductionStage(
+        engine,
+        stageId,
+        productionPlan,
+      );
+      continue;
+    }
     const workOrder = await engine.lease(
       project(`producer-${stageId}`),
       { stage_ids: [stageId] },
@@ -480,6 +619,7 @@ test("필수 motion을 not_required로 우회하면 G3 결정 commit을 거부�
   const root = await mkdtemp(path.join(os.tmpdir(), "detail-page-static-e2e-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   const engine = createWorkflowEngine({ projectRoot: root });
+  const productionPlan = createParallelProductionPlan();
 
   let bypassRejected = false;
   for (let iteration = 0; iteration < 100; iteration += 1) {
@@ -500,6 +640,18 @@ test("필수 motion을 not_required로 우회하면 G3 결정 commit을 거부�
     }
     assert.equal(progress.kind, "WorkAvailable");
     const stageId = progress.ready_stages[0];
+    if (
+      ["G2A_IMAGE", "G3P_PREVIEW", "G3R_RENDER"].includes(
+        stageId,
+      )
+    ) {
+      await completeParallelProductionStage(
+        engine,
+        stageId,
+        productionPlan,
+      );
+      continue;
+    }
     const workOrder = await engine.lease(
       project(`producer-${stageId}`),
       { stage_ids: [stageId] },

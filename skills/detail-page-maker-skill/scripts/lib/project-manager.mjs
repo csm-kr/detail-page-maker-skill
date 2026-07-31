@@ -17,6 +17,28 @@ const RELATIVE_PATTERN = /(?:^|[("'`\s])((?:\.\.\/)+[^\s"'`)]+)/g;
 const WINDOWS_ABSOLUTE_PATTERN =
   /(?<![A-Za-z])[A-Za-z]:[\\/][^\s"'`)]+/g;
 const USER_ABSOLUTE_PATTERN = /\/Users\/[^\s"'`)]+/g;
+const PROJECT_TOP_LEVEL_DIRECTORIES = new Set([
+  ".detail-page",
+  ".migration-archive",
+  "input",
+  "output",
+]);
+const LEGACY_PROJECT_TOP_LEVEL_DIRECTORIES = new Set([
+  ...PROJECT_TOP_LEVEL_DIRECTORIES,
+  "asset",
+  "detail-page",
+  "planning",
+]);
+const PROJECT_TOP_LEVEL_FILES = new Set([
+  ".DS_Store",
+  "README.md",
+  "project.json",
+]);
+const GENERATED_AUDIT_PREFIXES = [
+  ".detail-page/evidence/",
+  ".detail-page/qa/",
+  ".detail-page/workflow/",
+];
 
 async function exists(filePath) {
   try {
@@ -105,6 +127,40 @@ export async function validateProjectIsolation(projectRoot) {
   }
   const currentLayout =
     state?.workspace?.pathPolicy === "project-relative-only";
+  const allowedTopLevelDirectories = currentLayout
+    ? PROJECT_TOP_LEVEL_DIRECTORIES
+    : LEGACY_PROJECT_TOP_LEVEL_DIRECTORIES;
+  const rootEntries = await readdir(root, { withFileTypes: true });
+  for (const entry of rootEntries) {
+    if (
+      entry.isDirectory() &&
+      !allowedTopLevelDirectories.has(entry.name)
+    ) {
+      issues.push({
+        file: entry.name,
+        reference: `project-root/${entry.name}`,
+        reason: "UNPLANNED_PROJECT_ROOT_DIRECTORY",
+      });
+    } else if (
+      entry.isFile() &&
+      !PROJECT_TOP_LEVEL_FILES.has(entry.name)
+    ) {
+      issues.push({
+        file: entry.name,
+        reference: `project-root/${entry.name}`,
+        reason: "UNPLANNED_PROJECT_ROOT_FILE",
+      });
+    } else if (
+      !entry.isDirectory() &&
+      !entry.isFile()
+    ) {
+      issues.push({
+        file: entry.name,
+        reference: `project-root/${entry.name}`,
+        reason: "UNSAFE_PROJECT_ROOT_ENTRY",
+      });
+    }
+  }
   if (await exists(path.join(root, "assets"))) {
     issues.push({
       file: "assets",
@@ -124,12 +180,7 @@ export async function validateProjectIsolation(projectRoot) {
   const requiredProjectFiles = currentLayout
     ? [
         ["README.md", "PROJECT_README_REQUIRED"],
-        [".detail-page/planning/LEARNINGS.md", "PROJECT_LEARNINGS_REQUIRED"],
         ["output/detail-page.html", "PUBLIC_DETAIL_PAGE_REQUIRED"],
-        [
-          ".detail-page/authoring/detail-page.html",
-          "AUTHORING_DETAIL_PAGE_REQUIRED",
-        ],
       ]
     : [
         ["README.md", "PROJECT_README_REQUIRED"],
@@ -166,6 +217,13 @@ export async function validateProjectIsolation(projectRoot) {
 
   for (const filePath of await walkTextFiles(root)) {
     const relativeFile = path.relative(root, filePath).split(path.sep).join("/");
+    if (
+      GENERATED_AUDIT_PREFIXES.some((prefix) =>
+        relativeFile.startsWith(prefix),
+      )
+    ) {
+      continue;
+    }
     const body = await readFile(filePath, "utf8");
     addMatches(
       issues,
@@ -209,6 +267,16 @@ export async function validateProjectIsolation(projectRoot) {
   return {
     ok: issues.length === 0,
     projectRoot: root,
+    storagePolicy: {
+      topLevelDirectoryBudget: PROJECT_TOP_LEVEL_DIRECTORIES.size,
+      allowedTopLevelDirectories: [
+        ...PROJECT_TOP_LEVEL_DIRECTORIES,
+      ].sort(),
+      actualTopLevelDirectories: rootEntries
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort(),
+    },
     issues,
   };
 }

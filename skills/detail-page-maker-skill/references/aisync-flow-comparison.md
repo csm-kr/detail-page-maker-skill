@@ -85,8 +85,10 @@ identity.reference_set
 
 - copy, 시험 조건, 사양, 주의사항의 저작 정본은 편집 가능한 Studio section이다.
 - 각 section은 section·claim·evidence·asset ID를 보존한다.
-- Studio 저장은 현재 working과 로컬 output preview를 덮어쓰고 최근 20개 내부
-  snapshot을 남긴다. Wing Export 뒤 고객 HTML과 Wing은 같은 CDN URL stack을 쓴다.
+- Studio 저장은 현재 working을 새 source revision으로 확정하고
+  `output/detail-page.html` 단일 진입점을 갱신하며 최근 20개 내부 snapshot을
+  남긴다. Wing Export는 `output/wing/<export-id>/`에 별도 780px CDN stack을
+  만들고 현재 output을 덮어쓰지 않는다.
 - 외부 gallery의 “한눈에 이어 보기” 장점은 유지하되 QA·revision·승인 상태를 함께 보여준다.
 
 ## 적용 규칙

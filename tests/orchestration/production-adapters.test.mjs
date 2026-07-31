@@ -39,9 +39,48 @@ const SHA = Object.freeze({
   gif: "a".repeat(64),
   qa: "b".repeat(64),
 });
+const MOTION_SEMANTIC_CONTRACT = Object.freeze({
+  customer_question: "제품 구조는 사용 중 어떻게 변하는가?",
+  feature_part: "제품의 핵심 구조",
+  start_state: "제품이 사용 전 원래 형태로 놓여 있다.",
+  mid_state: "제품 본체가 실제 사용 방향으로 변형된다.",
+  end_state: "제품이 사용 상태에서 안정적으로 자리 잡는다.",
+  visible_delta: "제품 본체의 형태와 접촉 위치가 분명히 달라진다.",
+});
+const MOTION_RULE_IDS = Object.freeze(["MR-001"]);
+const REFERENCE_PROFILE_DIGEST = "c".repeat(64);
+const KNOWLEDGE_RULE_PACKET_DIGEST = "d".repeat(64);
 
 function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
+}
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, canonicalize(value[key])]),
+    );
+  }
+  return value;
+}
+
+function executableBriefFields() {
+  const packet = {
+    semantic_contract: MOTION_SEMANTIC_CONTRACT,
+    applied_rule_ids: [...MOTION_RULE_IDS],
+    reference_profile_digest: REFERENCE_PROFILE_DIGEST,
+    knowledge_rule_packet_digest:
+      KNOWLEDGE_RULE_PACKET_DIGEST,
+  };
+  return {
+    ...packet,
+    compiled_contract_sha256: sha256(
+      JSON.stringify(canonicalize(packet)),
+    ),
+  };
 }
 
 function imageWorkOrder({ retry = false } = {}) {
@@ -150,14 +189,20 @@ async function createHyperframesProject() {
     "#!/usr/bin/env node\n// local hyperframes fixture\n",
     "utf8",
   );
-  await writeFile(
-    briefPath,
-    "# BRIEF\n\n승인 제품의 상태 변화를 보여 준다.\n",
-    "utf8",
-  );
-  const briefDigest = sha256(
-    "# BRIEF\n\n승인 제품의 상태 변화를 보여 준다.\n",
-  );
+  const briefText = [
+    "# BRIEF",
+    "",
+    MOTION_SEMANTIC_CONTRACT.customer_question,
+    MOTION_SEMANTIC_CONTRACT.feature_part,
+    MOTION_SEMANTIC_CONTRACT.start_state,
+    MOTION_SEMANTIC_CONTRACT.mid_state,
+    MOTION_SEMANTIC_CONTRACT.end_state,
+    MOTION_SEMANTIC_CONTRACT.visible_delta,
+    ...MOTION_RULE_IDS,
+    "",
+  ].join("\n");
+  await writeFile(briefPath, briefText, "utf8");
+  const briefDigest = sha256(briefText);
   return { root, cliPath, briefPath, briefDigest };
 }
 
@@ -169,6 +214,7 @@ function motionPrefix(briefDigest, { approved = false } = {}) {
       source_image_artifact_ids: ["image-approved-001"],
       source_identity_digest: SHA.identity,
       created_at: "2026-07-30T01:00:00.000Z",
+      ...executableBriefFields(),
     },
     motion_project: {
       artifact_id: "motion-project-001",
@@ -223,6 +269,19 @@ function completeMotionChain(briefDigest) {
       source_identity_digest: SHA.identity,
       verdict: "PASS",
       hard_failures: [],
+      semantic_motion_quality: {
+        customer_question_answered: true,
+        meaningful_state_change: true,
+        static_superiority: true,
+        pattern_distinct_from_adjacent: true,
+        overlay_only: false,
+        visible_delta_observation:
+          "제품 본체의 형태와 접촉 위치가 달라졌다.",
+        answer_within_seconds: 1.5,
+        first_frame_sha256: "1".repeat(64),
+        mid_frame_sha256: "2".repeat(64),
+        last_frame_sha256: "3".repeat(64),
+      },
       created_at: "2026-07-30T01:06:00.000Z",
     },
     asset_approval: {
@@ -406,9 +465,9 @@ test("HyperFrames preview plan은 로컬 CLI로 BRIEF→strict frame-check→pre
     assert.deepEqual(plan.pre_approval_steps[1].argv.slice(1), [
       "check",
       ".",
-      "--strict",
-      "--frame-check",
       "--json",
+      "--strict",
+      "--frame-check=severity=error;seek=0,.5,.991667;tol=2",
     ]);
     assert.deepEqual(plan.pre_approval_steps[2].argv.slice(1), [
       "preview",

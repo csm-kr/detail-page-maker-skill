@@ -1,4 +1,10 @@
 import { planParallelFrontier } from "./parallel-frontier.mjs";
+import {
+  resolveWorkerAllocation,
+} from "./agent-capacity.mjs";
+import {
+  materializePlanningDocuments,
+} from "./planning-materializer.mjs";
 
 const PRODUCTION_FRONTIER_STAGES = new Set([
   "G2A_IMAGE",
@@ -89,6 +95,7 @@ function effectiveFailedMembers(
 
 export async function dispatchParallelProductionFrontier({
   engine,
+  project_root,
   project_ref,
   advance_result,
   production_plan,
@@ -96,6 +103,7 @@ export async function dispatchParallelProductionFrontier({
   approved_image_job_ids = [],
   worker_capacity,
   worker_session_ids,
+  agent_capacity_environment = process.env,
   failed_members = [],
   retry_member_ids = [],
 }) {
@@ -105,17 +113,12 @@ export async function dispatchParallelProductionFrontier({
     status,
   );
   if (readyStageIds.length === 0) return advance_result;
-  if (
-    !Number.isInteger(Number(worker_capacity)) ||
-    Number(worker_capacity) < 1 ||
-    asArray(worker_session_ids).length < Number(worker_capacity)
-  ) {
-    throw new ParallelDispatcherError(
-      "PARALLEL_DISPATCH_CONFIGURATION_REQUIRED",
-      "G2/G3 workflow-advance에는 worker capacity와 그 이상 수의 session ID가 필요합니다.",
-      { ready_stage_ids: readyStageIds },
-    );
-  }
+  const allocation = resolveWorkerAllocation({
+    requestedCapacity:
+      worker_capacity ?? agent_capacity_environment.DETAIL_PAGE_WORKER_CAPACITY,
+    cliSessionIds: worker_session_ids,
+    environment: agent_capacity_environment,
+  });
   if (!production_plan || !plan_approval) {
     throw new ParallelDispatcherError(
       "PARALLEL_PLAN_INPUT_REQUIRED",
@@ -154,12 +157,23 @@ export async function dispatchParallelProductionFrontier({
     completed_work_item_ids: completedWorkItemIds,
     failed_members: failedMembers,
     retry_member_ids: retryMemberIds,
-    worker_capacity: Number(worker_capacity),
-    worker_session_ids,
+    worker_capacity: allocation.worker_capacity,
+    worker_session_ids: allocation.worker_session_ids,
   });
+  if (!project_root) {
+    throw new ParallelDispatcherError(
+      "PROJECT_ROOT_REQUIRED",
+      "사람용 기획 문서를 물질화하려면 project_root가 필요합니다.",
+    );
+  }
+  const planningMaterialization =
+    await materializePlanningDocuments({
+      projectRoot: project_root,
+      productionPlan: production_plan,
+    });
   const leaseResult = await engine.leaseFrontier(project_ref, {
-    worker_capacity: Number(worker_capacity),
-    agent_session_ids: worker_session_ids,
+    worker_capacity: allocation.worker_capacity,
+    agent_session_ids: allocation.worker_session_ids,
     stage_ids: readyStageIds,
     planned_work_items: frontierPlan.work_orders,
   });
@@ -203,6 +217,8 @@ export async function dispatchParallelProductionFrontier({
         frontierPlan.remaining_candidate_count,
       planned_count: frontierPlan.work_orders.length,
     },
+    agent_capacity: allocation,
+    planning_materialization: planningMaterialization,
     lease_result: leaseResult,
     completion,
   };

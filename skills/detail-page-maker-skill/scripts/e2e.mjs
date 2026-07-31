@@ -1,4 +1,11 @@
-import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+  access,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { createProject } from "./lib/new-project.mjs";
@@ -69,34 +76,33 @@ async function runE2E() {
     });
     report.checks.projectCreated = true;
 
-    await Promise.all(
-      PLANNING_FILES.map((fileName) =>
-        access(
+    const eagerPlanningFiles = [];
+    for (const fileName of PLANNING_FILES) {
+      if (
+        await exists(
           path.join(
             created.projectRoot,
             ".detail-page",
             "planning",
             fileName,
           ),
-        ),
-      ),
-    );
-    report.checks.planningTemplates = [...PLANNING_FILES];
+        )
+      ) {
+        eagerPlanningFiles.push(fileName);
+      }
+    }
+    if (eagerPlanningFiles.length > 0) {
+      throw new Error(
+        `G1 전에 planning 파일이 생성되었습니다: ${eagerPlanningFiles.join(", ")}`,
+      );
+    }
+    report.checks.planningTemplatesLazy = true;
     await Promise.all([
       access(
         path.join(created.projectRoot, "input", "product"),
       ),
       access(
         path.join(created.projectRoot, "output", "detail-page.html"),
-      ),
-      access(
-        path.join(created.projectRoot, "output", "media", "images"),
-      ),
-      access(
-        path.join(created.projectRoot, "output", "media", "gifs"),
-      ),
-      access(
-        path.join(created.projectRoot, "output", "wing"),
       ),
       access(
         path.join(
@@ -107,10 +113,33 @@ async function runE2E() {
         ),
       ),
     ]);
+    const lazyOutputDirectories = [
+      path.join("output", "media"),
+      path.join("output", "wing"),
+      path.join(".detail-page", "backups"),
+      path.join(".detail-page", "evidence"),
+      path.join(".detail-page", "generation"),
+      path.join(".detail-page", "planning"),
+      path.join(".detail-page", "qa"),
+      path.join(".detail-page", "workflow"),
+    ];
+    const eagerlyCreated = [];
+    for (const relativePath of lazyOutputDirectories) {
+      if (await exists(path.join(created.projectRoot, relativePath))) {
+        eagerlyCreated.push(relativePath);
+      }
+    }
+    if (eagerlyCreated.length > 0) {
+      throw new Error(
+        `lazy output 폴더가 미리 생성되었습니다: ${eagerlyCreated.join(", ")}`,
+      );
+    }
     report.checks.currentProjectContract = {
       input: "input/product",
       publicHtml: "output/detail-page.html",
       authoringHtml: ".detail-page/authoring/detail-page.html",
+      lazyOutputDirectories,
+      forbiddenProjectCopies: [".detail-page/studio"],
     };
     const forbiddenPublicRoots = [
       "index.html",
@@ -134,6 +163,10 @@ async function runE2E() {
 
     const pendingRelative =
       ".detail-page/generation/pending/image/01-e2e-hybrid-v01.png";
+    await mkdir(
+      path.dirname(path.join(created.projectRoot, pendingRelative)),
+      { recursive: true },
+    );
     await writeFile(
       path.join(created.projectRoot, pendingRelative),
       ONE_PIXEL_PNG,
@@ -151,6 +184,14 @@ async function runE2E() {
     report.checks.studioHttpStatus = studioResponse.status;
     if (studioResponse.status !== 200) {
       throw new Error(`Studio HTTP status: ${studioResponse.status}`);
+    }
+    report.checks.projectStudioRuntimeCopied = await exists(
+      path.join(created.projectRoot, ".detail-page", "studio"),
+    );
+    if (report.checks.projectStudioRuntimeCopied) {
+      throw new Error(
+        "공용 Studio runtime이 상품 프로젝트에 복제되었습니다.",
+      );
     }
 
     const before = await requestJson(

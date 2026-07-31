@@ -43,10 +43,13 @@ npx skills update detail-page-maker-skill --project --yes
 ```sh
 node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs doctor
 node .agents/skills/detail-page-maker-skill/scripts/e2e.mjs
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs agent-capacity
 ```
 
 `doctor`는 선언·잠금·내장 상태가 14/14/14인지 검사한다. 일부 내장 스킬이나
 잠금 hash가 다르면 실행하지 않고 상위 스킬 하나를 다시 업데이트한다.
+`agent-capacity`는 현재 CPU·RAM 추천, host slot, 실제 session 수와 최종 worker
+상한을 보여 준다.
 
 ## 런타임
 
@@ -70,6 +73,30 @@ node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs new --name "
 
 사용자가 직접 넣는 파일은 생성된 프로젝트의 `input/product/`뿐이다. 실제 제품
 사진이 없고 같은 SKU의 공급처 이미지가 확인되면 최초 한 번 알린 뒤 진행한다.
+
+## 경험 자동 승격
+
+workspace에 평면 `exps/` drop을 초기화하고 필요할 때 명시적으로 검사할 수 있다.
+
+```sh
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs experience-init
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs experience-sync
+```
+
+완성 run, Behance 조사, frame 제작 경험은 조사/run별 `.md`로 나누되 source별
+하위 폴더를 만들지 않는다. 형식은 `exps/README.md`를 따른다. 검증을 통과한
+블록은 다음 mutating entrypoint에서 자동 승격되며 실패 블록은 격리된다.
+
+멀티 agent host가 session을 외부에서 공급할 때는 CLI의 반복
+`--worker-sessions <id>` 또는 다음 환경값을 사용한다.
+
+```text
+DETAIL_PAGE_AGENT_TOTAL_SLOTS
+DETAIL_PAGE_AGENT_MAX_WORKERS
+DETAIL_PAGE_AGENT_SESSION_IDS
+```
+
+CPU·RAM 추천만으로 실제 session을 만들거나 임의 ID를 생성하지 않는다.
 
 ## 배포 무결성
 
