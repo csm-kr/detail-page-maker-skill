@@ -173,7 +173,7 @@ macOS·Ubuntu·Windows에서 같은 argv를 사용한다.
 | Studio·Wing·runtime 경계 회귀 | PASS — 86/86, 기본 스위트의 브라우저 선택 1건 SKIP |
 | 실제 브라우저 390@2x→780 animated Wing | PASS — 1/1 |
 | JavaScript·Python·JSON 구문·파싱 | PASS — 추적 JS 249, Python 17, JSON 12 |
-| GitHub Actions OS matrix | PASS — Node 22.15.0 Ubuntu·macOS·Windows에서 세 기본 suite와 실제 Git 설치·업데이트 실행 |
+| 최종 3-OS 검증 이력 | PASS — Node 22.15.0 Ubuntu·macOS·Windows 실행 성공 후 자동 GitHub Actions는 제거했으며, 이후 Windows 검증은 담당 환경에서 수동 실행 |
 | 독립 명세 교차검수 | PASS — 14개 기준과 실제 G0A/G1A 경로 포함 |
 | 최종 CDN runtime 계약 검토 | PASS — uploader 26/26, 명확한 결함 0 |
 

@@ -51,6 +51,20 @@ node .agents/skills/detail-page-maker-skill/scripts/e2e.mjs
 설치된 폴더 하나를 다른 프로젝트에 수동 복사하는 방식은 지원하지 않는다.
 프로젝트마다 위 Git 설치 명령을 실행해 출처와 업데이트 경로를 유지한다.
 
+## Windows 수동 검증
+
+GitHub Actions는 사용하지 않는다. Windows 환경 담당자가 필요할 때 저장소
+루트에서 아래 검증을 직접 실행한다.
+
+```powershell
+node tests/run-suite.mjs portable-skill
+node tests/run-suite.mjs orchestration
+node tests/run-suite.mjs studio-v1
+node tests/remote-git-install.mjs
+```
+
+다른 운영체제의 추가 검증도 해당 환경 담당자가 같은 suite를 수동 실행한다.
+
 ## 저장 위치
 
 - 사용자가 넣는 실제 제품 사진: `<project>/input/product/`

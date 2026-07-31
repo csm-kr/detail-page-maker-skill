@@ -169,7 +169,7 @@ HTML과 `wing_export_required`를 바꾸지 않는다.
 
 - 정책·설치·오케스트레이션·Studio 전체 회귀가 실패 0
 - Git 설치 결과가 상위 스킬 1개와 내장 의존성 14개만 포함
-- Ubuntu·macOS·Windows Node 22 CI가 같은 suite를 실행
+- Windows Node 22에서 필요할 때 세 기본 suite와 Git 설치 smoke를 수동 실행
 - 실제 브라우저에서 390@2x→780 Wing 렌더가 통과
 - quick validation, doctor, portable E2E가 통과
 - 독립 감사에서 발견한 P0/P1과 명세 FAIL을 모두 수정
@@ -192,6 +192,6 @@ HTML과 `wing_export_required`를 바꾸지 않는다.
 - 실제 브라우저 animated Wing: 1/1 PASS
 - G0→G5 fixture E2E: PASS
 - 추적 JavaScript 249개, Python 17개, JSON 12개 구문·파싱: PASS
-- GitHub Actions: Ubuntu·macOS·Windows Node 22 matrix 구성
+- GitHub Actions 없음: Windows와 다른 운영체제 검증은 각 환경에서 수동 실행
 - 독립 14개 명세 trace: PASS
 - 최종 CDN runtime 계약 검토: 26/26 및 전체 PASS
