@@ -1003,7 +1003,7 @@ async function committedMemberManifest(
       ),
     },
     ...snapshot.asset_files.map((asset) => ({
-      member_id: asset.artifact_id,
+      member_id: asset.path,
       absolute_path: resolveManifestAssetPath(
         revisionRoot,
         asset.path,

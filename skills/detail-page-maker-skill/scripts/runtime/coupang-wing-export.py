@@ -318,16 +318,22 @@ def capture_section(section_id):
         f"""(() => {{
           const page = document.querySelector('#detailPage');
           const sections = Array.from(
-            page.querySelectorAll(':scope > section[data-section]')
+            page.querySelectorAll(
+              ':scope > section[data-section], ' +
+              ':scope > section[data-section-id]'
+            )
           );
           for (const section of sections) {{
             section.style.display =
-              section.dataset.section === {json.dumps(section_id)}
+              (section.dataset.sectionId || section.dataset.section) ===
+                {json.dumps(section_id)}
                 ? ''
                 : 'none';
           }}
           const section = sections.find(
-            item => item.dataset.section === {json.dumps(section_id)}
+            item =>
+              (item.dataset.sectionId || item.dataset.section) ===
+                {json.dumps(section_id)}
           );
           section.hidden = false;
           section.style.width = '390px';
@@ -355,50 +361,41 @@ def capture_section(section_id):
         )
     section_left = round(geometry["left"])
     section_top = round(geometry["top"])
-    composite = Image.new(
-        "RGB",
-        (OUTPUT_WIDTH, height * DEVICE_SCALE_FACTOR),
+    last_error = None
+    for _ in range(3):
+        try:
+            screenshot = cdp(
+                "Page.captureScreenshot",
+                format="png",
+                fromSurface=True,
+                captureBeyondViewport=True,
+                clip={
+                    "x": section_left,
+                    "y": section_top,
+                    "width": VIEWPORT_WIDTH,
+                    "height": height,
+                    "scale": 1,
+                },
+            )
+            captured = Image.open(
+                io.BytesIO(base64.b64decode(screenshot["data"]))
+            ).convert("RGB")
+            expected_size = (
+                OUTPUT_WIDTH,
+                height * DEVICE_SCALE_FACTOR,
+            )
+            if captured.size != expected_size:
+                captured = captured.resize(
+                    expected_size,
+                    Image.Resampling.LANCZOS,
+                )
+            return captured
+        except Exception as error:
+            last_error = error
+            time.sleep(0.25)
+    raise RuntimeError(
+        f"Section screenshot failed: {section_id}: {last_error}"
     )
-    for offset in range(0, height, VIEWPORT_HEIGHT):
-        remaining = min(VIEWPORT_HEIGHT, height - offset)
-        desired_y = section_top + offset
-        current_document_height = int(
-            js("document.documentElement.scrollHeight")
-        )
-        max_scroll = max(0, current_document_height - VIEWPORT_HEIGHT)
-        scroll_y = min(max(0, desired_y), max_scroll)
-        js(
-            f"document.documentElement.style.scrollBehavior='auto';"
-            f"window.scrollTo(0, {scroll_y}); window.scrollY;"
-        )
-        time.sleep(0.12)
-        viewport = capture_viewport_png()
-        crop_top = (desired_y - scroll_y) * DEVICE_SCALE_FACTOR
-        crop_left = section_left * DEVICE_SCALE_FACTOR
-        crop_width = VIEWPORT_WIDTH * DEVICE_SCALE_FACTOR
-        crop_height = remaining * DEVICE_SCALE_FACTOR
-        if (
-            crop_left < 0
-            or crop_left + crop_width > viewport.width
-            or crop_top < 0
-            or crop_top + crop_height > viewport.height
-        ):
-            raise RuntimeError(
-                f"Screenshot crop is outside viewport: {section_id}"
-            )
-        crop = viewport.crop(
-            (
-                crop_left,
-                crop_top,
-                crop_left + crop_width,
-                crop_top + crop_height,
-            )
-        )
-        composite.paste(
-            crop,
-            (0, offset * DEVICE_SCALE_FACTOR),
-        )
-    return composite
 
 
 def wing_html(assets, local=False):
@@ -443,6 +440,12 @@ def main():
             """(() => {
               document.documentElement.style.scrollBehavior = 'auto';
               document.documentElement.style.scrollbarWidth = 'none';
+              document.querySelectorAll('img').forEach(image => {
+                image.loading = 'eager';
+                image.removeAttribute('loading');
+                const source = image.getAttribute('src');
+                if (source) image.src = source;
+              });
               const style = document.createElement('style');
               style.dataset.wingExport = 'true';
               style.textContent =
@@ -472,22 +475,35 @@ def main():
             """(() => {
               const page = document.querySelector('#detailPage');
               return Array.from(
-                page.querySelectorAll(':scope > section[data-section]')
+                page.querySelectorAll(
+                  ':scope > section[data-section], ' +
+                  ':scope > section[data-section-id]'
+                )
               ).filter(section => {
                 const style = getComputedStyle(section);
                 return !section.hidden && style.display !== 'none';
               }).map((section, index) => ({
                 order: index + 1,
-                id: section.dataset.section || `section-${index + 1}`,
+                id:
+                  section.dataset.sectionId ||
+                  section.dataset.section ||
+                  `section-${index + 1}`,
                 heading:
                   section.querySelector('h1,h2,h3')?.textContent
                     .replace(/\\s+/g, ' ').trim() || '',
                 images: Array.from(section.querySelectorAll('img')).map(
-                  (image, imageIndex) => ({
-                    imageIndex,
-                    src: image.currentSrc || image.src,
-                    alt: image.getAttribute('alt') || ''
-                  })
+                  (image, imageIndex) => {
+                    const motionSource =
+                      image.closest('[data-motion-src]')?.dataset
+                        .motionSrc;
+                    return {
+                      imageIndex,
+                      src: motionSource
+                        ? new URL(motionSource, document.baseURI).href
+                        : image.currentSrc || image.src,
+                      alt: image.getAttribute('alt') || ''
+                    };
+                  }
                 )
               }));
             })()"""
@@ -503,15 +519,19 @@ def main():
                 f"""(() => {{
                   const page = document.querySelector('#detailPage');
                   for (const section of page.querySelectorAll(
-                    ':scope > section[data-section]'
+                    ':scope > section[data-section], ' +
+                    ':scope > section[data-section-id]'
                   )) {{
                     section.style.display =
-                      section.dataset.section === {json.dumps(section_id)}
+                      (section.dataset.sectionId ||
+                        section.dataset.section) ===
+                        {json.dumps(section_id)}
                         ? ''
                         : 'none';
                   }}
                   const section = page.querySelector(
-                    ':scope > section[data-section={json.dumps(section_id)}]'
+                    ':scope > section[data-section={json.dumps(section_id)}], ' +
+                    ':scope > section[data-section-id={json.dumps(section_id)}]'
                   );
                   section.hidden = false;
                   window.scrollTo(0, 0);
@@ -535,7 +555,8 @@ def main():
                 layouts = js(
                     f"""(() => {{
                       const section = document.querySelector(
-                        '#detailPage > section[data-section={json.dumps(section_id)}]'
+                        '#detailPage > section[data-section={json.dumps(section_id)}], ' +
+                        '#detailPage > section[data-section-id={json.dumps(section_id)}]'
                       );
                       const sectionRect = section.getBoundingClientRect();
                       const number = value => Number.parseFloat(value) || 0;
@@ -599,7 +620,8 @@ def main():
                 js(
                     f"""(async () => {{
                       const section = document.querySelector(
-                        '#detailPage > section[data-section={json.dumps(section_id)}]'
+                        '#detailPage > section[data-section={json.dumps(section_id)}], ' +
+                        '#detailPage > section[data-section-id={json.dumps(section_id)}]'
                       );
                       const indices = {json.dumps(indices)};
                       await Promise.all(indices.map(async imageIndex => {{

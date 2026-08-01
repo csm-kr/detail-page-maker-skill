@@ -1,6 +1,6 @@
 ---
 name: detail-page-maker-skill
-description: 공급처 URL에서 dmk-extractor·coupang-extractor 근거를 수집하고 제품 SSOT, 고정 상업 흐름, 승인 이미지, 다수의 HyperFrames motion, 390px 편집 Studio, output/detail-page.html과 버전형 CDN 쿠팡 Wing 출력을 멀티에이전트로 만든다. 상세페이지 신규 제작·카피·제품 이미지·GIF·Studio 편집·게시 QA·부분 수정·연구 학습·로컬 설치에 사용한다.
+description: 공급처 URL에서 근거를 수집해 쿠팡 1초 전달형 판매 논리, ChatGPT Image 2/God Tibo 32장·32 provider workers 동시 이미지 배치, HyperFrames 정보형 세일즈 모션과 MP4→FFmpeg GIF/WebP, 390px 편집 Studio, 공개 메타데이터 0건의 output/detail-page.html과 Wing 출력을 만든다. 상세페이지 신규 제작·카피·제품 이미지·GIF·Studio 편집·게시 QA·부분 수정·연구 학습·로컬 설치에 사용한다.
 ---
 
 # Detail Page Maker
@@ -39,6 +39,9 @@ persistent Orchestrator가 강제한다.
    사용자 확인 횟수만 줄이고 단계와 QA를 생략하지 않는다.
 15. 승인 후 사진·이미지·GIF를 바꿀 때는
    `workflow-revision-plan → 사용자 검토 → workflow-revision-commit`을 따른다.
+16. 오래 걸리는 run은 `performance-profile`로 stage trace를 분석한다. G2는 기본
+   32장·32 provider workers의 단일 동시 배치, G3는 입력이 준비된 motion의 즉시
+   병렬 시작, QA는 변경 member 우선 검사와 최종 다중 viewport 1회 캡처를 쓴다.
 
 ```sh
 node scripts/detail-page.mjs doctor
@@ -46,6 +49,7 @@ node scripts/detail-page.mjs reference-library
 node scripts/detail-page.mjs reference-profile --project "<project-path>" --reference "<reference.html>" --role positive_reference
 node scripts/detail-page.mjs workflow-status --project "<project-path>" --project-id "<project-id>" --input-digest "<sha256>"
 node scripts/detail-page.mjs workflow-advance --project "<project-path>" --project-id "<project-id>" --input-digest "<sha256>"
+node scripts/detail-page.mjs performance-profile --trace "<trace.json>"
 ```
 
 나머지 CLI 인자는 [`references/install.md`](references/install.md)와
@@ -60,6 +64,7 @@ node scripts/detail-page.mjs workflow-advance --project "<project-path>" --proje
 | 시장 조사·상업 기획·카피 | [`commercial.md`](references/commercial.md) |
 | ImageGen·pending·에셋 승인 | [`assets.md`](references/assets.md) |
 | GIF·HyperFrames·필수 motion coverage | [`motion.md`](references/motion.md) |
+| HyperFrames+ChatGPT Image 2 32장 샷·T1~T10·MP4 변환 | [`hyperframes-sales-motion.md`](references/hyperframes-sales-motion.md) |
 | Studio 편집·덮어쓰기·복구 snapshot | [`studio.md`](references/studio.md) |
 | 게시 QA·Wing·전달본 | [`publish.md`](references/publish.md) |
 | Cloudflare owner·bootstrap·runtime integrity | [`cloudflare-security.md`](references/cloudflare-security.md) |
@@ -86,7 +91,9 @@ node scripts/detail-page.mjs workflow-advance --project "<project-path>" --proje
 
 하나라도 누락되면 불완전한 배포본이므로 실행하지 않고 Git 원본에서 이 스킬
 하나를 다시 설치하거나 업데이트한다. 이미지 작업은 내장 God Tibo의
-`tibo-batch.mjs` 실행기만 사용하고 작업 단위는 8개 `items`로 명시한다.
+`tibo-batch.mjs` 실행기만 사용한다. 기본은 서로 다른 목적의 `items` 32개를
+한 job에 넣고 `workers: 32`로 즉시 실행하는 단일 provider batch다. 여기서
+provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼동하지 않는다.
 
 ## 멀티에이전트 실행
 
@@ -103,6 +110,8 @@ node scripts/detail-page.mjs workflow-advance --project "<project-path>" --proje
   공유하는 extractor는 별도 `browser_lane_capacity = 1`로 직렬 실행한다.
   서로 격리된 remote browser endpoint가 증명된 경우에만 browser lane을 늘린다.
 - 실패 member와 실제 descendant만 다시 실행하고 통과한 형제 산출물은 재사용한다.
+- G2의 기본 32개 provider 요청을 8개씩 나누거나 8×4 순차 배치로 실행하지 않는다.
+  실패한 item만 같은 입력 digest로 재시도한다.
 - artifact ID, 입력 digest, 실제 출력 위치, 다음 consumer, ExecutionReceipt,
   독립 ValidationReceipt가 하나라도 없으면 완료로 세지 않는다.
 
@@ -127,6 +136,9 @@ node scripts/detail-page.mjs workflow-advance --project "<project-path>" --proje
   효능 근거 부족을 이유로 눈으로 확인되는 구조 차별점까지 제거하지 않는다.
 - 기존 output과 기준작의 section·구매 질문·image/motion 역할·390/780 밀도를
   비교하며 고유 자산·카피를 복제하지 않는다.
+- 기준작이 같은 SKU면 고객 문제, 첫 장점, 장점 순서, 증명 방식, 사용법 위치,
+  마지막 결정을 판매 논리로 추출해 적극 재구성한다. 유사 상품은 가설로만,
+  다른 상품은 광고 문법으로만 사용하며 고유 이미지·문장은 복제하지 않는다.
 - `coupang-wing-detail-780.html`은 기본 템플릿이 아니라 모든 카테고리의
   Hero 강도·챕터 리듬·장면 다양성·motion coverage·구매 마무리 수준을 정하는
   공통 visual ambition anchor다. 상품별 구매 문법은 선택한 category reference
@@ -140,6 +152,12 @@ node scripts/detail-page.mjs workflow-advance --project "<project-path>" --proje
   pattern 4종을 충족하지 못하면 G2/G3를 시작하지 않는다.
 - `Hero → 불편 → 제품 답 → 해결 → 사용 → 비교 → 선택 → 사양·주의 → FAQ →
   리마인드` 순서를 지킨다.
+- 쿠팡 고객의 빠른 스크롤을 기준으로 각 section은 1초 안에 문제·핵심 장점·실제
+  사용 또는 결과 중 해당 역할 하나가 이해되어야 한다. 한 section은 핵심 메시지
+  하나, 직접 설계한 1~3줄 제목, 이를 즉시 증명하는 주 시각 하나만 갖는다.
+- 제목·본문·제품의 중앙축을 일치시키고 제목은 390px에서 28px, 780px에서 44px
+  이상을 기본으로 한다. 제품·사용 장면·결과·기능 확대·비교 중 하나가 화면의
+  55% 이상을 차지하며 의미 없는 큰 상하 여백을 허용하지 않는다.
 - Hero는 화려한 정적 화면, 제품 최대 크기, 핵심 장점 한 개로 제한한다.
 - 불편 인용 말풍선은 3~5개, 문제 motion은 2개 이상이며 각 불편은 같은 순서의
   해결 장점에 1:1로 연결한다.
@@ -159,12 +177,35 @@ node scripts/detail-page.mjs workflow-advance --project "<project-path>" --proje
 - 이미지·GIF는 `pending`에서 시작하고 사용자 승인 또는 plan-once 자동 승인
   receipt가 있는 member만 조립한다.
 - 이미지 job은 one-cut-per-worker로 실행하고 실패 member만 재시도한다.
+- 기본 image candidate 총합은 정확히 32이며 God Tibo 하나의 `items: 32`,
+  `workers: 32` provider batch로 실행한다. 서로 다른 역할·장면을 기획 전에 배정한다.
 - 이미지 job마다 역할·장면·제품 면·사용 맥락·조명·배경·점유율·차별화 목표를
   잠근다. Hero와 핵심 기능은 후보 2개 이상이며 실제 사용 맥락 coverage가 필요하다.
 - CR/TR/MR은 ID/hash 목록만으로 적용 처리하지 않는다. 실제
   section/image job/GIF brief, required effect, acceptance check에 연결한다.
-- GIF는 고객 질문, 시작·중간·끝 상태, visible delta, 방식, 780 canvas, FPS,
-  전달 형식과 MR packet을 가진다. Overlay만 움직이는 결과는 motion으로 세지 않는다.
+- GIF는 고객 질문, 시작·중간·끝 정보 상태, visible delta, 방식, 780 canvas, FPS,
+  전달 형식과 MR packet을 가진다. 새 정보를 주지 않는 장식-only overlay는 motion으로
+  세지 않지만, 치수·위치·단계·구성을 설명하는 정확한 overlay는 핵심 증거다.
+- GIF 전에 샷 리스트를 확정하고 ChatGPT Image 2/God Tibo 32개 후보를 역할별로
+  계획하되 물리 실행은 `items: 32`, `workers: 32` 단일 동시 batch로 유지한다.
+  생성 후 8~15개를 선별하고 shot/template/anchor/bbox/safe-area/pair metadata를
+  HyperFrames에 전달한다.
+- HyperFrames 정보형 모션은 T1 Hero, T2 Dimension, T3 Hotspot, T4 Detail,
+  T5 Before/After, T6 Steps, T7 Material, T8 Components, T9 Exploded,
+  T10 Info Cards에서 선택한다. 한 GIF는 한 메시지를 1초 안에 설명한다.
+- 제품 고정 이미지 위 정확한 SVG·마스크·콜아웃·데이터 카드 합성을 우선한다.
+  정보가 늘지 않는 장식-only 움직임만 금지하며, 검증된 치수·부위·단계·구성을
+  설명하는 overlay는 핵심 증명 방식으로 인정한다.
+- 콜아웃은 confidence 0.85 이상 anchor, 0.60~0.85 bbox, 0.60 미만 별도 detail
+  card로 전환한다. 실제 치수나 전후 pair가 없으면 해당 모션을 생성하지 않는다.
+- HyperFrames 정본은 결정론적 무음 MP4다. GIF와 animated WebP는 FFmpeg로
+  MP4에서 파생하고 HyperFrames 직접 GIF 렌더를 기본 경로로 사용하지 않는다.
+- 모든 GIF는 목적, 카메라, 핵심 변화, 전환, 강조 그래픽을 먼저 표로 정한다.
+  인접 GIF는 이 네 축 중 최소 두 축이 달라야 한다. 첫 프레임에 제품/문제·한 줄
+  메시지·시각 근거가 모두 있어야 하며 픽셀 경계와 지각적 연속성을 함께 검사한다.
+  색·형태·부품·비율·구성의 제품 불변 조건을 유지하고 생성형 모핑을 금지한다.
+- 같은 주장을 정지 이미지와 GIF로 연속해서 중복하지 않는다. motion이 주매체면
+  정지 이미지는 첫 프레임 poster fallback으로만 쓰거나 다른 증명 section으로 옮긴다.
 - Studio는 편집 UI이며 저장한 working snapshot이 즉시 최신 편집 정본 revision이
   된다. 사용자가 확인하는 최신 진입점은 `output/detail-page.html` 하나이고,
   commit·QA·Wing export는 같은 저장 digest의 검증·파생 단계일 뿐 새 편집
@@ -184,6 +225,9 @@ node scripts/detail-page.mjs workflow-advance --project "<project-path>" --proje
   만들고 이전 경로를 덮어쓰지 않는다.
 - 고객 HTML과 Wing에는 내부 ID·프롬프트·파일명·hash·QA·agent·생성 방식이
   0건이어야 한다.
+- 디스크의 공개 `output/detail-page.html`에는 Studio 링크도 넣지 않는다. 로컬
+  Studio 서버가 이 파일을 서비스할 때만 응답에 `Studio에서 수정하기` 런처를
+  주입하며 원본 bytes와 Wing에는 반영하지 않는다.
 - 현재 run은 승인된 KnowledgeSnapshot과 현재 상품 연구를 사용한다. 공용 규칙은
   독립 검증과 사용자 승인 뒤에만 다음 run의 active reference로 승격한다.
   예외적으로 사용자가 이 workspace의 `exps/`를 trusted drop으로 선택한 경우,

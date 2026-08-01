@@ -9,8 +9,8 @@
 | `items` | object[] | 없음 | 각자 다른 `prompt`·`references`를 입력 순서로 병렬 생성, 최대 64개 |
 | `detail_level` | 1·2·3 | 2 | 단순화와 세부 보존 강도 |
 | `references` | string[] | `[]` | 최대 16개, 첫 항목이 canonical base |
-| `workers` | 1~32 | `min(24, 생성 수)` | 동시 실행 수. 생성 수보다 크게 지정해도 실제 값은 생성 수로 축소 |
-| `batch_size` | 1~64 | 24 | `prompt` 모드의 생성 장수 |
+| `workers` | 1~32 | `min(32, 생성 수)` | 동시 실행 수. 생성 수보다 크게 지정해도 실제 값은 생성 수로 축소 |
+| `batch_size` | 1~64 | 32 | `prompt` 모드의 생성 장수 |
 | `output_dir` | string | 없음 | 필수, 작업 JSON 위치 기준 상대 경로 또는 절대 경로 |
 | `size_mode` | `invariant`·`controllable` | 없음 | 필수, 사용자에게 사이즈를 확인한 뒤 기록 |
 | `target_size` | `WIDTHxHEIGHT` | 없음 | `controllable`에서 필수, 최종 출력의 정확한 픽셀 크기 |
@@ -78,8 +78,8 @@
 - `prompt` 모드: 하나의 작업을 `batch_size`개의 backend 생성으로 나누고 최대 `workers`개를 동시에 실행한다.
 - `prompts` 모드: 각 프롬프트가 `batch_size: 1`, `workers: 1`인 독립 생성이며 바깥 worker pool이 전체 동시 실행 수를 제한한다.
 - `items` 모드: 각 prompt·reference set이 독립 생성이며 바깥 worker pool이 최대 32개의 전체 동시 실행 수를 제한한다.
-- 생성 수를 생략한 `prompt` 모드는 24장·24 workers가 기본이다.
-- 24장 미만은 생성 수와 workers 기본값이 같고, 24장 초과는 기본 24 workers로 나눠 처리한다.
+- 생성 수를 생략한 `prompt` 모드는 32장·32 workers가 기본이다.
+- 32장 미만은 생성 수와 workers 기본값이 같고, 32장 초과는 기본 32 workers로 처리한다.
 - 실제 64개 동시 요청은 62개 완료 후 연결 종료가 관찰됐으므로 64 workers는 허용하지 않는다.
 - 결과 배열과 파일 번호는 완료 순서가 아니라 입력 순서를 유지한다.
 

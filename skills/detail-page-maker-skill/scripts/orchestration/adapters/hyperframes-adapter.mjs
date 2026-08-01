@@ -464,6 +464,24 @@ function command(cliPath, project, idempotencyKey, argv, extra = {}) {
   };
 }
 
+function externalCommand(
+  executable,
+  project,
+  idempotencyKey,
+  argv,
+  extra = {},
+) {
+  return {
+    kind: "command",
+    command: executable,
+    argv,
+    cwd: project,
+    env: { HYPERFRAMES_RUN_ID: idempotencyKey },
+    shell: false,
+    ...extra,
+  };
+}
+
 function roundSeconds(value) {
   return Number(value.toFixed(6));
 }
@@ -503,7 +521,12 @@ function qaSpec(
       "meaningful_state_change",
       "static_superiority",
       "pattern_distinct_from_adjacent",
-      "overlay_only_forbidden",
+      "decorative_overlay_only_forbidden",
+      "information_overlay_verified",
+      "one_message_within_one_second",
+      "product_geometry_locked",
+      "callout_confidence_route",
+      "verified_dimension_or_comparison_inputs",
     ],
     semantic_contract: structuredClone(semanticContract),
     fallback: structuredClone(fallback),
@@ -586,6 +609,7 @@ export async function buildHyperframesCommandPlan({
   const renderCommands = [];
   if (mode === "render") {
     assertPreviewApproval(chain, expectedPreviewApprovalDigest);
+    const mp4Path = path.join(outputRoot, "render.mp4");
     renderCommands.push(
       command(
         cliPath,
@@ -601,7 +625,7 @@ export async function buildHyperframesCommandPlan({
           "--format",
           "mp4",
           "--output",
-          path.join(outputRoot, "render.mp4"),
+          mp4Path,
           "--strict",
         ],
         {
@@ -611,30 +635,56 @@ export async function buildHyperframesCommandPlan({
           expected_artifact_type: "motion.render",
         },
       ),
-      command(
-        cliPath,
+      externalCommand(
+        "ffmpeg",
         project,
         idempotencyKey,
         [
-          "render",
-          ".",
-          "--quality",
-          "high",
-          "--fps",
-          String(gifFps),
-          "--format",
-          "gif",
-          "--gif-loop",
+          "-y",
+          "-i",
+          mp4Path,
+          "-an",
+          "-vf",
+          `fps=${gifFps},scale=780:-2:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=192[p];[s1][p]paletteuse=dither=sierra2_4a`,
+          "-loop",
           "0",
-          "--output",
           path.join(outputRoot, "animation.gif"),
-          "--strict",
         ],
         {
-          step_id: "gif-render",
-          preview_approval_digest:
-            chain.preview_approval.digest,
+          step_id: "ffmpeg-gif-derivative",
+          source_artifact_type: "motion.render.mp4",
           expected_artifact_type: "motion.gif",
+          conversion_engine: "ffmpeg",
+        },
+      ),
+      externalCommand(
+        "ffmpeg",
+        project,
+        idempotencyKey,
+        [
+          "-y",
+          "-i",
+          mp4Path,
+          "-an",
+          "-vf",
+          `fps=${gifFps},scale=780:-2:flags=lanczos`,
+          "-loop",
+          "0",
+          "-c:v",
+          "libwebp",
+          "-lossless",
+          "0",
+          "-compression_level",
+          "6",
+          "-q:v",
+          "82",
+          path.join(outputRoot, "animation.webp"),
+        ],
+        {
+          step_id: "ffmpeg-animated-webp-derivative",
+          source_artifact_type: "motion.render.mp4",
+          expected_artifact_type: "motion.animated_webp",
+          conversion_engine: "ffmpeg",
         },
       ),
     );
@@ -745,7 +795,11 @@ export function buildHyperframesExecutionReceipt({
       ),
     ) ||
     !Array.isArray(commandPlan.render_commands) ||
-    commandPlan.render_commands.length !== 2
+    commandPlan.render_commands.length !== 3 ||
+    commandPlan.render_commands[0]?.step_id !== "final-render" ||
+    commandPlan.render_commands[1]?.step_id !== "ffmpeg-gif-derivative" ||
+    commandPlan.render_commands[2]?.step_id !==
+      "ffmpeg-animated-webp-derivative"
   ) {
     throw new HyperframesAdapterError(
       "APPROVED_RENDER_COMMAND_PLAN_REQUIRED",
@@ -789,6 +843,8 @@ export function buildHyperframesExecutionReceipt({
       completedChain.preview_approval.digest,
     render_digest: completedChain.render.digest,
     gif_digest: completedChain.gif.digest,
+    animated_webp_digest:
+      completedChain.gif.animated_webp_digest,
     final_qa_digest: completedChain.final_qa.digest,
     asset_approval_id:
       completedChain.asset_approval.decision_id,

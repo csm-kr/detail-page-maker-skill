@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "policy_id": "detail-page-flow",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "status": "required",
   "authority": "user-confirmed-house-standard",
   "canvas": {
@@ -56,6 +56,18 @@
       ],
       "unique_copy_or_asset_reuse_allowed": false
     },
+    "reference_product_relation": {
+      "required_values": ["same_sku", "similar_product", "different_product"],
+      "same_sku_requires_sales_logic": [
+        "problem_entry",
+        "first_benefit",
+        "benefit_order",
+        "proof_methods",
+        "usage_placement",
+        "closing_message"
+      ],
+      "same_sku_reuse_mode": "recompose_without_copying_assets_or_copy"
+    },
     "category_reference_library": {
       "required_before_g1": true,
       "policy_path": "policies/category-reference-library-v1.json",
@@ -67,6 +79,16 @@
     }
   },
   "content": {
+    "coupang_one_second_delivery": {
+      "one_primary_message_per_section": true,
+      "headline_line_count": {"minimum": 1, "maximum": 3},
+      "alignment": "center",
+      "minimum_title_px_390": 28,
+      "minimum_title_px_780": 44,
+      "minimum_visual_occupancy_percent": 55,
+      "visual_must_directly_prove_message": true,
+      "fast_scroll_story_required": true
+    },
     "required_order": [
       "hero",
       "pain",
@@ -182,10 +204,54 @@
     "increase_when_temporal_evidence_is_clearer": true,
     "one_motion_one_claim": true,
     "semantic_contract_required": true,
-    "customer_question_answer_seconds_maximum": 2,
+    "customer_question_answer_seconds_maximum": 1,
     "meaningful_start_mid_end_delta_required": true,
-    "overlay_only_counts_as_motion": false,
+    "decorative_overlay_only_counts_as_motion": false,
+    "information_overlay_on_fixed_product_counts_as_motion": true,
     "adjacent_pattern_reuse_requires_reason": true,
+    "adjacent_diversity_axes": ["camera", "core_change", "transition", "emphasis_graphic"],
+    "adjacent_minimum_different_axis_count": 2,
+    "first_frame_requires": ["product_or_problem", "one_line_message", "visual_evidence"],
+    "loop_requires": ["pixel_boundary", "perceptual_continuity"],
+    "product_identity_invariant_minimum": 4,
+    "generative_product_morphing_allowed": false,
+    "single_primary_motion_surface_with_poster_fallback": true,
+    "information_sales_motion": {
+      "template_ids": [
+        "T1_HERO_REVEAL",
+        "T2_DIMENSION_REVEAL",
+        "T3_FEATURE_HOTSPOT",
+        "T4_DETAIL_ZOOM",
+        "T5_BEFORE_AFTER_SLIDER",
+        "T6_STEPS_FLOW",
+        "T7_MATERIAL_MOTION",
+        "T8_COMPONENTS_LAYOUT",
+        "T9_EXPLODED_LAYERS",
+        "T10_INFO_CARDS"
+      ],
+      "one_message_per_motion": true,
+      "preferred_product_motion": "fixed_product_graphic_composite",
+      "product_geometry_locked": true,
+      "base_transition_family_count": 1,
+      "accent_transition_maximum": 2,
+      "strong_effect_allowed_uses": ["product_entrance", "primary_benefit_reveal"],
+      "dimensions_require_verified_values": true,
+      "before_after_requires_actual_aligned_pair": true,
+      "magnifier_requires_separate_high_resolution_detail": true,
+      "option_comparison_requires_actual_option_images": true,
+      "component_layout_requires_verified_contents": true,
+      "callout_confidence": {
+        "point_threshold": 0.85,
+        "bbox_threshold": 0.6,
+        "low_confidence": "separate_detail_card"
+      }
+    },
+    "render_pipeline": {
+      "primary": "deterministic_silent_mp4",
+      "converter": "ffmpeg",
+      "derivatives": ["gif", "animated_webp"],
+      "hyperframes_direct_gif_allowed": false
+    },
     "delivery_animation_frame_minimum": 2,
     "required_roles": {
       "pain": 2,
@@ -203,6 +269,42 @@
       "viewport_playback_control": false
     }
   },
+  "sales_motion_pipeline": {
+    "phases": [
+      "product_understanding",
+      "motion_planning",
+      "shot_planning",
+      "image_generation",
+      "asset_selection",
+      "metadata_extraction",
+      "hyperframes_assembly",
+      "mp4_render",
+      "animation_conversion",
+      "qa_and_fallback"
+    ],
+    "image_provider": "chatgpt-image-2-via-god-tibo",
+    "default_candidate_count": 32,
+    "default_provider_workers": 32,
+    "physical_execution": "single_concurrent_batch",
+    "logical_groups_are_physical_batches": false,
+    "recommended_selection_range": {"minimum": 8, "maximum": 15},
+    "anchor_reference_count": {"minimum": 3, "maximum": 5},
+    "advanced_candidate_range": {"minimum": 40, "maximum": 60},
+    "advanced_provider_concurrency_maximum": 32,
+    "required_asset_metadata": [
+      "image_id",
+      "shot_type",
+      "view_type",
+      "candidate_score",
+      "recommended_template",
+      "anchor_points",
+      "bbox_regions",
+      "dimension_safe_area",
+      "text_safe_area",
+      "before_after_pair_id",
+      "consistency_group"
+    ]
+  },
   "copy": {
     "pain_and_experiential_quotes_are_actual_reviews": false,
     "actual_review_badges_for_generated_copy_allowed": false,
@@ -217,7 +319,13 @@
     "save_sets_state": "wing_export_required",
     "restore_snapshot_limit": 20,
     "restore_snapshots_are_internal": true,
-    "saved_page_height_must_fit_content": true
+    "saved_page_height_must_fit_content": true,
+    "local_output_launcher": {
+      "label": "Studio에서 수정하기",
+      "served_response_only": true,
+      "canonical_public_file_mutation_allowed": false,
+      "wing_injection_allowed": false
+    }
   },
   "output": {
     "root": "output",
@@ -269,6 +377,8 @@
   },
   "public_output": {
     "allowed_internal_metadata_count": 0,
+    "allowed_data_attribute_count": 0,
+    "local_studio_launcher_allowed": false,
     "strip": [
       "claim_id",
       "fact_id",
@@ -328,7 +438,16 @@
       "technical"
     ],
     "retry_scope": "failed_member_and_descendants_only",
-    "artifact_location_receipt_and_next_consumer_required": true
+    "artifact_location_receipt_and_next_consumer_required": true,
+    "performance_fast_path": {
+      "image_generation_strategy": "single_concurrent_batch",
+      "image_provider_workers": 32,
+      "motion_start": "immediately_when_inputs_ready",
+      "cache_passed_members": true,
+      "retry_failed_members_only": true,
+      "changed_section_qa_before_final_capture": true,
+      "final_multi_viewport_capture_count": 1
+    }
   },
   "planning_compiler_contract": {
     "root_field": "commercial_flow",
@@ -407,6 +526,30 @@
     "default_range_exception_field": "default_exception_reason"
   },
   "image_job_contract": {
+    "default_candidate_total": 32,
+    "default_provider_workers": 32,
+    "generation_batch_strategy": "single_concurrent_batch",
+    "eight_by_four_sequential_batch_allowed": false,
+    "logical_role_groups_only": true,
+    "recommended_candidate_selection": {"minimum": 8, "maximum": 15},
+    "required_shot_types": [
+      "hero_front",
+      "hero_angle",
+      "dimension_front",
+      "dimension_side",
+      "feature_overview",
+      "feature_detail_1",
+      "feature_detail_2",
+      "before_scene",
+      "after_scene",
+      "usage_scene_1",
+      "usage_scene_2",
+      "components_flatlay",
+      "exploded_view",
+      "material_macro"
+    ],
+    "canonical_product_reference_required": true,
+    "product_identity_invariant_minimum": 4,
     "required_visual_fields": [
       "role",
       "scene_kind",

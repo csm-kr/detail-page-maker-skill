@@ -5,6 +5,9 @@ import {
   getCategoryReferenceLibrary,
   validateCategoryReferenceProfile,
 } from "./category-reference-library.mjs";
+import {
+  validateCoupangConversionPlan,
+} from "./coupang-conversion-contract.mjs";
 
 const STABLE_ID = Object.freeze({
   claim: /^claim-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/,
@@ -95,9 +98,9 @@ const PRODUCT_VIEWS = new Set([
   "not_applicable",
 ]);
 const MOTION_METHODS = new Set([
-  "imagegen-seq",
-  "heygenframe",
-  "hybrid",
+  "fixed-product-graphics",
+  "aligned-state-pair",
+  "verified-layered-assets",
 ]);
 const MOTION_OUTPUT_FORMATS = new Set([
   "gif",
@@ -760,6 +763,7 @@ export function validateProductionPlan(plan, context = {}) {
     "section_graph_draft",
     "image_job_set",
     "gif_brief_set",
+    "sales_motion_pipeline",
     "rubric_target",
   ];
   for (const part of requiredParts) {
@@ -780,6 +784,9 @@ export function validateProductionPlan(plan, context = {}) {
 
   appendReferenceArtifactSetErrors(plan, addError);
   appendCommercialFlowErrors(plan, gifBriefs, addError);
+  for (const error of validateCoupangConversionPlan(plan).errors) {
+    addError(error.code, error.path, error.message, error.details);
+  }
 
   const heroClaimIds = asArray(
     plan?.commercial_flow?.hero?.primary_benefit_claim_ids,
@@ -1501,12 +1508,12 @@ export function validateProductionPlan(plan, context = {}) {
     if (
       !Number.isInteger(job?.candidate_count) ||
       job.candidate_count < 1 ||
-      job.candidate_count > 8
+      job.candidate_count > 32
     ) {
       addError(
         "IMAGE_CANDIDATE_COUNT_INVALID",
         `${path}.candidate_count`,
-        "candidate_count는 명시적인 1~8 정수여야 합니다.",
+        "candidate_count는 명시적인 1~32 정수여야 합니다.",
       );
     }
     const visual = job?.visual_contract;
@@ -1647,13 +1654,18 @@ export function validateProductionPlan(plan, context = {}) {
       !isNonEmptyString(semantic?.start_state) ||
       !isNonEmptyString(semantic?.mid_state) ||
       !isNonEmptyString(semantic?.end_state) ||
-      semantic?.start_state === semantic?.end_state ||
       !isNonEmptyString(semantic?.visible_delta) ||
-      semantic?.overlay_only !== false ||
+      semantic?.decorative_overlay_only !== false ||
+      semantic?.one_message !== true ||
+      ![
+        "fixed_product_graphic_composite",
+        "aligned_verified_state_pair",
+        "verified_layered_product_assets",
+      ].includes(semantic?.information_delivery_mode) ||
       !isNonEmptyString(semantic?.background_contrast) ||
       !Number.isFinite(semantic?.answer_within_seconds) ||
       semantic.answer_within_seconds <= 0 ||
-      semantic.answer_within_seconds > 2 ||
+      semantic.answer_within_seconds > 1 ||
       semantic?.canvas?.width !== 780 ||
       !Number.isInteger(semantic?.canvas?.height) ||
       semantic.canvas.height <= 0 ||
@@ -1671,7 +1683,7 @@ export function validateProductionPlan(plan, context = {}) {
       addError(
         "GIF_SEMANTIC_CONTRACT_REQUIRED",
         `${path}.semantic_contract`,
-        "GIF는 구매 질문, 기능 부위, 방식, 시작·중간·끝 상태, visible delta, 2초 내 답, 780 canvas, fps·형식·chapter 배치를 명시해야 합니다.",
+        "GIF는 구매 질문, 기능 부위, 방식, 시작·중간·끝 정보 상태, visible delta, 장식-only 금지, 1초 내 답, 780 canvas, fps·형식·chapter 배치를 명시해야 합니다.",
       );
     }
     if (

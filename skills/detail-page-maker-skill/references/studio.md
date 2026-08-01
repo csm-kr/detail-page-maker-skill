@@ -11,6 +11,12 @@ Studio는 편집 UI이며 저장한 working snapshot이 최신 저작 정본 rev
 profile로 렌더한다. 390px 레이아웃을 780px 안의 좁은 중앙 열로 유지하는 것은
 parity가 아니라 전달 폭 실패다.
 
+로컬 서버의 `/output/detail-page.html` 응답에는 사용자가 결과를 다시 편집할 수 있는
+`Studio에서 수정하기` 런처를 한 개 주입한다. 이 주입은 HTTP 응답에서만 일어나며
+디스크의 canonical `output/detail-page.html`, manifest, Wing HTML의 bytes를
+바꾸지 않는다. 따라서 로컬 사용자는 output에서 Studio로 돌아갈 수 있고 공개
+고객 결과에는 Studio 링크나 내부 저작 metadata가 남지 않는다.
+
 ## 에셋 승인
 
 Studio는 pending 이미지·GIF를 원본과 함께 표시한다. 일반 run의 승인 또는 반려

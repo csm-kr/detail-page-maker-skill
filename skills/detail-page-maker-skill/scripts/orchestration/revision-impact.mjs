@@ -63,6 +63,14 @@ const TYPE_RESET_PROFILES = Object.freeze({
     "G3Q_QA",
     "G3U_APPROVAL",
   ]),
+  "studio.working_revision": Object.freeze([
+    "S1_STUDIO_WORKING",
+    "G4C_STUDIO_COMMIT",
+    "G4Q_RUBRIC",
+    "G4U_APPROVAL",
+    "G5_PUBLISH_QA",
+    "G5U_APPROVAL",
+  ]),
 });
 
 export class RevisionImpactError extends Error {
@@ -150,16 +158,32 @@ function normalizeMembers(artifact, artifactId) {
     );
   }
 
-  const declaredIds = memberIds.map(String);
-  if (new Set(declaredIds).size !== declaredIds.length) {
+  const rawDeclaredIds = memberIds.map(String);
+  const legacyMutableStudioWorking =
+    artifact?.mutable === true &&
+    normalizedArtifactType(artifact) ===
+      "studio.working_revision";
+  if (
+    new Set(rawDeclaredIds).size !== rawDeclaredIds.length &&
+    !legacyMutableStudioWorking
+  ) {
     fail(
       "INVALID_ARTIFACT_GRAPH_SNAPSHOT",
       "artifact.member_ids contains a duplicate.",
       { artifact_id: artifactId },
     );
   }
+  // Studio working snapshots produced before path-based member IDs used the
+  // approved source artifact ID for both GIF and WebP variants. Keep revision
+  // planning able to stale those mutable legacy snapshots while preserving
+  // strict uniqueness for every immutable artifact.
+  const declaredIds = [...new Set(rawDeclaredIds)];
 
-  const rawMembers = artifact.members ?? artifact.member_records ?? [];
+  const rawMembers =
+    artifact.members ??
+    artifact.member_records ??
+    artifact.member_manifest?.members ??
+    [];
   if (!Array.isArray(rawMembers)) {
     fail(
       "INVALID_ARTIFACT_GRAPH_SNAPSHOT",

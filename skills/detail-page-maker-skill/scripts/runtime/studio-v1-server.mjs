@@ -838,7 +838,9 @@ async function inspectPublishQuality(projectRoot, workflow) {
       candidates[0],
     );
     const receipt =
-      record.artifact.validation_receipt ?? record.artifact;
+      record.artifact.validation_receipt ??
+      record.artifact.payload ??
+      record.artifact;
     const metrics = receipt?.quality_metrics ?? {};
     const hardFailures = Array.isArray(receipt?.hard_failures)
       ? receipt.hard_failures
@@ -1093,7 +1095,8 @@ async function resolveApprovedStudioRevision(
   }
   const revisionsRoot = path.join(
     projectRoot,
-    "studio",
+    ".detail-page",
+    "workflow",
     "revisions",
   );
   const entries = await readdir(revisionsRoot, {
@@ -1360,6 +1363,13 @@ async function runCoupangWingExport({
     cwd: path.dirname(fileURLToPath(import.meta.url)),
     env: {
       ...process.env,
+      BH_AGENT_WORKSPACE: path.join(
+        projectRoot,
+        ".detail-page",
+        "browser-harness",
+      ),
+      BH_RECORD: "1",
+      BU_CDP_URL: "http://127.0.0.1:9223",
       WING_PAGE_URL: pageUrl,
       WING_EXPORT_ROOT: outputRoot,
       WING_CDN_BASE_URL: normalizedCdnBaseUrl,
@@ -1850,6 +1860,16 @@ function serveHtml(response, html, extraHeaders = {}) {
   response.end(body);
 }
 
+export function injectLocalStudioLauncher(html) {
+  const source = String(html ?? "");
+  if (source.includes("data-local-studio-launcher")) return source;
+  const launcher = `<a href="/studio.html" data-local-studio-launcher aria-label="상세페이지를 Studio에서 수정하기" style="position:fixed;z-index:2147483647;right:18px;bottom:18px;display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border:1px solid rgba(255,255,255,.24);border-radius:999px;background:#111827;color:#fff;font:800 15px/1.2 system-ui,-apple-system,'Noto Sans KR','Malgun Gothic',sans-serif;text-decoration:none;box-shadow:0 12px 32px rgba(0,0,0,.28)">Studio에서 수정하기</a>`;
+  if (/<\/body>/i.test(source)) {
+    return source.replace(/<\/body>/i, `${launcher}</body>`);
+  }
+  return `${source}${launcher}`;
+}
+
 export async function startStudioV1Server({
   projectRoot,
   port = 8896,
@@ -2173,11 +2193,27 @@ export async function startStudioV1Server({
         const address = server.address();
         const actualPort =
           typeof address === "object" && address ? address.port : port;
+        const wingProjectRef = await workflowProjectRef(
+          root,
+          "studio-v1-wing-export",
+        );
+        const wingWorkflow = await workflowEngine.inspect(
+          wingProjectRef,
+        );
+        const approvedWingRevision =
+          await resolveApprovedStudioRevision(root, wingWorkflow);
+        const approvedWingPath = toPosix(
+          path.relative(root, approvedWingRevision.revisionRoot),
+        )
+          .split("/")
+          .map((segment) => encodeURIComponent(segment))
+          .join("/");
         wingExportInProgress = true;
         try {
           const result = await publishCoupangWingToCloudflare({
             projectRoot: root,
-            pageUrl: `http://${host}:${actualPort}/authoring.html`,
+            pageUrl:
+              `http://${host}:${actualPort}/${approvedWingPath}/index.html`,
             productName: project?.name || path.basename(root),
             projectKey:
               project?.productId || project?.id || path.basename(root),
@@ -2222,6 +2258,17 @@ export async function startStudioV1Server({
         await serveFile(
           response,
           await resolveExistingInside(root, path.relative(root, authoringPath)),
+        );
+        return;
+      }
+      if (pathname === "/output/detail-page.html") {
+        const outputPath = await resolveExistingInside(
+          root,
+          "output/detail-page.html",
+        );
+        serveHtml(
+          response,
+          injectLocalStudioLauncher(await readFile(outputPath, "utf8")),
         );
         return;
       }

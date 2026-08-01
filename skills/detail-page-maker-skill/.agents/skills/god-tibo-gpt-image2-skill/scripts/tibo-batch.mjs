@@ -59,8 +59,8 @@ const CONTROLLABLE_REFERENCE_INSTRUCTION = [
 const SIZE_MODES = new Set(["invariant", "controllable"]);
 export const MAX_JOB_IMAGES = 64;
 export const MAX_WORKERS = 32;
-export const DEFAULT_BATCH_SIZE = 24;
-export const DEFAULT_WORKERS = 24;
+export const DEFAULT_BATCH_SIZE = 32;
+export const DEFAULT_WORKERS = 32;
 
 
 function integerInRange(value, min, max, label) {

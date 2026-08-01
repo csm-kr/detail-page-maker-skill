@@ -53,7 +53,9 @@ agent session, attempt, lease expiry, fencing token과 budget을 고정한다. l
 
 - S0 뒤 `G0A_SUPPLIER`, `G0B_PHOTO`, `G1D_DISCOVERY`,
   `G1B_KNOWLEDGE`를 동시에 준비한다.
-- G2는 `image_job_set.jobs`의 image job 하나를 worker 하나에만 배정한다.
+- G2는 `image_job_set.jobs`의 candidate member 32개를 각각 식별하되 God Tibo
+  adapter가 하나의 `items: 32`, `workers: 32` provider batch로 실행한다.
+  provider worker는 Codex agent session이 아니며 8×4 순차 batch를 만들지 않는다.
 - G3는 `gif_brief_set.briefs`의 motion module 하나를 worker 하나에만 배정한다.
   `product_reference` source motion은 G2와 병렬 가능하고,
   `approved_image_job` source는 해당 image approval receipt가 준비된 뒤에만
@@ -86,6 +88,11 @@ fail-closed한다.
 완료된 member는 다음 계획에서 제외하고, active member는 중복 발급하지
 않으며, 모든 candidate member가 commit된 뒤에만
 `completeParallelFrontier`가 해당 stage를 완료한다.
+
+`performance-profile`은 실행 trace의 순차 시간과 실제 critical path를 비교한다.
+필수 최적화는 32 provider 동시 실행, 준비된 G3 즉시 시작, 성공 member cache,
+실패 member 재시도, 변경 section QA, 최종 전체 캡처 1회다. 이 명령은 gate를
+생략하거나 완료되지 않은 artifact를 통과시키지 않는다.
 
 ```text
 workflow-advance

@@ -46,7 +46,7 @@ const BOOTSTRAP_RECEIPT_CONTEXT =
   "detail-page-maker/cloudflare-pages-bootstrap-receipt/v1";
 const RUNTIME_TREE_CONTEXT = "detail-page-maker/wrangler-runtime-tree/v1";
 const WRANGLER_EXECUTION_POLICY_ID =
-  "node-permission-register-hooks-memory-v1";
+  "node-permission-register-hooks-memory-auth-read-project-write-v3";
 const LOCK_TIMEOUT_MS = 30_000;
 const LOCK_RETRY_MS = 50;
 const LOCK_STALE_MS = 15 * 60_000;
@@ -1335,11 +1335,13 @@ async function resolvePinnedWrangler(config, projectRoot) {
       },
     );
   }
-  const binRelative =
-    typeof packageJson.bin === "string"
-      ? packageJson.bin
-      : packageJson.bin?.wrangler;
-  if (!binRelative) {
+  const entryRelative =
+    typeof packageJson.main === "string" && packageJson.main.trim()
+      ? packageJson.main
+      : typeof packageJson.bin === "string"
+        ? packageJson.bin
+        : packageJson.bin?.wrangler;
+  if (!entryRelative) {
     throw new CloudflarePagesUploaderError(
       "WRANGLER_PACKAGE_INVALID",
       "프로젝트 로컬 Wrangler entrypoint를 찾을 수 없습니다.",
@@ -1347,7 +1349,11 @@ async function resolvePinnedWrangler(config, projectRoot) {
     );
   }
   const packageRoot = path.dirname(packagePath);
-  const entrypoint = resolveInside(packageRoot, binRelative, "Wrangler entrypoint");
+  const entrypoint = resolveInside(
+    packageRoot,
+    entryRelative,
+    "Wrangler entrypoint",
+  );
   await assertNoSymlinkComponents(projectRoot, entrypoint, {
     code: "WRANGLER_SYMLINK_FORBIDDEN",
     state: "runtime_invalid",
@@ -1403,8 +1409,10 @@ function keyringEnvironment(source = process.env) {
       .filter((key) => source[key] !== undefined)
       .map((key) => [key, source[key]]),
   );
-  env.CLOUDFLARE_AUTH_USE_KEYRING = "true";
+  env.CLOUDFLARE_AUTH_USE_KEYRING = "false";
+  env.ESBUILD_WORKER_THREADS = "0";
   env.NO_COLOR = "1";
+  env.WRANGLER_WRITE_LOGS = "0";
   return env;
 }
 
@@ -2088,6 +2096,7 @@ async function sealedWranglerLauncher() {
     return resolvePackageEntry(packageDirectory, subpath, context);
   };
   const cjsCache = new Map();
+  let safeEsbuildExports;
   const cjsGlobalKey =
     "detail-page-maker/sealed-commonjs-runtime/v1";
   const executeCommonJs = (portablePath) => {
@@ -2144,6 +2153,35 @@ async function sealedWranglerLauncher() {
         childRecord.parent ||= moduleRecord;
         moduleRecord.children.push(childRecord);
       }
+      if (
+        normalizedSpecifier === "esbuild" &&
+        childExports &&
+        (typeof childExports === "object" ||
+          typeof childExports === "function")
+      ) {
+        safeEsbuildExports ||= new Proxy(childExports, {
+          get(target, property, receiver) {
+            if (
+              property === "formatMessagesSync" ||
+              property === "formatMessages"
+            ) {
+              const formatWithoutService = (messages) =>
+                Array.from(messages || [], (message) => {
+                  const text = String(message?.text || "");
+                  const notes = Array.from(message?.notes || [], (note) =>
+                    String(note?.text || ""),
+                  ).filter(Boolean);
+                  return [text, ...notes].filter(Boolean).join("\n");
+                });
+              return property === "formatMessages"
+                ? async (messages) => formatWithoutService(messages)
+                : (messages) => formatWithoutService(messages);
+            }
+            return Reflect.get(target, property, receiver);
+          },
+        });
+        return safeEsbuildExports;
+      }
       return childExports;
     };
     memoryRequire.resolve = (specifier) => {
@@ -2162,7 +2200,10 @@ async function sealedWranglerLauncher() {
       );
     };
     memoryRequire.cache = Object.create(null);
-    memoryRequire.main = null;
+    memoryRequire.main =
+      portablePath === entryRelative
+        ? moduleRecord
+        : cjsCache.get(entryRelative) || null;
     let code = source.toString("utf8");
     if (code.startsWith("#!")) {
       code = code.replace(/^#![^\r\n]*(?:\r?\n|$)/, "");
@@ -2341,7 +2382,7 @@ async function sealedWranglerLauncher() {
 
 const SEALED_WRANGLER_LAUNCHER_SOURCE =
   `(${sealedWranglerLauncher.toString()})().catch((error) => {` +
-  "process.stderr.write(`[sealed-wrangler] ${error?.code || \"ERROR\"}: ${error?.message || String(error)}\\n`);" +
+  "process.stderr.write(`[sealed-wrangler] ${error?.code || \"ERROR\"}: ${error?.message || String(error)}${error?.permission ? ` [permission=${error.permission}]` : \"\"}${error?.resource ? ` [resource=${error.resource}]` : \"\"}\\n`);" +
   "process.exitCode = 1;" +
   "});";
 
@@ -2377,10 +2418,33 @@ export async function defaultWranglerRunner({
         { state: "runtime_invalid" },
       );
     }
+    const credentialReadRoots = [
+      env?.USERPROFILE
+        ? path.join(env.USERPROFILE, ".wrangler")
+        : null,
+      env?.XDG_CONFIG_HOME
+        ? path.join(env.XDG_CONFIG_HOME, ".wrangler")
+        : env?.APPDATA
+          ? path.join(env.APPDATA, "xdg.config", ".wrangler")
+          : null,
+    ].filter(Boolean);
+    const projectRuntimeScratch = path.join(
+      path.resolve(cwd),
+      ".wrangler",
+      "secure-runtime",
+    );
+    await mkdir(projectRuntimeScratch, { recursive: true });
+    env.TEMP = projectRuntimeScratch;
+    env.TMP = projectRuntimeScratch;
     spawnArgs = [
       "--permission",
       `--allow-fs-read=${path.resolve(secureRuntime.runtimeRoot)}`,
       `--allow-fs-read=${path.resolve(cwd)}`,
+      `--allow-fs-write=${path.join(path.resolve(cwd), ".wrangler")}`,
+      ...credentialReadRoots.map(
+        (credentialRoot) =>
+          `--allow-fs-read=${path.resolve(credentialRoot)}`,
+      ),
       "--input-type=module",
       "--eval",
       SEALED_WRANGLER_LAUNCHER_SOURCE,
@@ -2577,7 +2641,12 @@ async function assertCloudflareReady({
     !projects ||
     !projects.some(
       (project) =>
-        String(project?.name || project?.project_name || "") ===
+        String(
+          project?.name ||
+            project?.project_name ||
+            project?.["Project Name"] ||
+            "",
+        ) ===
         config.pagesProject,
     )
   ) {
@@ -2963,7 +3032,7 @@ async function remoteDeployIndex({
       generation: index.generation,
     };
   }
-  if (response.status !== 404) {
+  if (response.status !== 404 && response.status !== 522) {
     throw new CloudflarePagesUploaderError(
       "REMOTE_INDEX_UNAVAILABLE",
       "원격 deploy-index를 안전하게 확인할 수 없습니다.",
@@ -3020,6 +3089,7 @@ async function remoteDeployIndex({
     indexBytes: null,
     indexSha256: null,
     generation: 0,
+    uninitializedStatus: response.status,
   };
 }
 
@@ -3027,6 +3097,9 @@ async function assertRemoteIndexUnchanged({
   config,
   fetchImpl,
   snapshot,
+  projectRoot,
+  runtime,
+  runner,
 }) {
   const response = await fetchNoRedirect(
     fetchImpl,
@@ -3035,6 +3108,36 @@ async function assertRemoteIndexUnchanged({
   );
   if (!snapshot.existed) {
     if (response.status === 404) return;
+    if (
+      response.status === 522 &&
+      snapshot.uninitializedStatus === 522
+    ) {
+      const deploymentsResult = await runWrangler(
+        runtime,
+        [
+          "pages",
+          "deployment",
+          "list",
+          "--project-name",
+          config.pagesProject,
+          "--json",
+        ],
+        {
+          projectRoot,
+          runner,
+          state: "concurrent_conflict",
+          failureCode: "PAGES_DEPLOYMENT_LIST_FAILED",
+        },
+      );
+      const deployments = unwrapList(
+        parseWranglerJson(
+          deploymentsResult.stdout,
+          "PAGES_DEPLOYMENT_LIST_INVALID",
+          "concurrent_conflict",
+        ),
+      );
+      if (deployments && deployments.length === 0) return;
+    }
     let actualGeneration = null;
     let actualSha256 = null;
     if (response.status === 200) {
@@ -3200,7 +3303,11 @@ async function localExportAssets({
   return { manifestPath, assets };
 }
 
-async function assertNamespaceAvailable(fetchImpl, assets) {
+async function assertNamespaceAvailable(
+  fetchImpl,
+  assets,
+  { allowUninitializedOrigin = false } = {},
+) {
   for (const asset of assets) {
     const response = await fetchNoRedirect(
       fetchImpl,
@@ -3217,7 +3324,11 @@ async function assertNamespaceAvailable(fetchImpl, assets) {
         },
       );
     }
-    if (response.status !== 404 && response.status !== 410) {
+    if (
+      response.status !== 404 &&
+      response.status !== 410 &&
+      !(allowUninitializedOrigin && response.status === 522)
+    ) {
       throw new CloudflarePagesUploaderError(
         "CDN_NAMESPACE_PREFLIGHT_FAILED",
         "새 export namespace의 비어 있음 상태를 증명할 수 없습니다.",
@@ -3247,6 +3358,28 @@ async function verifiedRemoteBytes(fetchImpl, asset, purpose) {
     actual.sha256 === asset.sha256 &&
     cacheIsImmutable(response);
   if (!passed) {
+    const verificationAttempt = Number(
+      asset.__verificationAttempt || 0,
+    );
+    if (
+      [404, 522, 523, 524].includes(response.status) &&
+      verificationAttempt < 6
+    ) {
+      await new Promise((resolve) =>
+        setTimeout(
+          resolve,
+          Math.min(500 * 2 ** verificationAttempt, 5_000),
+        ),
+      );
+      return verifiedRemoteBytes(
+        fetchImpl,
+        {
+          ...asset,
+          __verificationAttempt: verificationAttempt + 1,
+        },
+        purpose,
+      );
+    }
     throw new CloudflarePagesUploaderError(
       "CDN_ASSET_VERIFICATION_FAILED",
       `${purpose} 중 HTTP·MIME·크기·SHA·cache 검증에 실패했습니다.`,
@@ -3585,7 +3718,6 @@ export async function uploadCloudflarePagesExport({
     const publish = await withPagesPublishLock(
       config,
       async (lock) => {
-        await assertNamespaceAvailable(fetchImpl, generated.assets);
         const remoteSnapshot = await remoteDeployIndex({
           projectRoot: resolvedProjectRoot,
           config,
@@ -3593,6 +3725,11 @@ export async function uploadCloudflarePagesExport({
           runner,
           fetchImpl,
           bootstrapReceipt: resolvedBootstrapReceipt,
+        });
+        await assertNamespaceAvailable(fetchImpl, generated.assets, {
+          allowUninitializedOrigin:
+            !remoteSnapshot.existed &&
+            remoteSnapshot.uninitializedStatus === 522,
         });
         await lock.assertOwned();
         const staged = await stageDeployment({
@@ -3604,11 +3741,18 @@ export async function uploadCloudflarePagesExport({
           config,
         });
         await lock.assertOwned();
-        await assertNamespaceAvailable(fetchImpl, generated.assets);
+        await assertNamespaceAvailable(fetchImpl, generated.assets, {
+          allowUninitializedOrigin:
+            !remoteSnapshot.existed &&
+            remoteSnapshot.uninitializedStatus === 522,
+        });
         await assertRemoteIndexUnchanged({
           config,
           fetchImpl,
           snapshot: remoteSnapshot,
+          projectRoot: resolvedProjectRoot,
+          runtime,
+          runner,
         });
         await lock.assertOwned();
         await runWrangler(

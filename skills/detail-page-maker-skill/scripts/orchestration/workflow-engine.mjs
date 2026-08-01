@@ -1802,7 +1802,11 @@ export function createWorkflowEngine({
           { artifact_id: reference.artifact_id },
         );
       }
-      const members = artifact.members ?? artifact.member_records ?? [];
+      const members =
+        artifact.members ??
+        artifact.member_records ??
+        artifact.member_manifest?.members ??
+        [];
       const memberHashes =
         artifact.member_hashes ?? artifact.member_sha256_by_id ?? {};
       const member = members.find(
@@ -1927,6 +1931,19 @@ export function createWorkflowEngine({
   async function lease(projectRef, capabilities = {}) {
     const state = await loadOrCreate(projectRef);
     const allowed = new Set(capabilities.stage_ids ?? []);
+    const existingLease = Object.values(state.work_orders ?? {}).find(
+      (workOrder) =>
+        workOrder?.status === "running" &&
+        workOrder.assigned_agent_session_id ===
+          projectRef.agent_session_id &&
+        (allowed.size === 0 ||
+          allowed.has(workOrder.stage_id)) &&
+        new Date(workOrder.lease_expires_at).getTime() >
+          Date.now(),
+    );
+    if (existingLease) {
+      return structuredClone(existingLease);
+    }
     const ready = readyStages(state, definition).filter((stageId) => {
       const item = definitions.get(stageId);
       return (
@@ -2054,7 +2071,16 @@ export function createWorkflowEngine({
       const existingWorkItemIds = new Set(
         Object.values(state.work_orders)
           .filter((workOrder) =>
-            ["running", "completed"].includes(workOrder.status),
+            workOrder.status === "running" ||
+            (
+              workOrder.status === "completed" &&
+              state.graph.artifacts.some(
+                (artifact) =>
+                  artifact.artifact_id ===
+                    workOrder.frontier_expected_artifact_id &&
+                  artifact.status === "fresh",
+              )
+            ),
           )
           .map((workOrder) => workOrder.work_item_id)
           .filter(Boolean),

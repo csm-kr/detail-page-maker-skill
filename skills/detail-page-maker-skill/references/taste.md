@@ -10,7 +10,7 @@
 | --- | --- | --- | --- |
 | TR-001 | 고객 화면은 제작 과정·파일·승인 메타데이터가 아니라 제품 차이와 구매 효익을 말한다. | 공개 메타데이터 0건 | 2026-07-29 |
 | TR-002 | 한 화면의 시각 초점과 제목은 하나로 맞추고, 정보가 많으면 섹션을 나누거나 위계를 낮춘다. | 390px 저작·780px 전달 초점 QA | 2026-07-30 |
-| TR-003 | 각 해결 장점에는 승인된 정지 이미지와 그 장점 전용 motion을 모두 인접시키되 같은 설명과 자산 모듈을 반복하지 않는다. | 장점별 still·motion coverage와 중복 검사 | 2026-07-30 |
+| TR-003 | 각 해결 장점은 하나의 주매체 surface만 사용한다. motion이 주매체면 정지 이미지는 첫 프레임 poster fallback으로 쓰거나 별도 근거 section으로 옮겨 같은 주장 아래 still과 GIF를 겹쳐 쌓지 않는다. | 장점별 primary surface 1개, redundant still-motion stack 0건 | 2026-08-01 |
 | TR-004 | 제품·라벨·바·점·치수선은 박스의 수학적 중앙보다 실제로 균형 있게 보이는 시각 중심을 우선한다. | 기준선 오버레이와 육안 QA | 2026-07-29 |
 | TR-005 | GIF 타이포는 HTML과 동일한 위계·굵기·줄바꿈을 유지하고 780px에서 먼저 읽혀야 한다. | 첫·중간·마지막 프레임 가독성 | 2026-07-30 |
 | TR-006 | 사용 맥락은 작은 제품을 장식처럼 반복하기보다 사람이 무엇을 하는지와 제품이 어디서 작동하는지를 먼저 보여 준다. | 행동·제품 위치 동시 식별 | 2026-07-29 |
@@ -34,6 +34,10 @@
 | TR-024 | 공개 export는 sanitizer 뒤 실제 output의 animation DOM·manifest·파일·frame count를 다시 닫고 poster-only를 실패시킨다. | planned/public/manifest animation 수 일치, frame 2+, poster-only 0건 | 2026-07-31 |
 | TR-025 | Studio는 편집 UI이며 명시적 Save가 최신 source revision을 만든다. `output/detail-page.html`은 같은 저장 사건의 단일 사용자 진입점이고 commit·QA·Wing은 그 digest를 검증하거나 파생할 뿐 새 편집 원본을 만들지 않는다. | save source revision ID/hash와 output hash 계보 일치, Wing 후 output bytes 불변 | 2026-07-31 |
 | TR-026 | 공용 category reference·ambition anchor·Studio runtime을 상품마다 복제하지 않고 새 프로젝트는 최소 input/output/숨은 authoring만 만든다. planning·evidence·generation·workflow·QA·backup·Wing은 첫 실제 write 때 생성하고 Studio runtime은 스킬에서 직접 제공한다. | 새 프로젝트 초기 폴더 집합과 lazy-create 회귀 검사, 프로젝트 Studio runtime 복사 0건, 루트 임의 폴더 0건 | 2026-07-31 |
+| TR-027 | 제목 줄바꿈을 직접 설계하고 제목·본문·제품의 중앙축을 맞춘다. 390px 제목 28px·780px 제목 44px 이상, 주 시각 점유율 55% 이상을 기본으로 하며 의미 없는 큰 상하 여백을 허용하지 않는다. | 중앙축 편차 8px 이하, 최소 글자 크기·시각 점유율·빈 영역 검사 | 2026-08-01 |
+| TR-028 | 상업용 제품 이미지는 실제 제품과 모델·사용 환경을 크게 사용하고 조명·원근·입자·콜아웃을 제품보다 앞서지 않게 제어한다. 같은 작은 제품 컷을 반복하지 않고 장면·각도·메시지 역할을 바꾼다. | 제품/사용 장면 우선순위, 장면·각도 coverage, 장식 우세 0건 | 2026-08-01 |
+| TR-029 | 디스크의 공개 HTML과 Wing에는 내부 metadata와 Studio 링크가 0건이어야 한다. 로컬 Studio 서버가 공개 파일을 서비스할 때만 응답에 수정 런처를 주입하고 원본 bytes는 바꾸지 않는다. | canonical bytes 불변, public launcher 0, local served launcher 1 | 2026-08-01 |
+| TR-030 | 제작 시간은 품질 gate를 줄이지 않고 G2 32장·32 provider workers 단일 배치, 준비된 G3 즉시 병렬, 결과 cache, 실패 member만 재시도, 변경 section QA와 최종 다중 viewport 1회 캡처로 줄인다. | performance trace의 순차 대비 절감 시간과 full rerun 0건 | 2026-08-01 |
 
 ## 업데이트 규칙
 

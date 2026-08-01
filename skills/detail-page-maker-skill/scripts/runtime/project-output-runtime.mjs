@@ -10,6 +10,9 @@ import {
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
+import {
+  validatePublicConversionHtml,
+} from "../orchestration/coupang-conversion-contract.mjs";
 
 const BACKUP_LIMIT = 20;
 const UNSAFE_PUBLIC_ATTRIBUTE =
@@ -786,6 +789,13 @@ export async function saveProjectOutput(
       publicHtml: materialized.html,
       mediaFiles: materialized.files,
     });
+    const publicConversionQa = validatePublicConversionHtml(materialized.html);
+    if (!publicConversionQa.ok) {
+      const error = new Error("공개 결과물의 내부 메타데이터 제거 계약을 통과하지 못했습니다.");
+      error.code = "PUBLIC_CONVERSION_QA_FAILED";
+      error.details = publicConversionQa;
+      throw error;
+    }
     const nextOutput = Buffer.from(materialized.html, "utf8");
     await atomicWrite(paths.output, nextOutput);
     if (failureInjection === "after-output") {
@@ -803,6 +813,7 @@ export async function saveProjectOutput(
         media: materialized.files,
         public_output_qa: {
           motion_closure: publicMotionQa,
+          conversion: publicConversionQa,
         },
         generated_at: now.toISOString(),
       };
@@ -832,6 +843,7 @@ export async function saveProjectOutput(
         export_manifest: sealedExportManifest,
         public_output_qa: {
           motion_closure: publicMotionQa,
+          conversion: publicConversionQa,
         },
       });
     }
@@ -870,6 +882,7 @@ export async function saveProjectOutput(
       media: materialized.files,
       public_output_qa: {
         motion_closure: publicMotionQa,
+        conversion: publicConversionQa,
       },
     };
   } catch (error) {

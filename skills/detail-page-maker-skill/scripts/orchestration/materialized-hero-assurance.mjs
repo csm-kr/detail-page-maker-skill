@@ -147,14 +147,21 @@ function manifestMember(revisionArtifact, memberId) {
       "G4C artifact에는 materialized member manifest가 필요합니다.",
     );
   }
-  const matches = manifest.members.filter(
-    (member) => member?.member_id === memberId,
+  const memberIds = [
+    ...new Set(
+      (Array.isArray(memberId) ? memberId : [memberId]).filter(
+        (value) => typeof value === "string" && value.length > 0,
+      ),
+    ),
+  ];
+  const matches = manifest.members.filter((member) =>
+    memberIds.includes(member?.member_id),
   );
   if (matches.length !== 1) {
     fail(
       "HERO_ASSURANCE_MEMBER_REQUIRED",
-      `${memberId} materialized member가 정확히 하나 필요합니다.`,
-      { member_id: memberId, count: matches.length },
+      `${memberIds.join(" 또는 ")} materialized member가 정확히 하나 필요합니다.`,
+      { member_ids: memberIds, count: matches.length },
     );
   }
   return matches[0];
@@ -336,9 +343,17 @@ export async function verifyMaterializedHeroAssurance({
       "Hero manifest 또는 identity/commercial/final receipt bytes가 revision hash와 다릅니다.",
     );
   }
+  const heroArtifact = bundle.approved_artifacts.find(
+    (artifact) =>
+      artifact?.artifact_id ===
+      bundle.manifest.hero_artifact?.artifact_id,
+  );
   const heroArtifactMember = manifestMember(
     revisionArtifact,
-    bundle.manifest.hero_artifact?.artifact_id,
+    [
+      bundle.manifest.hero_artifact?.artifact_id,
+      heroArtifact?.path,
+    ],
   );
   if (
     heroArtifactMember.sha256 !==

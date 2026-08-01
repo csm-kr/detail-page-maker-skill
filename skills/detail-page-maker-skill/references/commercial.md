@@ -25,6 +25,9 @@ Behance 조사에서 작품 고유 색·서체·카피·레이아웃은 가져�
 | CR-015 | 실제 이미지로 확인되는 형상·부품·구멍·셀·굴곡은 `observable_structure`, 제조사 문구는 `manufacturer_claim`, 독립 시험 효과는 `verified_efficacy`로 분리하고 효능 근거 부족을 이유로 관찰 차별점까지 버리지 않는다. | claim type·조건·evidence gate와 observable claim의 미검증 효과 연결 0건 | 2026-07-31 |
 | CR-016 | 근거 안전성은 모든 주장에 적용하지만 Hero와 마지막 리마인드는 검증 절차·소재명 자체가 아니라 고객이 이해할 핵심 구매 이유와 사용 결과를 말한다. | Hero/decision recap에서 내부 검증 절차 0건, 핵심 benefit 하나와 선택 이유 확인 | 2026-07-31 |
 | CR-017 | 상품명 세분류가 아니라 구매 증명 방식의 주 아키타입 하나와 보조 최대 하나를 선택하고, 주 cohort의 실제 프로젝트 2개 이상에서 고른 trait를 모든 section·image job·GIF brief에 적용한다. 공통 화려함 anchor는 수준만 정하고 기본 스타일로 복제하지 않는다. | category library hash 일치, target binding 누락 0, 선택 cohort보다 낮은 공개 시각 차원 0 | 2026-07-31 |
+| CR-018 | 쿠팡의 빠른 스크롤에서는 각 section이 1초 안에 문제·핵심 장점·사용 또는 결과 중 해당 역할 하나를 전달하고 제목을 읽는 순간 주 시각이 그 주장을 직접 증명해야 한다. | section별 메시지 1개, 제목 1~3줄, 첫 화면 문제/제품/근거 동시 식별 | 2026-08-01 |
+| CR-019 | 같은 SKU 상세페이지는 고객 문제, 첫 장점, 장점 순서, 증명 방식, 사용법 위치, 마무리 메시지의 판매 논리를 적극 재구성한다. 유사 상품은 가설로, 다른 상품은 광고 문법으로만 쓰며 고유 카피·자산은 복제하지 않는다. | reference relation·same-SKU sales logic·reuse mode 검사 | 2026-08-01 |
+| CR-020 | HTML을 먼저 만들지 않고 제품 사실과 타깃 문제 → 메시지 순서 → 문장별 증명 이미지 → 정지/GIF 적합성 → 모션 다양성을 함께 확정한 뒤 32개 이미지 용도 배치와 조립을 시작한다. | 모든 section의 message/image/motion/next-reason 계약과 이미지 용도 합계 32 | 2026-08-01 |
 
 새 공용 상업 규칙은 이 표에만 추가·수정한다. 조사 원문과 후보는 active rule에서
 분리하고 프로젝트 내부 research retention 정책에 따라 보존 또는 정리한다.

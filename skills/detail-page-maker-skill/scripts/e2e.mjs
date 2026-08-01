@@ -185,6 +185,31 @@ async function runE2E() {
     if (studioResponse.status !== 200) {
       throw new Error(`Studio HTTP status: ${studioResponse.status}`);
     }
+    const canonicalOutputPath = path.join(
+      created.projectRoot,
+      "output",
+      "detail-page.html",
+    );
+    const canonicalBeforePreview = await readFile(canonicalOutputPath, "utf8");
+    const outputPreviewResponse = await fetch(
+      new URL("/output/detail-page.html", baseUrl),
+    );
+    const outputPreviewHtml = await outputPreviewResponse.text();
+    report.checks.outputPreviewHasStudioLauncher =
+      outputPreviewResponse.status === 200 &&
+      outputPreviewHtml.includes("data-local-studio-launcher") &&
+      outputPreviewHtml.includes('href="/studio.html"');
+    report.checks.canonicalOutputHasNoStudioLauncher =
+      !canonicalBeforePreview.includes("data-local-studio-launcher") &&
+      (await readFile(canonicalOutputPath, "utf8")) === canonicalBeforePreview;
+    if (
+      !report.checks.outputPreviewHasStudioLauncher ||
+      !report.checks.canonicalOutputHasNoStudioLauncher
+    ) {
+      throw new Error(
+        "로컬 output→Studio 재진입 또는 공개 canonical 무오염 계약이 실패했습니다.",
+      );
+    }
     report.checks.projectStudioRuntimeCopied = await exists(
       path.join(created.projectRoot, ".detail-page", "studio"),
     );

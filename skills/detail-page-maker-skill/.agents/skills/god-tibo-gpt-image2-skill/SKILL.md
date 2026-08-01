@@ -1,11 +1,11 @@
 ---
 name: god-tibo-gpt-image2-skill
-description: Tibo(god-tibo-imagen)와 ChatGPT-Images-2의 detail_level 규칙을 결합해 GPT Image 2 이미지를 기본 24장, 작업당 최대 64장, 동시에 최대 32장 생성·편집하고, 여러 reference 중 Image 1을 기준 이미지로 보존하며, 각기 다른 prompt·reference 작업, Size Invariant 원본 크기 복원 또는 목표 W×H를 정확히 만드는 Size Controllable 후처리와 선택적 GIF 조립을 수행한다. 사용자가 Tibo, GPT Image 2, 병렬 이미지 생성, reference 기반 변형, 출력 사이즈·비율 제어, detail 1/2/3, 자글거림·스펙클 감소, 연속 프레임 또는 GIF 제작을 요청할 때 사용한다.
+description: Tibo(god-tibo-imagen)와 ChatGPT-Images-2의 detail_level 규칙을 결합해 GPT Image 2 이미지를 기본 32장·32 workers, 작업당 최대 64장으로 생성·편집하고, 여러 reference 중 Image 1을 기준 이미지로 보존하며, 각기 다른 prompt·reference 작업, Size Invariant 원본 크기 복원 또는 목표 W×H를 정확히 만드는 Size Controllable 후처리와 선택적 GIF 조립을 수행한다. 사용자가 Tibo, GPT Image 2, 32개 병렬 이미지 생성, reference 기반 변형, 출력 사이즈·비율 제어, detail 1/2/3, 자글거림·스펙클 감소, 연속 프레임 또는 GIF 제작을 요청할 때 사용한다.
 ---
 
 # God Tibo GPT Image 2
 
-Tibo의 비공개 Codex 이미지 경로로 동일 프롬프트 배치 또는 서로 다른 프롬프트 프레임을 기본 24장, 작업당 최대 64장 생성한다. 실제 동시 요청은 기본 24개, 검증된 최대 32개로 제한한다. `detail_level`로 불필요한 미세 노이즈를 제어하고, reference가 있으면 첫 이미지를 canonical base로 취급한다.
+Tibo의 비공개 Codex 이미지 경로로 동일 프롬프트 배치 또는 서로 다른 프롬프트 프레임을 기본 32장 생성한다. 실제 동시 요청도 기본·최대 32개이며 작업 전체는 최대 64장이다. `detail_level`로 불필요한 미세 노이즈를 제어하고, reference가 있으면 첫 이미지를 canonical base로 취급한다.
 
 ## 필수 사이즈 질문
 
@@ -67,10 +67,10 @@ node scripts/tibo-batch.mjs --job /absolute/path/to/job.json
 
 ## 생성 규칙
 
-- 같은 프롬프트에서 생성 수를 생략하면 `batch_size: 24`, `workers: 24`를 사용한다.
-- 24장보다 작은 `batch_size` 또는 `prompts`·`items` 배열을 사용하면 `workers` 기본값도 그 생성 수와 같아진다.
-- 24장보다 큰 작업은 기본 `workers: 24`로 실행한다. `workers`는 1~32, 작업의 전체 생성 수는 1~64다.
-- 실제 64개 동시 요청 테스트에서는 62개 완료 후 연결이 종료됐으므로 64장 작업은 기본 24 workers 또는 명시적 최대 32 workers로 나눠 처리한다.
+- 같은 프롬프트에서 생성 수를 생략하면 `batch_size: 32`, `workers: 32`를 사용한다.
+- 32장보다 작은 `batch_size` 또는 `prompts`·`items` 배열을 사용하면 `workers` 기본값도 그 생성 수와 같아진다.
+- 32장보다 큰 작업은 기본 `workers: 32`로 실행한다. `workers`는 1~32, 작업의 전체 생성 수는 1~64다.
+- 실제 64개 동시 요청 테스트에서는 62개 완료 후 연결이 종료됐으므로 최대 동시 요청은 32 workers로 유지한다. 상세페이지 기본 제작은 32개 `items`를 한 job에서 바로 32 workers로 실행한다.
 - `prompt`, `prompts`, `items` 중 하나만 사용한다.
 - `prompts`의 순서가 `frame-000.png` 이후의 프레임 순서와 GIF 순서다.
 - `items`의 각 항목은 자체 `prompt`와 `references`를 가지며 입력 순서대로 작업당 최대 64개, 동시에 최대 32개를 처리한다.

@@ -108,6 +108,23 @@ test("ProductionPlan 결정이 네 사람용 기획 문서에 실제로 물질�
           },
         ],
       },
+      sales_motion_pipeline: {
+        phases: ["product_understanding", "motion_planning", "shot_planning"],
+        image_generation: {
+          candidate_count: 32,
+          provider_workers: 32,
+          execution_strategy: "single_concurrent_batch",
+        },
+        asset_selection: {
+          selected_count_minimum: 8,
+          selected_count_maximum: 15,
+        },
+        render_pipeline: {
+          primary: "deterministic_silent_mp4",
+          converter: "ffmpeg",
+          derivatives: ["gif", "animated_webp"],
+        },
+      },
       rubric_target: {
         target_score: 97,
         reference_comparison: {
@@ -158,6 +175,13 @@ test("ProductionPlan 결정이 네 사람용 기획 문서에 실제로 물질�
         "utf8",
       ),
       /구조가 어떻게 보이는가/,
+    );
+    assert.match(
+      await readFile(
+        path.join(root, ".detail-page", "planning", "GIF.md"),
+        "utf8",
+      ),
+      /deterministic_silent_mp4/,
     );
     assert.match(
       await readFile(

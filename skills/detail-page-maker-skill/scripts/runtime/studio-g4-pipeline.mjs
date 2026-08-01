@@ -755,7 +755,7 @@ export function createStudioG4Pipeline({
       member_ids: [
         "index.html",
         "asset-manifest.json",
-        ...snapshot.asset_files.map((file) => file.artifact_id),
+        ...snapshot.asset_files.map((file) => file.path),
       ],
       working_snapshot: snapshot,
       mutable: true,
@@ -1130,25 +1130,35 @@ export function createStudioG4Pipeline({
       coordinatorProjectRef,
       { until: "next_user_gate" },
     );
-    if (
-      approval.kind !== "AwaitUser" ||
-      approval.stage_id !== "G4U_APPROVAL"
-    ) {
+    const workflowAfterApproval = await workflowEngine.inspect(
+      coordinatorProjectRef,
+    );
+    const manualApprovalOpened =
+      approval.kind === "AwaitUser" &&
+      approval.stage_id === "G4U_APPROVAL";
+    const planOnceAutoApproved =
+      workflowAfterApproval?.stages?.G4U_APPROVAL?.status ===
+      "approved";
+    if (!manualApprovalOpened && !planOnceAutoApproved) {
       fail(
         "G4_APPROVAL_CHALLENGE_NOT_OPENED",
-        "post-commit QA 뒤 G4U approval challenge가 열리지 않았습니다.",
+        "post-commit QA 뒤 G4U approval 또는 plan-once 자동 승인이 확인되지 않았습니다.",
       );
     }
     const updated = await saveSession({
       ...sessionBody(session),
-      status: "awaiting_g4_approval",
+      status: planOnceAutoApproved
+        ? "g4_approved"
+        : "awaiting_g4_approval",
       capture_artifact: capture.output_artifacts[0],
       capture_execution_receipt: capture.execution_receipt,
       rubric_result: postcommit.result,
       rubric_delta: delta,
       g4_validation_receipt: validationReceipt,
       repair_loop: repairLoop,
-      challenge: approval.challenge,
+      challenge: manualApprovalOpened
+        ? approval.challenge
+        : null,
       updated_at: new Date().toISOString(),
     });
     return {
@@ -1158,10 +1168,10 @@ export function createStudioG4Pipeline({
       rubric_delta: delta,
       validation_receipt: validationReceipt,
       repair_loop: repairLoop,
-      challenge: approval.challenge,
-      workflow: await workflowEngine.inspect(
-        coordinatorProjectRef,
-      ),
+      challenge: manualApprovalOpened
+        ? approval.challenge
+        : null,
+      workflow: workflowAfterApproval,
     };
   }
 

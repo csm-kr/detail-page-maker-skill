@@ -54,12 +54,12 @@ visual ambition anchor다.
 | --- | --- | ---: | --- | --- |
 | R01 | 주장·근거 무결성 | 18 | Evidence QA | claim/fact/evidence graph, source hash, DOM 거리 |
 | R02 | 구매 여정과 정보 구조 | 12 | Commercial Benchmark | section graph, 고객 질문, 중복과 전이 |
-| R03 | 첫 화면 명료성 | 8 | Visual Benchmark | mobile 첫 1.5 viewport, 제품·선택 이유 |
+| R03 | 첫 화면 명료성 | 8 | Visual Benchmark | 1초 안의 제품·핵심 메시지·직접 근거 |
 | R04 | 제품 동일성·연속성 | 10 | Identity QA | SSOT와 형상·부품·색·패키지 비교 |
 | R05 | 이미지 역할과 아트 디렉션 | 10 | Visual QA | 역할 enum, 질문 coverage, crop, 권리 |
-| R06 | GIF·motion coverage와 품질 | 6 | Motion QA | 문제 2+, 장점별 1+, 사용·비교, total, first/middle/last, loop, fallback |
-| R07 | 시각 계층·타이포그래피 | 8 | Visual·Technical QA | heading, CSS type, 대비, DOM/OCR |
-| R08 | 색·밀도·리듬·브랜드 일관성 | 7 | Visual Benchmark | token, 밀도 곡선, 강조와 tone guide |
+| R06 | GIF·motion coverage와 품질 | 6 | Motion QA | 역할 coverage, 인접 2축 차이, 첫 프레임, 픽셀/지각 loop, 제품 불변, fallback |
+| R07 | 시각 계층·타이포그래피 | 8 | Visual·Technical QA | 중앙축, 의도한 줄바꿈, 최소 제목 크기, 대비, DOM/OCR |
+| R08 | 색·밀도·리듬·브랜드 일관성 | 7 | Visual Benchmark | token, 주 시각 55%+, 빈 영역, 강조와 tone guide |
 | R09 | 사용·규격·구성·주의·구매 정보 | 8 | Evidence QA | 필수 field coverage, 단위, 옵션·주의 |
 | R10 | 모바일 가독성과 전달 구조 | 8 | Mobile QA | 390 authoring·780 delivery, 숨은 320/360 overflow, crop, 줄바꿈 |
 | R11 | Studio 편집·출력 parity·성능·접근성 | 5 | Technical QA | editable source, CDN stack parity, asset, alt, fallback |
@@ -84,6 +84,8 @@ visual ambition anchor다.
 ### Image
 
 - 한 job은 한 고객 질문과 한 주 역할만 가진다.
+- 기본 제작은 용도가 다른 32개 candidate를 한 God Tibo job과 32 provider
+  workers로 실행하고 8×4 순차 batch를 허용하지 않는다.
 - 실제 제품 reference의 형상·부품·패키지 금지 변경을 고정한다.
 - atmosphere image를 proof로 사용하지 않는다.
 - 비슷한 후보의 반복보다 image-role coverage를 우선한다.
@@ -95,6 +97,8 @@ visual ambition anchor다.
 - 문제 2+, 해결 장점별 1+, 사용 1+, 비교 1+, 전체 최소 5·기본 7~9를
   deterministic coverage로 검사한다.
 - 첫·중간·마지막 frame과 실제 loop seam을 검사한다.
+- 각 GIF의 목적·카메라·핵심 변화·전환·강조 그래픽을 기록하고 인접 GIF는 두 축
+  이상을 다르게 한다. 첫 프레임 단독 메시지와 지각적 loop 연속성도 검사한다.
 - poster·fallback과 인접 HTML 설명을 제공한다.
 - 역할 coverage 미달은 content-flow hard failure다.
 
@@ -105,6 +109,11 @@ visual ambition anchor다.
 - 모바일에서는 비교 block을 세로로 바꿀 수 있지만 의미 관계는 유지한다.
 - 명시적 저장은 현재 `output/detail-page.html`을 덮어쓰고 내부 복구 snapshot과
   immutable 검증 receipt를 남긴 뒤 다시 평가한다.
+- 같은 주장 아래 정지 이미지와 GIF를 연속으로 쌓지 않고 한 주매체 surface와
+  poster fallback을 사용한다.
+
+최종 스크롤 QA는 이미지와 큰 제목만 빠르게 보아도 `문제 → 해결 방식 → 핵심 기능
+→ 사용법 → 활용 장소 → 구성 → 제품정보 → 구매 결정` 흐름이 이해되는지 검사한다.
 
 ## 검수와 repair loop
 

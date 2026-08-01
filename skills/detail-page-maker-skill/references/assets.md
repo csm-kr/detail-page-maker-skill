@@ -6,9 +6,9 @@
 `.agents/skills/god-tibo-gpt-image2-skill/scripts/tibo-batch.mjs`로 실행한다.
 내장 이미지 생성 도구나 다른 모델을 우회 경로로 사용하지 않는다.
 
-- 작업 단위: 8개 `items`를 명시
-- 8개 초과: 입력 순서를 보존해 8개씩 분할
-- God Tibo의 기본값을 사용하지 않는다.
+- 기본 작업 단위: 서로 다른 용도의 32개 `items`를 한 job에 명시
+- 기본 동시 실행: `workers: 32`, `single_concurrent_batch`
+- 32개를 8개씩 네 번 나누는 순차 실행은 금지한다.
 - 생성: 명시한 W×H를 갖는 `controllable`
 - 편집: 입력 크기를 보존하는 `invariant`
 - 모든 프롬프트: `QUALITY_GATE:CLEAN_COMMERCIAL`
@@ -16,15 +16,41 @@
 결과에는 자글거림, 필름 그레인, 센서 노이즈, 색 노이즈, 디더링, 과한 샤픈,
 더러운 그림자 입자가 없어야 한다.
 
-Orchestrator의 논리 작업 단위는 한 image cut당 한 WorkOrder·한 worker다. adapter가
-provider batch를 구성할 때만 준비된 독립 cut을 최대 8개 `items`로 묶으며 결과를
-다시 cut별 artifact와 receipt로 분리한다. 가용 worker slot은 먼저 채우고 실패한
-cut과 실제 descendant만 재실행한다.
+Orchestrator의 논리 작업 단위는 한 image cut당 한 WorkOrder member다. adapter는
+준비된 독립 cut 32개를 하나의 God Tibo `items` job으로 묶고 provider 요청을
+32 workers로 동시에 시작한다. provider worker는 Codex agent session이 아니라
+이미지 생성 동시 요청이다. 결과는 다시 cut별 artifact와 receipt로 분리하고 실패한
+cut과 실제 descendant만 같은 입력으로 재실행한다.
+
+32개는 단순 변형 수가 아니라 용도 배치다. Hero, 문제 상황, 핵심 기능 근거,
+매크로 디테일, 사용 단계, 사용 장소, 비교, 썸네일 후보, GIF 첫·중간·끝 프레임을
+기획 단계에서 나눈다. HTML 빈칸을 만든 뒤 비슷한 이미지를 채우는 작업은 실패다.
+
+논리 그룹은 기본적으로 제품 베이스 8, 기능·소재 디테일 6, 치수 4, 기능 전체 4,
+실제 상태 pair 4, 사용 4, 구성·구조 2를 권장한다. 다만 실제 치수나 전후 자료가
+없으면 해당 그룹을 만들지 않고 근거가 있는 shot으로 32개를 재배분한다. 이 그룹은
+하나의 32-worker provider job 안의 역할 분류이며 순차 batch가 아니다.
+
+기본 shot type은 `hero_front`, `hero_angle`, `dimension_front`,
+`dimension_side`, `feature_overview`, `feature_detail_1/2`, `before_scene`,
+`after_scene`, `usage_scene_1/2`, `components_flatlay`, `exploded_view`,
+`material_macro`다. 32개 생성 후 동일성·상업성·모션 적합도가 높은 8~15개만
+대표 자산으로 선택한다.
+
+선택 자산은 `image_id`, `shot_type`, `view_type`, `candidate_score`,
+`recommended_template`, `anchor_points`, `bbox_regions`, `dimension_safe_area`,
+`text_safe_area`, `before_after_pair_id`, `consistency_group`을 기록한다. 좌표는
+0~1 정규화 값으로 저장한다. 상세 연결 규칙은
+[`hyperframes-sales-motion.md`](hyperframes-sales-motion.md)를 따른다.
 
 모든 제품 cut은 같은 SKU의 공급처 이미지 SSOT를 ImageGen reference로 사용한다.
 사용자가 `input/product/`에 실제 사진을 넣으면 추가 identity reference로
 강화한다. 공급처 원본·쿠팡·Behance 이미지는 고객 광고 자산으로 직접 조립하지
 않는다.
+
+생성 전에 상품별 제품 불변 조건을 적어도 네 개 고정한다. 색, 외형과 비율,
+구멍·홈·끈 같은 부품 수와 위치, 실제 구성품, 로고·문구 금지 등이 이에 해당한다.
+모든 32개 item은 같은 canonical 제품 참조와 불변 조건을 공유한다.
 
 ## Image job 시각 계약
 

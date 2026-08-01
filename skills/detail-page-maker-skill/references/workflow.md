@@ -6,9 +6,9 @@
 | --- | --- | --- | --- |
 | 입력 | 공급처 URL, 선택적 실제품 사진, 목표 채널 | `input/product`, 프로젝트 폴더 | 공급처 same-SKU media 확인 |
 | G0 SOURCE_SSOT | 제품 사실, 외형, 부품, 수량, 문자, 방향 | extractor evidence, SSOT manifest | 원본 사진 fast path 자동 승인 또는 공급처 SSOT 수동 승인 |
-| G1 COMMERCIAL_PLAN | 기존 output·기준작 비교, category cohort, 고정 문제→답→해결 흐름, 주장 경계, 증거·image·motion 계획 | ReferenceArtifactSet + CategoryReferenceProfile + 물질화된 사람용 기획 + commercial-flow/claim/section/image/motion/rubric ProductionPlan | 모든 section/image/GIF의 category trait binding·visual ambition·rule effect·detail-page-flow hard-0, 양방향 참조·orphan 0, 사용자 기획 승인 |
-| G2 IMAGE_ASSETS | 정지 이미지 후보와 동일성 QA | pending 이미지, QA 기록 | QA PASS 뒤 plan-once 자동 승인 또는 사용자 이미지 승인 |
-| G3 MOTION_ASSETS | 문제 2+, 장점별 1+, 사용·비교, total 5+/기본 7~9 | 승인 motion, poster, HyperFrames 원본 | coverage hard-0 뒤 plan-once 자동 승인 또는 preview·최종 자산 수동 승인 |
+| G1 COMMERCIAL_PLAN | 기존 output·기준작의 상품 관계와 판매 논리 비교, category cohort, 고정 문제→답→해결 흐름, section별 한 메시지·증명 이미지·정지/GIF 역할·다음 이유 공동 설계 | ReferenceArtifactSet + CategoryReferenceProfile + 물질화된 사람용 기획 + commercial-flow/claim/section/image/motion/rubric ProductionPlan | 모든 section/image/GIF의 category trait binding·visual ambition·rule effect·쿠팡 1초 전달·detail-page-flow hard-0, 양방향 참조·orphan 0, 사용자 기획 승인 |
+| G2 IMAGE_ASSETS | 용도별 32장 단일 동시 배치와 제품 불변 조건 QA | 32개 pending 이미지, God Tibo 32 provider workers receipt, QA 기록 | candidate 합계 32·단일 batch·동일성 PASS 뒤 plan-once 자동 승인 또는 사용자 이미지 승인 |
+| G3 MOTION_ASSETS | 문제 2+, 장점별 1+, 사용·비교, total 5+/기본 7~9와 모션 다양성 | 승인 motion, poster, HyperFrames 원본, 다양성 표 | 인접 2축 차이·첫 프레임·픽셀/지각 loop·제품 불변·coverage hard-0 뒤 plan-once 자동 승인 또는 preview·최종 자산 수동 승인 |
 | G4 ASSEMBLY | 승인 자산과 섹션 연결 | editable Studio source, 현재 output, 내부 revision, rubric result/delta | 390/780 repair PASS 뒤 plan-once 자동 승인 또는 사용자 조립 승인 |
 | G5 PUBLISH | 공개 카피, 접근성, 채널 규격, 새 CDN namespace | `output/detail-page.html`, versioned Wing export | publish 97·Behance 90·critical 85·content hard 0·원격 검증 뒤 plan-once receipt 또는 게시 승인 |
 | 학습 | 재사용 가능성과 위험 | 프로젝트 후보 또는 `exps/*.md` | 일반 후보는 승인 승격, trusted exps는 검증 뒤 CR/TR/MR 자동 승격 |
@@ -27,6 +27,16 @@ G0의 공급처 근거 정규화와 G1의 시장 조사는 병렬로 진행할 �
 시작하지 않는다. 검증 순서는 `G0 → G1 → G2 → G3 → G4 → G5`다. 실제 원본
 사진이 검증된 run에서는 G1 기획만 사용자가 승인하고 나머지 user gate는
 Orchestrator가 exact policy receipt로 승인한다.
+
+## 속도 fast path
+
+품질 gate 수를 줄이지 않고 critical path를 줄인다. G1에서 32개 이미지의 역할과
+프롬프트를 모두 확정하고 G2는 God Tibo `items: 32`, `workers: 32` 한 번으로
+즉시 실행한다. 8×4 순차 배치는 금지한다. 제품 reference만 필요한 G3 motion은
+G2와 동시에, 승인 이미지가 필요한 motion은 해당 member가 준비되는 즉시 시작한다.
+통과한 artifact와 브라우저 캡처는 digest cache로 재사용하고 실패 member와 실제
+descendant만 재생성한다. G4 수정 중에는 변경 section만 캡처·검사하며 마지막에
+320·360·390·780 다중 viewport 전체 스크롤 캡처를 한 번 수행한다.
 
 멀티에이전트 수와 브라우저 동시성은 별개다. 같은 로컬 Chrome의 활성 탭을
 제어하는 Browser Harness extractor는 전역 단일 browser lane에서 직렬 실행한다.
@@ -185,7 +195,7 @@ member-level edge가 있으면 `scope.mode`는 `member_exact`이고 형제
 ## G1 ProductionPlan
 
 기획 agent의 Markdown만으로 G2~G4를 실행하지 않는다. PlanningCompiler가 다음
-여덟 part를 만든 뒤 한 digest로 승인한다.
+아홉 part를 만든 뒤 한 digest로 승인한다.
 
 1. `reference_artifact_set`
 2. `category_reference_profile`
@@ -194,7 +204,8 @@ member-level edge가 있으면 `scope.mode`는 `member_exact`이고 형제
 5. `section_graph_draft`
 6. `image_job_set`
 7. `gif_brief_set`
-8. `rubric_target`
+8. `sales_motion_pipeline`
+9. `rubric_target`
 
 G1 시작 전에 다음 명령으로 기존 고객 output과 사용자가 준 기준 HTML을 profile한다.
 
@@ -244,10 +255,15 @@ Image job은 `visual_contract`에 역할, scene kind, 제품 면, 사용 맥락,
 제품 점유율, 인접 job과 다른 차별화 목표를 가진다. Hero와 핵심 기능은 후보 2개
 이상이고 전체 image set은 실제 사용 맥락을 포함한다.
 
-GIF brief는 구매 질문, 기능 부위, 방식, pattern ID, 시작·중간·끝 상태,
-visible delta, overlay-only 금지, 배경 대비, 2초 내 답, 780 canvas, FPS, 길이,
+GIF brief는 구매 질문, 기능 부위, T1~T10 템플릿, 정보 전달 방식, pattern ID,
+시작·중간·끝 정보 상태, visible delta, decorative-overlay-only 금지, 배경 대비,
+1초 내 답, 780 canvas, FPS, 길이,
 GIF/animated WebP 형식, placement scale, MR effect binding과 reference/rule packet
 digest를 가진다. 인접 pattern 중복은 명시적 사유 없이는 실패한다.
+
+`sales_motion_pipeline`은 32장 단일 동시 생성의 논리 샷 그룹, 3~5개 anchor set,
+8~15개 자산 선별과 metadata, 0.85/0.60 콜아웃 fallback, T1~T10 catalog,
+결정론적 MP4→FFmpeg GIF/WebP 파생 계약을 가진다.
 
 승인 plan을 G2/G3 frontier에 전달하면 `COMMERCIAL.md`, `DESIGN.md`,
 `BUYER-JOURNEY.md`, `GIF.md`를 plan digest에서 결정적으로 물질화한다. 빈 template,

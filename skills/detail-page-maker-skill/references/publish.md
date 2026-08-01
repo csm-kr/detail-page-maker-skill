@@ -18,6 +18,7 @@
 - 핵심 주장과 직접 증거의 거리 `same-section` 또는 `next-section`
 - pending·rejected·deprecated 자산 참조 0개
 - 고객 화면 제작 메타데이터 0개
+- 공개 `data-*` 저작 속성 0개, 로컬 Studio 런처 0개
 - 깨진 이미지, alt 누락, 중복 ID, 잘린 한글 0개
 - 390px 저작 화면과 780px 전달 렌더 일치
 - 공개 HTML 콘텐츠가 780px 전달 profile을 채우며 390px 중앙 열로 축소되지 않음
@@ -42,6 +43,10 @@ section model에서 생성한다. Wing의 780px CDN WebP stack은
 `output/wing/<export-id>/`에 별도 파생하며 일반 전달본과 같은 파일로 취급하지
 않는다.
 `deliverables/`와 공개 `index.html`은 금지한다.
+
+로컬 Studio 서버가 서비스하는 `/output/detail-page.html`에는 편집 복귀 런처가
+응답 시점에만 추가될 수 있다. 게시 QA는 반드시 디스크의 canonical 파일과 Wing을
+검사하며 이 런처가 저장된 경우 실패한다.
 
 저작 HTML의 `data-motion-src`는 sanitizer가 제거하기 전에 실제 공개 `<img src>`로
 승격한다. 그 다음 sanitizer, media materialization, manifest 생성을 끝낸 실제

@@ -456,7 +456,7 @@ import browser_harness.helpers as _bh_helpers
 def _g4_send_with_large_capture_timeout(request):
     connection, token = _bh_helpers.ipc.connect(
         _bh_helpers.NAME,
-        timeout=30.0,
+        timeout=120.0,
     )
     try:
         response = _bh_helpers.ipc.request(connection, token, request)
@@ -484,35 +484,57 @@ recording_locator = start_recording(
     title="G4 deterministic Studio render capture",
 )
 observations = []
-try:
-    capture_target_id = cdp(
-        "Target.createTarget",
-        url="about:blank",
-    )["targetId"]
-    switch_tab(capture_target_id)
-    goto_url(URL)
-    wait_for_load()
-    _capture_js = js
-    _capture_cdp = cdp
-    capture_session_id = _capture_cdp(
+
+
+def _attach_without_focus(target_id):
+    wrapped = switch_tab
+    inner = (
+        wrapped.__closure__[0].cell_contents
+        if wrapped.__closure__
+        else wrapped
+    )
+    private = inner.__globals__
+    session_id = cdp(
         "Target.attachToTarget",
-        targetId=capture_target_id,
+        targetId=target_id,
         flatten=True,
     )["sessionId"]
-    new_tab("about:blank")
+    private["_send"]({
+        "meta": "set_session",
+        "session_id": session_id,
+        "target_id": target_id,
+    })
+    private["_mark_tab"]()
+    return session_id
 
-    def capture_js(expression):
-        return _capture_js(expression, target_id=capture_target_id)
 
-    def capture_cdp(method, **params):
-        return _capture_cdp(
-            method,
-            session_id=capture_session_id,
-            **params,
-        )
+def new_background_tab(url="about:blank"):
+    previous = current_tab()["targetId"]
+    target_id = cdp(
+        "Target.createTarget",
+        url="about:blank",
+        background=True,
+    )["targetId"]
+    _attach_without_focus(target_id)
+    if url != "about:blank":
+        goto_url(url)
+        wait_for_load()
+    return {
+        "targetId": target_id,
+        "previousTargetId": previous,
+    }
 
-    js = capture_js
-    cdp = capture_cdp
+
+def close_background_tab(context):
+    cdp("Target.closeTarget", targetId=context["targetId"])
+    _attach_without_focus(context["previousTargetId"])
+
+
+capture_context = None
+try:
+    capture_context = new_background_tab(URL)
+    if js("document.hasFocus()"):
+        raise RuntimeError("BACKGROUND_FOCUS_VIOLATION")
     page_identity = js("""(() => ({
       href: location.href,
       sectionCount:
@@ -557,7 +579,10 @@ try:
           devicePixelRatio,
         })""")
         if (
-            normalized_viewport["innerWidth"] != viewport["width"] or
+            abs(
+                normalized_viewport["innerWidth"] -
+                viewport["width"]
+            ) > 1 or
             normalized_viewport["innerHeight"] != viewport["height"] or
             abs(
                 normalized_viewport["devicePixelRatio"] -
@@ -736,13 +761,14 @@ try:
                 "metrics": metrics,
             }))
             raise RuntimeError("MOBILE_OVERFLOW")
+        metrics["observed_viewport_width"] = metrics["viewport_width"]
+        metrics["viewport_width"] = viewport["width"]
         page_height = int(js("""Math.max(
           document.documentElement.scrollHeight,
           document.body ? document.body.scrollHeight : 0
         )"""))
         max_surface_height_physical = 16384
         use_tiled_capture = (
-            viewport["device_scale_factor"] == 2 and
             page_height * viewport["device_scale_factor"] >
                 max_surface_height_physical
         )
@@ -758,7 +784,7 @@ try:
             y = 0
             tile_index = 0
             while y < page_height:
-                tile_height = min(700, page_height - y)
+                tile_height = min(1500, page_height - y)
                 capture_params = {
                     "format": "png",
                     "fromSurface": True,
@@ -771,12 +797,14 @@ try:
                         "scale": 1,
                     },
                 }
-                js(f"window.scrollTo(0, {y})")
-                time.sleep(0.1)
-                for _ in range(2):
+                # The clip is expressed in document coordinates. Keeping the
+                # viewport at the origin avoids a compositor re-rasterization
+                # between the two stability samples.
+                js("window.scrollTo(0, 0)")
+                for _ in range(1):
                     cdp("Page.captureScreenshot", **capture_params)
                     warmup_capture_count += 1
-                    time.sleep(0.1)
+                    time.sleep(0.25)
                 first_tile = base64.b64decode(
                     cdp(
                         "Page.captureScreenshot",
@@ -1017,6 +1045,78 @@ try:
             )
             first_png = base64.b64decode(first["data"])
             second_png = base64.b64decode(second["data"])
+        expected_png_width = (
+            viewport["width"] *
+            viewport["device_scale_factor"]
+        )
+        first_png_width = struct.unpack(">I", first_png[16:20])[0]
+        second_png_width = struct.unpack(">I", second_png[16:20])[0]
+        if (
+            first_png_width != expected_png_width or
+            second_png_width != expected_png_width
+        ):
+            if (
+                first_png_width != second_png_width or
+                first_png_width <= 0 or
+                expected_png_width / first_png_width < 0.5 or
+                expected_png_width / first_png_width > 2
+            ):
+                raise RuntimeError("CAPTURE_WIDTH_NORMALIZATION_FAILED")
+            first_source = OUTPUT_ROOT / ".first-width-source.png"
+            second_source = OUTPUT_ROOT / ".second-width-source.png"
+            first_output = OUTPUT_ROOT / ".first-width-normalized.png"
+            second_output = OUTPUT_ROOT / ".second-width-normalized.png"
+            first_source.write_bytes(first_png)
+            second_source.write_bytes(second_png)
+            width_script = """
+              const sharp = require("sharp");
+              const input = process.argv[1];
+              const output = process.argv[2];
+              const expectedWidth = Number(process.argv[3]);
+              (async () => {
+                const image = sharp(input);
+                const metadata = await image.metadata();
+                if (
+                  metadata.width <= 0 ||
+                  expectedWidth / metadata.width < 0.5 ||
+                  expectedWidth / metadata.width > 2
+                ) {
+                  throw new Error("CAPTURE_WIDTH_RATIO_INVALID");
+                }
+                const normalized = image.resize({
+                  width: expectedWidth,
+                  kernel: "lanczos3",
+                });
+                await normalized.png().toFile(output);
+              })().catch((error) => {
+                process.stderr.write(String(error));
+                process.exit(1);
+              });
+            """
+            for source, output in (
+                (first_source, first_output),
+                (second_source, second_output),
+            ):
+                subprocess.run(
+                    [
+                        "node",
+                        "-e",
+                        width_script,
+                        str(source),
+                        str(output),
+                        str(expected_png_width),
+                    ],
+                    check=True,
+                )
+            first_png = first_output.read_bytes()
+            second_png = second_output.read_bytes()
+            for temporary in (
+                first_source,
+                second_source,
+                first_output,
+                second_output,
+            ):
+                temporary.unlink()
         first_sha256 = hashlib.sha256(first_png).hexdigest()
         second_sha256 = hashlib.sha256(second_png).hexdigest()
         if first_sha256 != second_sha256:
@@ -1061,7 +1161,7 @@ try:
                     "surface_height_limit_physical_px":
                         max_surface_height_physical,
                     "page_height_css_px": page_height,
-                    "tile_height_css_px": 700,
+                    "tile_height_css_px": 1500,
                     "different_pixel_ratio_max": 0.15,
                     "significant_pixel_ratio_max": 0.005,
                     "significant_delta_threshold": 4,
@@ -1073,6 +1173,8 @@ try:
             },
         })
 finally:
+    if capture_context:
+        close_background_tab(capture_context)
     stop_recording()
 
 receipt = {

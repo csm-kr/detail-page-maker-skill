@@ -13,7 +13,8 @@ import {
   signCloudflarePagesBootstrapReceipt,
 } from "./cloudflare-pages-uploader.mjs";
 
-const EXECUTION_POLICY_ID = "node-permission-register-hooks-memory-v1";
+const EXECUTION_POLICY_ID =
+  "node-permission-register-hooks-memory-auth-read-project-write-v3";
 
 function parseArgs(argv) {
   const [command, ...tokens] = argv;

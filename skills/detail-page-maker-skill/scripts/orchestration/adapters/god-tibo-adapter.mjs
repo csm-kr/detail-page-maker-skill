@@ -9,6 +9,10 @@ import path from "node:path";
 import {
   validateImageWorkOrder,
 } from "../production-contracts.mjs";
+import {
+  SALES_MOTION_SHOT_TYPES,
+  SALES_MOTION_TEMPLATE_IDS,
+} from "../sales-motion-pipeline-contract.mjs";
 
 const SHA256 = /^[a-f0-9]{64}$/;
 const SAFE_MEMBER_ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -17,6 +21,8 @@ const DETAIL_LEVEL = Object.freeze({
   medium: 2,
   high: 3,
 });
+const SHOT_TYPES = new Set(SALES_MOTION_SHOT_TYPES);
+const TEMPLATE_IDS = new Set(SALES_MOTION_TEMPLATE_IDS);
 const RUNNER_SEGMENTS = Object.freeze([
   ".agents",
   "skills",
@@ -242,12 +248,27 @@ function itemSpecIndex(itemSpecs, fanOut) {
         { candidate_id: candidateId },
       );
     }
+    if (
+      !SHOT_TYPES.has(spec?.shot_type) ||
+      !TEMPLATE_IDS.has(spec?.recommended_template) ||
+      typeof spec?.consistency_group !== "string" ||
+      spec.consistency_group.trim().length === 0
+    ) {
+      throw new GodTiboAdapterError(
+        "IMAGE_SHOT_TEMPLATE_METADATA_REQUIRED",
+        "각 candidate는 shot_type, 추천 HyperFrames 템플릿과 consistency group을 가져야 합니다.",
+        { candidate_id: candidateId },
+      );
+    }
     index.set(candidateId, {
       candidate_id: candidateId,
       prompt: spec.prompt.trim(),
       references: spec.references.map((reference) =>
         path.resolve(reference),
       ),
+      shot_type: spec.shot_type,
+      recommended_template: spec.recommended_template,
+      consistency_group: spec.consistency_group.trim(),
     });
   }
   return index;
@@ -306,48 +327,69 @@ function withQualityGate(prompt) {
     : `${prompt}\nQUALITY_GATE:CLEAN_COMMERCIAL`;
 }
 
-function candidateCommand({
+function batchCommand({
   runnerPath,
   staging,
   idempotencyKey,
   config,
-  member,
-  spec,
+  members,
+  specs,
 }) {
-  assertSafeMemberId(member.candidate_id, "candidate_id");
-  assertSafeMemberId(member.worker_id, "worker_id");
-  const candidateRoot = path.join(
+  if (
+    !Array.isArray(members) ||
+    members.length === 0 ||
+    !Array.isArray(specs) ||
+    specs.length !== members.length
+  ) {
+    throw new GodTiboAdapterError(
+      "IMAGE_PROVIDER_BATCH_INVALID",
+      "God Tibo provider batch에는 같은 수의 member와 item spec이 필요합니다.",
+    );
+  }
+  members.forEach((member) => {
+    assertSafeMemberId(member.candidate_id, "candidate_id");
+    assertSafeMemberId(member.worker_id, "worker_id");
+  });
+  const batchRoot = path.join(
     staging,
     "god-tibo",
     idempotencyKey,
-    member.candidate_id,
+    "provider-batch",
   );
-  const jobPath = path.join(candidateRoot, "job.json");
-  const outputDir = path.join(candidateRoot, "output");
+  const jobPath = path.join(batchRoot, "job.json");
+  const outputDir = path.join(batchRoot, "output");
   const jobSpec = {
-    items: [
-      {
+    items: specs.map((spec) => ({
         prompt: withQualityGate(spec.prompt),
         references: [...spec.references],
-      },
-    ],
+      })),
     detail_level: DETAIL_LEVEL[config.detail_level],
-    workers: 1,
-    ...tiboSizeConfig(config, spec),
+    workers: members.length,
+    ...tiboSizeConfig(config, specs[0]),
     output_dir: outputDir,
     gif: false,
   };
-  return {
+  const candidateBindings = members.map((member, index) => ({
+    sequence: index,
     candidate_id: member.candidate_id,
     worker_id: member.worker_id,
     input_sha256: member.input_sha256,
     expected_output_sha256: member.output_sha256,
+    shot_type: specs[index].shot_type,
+    recommended_template: specs[index].recommended_template,
+    consistency_group: specs[index].consistency_group,
+  }));
+  return {
+    batch_id: `god-tibo-${idempotencyKey.slice(0, 16)}`,
+    provider_batch_size: members.length,
+    provider_workers: members.length,
+    candidate_bindings: candidateBindings,
     command: process.execPath,
     argv: [runnerPath, "--job", jobPath],
     cwd: path.dirname(runnerPath),
     env: {
       DETAIL_PAGE_IDEMPOTENCY_KEY: idempotencyKey,
-      DETAIL_PAGE_CANDIDATE_ID: member.candidate_id,
+      DETAIL_PAGE_PROVIDER_BATCH_SIZE: String(members.length),
     },
     job_path: jobPath,
     job_spec: jobSpec,
@@ -381,16 +423,22 @@ export async function buildGodTiboCommandPlan({
       member,
     ]),
   );
-  const commands = candidateIds.map((candidateId) =>
-    candidateCommand({
+  const members = candidateIds.map((candidateId) =>
+    candidatesById.get(candidateId),
+  );
+  const specs = candidateIds.map((candidateId) =>
+    specsById.get(candidateId),
+  );
+  const commands = [
+    batchCommand({
       runnerPath,
       staging,
       idempotencyKey,
       config,
-      member: candidatesById.get(candidateId),
-      spec: specsById.get(candidateId),
+      members,
+      specs,
     }),
-  );
+  ];
   const planPayload = {
     adapter: "GodTiboImageAdapter",
     runner_path: runnerPath,
@@ -420,6 +468,9 @@ export async function buildGodTiboCommandPlan({
         config.size_confirmation_decision_id,
       gif_output: "forbidden",
       planned_candidate_ids: [...candidateIds],
+      provider_batch_count: 1,
+      provider_batch_size: candidateIds.length,
+      provider_workers: candidateIds.length,
     },
   });
 }

@@ -350,24 +350,24 @@ export function validateImageWorkOrder(workOrder) {
     return result(errors);
   }
 
-  if (!isPositiveInteger(config.items) || config.items > 8) {
+  if (!isPositiveInteger(config.items) || config.items > 32) {
     addError(
       errors,
       "IMAGE_ITEM_LIMIT_EXCEEDED",
       "execution_config.items",
-      "items는 명시적인 1~8 정수여야 합니다.",
+      "items는 명시적인 1~32 정수여야 합니다.",
     );
   }
   if (
     !isPositiveInteger(config.workers) ||
-    config.workers > 8 ||
+    config.workers > 32 ||
     config.workers > config.items
   ) {
     addError(
       errors,
       "INVALID_IMAGE_WORKERS",
       "execution_config.workers",
-      "workers는 items 이하의 명시적인 1~8 정수여야 합니다.",
+      "workers는 items 이하의 명시적인 1~32 정수여야 합니다.",
     );
   }
   if (!IMAGE_DETAIL_LEVELS.has(config.detail_level)) {
@@ -747,6 +747,21 @@ export function validateMotionProductionChain(chain) {
     chain.render.digest,
     "gif.render_digest",
   );
+  if (
+    chain.render.output_format !== "mp4" ||
+    chain.render.audio !== "silent" ||
+    chain.gif.conversion_engine !== "ffmpeg" ||
+    chain.gif.source_format !== "mp4" ||
+    chain.gif.output_format !== "gif" ||
+    !isSha256(chain.gif.animated_webp_digest)
+  ) {
+    addError(
+      errors,
+      "MP4_FFMPEG_ANIMATION_DERIVATIVES_REQUIRED",
+      "render/gif",
+      "HyperFrames 무음 MP4 정본에서 FFmpeg로 GIF와 animated WebP를 파생해야 합니다.",
+    );
+  }
   checkDigestEdge(
     errors,
     chain.final_qa.subject_gif_digest,
@@ -798,11 +813,12 @@ export function validateMotionProductionChain(chain) {
     semanticQa?.meaningful_state_change !== true ||
     semanticQa?.static_superiority !== true ||
     semanticQa?.pattern_distinct_from_adjacent !== true ||
-    semanticQa?.overlay_only !== false ||
+    semanticQa?.decorative_overlay_only !== false ||
+    semanticQa?.information_overlay_verified !== true ||
     !isNonEmptyString(semanticQa?.visible_delta_observation) ||
     !Number.isFinite(semanticQa?.answer_within_seconds) ||
     semanticQa.answer_within_seconds <= 0 ||
-    semanticQa.answer_within_seconds > 2 ||
+    semanticQa.answer_within_seconds > 1 ||
     semanticFrameDigests.some((digest) => !isSha256(digest)) ||
     new Set(semanticFrameDigests).size < 2
   ) {
@@ -810,7 +826,7 @@ export function validateMotionProductionChain(chain) {
       errors,
       "GIF_SEMANTIC_QA_NOT_PASSED",
       "final_qa.semantic_motion_quality",
-      "Motion QA는 구매 질문, 의미 상태 변화, 정지 대비 설명력, 인접 패턴 차이와 first/mid/last frame evidence를 검증해야 합니다.",
+      "Motion QA는 구매 질문, 정보성 그래픽 변화, 1초 설명력, 인접 패턴 차이와 first/mid/last frame evidence를 검증해야 합니다.",
     );
   }
   if (chain.asset_approval.decision !== "approved") {

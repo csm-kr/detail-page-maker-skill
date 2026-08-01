@@ -38,7 +38,8 @@
     "minimum_distinct_scene_kinds": 4,
     "maximum_isolated_product_ratio": 0.35,
     "minimum_distinct_motion_patterns": 4,
-    "overlay_only_motion_allowed": false
+    "decorative_overlay_only_motion_allowed": false,
+    "information_overlay_on_fixed_product_allowed": true
   },
   "ambition_anchors": [
     {

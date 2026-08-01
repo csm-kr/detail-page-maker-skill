@@ -29,6 +29,7 @@ import {
   normalizeAgentSessionIds,
   resolveWorkerAllocation,
 } from "./orchestration/agent-capacity.mjs";
+import { analyzePerformanceTrace } from "./orchestration/performance-profile.mjs";
 import {
   createDependencyClosureReceipt,
   inspectDependencyClosure,
@@ -179,7 +180,8 @@ function probeGodTiboRuntime(localSkill) {
     path: skillRoot || null,
     runnerPath: existsSync(runnerPath || "") ? runnerPath : null,
     runtimeInstalled: existsSync(runtimePackagePath || ""),
-    orchestratorItemChunkSize: 8,
+    defaultProviderBatchSize: 32,
+    defaultProviderWorkers: 32,
     detail: ok
       ? null
       : "내장 God Tibo GPT Image 2 실행 환경이 없습니다. Git 원본에서 상위 스킬 하나를 다시 설치하거나 업데이트하세요.",
@@ -193,6 +195,7 @@ Commands:
   doctor
   agent-capacity [--worker-capacity <N|auto>] [--worker-sessions <ID[,ID]>]
                  [--workspace <workspace-folder>]
+  performance-profile [--trace <JSON-file|JSON>]
   workflow-status --project <project-folder> --project-id <ID> --input-digest <SHA-256>
   workflow-advance --project <project-folder> --project-id <ID> --input-digest <SHA-256>
                    [--worker-capacity <N|auto> --worker-sessions <ID[,ID]>]
@@ -482,6 +485,13 @@ async function main() {
         2,
       ),
     );
+    return;
+  }
+  if (command === "performance-profile") {
+    const trace = args.trace
+      ? readJsonArgument(args.trace, "PerformanceTrace")
+      : [];
+    console.log(JSON.stringify(analyzePerformanceTrace(trace), null, 2));
     return;
   }
   if (command === "experience-init") {

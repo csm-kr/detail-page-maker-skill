@@ -23,7 +23,8 @@ WorkOrder를 발급하지 않는다.
 
 1. 고객 구매 질문, `claim_id`, 부품, 시작·중간·끝 상태와 눈에 보이는 변화량을
    잠근다.
-2. `imagegen-seq | heygenframe | hybrid` 중 증명에 필요한 최소 방법을 고른다.
+2. `fixed-product-graphics | aligned-state-pair | verified-layered-assets` 중
+   증명에 필요한 최소 정보 전달 방식을 고른다.
 3. 주장과 직접 연결된 주 FX를 하나 고르고, 장식 FX는 보조로만 둔다.
 4. 승인 제품 이미지와 실제 좌표를 입력으로 사용한다.
 5. HyperFrames 원본을 `.detail-page/generation/hyperframes/projects/`에 만든다.
@@ -38,7 +39,10 @@ WorkOrder를 발급하지 않는다.
 - `customer_question`, `feature_part`, `method`, `pattern_id`
 - `start_state`, `mid_state`, `end_state`, `visible_delta`
 - `motion_reason`, `static_insufficiency`, `background_contrast`
-- `answer_within_seconds` 2 이하, `overlay_only: false`
+- `template_id: T1~T10`, `one_message: true`, `answer_within_seconds` 1 이하
+- `information_delivery_mode`, `decorative_overlay_only: false`,
+  `product_geometry_locked: true`, `generative_product_morphing_allowed: false`
+- 기본 전환 한 계열, 강조 전환 최대 2개, 강한 효과의 허용 용도
 - 폭 780 canvas, FPS, 길이, `gif | animated-webp | gif+animated-webp`
 - `placement_scale: chapter | full-width`
 - `applied_rule_ids`, frozen rule packet digest, reference profile digest
@@ -51,12 +55,12 @@ session은 달라야 하며 실패한 motion과 실제 descendant만 다시 실�
 
 | 방법 | 사용할 때 | 필수 원본 |
 | --- | --- | --- |
-| `imagegen-seq` | 원단 변형·접힘처럼 정지 이미지 사이의 유기적 변화가 핵심일 때 | 동일 제품의 승인된 시작·중간·끝 프레임 |
-| `heygenframe` | 비교선·치수선·구조 추적·단계·수량처럼 좌표 기반 설명이 핵심일 때 | 승인 이미지와 실제 앵커 좌표 |
-| `hybrid` | 생성 이미지의 상태 변화와 좌표 기반 라벨·마스크·경로가 모두 필요할 때 | 승인 키프레임과 HyperFrames 원본 |
+| `fixed-product-graphics` | 치수선·콜아웃·단계·수량·데이터 카드처럼 좌표 기반 설명이 핵심일 때 | 승인 이미지와 실제 anchor/bbox |
+| `aligned-state-pair` | 설치 전후·열림/닫힘 등 실제 두 상태 비교가 핵심일 때 | 중심·크기·방향·카메라가 정렬된 실제 pair |
+| `verified-layered-assets` | 실제 다층·구성요소의 분리·재결합이 핵심일 때 | 검증된 layer PNG 또는 구성품 자산 |
 
-방법 이름은 사용자 문서와 manifest에 그대로 기록한다. 실제 엔진은
-`heygenframe` 표기를 쓰더라도 HyperFrames이며, 렌더 원본을 함께 보존한다.
+상세 템플릿·샷 계약·신뢰도 fallback·변환 명령은
+[`hyperframes-sales-motion.md`](hyperframes-sales-motion.md)를 따른다.
 
 ## 주 패턴
 
@@ -70,9 +74,9 @@ session은 달라야 하며 실패한 motion과 실제 descendant만 다시 실�
 | 어디부터 어디까지인가 | 치수 위치 가이드 |
 | 분위기·상태가 어떻게 바뀌는가 | 짧은 매치컷·쿨 스윕 |
 
-장식만 움직이는 줌·광선·입자는 증거로 인정하지 않는다.
-제품·부품·사용 과정은 그대로인데 선·원·라벨·카드만 움직이는 결과도 장식으로
-판정한다. 인접 motion은 같은 `pattern_id`를 반복하지 않으며 꼭 필요한 경우
+정보가 늘지 않는 줌·광선·입자는 증거로 인정하지 않는다. 제품은 고정되어 있어도
+정확한 선·원·라벨·카드가 치수·부위·단계·구성·작동 원리를 새로 설명하면 유효한
+정보형 모션이다. 인접 motion은 같은 `pattern_id`를 반복하지 않으며 꼭 필요한 경우
 구매 질문이 달라지는 구체적 사유를 남긴다.
 
 ## 검증된 누적 모션 규칙
@@ -91,10 +95,14 @@ session은 달라야 하며 실패한 motion과 실제 descendant만 다시 실�
 | MR-010 | 외부 모션 도구의 복합 옵션은 분할 추정하지 않고 검증된 단일 인자 값으로 보존하며 strict check와 render 영수증에 실제 실행 인자 전체를 기록한다. | preview와 render가 같은 정규화 옵션을 쓰고 실행 영수증의 exact 인자로 재현되며 strict 오류·경고가 0건이다. | 2026-07-30 |
 | MR-011 | 여러 motion의 preview와 render 결과는 member 식별자를 정렬한 manifest로 집계하고 fan-out 전체를 반복 검증한 뒤 독립 QA에 제출한다. | 계획된 motion 집합과 제출 집합이 정확히 같고 중복·누락 0건이며 모든 first·mid·last와 반복 경계가 PASS한다. | 2026-07-30 |
 | MR-012 | 정지 QA는 승인 poster로 모션 소스를 제거하고 이미지 decode를 마친 뒤 두 번 촬영하며 GPU 재샘플링은 변화 픽셀 비율과 유의·심각 차이 임계치를 함께 기록해 실제 모션과 구분한다. | 실제 모션 잔존 0건, 두 촬영의 구조 동일, 유의·심각 차이가 허용 임계치 이하이고 최대 채널 차이가 기록된다. | 2026-07-30 |
-| MR-013 | 각 motion은 고객 질문, 기능 부위, 시작·중간·끝 상태, visible delta, 정지 한계, 2초 내 답, 배경 대비를 잠그며 제품·부품·사용 과정은 그대로이고 overlay만 움직이는 결과를 coverage로 세지 않는다. | first/mid/last semantic frame evidence, 질문 답변 2초 이하, overlay-only 0건 | 2026-07-31 |
+| MR-013 | 각 motion은 고객 질문, 기능 부위, 시작·중간·끝 정보 상태, visible delta, 정지 한계, 1초 내 답, 배경 대비를 잠근다. 제품이 고정돼도 검증된 치수·위치·단계·구성 정보를 전달하는 overlay는 인정하고 정보가 늘지 않는 장식-only만 금지한다. | first/mid/last semantic frame evidence, 질문 답변 1초 이하, decorative-overlay-only 0건 | 2026-08-01 |
 | MR-014 | 인접 motion은 같은 pattern과 구도를 반복하지 않고 주장에 맞는 비교·구조 추적·국소 작동·절차·구성·치수 패턴을 구분한다. | 인접 pattern ID 중복 0건 또는 구매 질문이 달라지는 구체적 재사용 사유 | 2026-07-31 |
 | MR-015 | 공개 export는 저작 motion source를 실제 animation src로 보존하고 public DOM·manifest·`output/media/gifs` bytes·frame count를 post-export에서 닫는다. Poster는 fallback일 뿐 전달 motion으로 세지 않는다. | planned/public/manifest/file 수 일치, animation frame 2+, poster-only 0건 | 2026-07-31 |
 | MR-016 | 선택 category cohort의 필수 motion family를 실제 GIF brief에 바인딩하고 전체에서 서로 다른 pattern을 4종 이상 사용한다. G5 공개 결과의 motion semantic delta가 cohort보다 낮으면 개수와 기술 점수에 관계없이 실패한다. | family→brief 누락 0, distinct pattern 4+, category cohort motion delta 회귀 0 | 2026-07-31 |
+| MR-017 | GIF마다 목적·카메라·핵심 변화·전환·강조 그래픽을 표로 먼저 정하고 인접 GIF는 이 네 축 중 최소 두 축이 달라야 한다. GIF 수보다 서로 다른 증명 방식의 수를 우선한다. | 인접 모션 differing-axis 2+, 목적 중복 0건 | 2026-08-01 |
+| MR-018 | 모든 GIF 첫 프레임은 제품 또는 문제 상황, 한 줄 핵심 메시지, 기능을 이해할 시각 근거를 함께 보여 주며 애니메이션은 이미 이해된 메시지를 강화해야 한다. | first-frame 단독 1초 이해 QA와 필수 요소 3개 | 2026-08-01 |
+| MR-019 | 좋은 loop는 첫·끝 픽셀 경계뿐 아니라 속도·방향·밝기·카메라 움직임의 지각적 연속성을 통과해야 하며 ping-pong·순환·고정 콜아웃·가림 초기화·연속 슬라이드 중 목적에 맞는 방식을 고른다. | pixel boundary와 perceptual continuity 모두 PASS | 2026-08-01 |
+| MR-020 | 모든 생성·모션 프레임은 canonical 제품 참조와 색·형태·부품·비율·구성의 불변 조건 네 개 이상을 유지하며 제품 구조가 중간에 바뀌는 생성형 모핑을 금지한다. | first/mid/last identity invariant PASS, morphing 0건 | 2026-08-01 |
 
 HeyGenFrame/HyperFrames 제작 run을 `exps/*.md`에 `frame-production`,
 `promotion: auto`로 넣으면 strict frame-check PASS, 시작·중간·끝 근거,
@@ -148,6 +156,8 @@ HeyGenFrame/HyperFrames 제작 run을 `exps/*.md`에 `frame-production`,
   애니메이션 WebP로 변환해 지속 재생한다.
 - Studio의 390 CSS px 편집 화면과 780px 전달 자산은 같은 section order와
   첫·마지막 메시지를 유지한다.
+- HyperFrames는 결정론적 무음 MP4를 한 번 렌더한다. GIF와 animated WebP는
+  그 MP4에서 FFmpeg로 파생하며 HyperFrames 직접 GIF 렌더를 기본 경로로 쓰지 않는다.
 
 ## 하드 게이트
 
@@ -160,9 +170,10 @@ HeyGenFrame/HyperFrames 제작 run을 `exps/*.md`에 `frame-production`,
 - `check --strict --frame-check` 오류·경고 0개
 - 승인된 원본, 렌더 명령, FPS, 길이, 해시 기록
 - `detail-page-flow-v1`의 역할 coverage와 전체 motion 개수 통과
-- 구매 질문 하나를 2초 안에 답하고 first/mid/last 중 적어도 두 상태가 의미적으로
+- 구매 질문 하나를 1초 안에 답하고 first/mid/last 중 적어도 두 정보 상태가 의미적으로
   다르며 정지 이미지보다 설명력이 크다는 독립 QA
-- 인접 pattern 차별성, overlay-only 0건, visible delta observation
+- 인접 pattern 차별성, decorative-overlay-only 0건, 정보 overlay 정확성,
+  visible delta observation
 - 일반 HTML offscreen poster·재진입 재시작·reduced-motion 검사
 - 일반 HTML과 Wing의 public DOM→manifest→실파일 closure, animation frame 2+,
   780px·반복·파일 hash 검사. Poster는 fallback일 뿐 전달 motion으로 세지 않는다.
