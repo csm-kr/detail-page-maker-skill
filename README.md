@@ -7,37 +7,38 @@ Studio v1, `output/detail-page.html`, 쿠팡 Wing CDN 출력을 만드는 단일
 
 ## 제작 예시
 
-<p align="center">
-  <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80-v4.html">
-    <img src="examples/previews/sticky-trap-detail-v4.png" width="390" alt="해충 끈끈이 상세페이지 v4 미리보기">
-  </a>
-</p>
-<p align="center">
-  <strong>1. 해충-끈끈이-상세페이지-v4</strong><br>
-  <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80-v4.html">실제 HTML로 더 보기 →</a>
-</p>
+<table>
+  <thead>
+    <tr>
+      <th align="center">해충-끈끈이-상세페이지-v4</th>
+      <th align="center">coupang-wing-detail-780</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center">
+        <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80-v4.html">
+          <img src="examples/previews/sticky-trap-detail-v4.png" width="360" alt="해충 끈끈이 상세페이지 v4 미리보기">
+        </a>
+      </td>
+      <td align="center">
+        <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/coupang-wing-detail-780.html">
+          <img src="examples/previews/coupang-wing-detail-780.png" width="360" alt="쿠팡 Wing 상세페이지 780px 미리보기">
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td align="center"><a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80-v4.html"><strong>실제 HTML로 더 보기 →</strong></a></td>
+      <td align="center"><a href="https://csm-kr.github.io/detail-page-maker-skill/examples/coupang-wing-detail-780.html"><strong>실제 HTML로 더 보기 →</strong></a></td>
+    </tr>
+  </tbody>
+</table>
 
-<p align="center">
-  <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/coupang-wing-detail-780.html">
-    <img src="examples/previews/coupang-wing-detail-780.png" width="390" alt="쿠팡 Wing 상세페이지 780px 미리보기">
-  </a>
-</p>
-<p align="center">
-  <strong>2. coupang-wing-detail-780</strong><br>
-  <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/coupang-wing-detail-780.html">실제 HTML로 더 보기 →</a>
-</p>
+## 설치
 
-## 한 줄 설치
-
-macOS, Ubuntu, Windows에서 대상 프로젝트 폴더를 연 뒤 같은 명령을 실행한다.
-GitHub 저장소에서 `detail-page-maker-skill` 하나만 프로젝트 로컬로 받는다.
-현재 비공개 저장소에 처음 연결하는 컴퓨터는 접근 권한이 있는 계정으로 아래
-인증을 한 번 마친다.
-
-```sh
-gh auth login
-gh auth setup-git
-```
+공개 저장소이므로 별도 GitHub 인증 없이 macOS, Ubuntu, Windows의 대상 프로젝트
+폴더에서 아래 명령을 한 번 실행한다. `detail-page-maker-skill`과 내장 연관 스킬이
+프로젝트 로컬에 함께 설치된다.
 
 ```sh
 npx skills add https://github.com/csm-kr/detail-page-maker-skill --skill detail-page-maker-skill --agent codex --yes --copy
@@ -60,7 +61,7 @@ npx skills update detail-page-maker-skill --project --yes
 
 ## 실행 검사
 
-Node.js 22.15.0 이상과 GitHub CLI가 필요하다. GIF 제작에는 `ffmpeg`가 필요하고, motion 작업 시
+Node.js 22.15.0 이상, Git, npm/npx가 필요하다. GIF 제작에는 `ffmpeg`가 필요하고, motion 작업 시
 내장 HyperFrames 절차가 `npx hyperframes`로 프로젝트 로컬 런타임을 준비한다.
 실제 브라우저 수집·검수에는 `browser-harness` 실행 파일이 필요하다. 이들은
 별도 스킬이 아니라 세 운영체제에서 사용하는 실행 프로그램이다.
@@ -95,8 +96,9 @@ node tests/remote-git-install.mjs
 - 이미지·GIF: `<project>/output/media/`
 - 새 프로젝트 기본 루트: `.workspace/projects/`
 
-공급처 원본, 생성 이미지, GIF, 영상, QA 캡처와 프로젝트 실행 상태는 Git 배포물에
-포함하지 않는다. Git에는 단일 스킬, 증류된 규칙, 회귀 테스트만 둔다.
+실행 중 수집·생성되는 공급처 원본, 이미지, GIF, 영상, QA 캡처와 프로젝트 상태는
+Git 배포물에 포함하지 않는다. Git에는 단일 스킬, 증류된 규칙, 회귀 테스트와
+README에서 공개하는 선별 예시만 둔다.
 
 스킬 실행 계약은
 [`skills/detail-page-maker-skill/SKILL.md`](skills/detail-page-maker-skill/SKILL.md)에
