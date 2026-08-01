@@ -27,6 +27,11 @@ npx skills add https://github.com/csm-kr/detail-page-maker-skill --skill detail-
 $detail-page-maker-skill로 이 공급처 상품의 상세페이지를 만들어줘: <공급처 URL>
 ```
 
+## 제작 예시
+
+1. [해충-끈끈이-상세페이지-v4](examples/해충-끈끈이-상세페이지-v4.html)
+2. [coupang-wing-detail-780](examples/coupang-wing-detail-780.html)
+
 ## 업데이트
 
 ```sh
