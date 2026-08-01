@@ -53,6 +53,58 @@ test("ProductionPlan 결정이 네 사람용 기획 문서에 실제로 물질�
           },
         ],
       },
+      benchmark_assembly: {
+        supplier: { url: "https://supplier.example/product/1" },
+        photo_intake: {
+          asked_once: true,
+          status: "no_response",
+          on_missing: "continue_with_supplier_same_sku",
+          ssot_priority: ["user_actual_photos", "supplier_same_sku"],
+        },
+        search_strategy: {
+          adapter: "searchmaster-compatible-commerce-search",
+          primary_channel: "coupang",
+          match_priority: ["same_sku", "same_category", "adjacent_category"],
+          minimum_competitors: 3,
+          rank_signals: ["sales_volume", "review_count"],
+        },
+        competitors: [
+          { competitor_id: "comp-a", channel: "coupang", match_tier: "same_sku" },
+          { competitor_id: "comp-b", channel: "coupang", match_tier: "same_category" },
+          { competitor_id: "comp-c", channel: "naver", match_tier: "same_category" },
+        ],
+        primary_backbone: {
+          competitor_id: "comp-a",
+          selection_reason: "동일 SKU 중 판매 흐름이 가장 선명함",
+        },
+        borrowed_strengths: [
+          {
+            competitor_id: "comp-b",
+            target_section_id: "section-solution",
+            source_point: "구조 확대 설명",
+            adapted_copy_intent: "자사 제품 구조를 한눈에 설명",
+          },
+        ],
+        section_design_references: [
+          { section_id: "section-solution", competitor_id: "comp-c" },
+        ],
+        own_product_rewrite: {
+          product_ssot_artifact_id: "product-ssot-1",
+          locked_section_order: ["section-solution"],
+          rewrites: [
+            {
+              section_id: "section-solution",
+              own_product_copy: "실제 제품 구조를 크게 확인하세요.",
+              claim_ids: ["claim-observed-structure"],
+            },
+          ],
+        },
+        advantage_policy: {
+          surface_supported_advantages: true,
+          certificate_required_claims_need_evidence: true,
+          unsupported_quantitative_claims_forbidden: true,
+        },
+      },
       commercial_flow: {
         section_role_order: [
           "hero",
@@ -157,13 +209,25 @@ test("ProductionPlan 결정이 네 사람용 기획 문서에 실제로 물질�
       projectRoot: root,
       productionPlan: plan,
     });
-    assert.equal(result.documents.length, 4);
+    assert.equal(result.documents.length, 5);
     for (const document of result.documents) {
       assert.match(document.sha256, /^[a-f0-9]{64}$/);
       const text = await readFile(path.join(root, document.path), "utf8");
       assert.match(text, /production_plan_sha256/);
       assert.doesNotMatch(text, /\{\{[^}]+\}\}/);
     }
+    assert.match(
+      await readFile(
+        path.join(
+          root,
+          ".detail-page",
+          "planning",
+          "BENCHMARK-ASSEMBLY.md",
+        ),
+        "utf8",
+      ),
+      /동일 SKU 중 판매 흐름이 가장 선명함/,
+    );
     assert.match(
       await readFile(
         path.join(

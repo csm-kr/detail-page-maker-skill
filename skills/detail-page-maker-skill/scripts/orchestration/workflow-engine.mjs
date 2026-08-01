@@ -52,7 +52,8 @@ const ITEM_FRONTIER_ONLY_STAGES = new Set([
   "G3R_RENDER",
 ]);
 export const PLAN_ONCE_FAST_PATH_POLICY_ID =
-  "policy.approval.plan-once-with-actual-photos.v1";
+  "policy.approval.url-only-autocontinue.v1";
+export const PLAN_APPROVAL_TIMEOUT_MS = 120_000;
 const PLAN_ONCE_MANUAL_GATE = "G1U_APPROVAL";
 const PLAN_ONCE_PRE_PLAN_AUTO_GATES = new Set([
   "G0U_APPROVAL",
@@ -132,6 +133,48 @@ export function hasVerifiedActualProductPhotoSet(state) {
   });
 }
 
+export function hasVerifiedSupplierSameSkuSet(state) {
+  return (state?.graph?.artifacts ?? []).some((artifact) => {
+    if (
+      artifact?.type !== "evidence.supplier_snapshot" ||
+      artifact?.status !== "fresh" ||
+      artifact?.member_manifest?.policy !== "materialized" ||
+      !Array.isArray(artifact?.member_ids) ||
+      artifact.member_ids.length === 0 ||
+      !Array.isArray(artifact?.member_manifest?.members) ||
+      artifact.member_manifest.members.length !== artifact.member_ids.length
+    ) {
+      return false;
+    }
+    const ids = new Set(artifact.member_ids.map(String));
+    const materialized = artifact.member_manifest.members.every(
+      (member) =>
+        ids.has(String(member?.member_id ?? "")) &&
+        member?.root_id === "project" &&
+        Number.isSafeInteger(member?.size_bytes) &&
+        member.size_bytes > 0 &&
+        /^[a-f0-9]{64}$/.test(String(member?.sha256 ?? "")),
+    );
+    const sameSkuIdentity = (artifact?.payload?.files ?? []).some(
+      (file) =>
+        file?.source_kind === "supplier_same_sku" &&
+        file?.same_sku_verified === true &&
+        file?.kind === "product_thumbnail" &&
+        ["identity_reference", "production_licensed"].includes(
+          file?.classification,
+        ),
+    );
+    return materialized && sameSkuIdentity;
+  });
+}
+
+export function hasVerifiedProductIdentitySource(state) {
+  return (
+    hasVerifiedActualProductPhotoSet(state) ||
+    hasVerifiedSupplierSameSkuSet(state)
+  );
+}
+
 export function hasManualPlanApproval(state) {
   return (state?.graph?.artifacts ?? []).some((artifact) => {
     const receipt = artifact?.approval_receipt;
@@ -140,24 +183,62 @@ export function hasManualPlanApproval(state) {
       artifact?.status === "fresh" &&
       artifact?.produced_by_stage === PLAN_ONCE_MANUAL_GATE &&
       receipt?.decision === "approved" &&
-      receipt?.approval_channel !== "policy_auto_after_plan" &&
+      ![
+        "policy_auto_after_plan",
+        "policy_auto_after_timeout",
+      ].includes(receipt?.approval_channel) &&
       typeof receipt?.decided_by === "string" &&
       receipt.decided_by.trim().length > 0
     );
   });
 }
 
-export function planOnceFastPathDecision(state, stageId) {
+export function hasAcceptedPlanApproval(state) {
+  return (state?.graph?.artifacts ?? []).some((artifact) => {
+    const receipt = artifact?.approval_receipt;
+    return (
+      artifact?.type === "decision.plan_approval" &&
+      artifact?.status === "fresh" &&
+      artifact?.produced_by_stage === PLAN_ONCE_MANUAL_GATE &&
+      receipt?.decision === "approved" &&
+      typeof receipt?.approval_channel === "string" &&
+      receipt.approval_channel.length > 0 &&
+      receipt.approval_channel !== "policy_auto_after_plan" &&
+      typeof receipt?.decided_by === "string" &&
+      receipt.decided_by.trim().length > 0
+    );
+  });
+}
+
+export function planOnceFastPathDecision(
+  state,
+  stageId,
+  { challenge = null, now = new Date() } = {},
+) {
   if (stageId === PLAN_ONCE_MANUAL_GATE) {
+    const deadline = Date.parse(challenge?.auto_continue_at ?? "");
+    if (
+      hasVerifiedProductIdentitySource(state) &&
+      challenge?.status === "awaiting_user" &&
+      Number.isFinite(deadline) &&
+      now.getTime() >= deadline
+    ) {
+      return {
+        auto_approve: true,
+        phase: "plan_timeout",
+        policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
+      };
+    }
     return {
       auto_approve: false,
-      reason: "manual_plan_approval_required",
+      reason: "plan_approval_or_timeout_required",
+      timeout_ms: PLAN_APPROVAL_TIMEOUT_MS,
     };
   }
-  if (!hasVerifiedActualProductPhotoSet(state)) {
+  if (!hasVerifiedProductIdentitySource(state)) {
     return {
       auto_approve: false,
-      reason: "verified_actual_product_photos_required",
+      reason: "verified_product_identity_source_required",
     };
   }
   if (PLAN_ONCE_PRE_PLAN_AUTO_GATES.has(stageId)) {
@@ -168,10 +249,10 @@ export function planOnceFastPathDecision(state, stageId) {
     };
   }
   if (PLAN_ONCE_POST_PLAN_AUTO_GATES.has(stageId)) {
-    if (!hasManualPlanApproval(state)) {
+    if (!hasAcceptedPlanApproval(state)) {
       return {
         auto_approve: false,
-        reason: "manual_plan_approval_required",
+        reason: "accepted_plan_approval_required",
       };
     }
     return {
@@ -2976,6 +3057,7 @@ export function createWorkflowEngine({
   }
 
   function createApprovalChallenge(state, userGate, inputs) {
+    const createdAt = nowDate();
     const challenge = {
       challenge_id: `challenge-${randomUUID()}`,
       project_id: state.project_id,
@@ -2988,7 +3070,14 @@ export function createWorkflowEngine({
         workOrderInputRefs(inputs),
       ),
       status: "awaiting_user",
-      created_at: nowDate().toISOString(),
+      created_at: createdAt.toISOString(),
+      ...(userGate.stage_id === PLAN_ONCE_MANUAL_GATE
+        ? {
+            auto_continue_at: new Date(
+              createdAt.getTime() + PLAN_APPROVAL_TIMEOUT_MS,
+            ).toISOString(),
+          }
+        : {}),
     };
     state.challenges[challenge.challenge_id] = challenge;
     state.stages[userGate.stage_id].status = "awaiting_user";
@@ -3031,9 +3120,17 @@ export function createWorkflowEngine({
         challenge.subject_artifact_set_digest,
       ).slice(0, 12)}`,
       reason:
-        "검증된 input/product 원본 사진과 사용자 승인 G1 ProductionPlan에 따른 자동 진행",
-      decided_by: "plan-once-fast-path-policy",
-      approval_channel: "policy_auto_after_plan",
+        fastPath.phase === "plan_timeout"
+          ? "기획안을 공개한 뒤 120초 동안 명시적 반려가 없어 URL-only 자동 진행"
+          : "검증된 제품 동일성 SSOT와 승인된 G1 ProductionPlan에 따른 자동 진행",
+      decided_by:
+        fastPath.phase === "plan_timeout"
+          ? "url-only-autocontinue-policy"
+          : "plan-once-fast-path-policy",
+      approval_channel:
+        fastPath.phase === "plan_timeout"
+          ? "policy_auto_after_timeout"
+          : "policy_auto_after_plan",
       policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
       automatic: true,
       phase: fastPath.phase,
@@ -3117,9 +3214,12 @@ export function createWorkflowEngine({
       state.flags.plan_once_fast_path?.auto_approved_stage_ids ?? [];
     state.flags.plan_once_fast_path = {
       policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
-      actual_product_photos_verified: true,
-      manual_plan_approval_verified:
-        hasManualPlanApproval(state),
+      actual_product_photos_verified:
+        hasVerifiedActualProductPhotoSet(state),
+      supplier_same_sku_verified:
+        hasVerifiedSupplierSameSkuSet(state),
+      accepted_plan_approval_verified:
+        hasAcceptedPlanApproval(state),
       auto_approved_stage_ids: [
         ...new Set([...previous, userGate.stage_id]),
       ],
@@ -3161,9 +3261,16 @@ export function createWorkflowEngine({
               ready.includes(item.stage_id),
           );
       if (userGate) {
-        const fastPath = planOnceFastPathDecision(
+        let fastPath = planOnceFastPathDecision(
           state,
           userGate.stage_id,
+          {
+            challenge:
+              awaitingChallenge?.stage_id === userGate.stage_id
+                ? awaitingChallenge
+                : null,
+            now: nowDate(),
+          },
         );
         const workReady = ready.filter(
           (stageId) => !definitions.get(stageId).user_gate,
@@ -3172,7 +3279,7 @@ export function createWorkflowEngine({
           state.stages.G0B_PHOTO?.status;
         if (
           fastPath.reason ===
-            "verified_actual_product_photos_required" &&
+            "verified_product_identity_source_required" &&
           PLAN_ONCE_PRE_PLAN_AUTO_GATES.has(userGate.stage_id) &&
           ["pending", "running"].includes(photoIntakeStatus)
         ) {
@@ -3215,6 +3322,11 @@ export function createWorkflowEngine({
             inputs,
           );
         }
+        fastPath = planOnceFastPathDecision(
+          state,
+          userGate.stage_id,
+          { challenge, now: nowDate() },
+        );
         if (fastPath.auto_approve) {
           autoApprovals.push(
             autoApprovePlanOnceGate(
@@ -3236,6 +3348,13 @@ export function createWorkflowEngine({
           kind: "AwaitUser",
           stage_id: userGate.stage_id,
           challenge: structuredClone(challenge),
+          ...(challenge.auto_continue_at
+            ? {
+                auto_continue_at: challenge.auto_continue_at,
+                auto_continue_policy_id:
+                  PLAN_ONCE_FAST_PATH_POLICY_ID,
+              }
+            : {}),
           notifications,
           auto_approvals: autoApprovals,
         };

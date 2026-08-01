@@ -9,6 +9,7 @@
 - 기본 작업 단위: 서로 다른 용도의 32개 `items`를 한 job에 명시
 - 기본 동시 실행: `workers: 32`, `single_concurrent_batch`
 - 32개를 8개씩 네 번 나누는 순차 실행은 금지한다.
+- `items`와 `workers`를 명시하며 God Tibo의 기본값을 사용하지 않는다.
 - 생성: 명시한 W×H를 갖는 `controllable`
 - 편집: 입력 크기를 보존하는 `invariant`
 - 모든 프롬프트: `QUALITY_GATE:CLEAN_COMMERCIAL`

@@ -3,9 +3,12 @@ import test from "node:test";
 
 import {
   PLAN_ONCE_FAST_PATH_POLICY_ID,
+  PLAN_APPROVAL_TIMEOUT_MS,
   createWorkflowEngine,
+  hasAcceptedPlanApproval,
   hasManualPlanApproval,
   hasVerifiedActualProductPhotoSet,
+  hasVerifiedSupplierSameSkuSet,
   planOnceFastPathDecision,
 } from "../orchestration/workflow-engine.mjs";
 import {
@@ -56,6 +59,45 @@ function addManualPlanApproval(state) {
   return state;
 }
 
+function stateWithSupplierSameSku() {
+  return {
+    graph: {
+      artifacts: [
+        {
+          artifact_id: "supplier-snapshot-1",
+          type: "evidence.supplier_snapshot",
+          status: "fresh",
+          member_ids: ["thumb.jpg"],
+          member_manifest: {
+            schema_version: "1.0",
+            policy: "materialized",
+            members: [
+              {
+                member_id: "thumb.jpg",
+                root_id: "project",
+                locator: ".detail-page/evidence/supplier/thumb.jpg",
+                size_bytes: 2048,
+                sha256: "b".repeat(64),
+              },
+            ],
+          },
+          payload: {
+            files: [
+              {
+                member_id: "thumb.jpg",
+                kind: "product_thumbnail",
+                source_kind: "supplier_same_sku",
+                same_sku_verified: true,
+                classification: "identity_reference",
+              },
+            ],
+          },
+        },
+      ],
+    },
+  };
+}
+
 test("원본 사진이 검증되면 G1 전 gate는 자동이고 G1 기획은 수동이다", () => {
   const state = stateWithActualPhotos();
   assert.equal(hasVerifiedActualProductPhotoSet(state), true);
@@ -71,13 +113,70 @@ test("원본 사진이 검증되면 G1 전 gate는 자동이고 G1 기획은 수
     planOnceFastPathDecision(state, "G1U_APPROVAL"),
     {
       auto_approve: false,
-      reason: "manual_plan_approval_required",
+      reason: "plan_approval_or_timeout_required",
+      timeout_ms: PLAN_APPROVAL_TIMEOUT_MS,
     },
   );
   assert.equal(
     planOnceFastPathDecision(state, "G2U_APPROVAL")
       .auto_approve,
     false,
+  );
+});
+
+test("사진이 없어도 검증된 공급처 동일 SKU로 URL-only fast path를 연다", () => {
+  const state = stateWithSupplierSameSku();
+  assert.equal(hasVerifiedSupplierSameSkuSet(state), true);
+  assert.equal(
+    planOnceFastPathDecision(state, "G0U_APPROVAL").auto_approve,
+    true,
+  );
+});
+
+test("G1 기획 공개 후 120초 무응답이면 명시적 반려 없이 자동 진행한다", () => {
+  const state = stateWithSupplierSameSku();
+  const challenge = {
+    status: "awaiting_user",
+    auto_continue_at: "2026-08-01T00:02:00.000Z",
+  };
+  assert.equal(
+    planOnceFastPathDecision(state, "G1U_APPROVAL", {
+      challenge,
+      now: new Date("2026-08-01T00:01:59.999Z"),
+    }).auto_approve,
+    false,
+  );
+  assert.deepEqual(
+    planOnceFastPathDecision(state, "G1U_APPROVAL", {
+      challenge,
+      now: new Date("2026-08-01T00:02:00.000Z"),
+    }),
+    {
+      auto_approve: true,
+      phase: "plan_timeout",
+      policy_id: PLAN_ONCE_FAST_PATH_POLICY_ID,
+    },
+  );
+});
+
+test("120초 정책 승인도 이후 G2~G5 진행의 유효한 기획 승인이다", () => {
+  const state = stateWithSupplierSameSku();
+  state.graph.artifacts.push({
+    artifact_id: "decision-plan-timeout",
+    type: "decision.plan_approval",
+    status: "fresh",
+    produced_by_stage: "G1U_APPROVAL",
+    approval_receipt: {
+      decision: "approved",
+      decided_by: "url-only-autocontinue-policy",
+      approval_channel: "policy_auto_after_timeout",
+    },
+  });
+  assert.equal(hasManualPlanApproval(state), false);
+  assert.equal(hasAcceptedPlanApproval(state), true);
+  assert.equal(
+    planOnceFastPathDecision(state, "G5U_APPROVAL").auto_approve,
+    true,
   );
 });
 

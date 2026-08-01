@@ -1,6 +1,6 @@
 ---
 name: detail-page-maker-skill
-description: 공급처 URL에서 근거를 수집해 쿠팡 1초 전달형 판매 논리, ChatGPT Image 2/God Tibo 32장·32 provider workers 동시 이미지 배치, HyperFrames 정보형 세일즈 모션과 MP4→FFmpeg GIF/WebP, 390px 편집 Studio, 공개 메타데이터 0건의 output/detail-page.html과 Wing 출력을 만든다. 상세페이지 신규 제작·카피·제품 이미지·GIF·Studio 편집·게시 QA·부분 수정·연구 학습·로컬 설치에 사용한다.
+description: 공급처 URL 하나에서 제품 SSOT를 만들고 쿠팡 중심 다중 경쟁사의 A 뼈대·B/C 장점을 조립해 더 강한 판매 기획을 만든 뒤, ChatGPT Image 2/God Tibo 32장 동시 이미지 배치, HyperFrames 정보형 세일즈 모션과 MP4→FFmpeg GIF/WebP, 최종 390px Studio 수정, 공개 메타데이터 0건의 output/detail-page.html과 Wing 출력을 만든다. 상세페이지 신규 제작·카피·제품 이미지·GIF·Studio 최종 편집·게시 QA·부분 수정·연구 학습·로컬 설치에 사용한다.
 ---
 
 # Detail Page Maker
@@ -17,29 +17,38 @@ persistent Orchestrator가 강제한다.
 3. 아래 표에서 현재 작업에 필요한 reference만 추가로 읽는다.
 4. 이 스킬 폴더의 `.agents/skills/`에서 내장 의존 스킬을 찾는다.
 5. `node scripts/detail-page.mjs doctor`로 단일 스킬 번들의 의존성을 검사한다.
-6. G1 전에 `reference-library`로 주 아키타입 하나와 선택적 보조 아키타입
+6. 공급처 URL을 필수 입력으로 받고 실제 제품 사진이 있는지만 한 번 묻는다.
+   사진이 있으면 최우선 SSOT로 쓰고, 없거나 120초 동안 답이 없으면 검증된
+   도매꾹 동일 SKU를 SSOT로 삼아 두 번째 질문 없이 계속한다.
+7. G1에서 기존 extractor와 browser research를 SearchMaster 호환 조사 계층으로
+   묶어 쿠팡을 먼저 검색한다. 동일 SKU, 동일 카테고리 상위 판매상품, 보조
+   커머스 순으로 최소 3개를 판매량·카테고리 순위·후기 수·평점 근거와 수집한다.
+8. 가장 좋은 한 페이지를 판매 흐름의 A 뼈대로 정하고 B·C의 더 좋은 설명·소구를
+   보강한다. 섹션 순서를 잠근 뒤 모든 카피를 자사 상품 SSOT와 claim으로 다시 쓴다.
+9. G1 전에 `reference-library`로 주 아키타입 하나와 선택적 보조 아키타입
    하나를 고르고 category reference cohort와 공통 visual ambition anchor를
    ProductionPlan의 모든 section·image job·GIF brief에 바인딩한다.
-7. `reference-profile`로 기존 `output/detail-page.html`과 사용자가 준 기준
+10. `reference-profile`로 기존 `output/detail-page.html`과 사용자가 준 기준
    HTML을 hash/profile로 등록하고 adoption matrix를 작성한다.
-8. mutating 진입점은 `<workspace>/exps/*.md`를 먼저 reconcile하고, 머신
+11. mutating 진입점은 `<workspace>/exps/*.md`를 먼저 reconcile하고, 머신
    CPU/RAM 권장치·호스트 agent slot·실제 session 수의 최솟값으로 worker capacity를
    정한다. 호스트 session ID를 추측하거나 생성하지 않는다.
-9. `workflow-status`로 sealed state와 다음 gate를 확인한다.
-10. `workflow-advance` 또는 `workflow-resume`으로 다음 WorkOrder를 발급한다.
-11. 준비된 frontier WorkOrder를 가용 sub-agent 수만큼 lease한다. 작업 하나씩
+12. `workflow-status`로 sealed state와 다음 gate를 확인한다.
+13. `workflow-advance` 또는 `workflow-resume`으로 다음 WorkOrder를 발급한다.
+14. 준비된 frontier WorkOrder를 가용 sub-agent 수만큼 lease한다. 작업 하나씩
    기다리지 말고 독립 작업을 동시에 실행한다.
-12. 하위 스킬은 WorkOrder의 runner로만 호출하고 결과를
+15. 하위 스킬은 WorkOrder의 runner로만 호출하고 결과를
    `worker-lease → 실행 → worker-submit`으로 제출한다.
-13. 실제 원본 사진이 없으면 사용자 gate를 exact digest와 nonce로
-   `workflow-decide` 승인한다. `input/product/` 원본 bytes가 검증된 run은
-   G1 ProductionPlan만 사용자가 승인하고 나머지는 plan-once policy receipt로
-   자동 진행한다.
-14. `G0 → G1 → G2 → G3 → G4 → G5` 검증 순서는 건너뛰지 않는다. Fast path는
+16. `BENCHMARK-ASSEMBLY.md`를 포함한 기획안을 사용자에게 보여준다. 명시적 승인은
+   즉시 반영하고, 명시적 반려가 없으면 challenge의 `auto_continue_at`인 120초 뒤
+   `policy.approval.url-only-autocontinue.v1` receipt를 남기고 계속한다.
+17. `G0 → G1 → G2 → G3 → G4 → G5` 검증 순서는 건너뛰지 않는다. Fast path는
    사용자 확인 횟수만 줄이고 단계와 QA를 생략하지 않는다.
-15. 승인 후 사진·이미지·GIF를 바꿀 때는
+18. 조사·기획·이미지·GIF·조립·QA는 Studio를 중간 gate로 열지 않고 자동 실행한다.
+   Studio는 G4 완성 working session이 준비된 마지막에만 사용자 수정용으로 연다.
+19. 승인 후 사진·이미지·GIF를 바꿀 때는
    `workflow-revision-plan → 사용자 검토 → workflow-revision-commit`을 따른다.
-16. 오래 걸리는 run은 `performance-profile`로 stage trace를 분석한다. G2는 기본
+20. 오래 걸리는 run은 `performance-profile`로 stage trace를 분석한다. G2는 기본
    32장·32 provider workers의 단일 동시 배치, G3는 입력이 준비된 motion의 즉시
    병렬 시작, QA는 변경 member 우선 검사와 최종 다중 viewport 1회 캡처를 쓴다.
 
@@ -61,7 +70,7 @@ node scripts/detail-page.mjs performance-profile --trace "<trace.json>"
 | --- | --- |
 | 고정 판매 흐름·입출력·공개 형식 | [`content-contract.md`](references/content-contract.md) |
 | 공급처 근거·실제품·권리·SSOT | [`evidence.md`](references/evidence.md) |
-| 시장 조사·상업 기획·카피 | [`commercial.md`](references/commercial.md) |
+| 다중 경쟁사 조사·A 뼈대·B/C 보강·상업 기획·카피 | [`commercial.md`](references/commercial.md) |
 | ImageGen·pending·에셋 승인 | [`assets.md`](references/assets.md) |
 | GIF·HyperFrames·필수 motion coverage | [`motion.md`](references/motion.md) |
 | HyperFrames+ChatGPT Image 2 32장 샷·T1~T10·MP4 변환 | [`hyperframes-sales-motion.md`](references/hyperframes-sales-motion.md) |
@@ -97,7 +106,7 @@ provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼�
 
 ## 멀티에이전트 실행
 
-- G0 공급처 추출과 G1 시장 조사를 병렬 준비한다. 승인만 G0→G1 순서로 잠근다.
+- G0 공급처 추출과 G1 다중 경쟁사 조사를 병렬 준비한다. 승인만 G0→G1 순서로 잠근다.
 - G2는 한 이미지 cut당 한 worker를 배정하고 가용 slot을 채운다.
 - G3는 한 motion module당 한 worker를 배정한다. 입력 이미지가 승인된 module은
   다른 이미지·motion과 병렬 실행한다.
@@ -117,13 +126,21 @@ provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼�
 
 ## 하드 계약
 
-- 공급처 URL과 같은 SKU의 공급처 원문·이미지·locator·권리로 G0 제품 SSOT를
-  잠근다. 실제 제품 사진은 선택 사항이며 없으면 최초 한 번만 알리고 계속한다.
-- `input/product/`의 원본 사진 materialized bytes/hash가 검증되면
-  `policy.approval.plan-once-with-actual-photos.v1`을 기본 적용한다.
-  이때 G1 기획 승인만 수동이며 G0 SSOT·경쟁후보와 G2~G5 사용자 gate는 준비
-  조건과 독립 QA PASS 뒤 exact subject digest에 자동 승인 receipt를 남긴다.
-  원본 사진이 없으면 기존 수동 gate를 유지한다.
+- 필수 입력은 공급처 URL 하나다. 실제 제품 사진은 선택 사항이며 최초 한 번만
+  요청한다. 사용자 사진이 있으면 최우선 SSOT, 없거나 무응답이면 공급처 동일
+  SKU 원문·이미지·locator·권리 bytes/hash를 SSOT로 잠그고 끝까지 계속한다.
+- `policy.approval.url-only-autocontinue.v1`을 기본 적용한다. G1 기획안의 exact
+  digest·nonce·`auto_continue_at`을 공개하고 120초 동안 명시적 반려가 없으면
+  자동 승인한다. G0와 G2~G5 사용자 gate도 준비 조건과 독립 QA PASS 뒤 exact
+  subject digest receipt로 자동 진행한다. 이 정책은 QA·근거·권리 실패를 우회하지 않는다.
+- 경쟁사 조사는 SearchMaster 호환 계약으로 실행하되 현재 설치된 실행기는
+  `coupang-extractor`·`browser-harness`다. 동일 SKU를 우선하고 없으면 동일
+  카테고리 상위 판매상품, 그다음 보조 커머스로 넓혀 최소 3개를 수집한다.
+- 경쟁사 하나를 A 주 뼈대로 고르고 B·C의 더 좋은 설명·소구·장점과 섹션별
+  디자인 패턴을 보강한다. 고유 문장·이미지는 복제하지 않고 자사 SSOT·claim·
+  evidence boundary로 카피와 시각을 다시 만든다.
+- 관찰 구조·제조사 근거·검증 효능에 해당하는 자사 장점은 빠뜨리지 말고 구매
+  이유로 적극 표현한다. 인증서가 필요한 주장과 무근거 정량 주장만 보류한다.
 - 도매꾹은 `dmk-extractor`, 쿠팡은 `coupang-extractor`의 실제 portable bundle과
   검증 receipt를 사용한다. agent의 기억이나 검색 요약으로 대체하지 않는다.
 - 공급처 이미지는 제품 동일성 SSOT와 ImageGen 참조로 사용하고 고객 광고에
@@ -206,15 +223,15 @@ provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼�
   색·형태·부품·비율·구성의 제품 불변 조건을 유지하고 생성형 모핑을 금지한다.
 - 같은 주장을 정지 이미지와 GIF로 연속해서 중복하지 않는다. motion이 주매체면
   정지 이미지는 첫 프레임 poster fallback으로만 쓰거나 다른 증명 section으로 옮긴다.
-- Studio는 편집 UI이며 저장한 working snapshot이 즉시 최신 편집 정본 revision이
-  된다. 사용자가 확인하는 최신 진입점은 `output/detail-page.html` 하나이고,
-  commit·QA·Wing export는 같은 저장 digest의 검증·파생 단계일 뿐 새 편집
-  원본을 만들지 않는다.
+- Studio는 G4 조립·사전 QA가 끝난 뒤에만 여는 최종 편집 UI다. 조사, 기획,
+  에셋 승인, workflow 제어를 사용자 Studio 중간 단계로 노출하지 않는다.
+  exact `session_id`로 `/studio/working/state`를 불러오고 저장은
+  `/studio/working/save`에 고정한다. 이후 commit·capture·QA·G5를 같은 digest로 재개한다.
 - 디자인 기준은 390 CSS px, 전달 자산은 폭 780px다.
 - 390px 저작 레이아웃을 고객 780px 화면의 좁은 중앙 열로 그대로 내보내지 않는다.
   공개 HTML도 780px 전달 프로필을 채워야 한다.
-- 명시적 저장은 현재 `output/detail-page.html`을 덮어쓰고 콘텐츠 높이에 맞춘다.
-  내부 복구 snapshot은 최근 20개만 유지한다.
+- 최종 Studio 저장은 mutable G4 working revision만 갱신한다. QA·commit이 통과하기
+  전에는 공개 `output/detail-page.html`을 직접 덮어쓰지 않는다.
 - 고객 진입점은 `output/detail-page.html`이다. `deliverables/`와 공개
   `index.html`을 만들지 않는다.
 - G5 완료는 export 후 실제 공개 HTML, manifest, `output/media/gifs` animation
@@ -226,7 +243,7 @@ provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼�
 - 고객 HTML과 Wing에는 내부 ID·프롬프트·파일명·hash·QA·agent·생성 방식이
   0건이어야 한다.
 - 디스크의 공개 `output/detail-page.html`에는 Studio 링크도 넣지 않는다. 로컬
-  Studio 서버가 이 파일을 서비스할 때만 응답에 `Studio에서 수정하기` 런처를
+  Studio 서버가 이 파일을 서비스할 때만 응답에 exact session의 `Studio에서 최종 수정` 런처를
   주입하며 원본 bytes와 Wing에는 반영하지 않는다.
 - 현재 run은 승인된 KnowledgeSnapshot과 현재 상품 연구를 사용한다. 공용 규칙은
   독립 검증과 사용자 승인 뒤에만 다음 run의 active reference로 승격한다.

@@ -217,11 +217,11 @@ Rubric 실패는 failure owner를 G1·G2·G3·G4에 연결해 필요한 branch�
 
 ## Studio와 export 경계
 
-Studio는 스킬의 공용 runtime으로 제공하는 편집 UI이며 상품 프로젝트에 runtime
-파일을 복제하지 않는다. working session은 mutable하지만 downstream 입력이 아니다.
-명시적 Save가 숨은 authoring과 `output/detail-page.html`을 같은 사건에서 갱신하고
-새 source revision ID·hash를 만든다. commit·QA는 그 exact revision을 검증·봉인할
-뿐 새 편집 원본을 만들지 않는다. 390 CSS px authoring을 DPR 2의 780 physical px로
+Studio는 G4 조립·사전 QA 뒤 exact session에만 여는 공용 최종 편집 UI이며 상품
+프로젝트에 runtime 파일을 복제하지 않는다. working session은 mutable하지만
+downstream 입력이 아니다. 명시적 Save는 G4 working source revision ID·hash만
+갱신한다. commit·capture·QA는 그 exact revision을 검증·봉인하고 통과한 뒤에만
+공개 `output/detail-page.html`을 만든다. 390 CSS px authoring을 DPR 2의 780 physical px로
 capture하며 숨은 320·360 overflow 진단 capture와 독립 rubric 결과를 기록한다.
 일반 HTML과 Wing export는 같은 서버측 G5 gate에서 state seal, fresh graph,
 publish approval, G5 QA와 97·90·85·hard-0를 다시 검증한다. Wing은

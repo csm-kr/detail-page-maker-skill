@@ -195,19 +195,18 @@ async function runE2E() {
       new URL("/output/detail-page.html", baseUrl),
     );
     const outputPreviewHtml = await outputPreviewResponse.text();
-    report.checks.outputPreviewHasStudioLauncher =
+    report.checks.outputPreviewHidesStudioBeforeFinalSession =
       outputPreviewResponse.status === 200 &&
-      outputPreviewHtml.includes("data-local-studio-launcher") &&
-      outputPreviewHtml.includes('href="/studio.html"');
+      !outputPreviewHtml.includes("data-local-studio-launcher");
     report.checks.canonicalOutputHasNoStudioLauncher =
       !canonicalBeforePreview.includes("data-local-studio-launcher") &&
       (await readFile(canonicalOutputPath, "utf8")) === canonicalBeforePreview;
     if (
-      !report.checks.outputPreviewHasStudioLauncher ||
+      !report.checks.outputPreviewHidesStudioBeforeFinalSession ||
       !report.checks.canonicalOutputHasNoStudioLauncher
     ) {
       throw new Error(
-        "로컬 output→Studio 재진입 또는 공개 canonical 무오염 계약이 실패했습니다.",
+        "최종 session 전 Studio 비노출 또는 공개 canonical 무오염 계약이 실패했습니다.",
       );
     }
     report.checks.projectStudioRuntimeCopied = await exists(
@@ -323,7 +322,7 @@ if (process.argv.includes("--json")) {
   process.stdout.write(`${JSON.stringify(report)}\n`);
 } else if (report.ok) {
   console.log("PASS detail-page-maker-skill portable E2E");
-  console.log("  project → Studio v1 → pending lock → user approval → READY");
+  console.log("  project → autonomous asset gate → final-session-only Studio → READY");
   console.log("  temporary project cleaned");
 } else {
   console.error(`FAIL detail-page-maker-skill portable E2E: ${report.error}`);

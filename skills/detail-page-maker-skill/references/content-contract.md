@@ -17,11 +17,19 @@ template, 프로젝트 관행은 적용하지 않는다.
   최대 하나를 선택한다. 주 아키타입의 Behance project card 2개 이상과 공통
   visual ambition anchor를 모든 section·image job·GIF brief에 바인딩한다.
   기준 원본은 스킬 안에 한 번만 두고 상품 프로젝트에 복제하지 않는다.
-- 사용자는 실제 제품 사진이 있으면 `input/product/`에만 넣는다.
-- 실제 제품 사진은 선택 사항이다. 없으면 최초 한 번만 안내하고 작업을 계속한다.
-- 실제 사진의 materialized member가 `input/product/` 아래에서 bytes/hash 검증을
-  통과하면 plan-once fast path를 기본 적용한다. G1 ProductionPlan 승인만 사람이
-  수행하고 G0의 SSOT·경쟁후보와 G2~G5 사용자 gate는 각 단계 QA PASS 뒤
+- 필수 사용자 입력은 공급처 URL 하나다. 실제 제품 사진은 최초 한 번만 요청하고
+  있으면 `input/product/`의 최우선 SSOT로 쓴다. 없거나 답이 없으면 도매꾹
+  공급처 동일 SKU를 SSOT로 선택하고 두 번째 질문 없이 계속한다.
+- G1은 쿠팡 우선으로 최소 3개 경쟁사를 동일 SKU → 동일 카테고리 상위 판매상품
+  → 보조 커머스 순으로 수집한다. 판매량·카테고리 순위·후기 수·평점 중 실제
+  관찰 가능한 신호를 근거로 순위를 매긴다.
+- 가장 좋은 A 페이지를 판매 흐름의 뼈대로 쓰고 B·C의 더 좋은 설명·소구·장점을
+  보강한다. 섹션별 디자인 레퍼런스를 따로 정하고 순서를 잠근 뒤 모든 카피와
+  시각은 현재 상품 SSOT·claim·evidence boundary로 다시 만든다.
+- G1 ProductionPlan과 `BENCHMARK-ASSEMBLY.md`를 보여 준다. 사용자가 즉시 승인하면
+  그대로 진행하고 명시적 반려가 없으면 exact challenge의 120초
+  `auto_continue_at` 뒤 `policy_auto_after_timeout` receipt로 승인한다.
+- G0의 SSOT·경쟁후보와 G2~G5 user gate는 각 단계 독립 QA PASS 뒤
   `policy_auto_after_plan` receipt로 자동 승인한다.
 - Fast path는 사용자 확인을 줄이는 정책이다. 제품 불일치, 권리·근거 실패,
   deterministic QA 실패, animation 누락, 원격 게시 실패는 자동 통과시키지 않는다.
@@ -44,6 +52,8 @@ template, 프로젝트 관행은 적용하지 않는다.
 - `verified_efficacy`: 독립 검증 artifact가 있을 때만 성능·정량 결과를 사용한다.
 
 효능 근거가 없다고 관찰 가능한 구조까지 구매 차별점에서 제거하지 않는다.
+관찰 구조·제조사 근거·검증 효능에 해당하는 장점은 구매 이유로 적극 표현한다.
+인증서가 필요한 주장과 확인되지 않은 정량 결과만 보류한다.
 
 ## 고정 판매 흐름
 
@@ -135,24 +145,27 @@ Hero subtree의 GIF·video·animation·runtime 대상 0건, 핵심 benefit claim
 - HyperFrames는 결정론적 무음 MP4를 정본으로 렌더하고 FFmpeg가 GIF와 animated
   WebP를 파생한다. HyperFrames 직접 GIF 렌더는 기본 제작 경로가 아니다.
 
-## 390 Studio와 공개 출력
+## 390 최종 Studio와 공개 출력
 
 - Studio의 유일한 디자인 기준은 논리 폭 390 CSS px이다.
 - 이미지·motion·Wing 섹션 자산은 물리 폭 780px로 만든다.
 - 고객 공개 HTML의 콘텐츠 폭도 780px 전달 profile을 채운다. 390px 저작
   레이아웃을 780px 안의 좁은 중앙 열로 두는 결과는 실패다.
-- Studio는 편집 UI다. 사용자가 `저장`을 누르면 현재 working snapshot이 즉시
-  최신 편집 정본 revision이 되고 같은 저장 사건에서
-  `output/detail-page.html` 단일 사용자 진입점을 갱신한다.
+- Studio는 G4 조립과 사전 QA 뒤에만 여는 최종 편집 UI다. 조사·기획·에셋 승인·
+  workflow 제어는 Studio의 사용자 단계로 두지 않는다.
+- exact `session_id`의 `/studio/working/state`와 `/studio-working.html`을 불러오고
+  `최종 수정 저장`은 `/studio/working/save`로 mutable G4 working revision만
+  갱신한다. 공개 HTML은 이후 commit·capture·QA가 통과해야 갱신한다.
+- Studio 저장마다 내부 snapshot을 남기고 최근 20개를 유지한다.
 - 디스크의 `output/detail-page.html`과 Wing에는 Studio 링크를 저장하지 않는다.
-  로컬 Studio 서버가 이 파일을 서비스할 때만 응답에 `Studio에서 수정하기` 링크를
+  로컬 Studio 서버가 이 파일을 서비스할 때만 응답에 exact session의
+  `Studio에서 최종 수정` 링크를
   주입하고 canonical bytes는 보존한다.
-- 저장 뒤에는 `wing_export_required`로 표시한다. 이 상태의 로컬 preview는 편집
-  결과와 시각 순서가 같지만 아직 새 CDN 게시본은 아니다.
-- 최근 20개 저장 snapshot은 `.detail-page/backups/`에 숨겨 복구에만 사용한다.
+- 저장 뒤에는 QA·commit·`wing_export_required` 처리를 자동 재개한다. 이 상태의
+  로컬 preview는 편집 결과와 같지만 아직 새 CDN 게시본은 아니다.
 - Wing Export와 원격 검증이 끝나면
   `output/wing/<export-id>/detail-page.html` 파생 전달본만 확정한다.
-  Studio에서 저장한 `output/detail-page.html`은 덮어쓰지 않고
+  검증된 `output/detail-page.html`은 임의로 덮어쓰지 않고
   `wing_export_required`를 해제한다.
 
 ```text

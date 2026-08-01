@@ -104,6 +104,10 @@ let workflowApprovalNotice = {
   ],
 };
 let pendingSaveRequest = null;
+const finalStudioSessionId = new URLSearchParams(
+  window.location.search,
+).get("session_id");
+let finalStudioWorking = null;
 const SAVE_SERIALIZATION_TIMEOUT_MS = 10_000;
 
 function post(type, payload = {}) {
@@ -172,19 +176,38 @@ async function saveSerializedAuthoring(message) {
     return;
   }
   try {
-    const payload = await api("/api/v1/output/save", {
+    if (!finalStudioWorking || !finalStudioSessionId) {
+      throw new Error(
+        "최종 G4 working session이 없습니다. 제작을 완료한 뒤 Studio를 열어 주세요.",
+      );
+    }
+    const editableHtmlContract = {
+      ...finalStudioWorking.editable_html_contract,
+      html: message.html,
+    };
+    const payload = await api("/api/v1/studio/working/save", {
       method: "POST",
-      body: JSON.stringify({ html: message.html }),
+      body: JSON.stringify({
+        session_id: finalStudioSessionId,
+        expected_working_snapshot_digest:
+          finalStudioWorking.session.working_snapshot_digest,
+        html: message.html,
+        editable_html_contract: editableHtmlContract,
+      }),
     });
+    finalStudioWorking = {
+      session: payload.session,
+      editable_html_contract: editableHtmlContract,
+    };
     post("DETAIL_SAVE_RESULT", {
       nonce: request.nonce,
       ok: true,
       savedAt: message.savedAt,
-      backupId: payload.backup_id || null,
-      wingExportRequired: payload.wing_export_required === true,
+      backupId: null,
+      wingExportRequired: true,
     });
     setStatus(
-      `로컬 저장 완료 · ${new Date(message.savedAt).toLocaleTimeString("ko-KR")}`,
+      `G4 최종 수정 저장 완료 · ${new Date(message.savedAt).toLocaleTimeString("ko-KR")} · 이후 QA와 commit을 자동 재개할 수 있습니다.`,
     );
   } catch (error) {
     post("DETAIL_SAVE_RESULT", {
@@ -195,6 +218,29 @@ async function saveSerializedAuthoring(message) {
     setStatus(
       `저장 실패 · 이전 파일을 보존했습니다 · ${error?.message || "다시 시도해 주세요"}`,
     );
+  }
+}
+
+async function initializeFinalStudioSession() {
+  if (!finalStudioSessionId) {
+    saveButton.disabled = true;
+    setStatus(
+      "최종 수정 세션이 아직 없습니다. URL-only 제작이 G4 조립과 QA까지 끝나면 자동으로 연결됩니다.",
+    );
+    return;
+  }
+  try {
+    finalStudioWorking = await api(
+      `/api/v1/studio/working/state?session_id=${encodeURIComponent(finalStudioSessionId)}`,
+    );
+    preview.src =
+      `/studio-working.html?session_id=${encodeURIComponent(finalStudioSessionId)}`;
+    saveButton.disabled = false;
+    setStatus("완성된 G4 작업본을 불러왔습니다. 마지막 수정만 진행해 주세요.");
+  } catch (error) {
+    finalStudioWorking = null;
+    saveButton.disabled = true;
+    setStatus(`최종 수정 세션 연결 실패 · ${error.message}`);
   }
 }
 
@@ -1088,7 +1134,7 @@ sectionCropApply.addEventListener("click", () => {
     mode: cropModeForWidth(),
   });
   setStatus(
-    `${previewWidth}px ${cropModeForWidth() === "mobile" ? "모바일" : "데스크톱"}에서 ‘${section.label}’ 하단을 ${height.toLocaleString("ko-KR")}px로 잘랐습니다. 상단 ‘로컬 저장’으로 보관할 수 있습니다.`,
+    `${previewWidth}px ${cropModeForWidth() === "mobile" ? "모바일" : "데스크톱"}에서 ‘${section.label}’ 하단을 ${height.toLocaleString("ko-KR")}px로 잘랐습니다. 상단 ‘최종 수정 저장’으로 보관할 수 있습니다.`,
   );
 });
 sectionCropClear.addEventListener("click", () => {
@@ -1427,5 +1473,5 @@ if (nestedStudio) {
   app.setAttribute("aria-hidden", "true");
 }
 refreshGate();
-refreshWorkflow();
 refreshCloudflareConnection();
+initializeFinalStudioSession();

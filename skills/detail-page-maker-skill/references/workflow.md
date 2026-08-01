@@ -4,12 +4,12 @@
 
 | 단계 | 잠글 것 | 필수 산출물 | 다음 단계 조건 |
 | --- | --- | --- | --- |
-| 입력 | 공급처 URL, 선택적 실제품 사진, 목표 채널 | `input/product`, 프로젝트 폴더 | 공급처 same-SKU media 확인 |
-| G0 SOURCE_SSOT | 제품 사실, 외형, 부품, 수량, 문자, 방향 | extractor evidence, SSOT manifest | 원본 사진 fast path 자동 승인 또는 공급처 SSOT 수동 승인 |
-| G1 COMMERCIAL_PLAN | 기존 output·기준작의 상품 관계와 판매 논리 비교, category cohort, 고정 문제→답→해결 흐름, section별 한 메시지·증명 이미지·정지/GIF 역할·다음 이유 공동 설계 | ReferenceArtifactSet + CategoryReferenceProfile + 물질화된 사람용 기획 + commercial-flow/claim/section/image/motion/rubric ProductionPlan | 모든 section/image/GIF의 category trait binding·visual ambition·rule effect·쿠팡 1초 전달·detail-page-flow hard-0, 양방향 참조·orphan 0, 사용자 기획 승인 |
+| 입력 | 필수 공급처 URL, 한 번만 요청하는 선택적 실제품 사진 | `input/product`, 프로젝트 폴더 | 사진이 있으면 최우선 SSOT, 없거나 무응답이면 공급처 same-SKU 계속 |
+| G0 SOURCE_SSOT | 제품 사실, 외형, 부품, 수량, 문자, 방향 | extractor evidence, SSOT manifest | 실제품 또는 공급처 same-SKU identity source 검증 뒤 정책 승인 |
+| G1 COMMERCIAL_PLAN | 쿠팡 우선 최소 3개 경쟁사, A 뼈대·B/C 설명 보강, 섹션별 디자인 reference, 고정 문제→답→해결, 자사 카피 재작성 | `BENCHMARK-ASSEMBLY.md` + ReferenceArtifactSet + CategoryReferenceProfile + COMMERCIAL/DESIGN/BUYER-JOURNEY/GIF + production graph/rubric | 다중 경쟁사 근거·자사 SSOT rewrite·장점 노출·쿠팡 1초 전달·hard-0 뒤 즉시 사용자 승인 또는 120초 무반려 자동 승인 |
 | G2 IMAGE_ASSETS | 용도별 32장 단일 동시 배치와 제품 불변 조건 QA | 32개 pending 이미지, God Tibo 32 provider workers receipt, QA 기록 | candidate 합계 32·단일 batch·동일성 PASS 뒤 plan-once 자동 승인 또는 사용자 이미지 승인 |
 | G3 MOTION_ASSETS | 문제 2+, 장점별 1+, 사용·비교, total 5+/기본 7~9와 모션 다양성 | 승인 motion, poster, HyperFrames 원본, 다양성 표 | 인접 2축 차이·첫 프레임·픽셀/지각 loop·제품 불변·coverage hard-0 뒤 plan-once 자동 승인 또는 preview·최종 자산 수동 승인 |
-| G4 ASSEMBLY | 승인 자산과 섹션 연결 | editable Studio source, 현재 output, 내부 revision, rubric result/delta | 390/780 repair PASS 뒤 plan-once 자동 승인 또는 사용자 조립 승인 |
+| G4 ASSEMBLY | 승인 자산과 섹션 연결, 390/780 사전 QA | editable working session, 내부 revision, rubric result/delta | 자동 조립·QA 뒤 최종 Studio 수정(선택), 재 QA·정책 승인 |
 | G5 PUBLISH | 공개 카피, 접근성, 채널 규격, 새 CDN namespace | `output/detail-page.html`, versioned Wing export | publish 97·Behance 90·critical 85·content hard 0·원격 검증 뒤 plan-once receipt 또는 게시 승인 |
 | 학습 | 재사용 가능성과 위험 | 프로젝트 후보 또는 `exps/*.md` | 일반 후보는 승인 승격, trusted exps는 검증 뒤 CR/TR/MR 자동 승격 |
 
@@ -22,11 +22,19 @@ G0의 공급처 근거 정규화와 G1의 시장 조사는 병렬로 진행할 �
 - `provisional_claims`: 제품 답으로 확정하지 않은 가설
 - `blocked_until_g0`: G0 승인 전 확정하거나 제작할 수 없는 항목
 
-동종 제품 3개 이상과 공개 후기 원문에서 시장 불편을 조사하되 현재 SKU의 사실로
-옮기지 않는다. G0 검증 전에는 G1을 `approved`로 기록하거나 이미지 생성을
-시작하지 않는다. 검증 순서는 `G0 → G1 → G2 → G3 → G4 → G5`다. 실제 원본
-사진이 검증된 run에서는 G1 기획만 사용자가 승인하고 나머지 user gate는
-Orchestrator가 exact policy receipt로 승인한다.
+쿠팡에서 동일 SKU를 우선하고, 없으면 같은 카테고리의 상위 판매 경쟁사로 넓혀
+최소 3개를 조사한다. 보조 근거가 필요할 때만 네이버·다른 커머스를 더한다.
+SearchMaster라는 별도 설치 모듈이 없으므로 현재 실행은
+`coupang-extractor`·`browser-harness`를 SearchMaster 호환 조사 계층으로 사용한다.
+G0 검증 전에는 G1을 `approved`로 기록하거나 경쟁사 특징을 현재 SKU 사실로
+옮기지 않는다.
+
+G1은 판매량·카테고리 순위·후기 수·평점의 관찰 가능한 신호와 근거 URL을 보존하고,
+A 한 곳을 주 뼈대로 선택한다. B·C의 더 나은 설명·소구를 target section에
+보강하고 모든 카피를 현재 상품 SSOT와 claim으로 다시 쓴다. 기획 공개 후
+명시적 반려가 없으면 120초 뒤 자동 진행한다. 검증 순서는
+`G0 → G1 → G2 → G3 → G4 → G5`이며 나머지 user gate는 독립 QA 뒤 policy
+receipt로 처리한다.
 
 ## 속도 fast path
 
@@ -48,8 +56,8 @@ descendant만 재생성한다. G4 수정 중에는 변경 section만 캡처·검
 도매꾹 공급처 WorkOrder는 `dmk-extractor`, 쿠팡 경쟁상품·후기 WorkOrder는
 `coupang-extractor`를 runner로 고정한다. 각 extractor bundle의 원본 locator,
 member hash, ExecutionReceipt, 독립 ValidationReceipt가 없으면 준비 완료로
-세지 않는다. 실제 제품 사진이 없으면 최초 한 번만 알리고 공급처 same-SKU media를
-SSOT로 계속한다.
+세지 않는다. 실제 제품 사진은 한 번만 묻고 없거나 답이 없으면 공급처 same-SKU
+media를 SSOT로 계속한다.
 
 ## 실행 강제
 
@@ -100,7 +108,7 @@ workflow-status
 | --- | --- | --- |
 | `ERROR [CODE]` | state seal, artifact record, receipt, 파일 bytes 또는 실행 계약이 유효하지 않음 | error code와 details를 보고 원본에서 재실행하거나 명시된 migration 사용 |
 | `HOLD` | 실행은 정상이나 제품 동일성·권리·근거가 생산 기준에 부족함 | 부족한 실제품·권리·시장 근거를 추가 |
-| `AWAITING_USER` | G1 기획, 원본 사진 없는 run의 승인, rubric plateau 또는 budget 판단 대기 | exact challenge 또는 revision plan 검토 |
+| `AWAITING_USER` | G1 기획의 120초 창 또는 rubric plateau·budget 판단 대기 | 기획은 명시적 승인/반려, 무반려면 auto_continue_at에 재개 |
 | `COMPLETED` | G5 hard gate와 사용자 게시 승인까지 통과 | sealed HTML/Wing export |
 
 과거 state에 현재 계약이 요구하는 immutable artifact record와 receipt가 없으면
@@ -265,48 +273,49 @@ digest를 가진다. 인접 pattern 중복은 명시적 사유 없이는 실패�
 8~15개 자산 선별과 metadata, 0.85/0.60 콜아웃 fallback, T1~T10 catalog,
 결정론적 MP4→FFmpeg GIF/WebP 파생 계약을 가진다.
 
-승인 plan을 G2/G3 frontier에 전달하면 `COMMERCIAL.md`, `DESIGN.md`,
+승인 plan을 G2/G3 frontier에 전달하면 `BENCHMARK-ASSEMBLY.md`, `COMMERCIAL.md`, `DESIGN.md`,
 `BUYER-JOURNEY.md`, `GIF.md`를 plan digest에서 결정적으로 물질화한다. 빈 template,
 `{{TOKEN}}`, source field가 없는 문서는 G1 완료로 보지 않는다.
 
-## Plan-once fast path
+## URL-only auto-continue fast path
 
-다음 조건이 모두 참이면 수동 차단은 `G1U_APPROVAL` 한 번만 남긴다.
+다음 조건이 모두 참이면 G1에 120초 결정 창만 남기고 이후 user gate는 자동화한다.
 
-1. fresh `identity.photo_set`의 모든 materialized member가 project root의
-   `input/product/` 아래 regular file이다.
-2. member별 `size_bytes > 0`과 SHA-256이 실제 bytes와 일치한다.
-3. G1 ProductionPlan과 G1 QA가 통과했고 `G1U_APPROVAL` receipt가 사용자의
-   approval channel을 가진다.
+1. fresh `identity.photo_set`의 materialized bytes/hash가 검증됐거나,
+   fresh `evidence.supplier_snapshot`의 동일 SKU 대표 이미지와 materialized
+   member bytes/hash가 검증된다.
+2. G1 ProductionPlan·`benchmark_assembly`·G1 QA가 통과한다.
+3. `G1U_APPROVAL`은 사용자가 승인했거나 exact challenge 공개 뒤 120초 동안
+   명시적 반려가 없어 `policy_auto_after_timeout` receipt가 생긴다.
 
 G1 전 `G0U_APPROVAL`, `G1DQ_SELECTION`과 G1 후
 `G2S_CONFIG_APPROVAL`, `G2U_APPROVAL`, `G3V_PREVIEW_APPROVAL`,
 `G3U_APPROVAL`, `G4U_APPROVAL`, `G5U_APPROVAL`은 ready가 된 순간
-`policy.approval.plan-once-with-actual-photos.v1`로 자동 승인한다. 각 자동
-receipt는 nonce, exact subject artifact-set digest, stage, 정책 ID, 원본 사진
-검증과 G1 승인 계보를 기록한다. 원본 사진이 없으면 모든 기존 수동 gate가 그대로
-동작한다.
+`policy.approval.url-only-autocontinue.v1`로 자동 승인한다. 각 자동 receipt는
+nonce, exact subject artifact-set digest, stage, 정책 ID, 실제품/공급처 identity
+source와 G1 승인 계보를 기록한다. `auto_continue_at` 이전의 명시적 반려는 자동
+승인을 막으며 QA·권리·동일성 실패는 timeout으로 우회하지 않는다.
 
 Auto approval은 ready stage에만 적용한다. 파일·identity·claim/evidence·motion
 semantic·reference QA·public animation closure·CDN 원격 검증 실패와
 plateau/budget 판단은 성공으로 바꾸지 않는다.
 
-## G4 Studio 서버 오케스트레이션
+## G4 최종 Studio 서버 오케스트레이션
 
-Studio production 경로는 다음 서버 API를 순서대로 사용한다.
+조사·기획·에셋 승인·workflow는 Studio 사용자 화면에 넣지 않는다. 자동 G4 조립과
+사전 QA 뒤 최종 수정이 필요할 때만 exact session으로 Studio를 연다.
 
 1. `POST /api/v1/studio/working/import`는 WorkflowEngine inspect를 다시 수행하고
    ready `S1_STUDIO_WORKING`과 exact fresh `G4A_ASSEMBLY`
    `page.html_revision` ID/manifest SHA-256을 확인한다. sealed session은
    `<project>/.detail-page/workflow/studio-sessions/<session-id>.json`에 저장된다.
-2. `POST /api/v1/studio/working/save`는 `status: working`과 exact
+2. `GET /api/v1/studio/working/state`와 `GET /studio-working.html`이 exact
+   session summary·editable contract·working HTML을 최종 편집 UI에 제공한다.
+3. `POST /api/v1/studio/working/save`는 `status: working`과 exact
    `expected_working_snapshot_digest`가 맞을 때만 HTML과 editable contract를
-   함께 저장한다. save snapshot을 최신 source revision으로 봉인하고
-   `output/detail-page.html` 단일 진입점을 같은 저장 사건에서 갱신한다.
-   이전 bytes는 `.detail-page/backups/`에 보존하고 최근 20개만 유지한다.
-   저장 뒤 실제 section bottom과 scrollHeight가 다르면
-   실패하고 이전 bytes로 복원한다. 성공 상태는 `wing_export_required`다.
-3. `POST /api/v1/studio/commit`은 새 편집 원본을 만들지 않는다. import 이후
+   함께 저장한다. mutable working만 갱신하며 공개 `output/detail-page.html`은
+   직접 덮어쓰지 않는다. 실패하면 이전 working bytes로 복원한다.
+4. `POST /api/v1/studio/commit`은 새 편집 원본을 만들지 않는다. import 이후
    workflow digest와 save snapshot이 그대로이고, 현재 working subject를
    평가한 pre-commit RubricResult가
    97/90/85/hard-0을 통과할 때만
@@ -316,7 +325,7 @@ Studio production 경로는 다음 서버 API를 순서대로 사용한다.
    ArtifactRecord로 commit되고
    `<project>/.detail-page/qa/captures/<revision-id>/`의 390 authoring, 780
    delivery, 숨은 320/360 overflow BrowserCapture work order가 발급된다.
-4. `POST /api/v1/studio/capture/complete`는 실제 PNG bytes·viewport 크기·overflow·
+5. `POST /api/v1/studio/capture/complete`는 실제 PNG bytes·viewport 크기·overflow·
    stable frame·recording, exact capture ID set, exact immutable revision
    subject를 검증한다. post-commit RubricResult와 immutable baseline의
    RubricDelta를 만든 뒤 `WorkflowEngine.recordRubricIteration`을 호출한다.

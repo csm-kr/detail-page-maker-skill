@@ -1,9 +1,24 @@
 # Detail Page Maker Skill
 
-공급처 URL 하나에서 제품 SSOT, 시장 조사, 상업 기획, 이미지, GIF, 편집 가능한
-Studio v1, `output/detail-page.html`, 쿠팡 Wing CDN 출력을 만드는 단일 Codex
-스킬이다. 실행에 필요한 연관 스킬 14개는 이 스킬 폴더 안에 잠금된 상태로
-포함된다.
+공급처 URL 하나만 주면 제품 SSOT부터 경쟁사보다 강한 판매 기획, 이미지, GIF,
+최종 Studio 수정, `output/detail-page.html`, 쿠팡 Wing CDN 출력까지 이어서 만드는
+공개 Codex 스킬이다. 실행에 필요한 연관 스킬 14개는 이 스킬 폴더 안에 잠금된
+상태로 포함된다.
+
+## 제작 흐름
+
+1. 공급처 URL을 받고 실제 제품 사진이 있는지만 한 번 묻는다. 사진이 없거나
+   답이 없으면 공급처 동일 SKU를 SSOT로 삼아 계속한다.
+2. 쿠팡에서 동일 SKU를 우선하고, 같은 카테고리 상위 판매상품까지 최소 3개를
+   찾아 판매량·순위·후기 신호와 설명을 비교한다.
+3. 가장 좋은 A 페이지를 전체 뼈대로 정하고 B·C의 더 좋은 설명·소구를 보강한다.
+   섹션별 디자인 레퍼런스를 따로 고른 뒤 모든 카피를 현재 상품으로 다시 쓴다.
+4. `BENCHMARK-ASSEMBLY.md`를 포함한 기획안을 보여 준다. 즉시 승인할 수 있고,
+   명시적 반려가 없으면 120초 뒤 QA를 유지한 채 자동으로 제작을 계속한다.
+5. God Tibo/ChatGPT Image 2 이미지와 HyperFrames 모션을 만들고 FFmpeg로
+   GIF·animated WebP를 파생해 쿠팡 1초 전달형 상세페이지로 조립한다.
+6. Studio는 중간 승인 화면으로 쓰지 않는다. G4 조립·사전 QA가 끝난 완성본에서만
+   `Studio에서 최종 수정`으로 열고, 저장 뒤 commit·capture·QA·Wing 배포를 재개한다.
 
 ## 제작 예시
 

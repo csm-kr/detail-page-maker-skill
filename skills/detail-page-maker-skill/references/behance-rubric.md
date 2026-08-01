@@ -107,8 +107,9 @@ visual ambition anchor다.
 - copy, 수치, 시험 조건, 사양, 주의사항의 정본은 editable Studio section이다.
 - 각 block은 section·claim·asset provenance를 보존한다.
 - 모바일에서는 비교 block을 세로로 바꿀 수 있지만 의미 관계는 유지한다.
-- 명시적 저장은 현재 `output/detail-page.html`을 덮어쓰고 내부 복구 snapshot과
-  immutable 검증 receipt를 남긴 뒤 다시 평가한다.
+- 최종 Studio 저장은 exact G4 working revision과 복구 snapshot을 갱신한다.
+  공개 `output/detail-page.html`은 commit·capture·immutable 검증 receipt가
+  통과한 뒤에만 갱신하고 다시 평가한다.
 - 같은 주장 아래 정지 이미지와 GIF를 연속으로 쌓지 않고 한 주매체 surface와
   poster fallback을 사용한다.
 

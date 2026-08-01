@@ -8,6 +8,9 @@ import {
 import {
   validateCoupangConversionPlan,
 } from "./coupang-conversion-contract.mjs";
+import {
+  validateBenchmarkAssembly,
+} from "./competitor-benchmark.mjs";
 
 const STABLE_ID = Object.freeze({
   claim: /^claim-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/,
@@ -759,6 +762,7 @@ export function validateProductionPlan(plan, context = {}) {
   const requiredParts = [
     "reference_artifact_set",
     "category_reference_profile",
+    "benchmark_assembly",
     "claim_graph",
     "section_graph_draft",
     "image_job_set",
@@ -784,6 +788,12 @@ export function validateProductionPlan(plan, context = {}) {
 
   appendReferenceArtifactSetErrors(plan, addError);
   appendCommercialFlowErrors(plan, gifBriefs, addError);
+  for (const error of validateBenchmarkAssembly(
+    plan?.benchmark_assembly,
+    { sectionIds: sections.map((section) => section?.section_id) },
+  ).errors) {
+    addError(error.code, error.path, error.message, error.details);
+  }
   for (const error of validateCoupangConversionPlan(plan).errors) {
     addError(error.code, error.path, error.message, error.details);
   }
@@ -1878,6 +1888,7 @@ export function validateProductionPlan(plan, context = {}) {
 
   const materialization = plan?.planning_materialization;
   const requiredPlanningDocuments = [
+    ".detail-page/planning/BENCHMARK-ASSEMBLY.md",
     ".detail-page/planning/COMMERCIAL.md",
     ".detail-page/planning/DESIGN.md",
     ".detail-page/planning/BUYER-JOURNEY.md",
@@ -1901,7 +1912,7 @@ export function validateProductionPlan(plan, context = {}) {
     addError(
       "PLANNING_MATERIALIZATION_REQUIRED",
       "planning_materialization",
-      "ProductionPlan은 COMMERCIAL·DESIGN·BUYER-JOURNEY·GIF 사람용 문서를 빈 템플릿 없이 물질화해야 합니다.",
+      "ProductionPlan은 BENCHMARK-ASSEMBLY·COMMERCIAL·DESIGN·BUYER-JOURNEY·GIF 사람용 문서를 빈 템플릿 없이 물질화해야 합니다.",
     );
   }
 
@@ -1917,6 +1928,9 @@ export function validateProductionPlan(plan, context = {}) {
   const summary = {
     reference_artifacts: asArray(
       plan?.reference_artifact_set?.artifacts,
+    ).length,
+    benchmark_competitors: asArray(
+      plan?.benchmark_assembly?.competitors,
     ).length,
     claims: claims.length,
     sections: sections.length,

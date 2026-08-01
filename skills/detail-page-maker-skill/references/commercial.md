@@ -28,6 +28,7 @@ Behance 조사에서 작품 고유 색·서체·카피·레이아웃은 가져�
 | CR-018 | 쿠팡의 빠른 스크롤에서는 각 section이 1초 안에 문제·핵심 장점·사용 또는 결과 중 해당 역할 하나를 전달하고 제목을 읽는 순간 주 시각이 그 주장을 직접 증명해야 한다. | section별 메시지 1개, 제목 1~3줄, 첫 화면 문제/제품/근거 동시 식별 | 2026-08-01 |
 | CR-019 | 같은 SKU 상세페이지는 고객 문제, 첫 장점, 장점 순서, 증명 방식, 사용법 위치, 마무리 메시지의 판매 논리를 적극 재구성한다. 유사 상품은 가설로, 다른 상품은 광고 문법으로만 쓰며 고유 카피·자산은 복제하지 않는다. | reference relation·same-SKU sales logic·reuse mode 검사 | 2026-08-01 |
 | CR-020 | HTML을 먼저 만들지 않고 제품 사실과 타깃 문제 → 메시지 순서 → 문장별 증명 이미지 → 정지/GIF 적합성 → 모션 다양성을 함께 확정한 뒤 32개 이미지 용도 배치와 조립을 시작한다. | 모든 section의 message/image/motion/next-reason 계약과 이미지 용도 합계 32 | 2026-08-01 |
+| CR-021 | 쿠팡에서 동일 SKU·동일 카테고리 상위 판매 경쟁사를 최소 3개 조사해 A 한 곳을 주 뼈대로 정하고 B·C의 더 좋은 설명·소구·섹션별 디자인 패턴을 보강한다. 카피와 시각은 자사 SSOT·claim으로 다시 만들며 관찰·제조사·검증 효능 장점은 적극 노출한다. | BENCHMARK-ASSEMBLY의 후보 3+, A backbone 1, B/C supplement 1+, 전 section rewrite/reference, 고유 카피·자산 복제 0 | 2026-08-01 |
 
 새 공용 상업 규칙은 이 표에만 추가·수정한다. 조사 원문과 후보는 active rule에서
 분리하고 프로젝트 내부 research retention 정책에 따라 보존 또는 정리한다.
@@ -37,8 +38,9 @@ Behance 조사 run을 `exps/*.md`에 `commercial-research`, `promotion: auto`로
 
 ## G1 입력과 출력
 
-G1은 승인된 제품 사실, 동종 제품 3개 이상, 공개 후기 또는 검증 가능한 사용
-불편, 목표 고객과 판매 채널을 입력으로 사용한다. 실제 동일 SKU 후기는 선택
+G1은 승인된 제품 사실, 쿠팡 우선 경쟁사 3개 이상, 공개 후기 또는 검증 가능한 사용
+불편, 목표 고객과 판매 채널을 입력으로 사용한다. 경쟁사는 동일 SKU를 먼저 찾고
+없으면 동일 카테고리 상위 판매상품, 그다음 보조 커머스로 넓힌다. 실제 동일 SKU 후기는 선택
 사항이며 없으면 후기 섹션을 생략한다. 다음 파일을 작성한다.
 
 G1 시작 시 `references/category-reference-library.md`에 따라 주 아키타입 하나와
@@ -46,6 +48,8 @@ G1 시작 시 `references/category-reference-library.md`에 따라 주 아키타
 공통 ambition anchor, 모든 제작 target의 trait binding이 없으면 아래 문서를
 물질화하거나 승인하지 않는다.
 
+- `BENCHMARK-ASSEMBLY.md`: 공급처·사진 intake, 경쟁사 순위, A 뼈대, B/C 보강,
+  섹션별 디자인 reference, 고정 순서, 자사 카피 rewrite
 - `COMMERCIAL.md`: 고객 문제, 제품 답, 주장, 근거
 - `DESIGN.md`: 시각 위계, 색, 타이포, 밀도
 - `BUYER-JOURNEY.md`: 섹션별 구매 질문과 다음 행동
@@ -78,6 +82,19 @@ G1 시작 시 `references/category-reference-library.md`에 따라 주 아키타
 `특징 → 고객 효익 → 사용 장면 → 즉시 증거` 순서로 쓴다. 설치·수납·조리 제품은
 `CR-008`의 적용 경계를 사양표에만 숨기지 말고 실제 사용 장면과 인접시킨다.
 
+## 경쟁사 조립 규칙
+
+- 각 후보는 URL·채널·`same_sku | same_category | adjacent_category` 관계,
+  판매 성과 신호, evidence ID, 핵심 소구를 가진다.
+- A 페이지에서는 전체 구매 흐름과 섹션 순서를 채택한다.
+- B·C에서는 A보다 더 명확한 설명·증명 방식·장점 표현을 target section에 보강한다.
+- 섹션별 디자인 reference는 따로 선택할 수 있지만 원본 이미지·고유 문장·색상
+  조합을 복제하지 않는다.
+- `locked_section_order` 뒤 모든 section에 `own_product_copy`와 현재 claim ID를
+  연결한다. 경쟁사 기능을 현재 제품 사실로 승격하지 않는다.
+- 장점은 안전하게 말하는 데서 멈추지 않고 고객이 한눈에 이해하도록 이미지·GIF·
+  카피로 크게 전달한다. 인증·시험이 필요한 표현과 무근거 정량만 보류한다.
+
 ## 카피 규칙
 
 - 고객의 장면과 망설임을 먼저 말하고 `CR-002`의 별도 해결 그룹에서 답한다.
@@ -109,3 +126,6 @@ motion 역할, 체감 의견, 섹션 위치가 있어야 한다. 전체 commerci
 통과해야 한다.
 `MANUFACTURER_CLAIM`은 원문·출처·조건과 `publishable: true` 판정을 기록한다.
 정량 근거가 없으면 `numeric_basis: none`으로 두고 정성 시각화만 계획한다.
+`benchmark_assembly`는 최소 3개 후보, A backbone, B/C 보강, 모든 section의
+design reference와 자사 rewrite, 적극 장점 노출 정책을 통과해야 한다. 기획안은
+exact challenge와 함께 공개하고 명시적 반려가 없으면 120초 뒤 자동 진행한다.

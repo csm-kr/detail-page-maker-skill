@@ -18,6 +18,9 @@ import {
   saveProjectOutput,
   validatePublicMotionClosure,
 } from "../runtime/project-output-runtime.mjs";
+import {
+  validatePublicConversionHtml,
+} from "../orchestration/coupang-conversion-contract.mjs";
 
 const TWO_FRAME_GIF = Buffer.from(
   "47494638396101000100800000000000ffffff21f904000a0000002c000000000100010000020244010021f904000a0000002c00000000010001000002024c01003b",
@@ -35,6 +38,13 @@ test("sanitizer는 data-motion-src를 실제 공개 GIF src로 승격한다", ()
   assert.doesNotMatch(sanitized, /data-motion-src/);
   assert.match(sanitized, /IntersectionObserver/);
   assert.match(sanitized, /max-width:780px!important/);
+});
+
+test("공개 validator는 CSS selector를 data 속성으로 오인하지 않는다", () => {
+  const cssOnly = `<!doctype html><html><head><style>[data-studio-selected="true"]{outline:1px solid red}</style></head><body><main>상품</main></body></html>`;
+  assert.equal(validatePublicConversionHtml(cssOnly).ok, true);
+  const actualAttribute = `<!doctype html><html><body><main data-studio-selected="true">상품</main></body></html>`;
+  assert.equal(validatePublicConversionHtml(actualAttribute).ok, false);
 });
 
 test("public output은 GIF bytes와 frame count를 manifest까지 닫는다", async () => {

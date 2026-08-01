@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "policy_id": "detail-page-flow",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "status": "required",
   "authority": "user-confirmed-house-standard",
   "canvas": {
@@ -16,6 +16,8 @@
     "user_product_photo_directory": "input/product",
     "actual_product_photos": "optional",
     "missing_photo_notice_maximum": 1,
+    "missing_photo_behavior": "continue_with_supplier_same_sku_without_second_question",
+    "product_ssot_priority": ["user_actual_photos", "supplier_same_sku"],
     "supplier_url": "required",
     "supplier_same_sku_media": {
       "required": true,
@@ -76,9 +78,38 @@
       "minimum_primary_reference_cards": 2,
       "ambition_anchor_required": true,
       "project_asset_copy_allowed": false
+    },
+    "competitor_benchmark": {
+      "policy_id": "policy.benchmark-assembly.searchmaster-compatible.v1",
+      "search_adapter": "searchmaster-compatible-commerce-search",
+      "primary_channel": "coupang",
+      "optional_channels": ["naver", "other_commerce"],
+      "match_priority": ["same_sku", "same_category", "adjacent_category"],
+      "minimum_competitors": 3,
+      "rank_signals": ["sales_volume", "category_rank", "review_count", "rating"],
+      "assembly_method": [
+        "select_one_primary_backbone",
+        "supplement_with_better_explanations_from_other_competitors",
+        "lock_section_order",
+        "rewrite_all_copy_for_own_product",
+        "select_design_reference_per_section"
+      ],
+      "unique_copy_or_asset_reuse_allowed": false,
+      "selling_logic_and_explanation_pattern_adaptation_allowed": true
     }
   },
   "content": {
+    "advantage_surfacing": {
+      "surface_supported_advantages": true,
+      "allowed_claim_types": [
+        "observable_structure",
+        "manufacturer_claim",
+        "verified_efficacy"
+      ],
+      "certificate_required_claims_need_evidence": true,
+      "unsupported_quantitative_claims_forbidden": true,
+      "missing_efficacy_proof_may_not_hide_observable_or_manufacturer_backed_advantages": true
+    },
     "coupang_one_second_delivery": {
       "one_primary_message_per_section": true,
       "headline_line_count": {"minimum": 1, "maximum": 3},
@@ -313,15 +344,23 @@
     "message_intent_and_purchase_flow_learning_allowed": true
   },
   "studio": {
+    "entry_stage": "after_g4_assembly_and_pre_studio_qa",
+    "user_visible_views": ["final_edit", "final_output"],
+    "intermediate_asset_or_workflow_controls_visible": false,
     "authoring_layer": "editable_html_sections",
     "explicit_save_overwrites_current_working_output": true,
     "automatic_public_overwrite": false,
+    "final_session_required": true,
+    "working_state_endpoint": "/api/v1/studio/working/state",
+    "working_save_endpoint": "/api/v1/studio/working/save",
+    "legacy_output_save_allowed_from_final_ui": false,
     "save_sets_state": "wing_export_required",
     "restore_snapshot_limit": 20,
     "restore_snapshots_are_internal": true,
     "saved_page_height_must_fit_content": true,
     "local_output_launcher": {
-      "label": "Studio에서 수정하기",
+      "label": "Studio에서 최종 수정",
+      "exact_working_session_required": true,
       "served_response_only": true,
       "canonical_public_file_mutation_allowed": false,
       "wing_injection_allowed": false
@@ -406,11 +445,15 @@
     "item_heartbeat_required": true,
     "producer_self_validation_allowed": false,
     "plan_once_fast_path": {
-      "policy_id": "policy.approval.plan-once-with-actual-photos.v1",
-      "default_when_verified_actual_photos_exist": true,
+      "policy_id": "policy.approval.url-only-autocontinue.v1",
+      "default_when_supplier_url_exists": true,
       "actual_photo_root": "input/product",
+      "product_identity_source_priority": ["actual_product_photo", "supplier_same_sku"],
       "actual_photo_materialized_bytes_and_hash_required": true,
       "only_manual_gate": "G1U_APPROVAL",
+      "manual_gate_timeout_ms": 120000,
+      "timeout_decision": "approved_when_no_explicit_rejection",
+      "timeout_approval_channel": "policy_auto_after_timeout",
       "auto_gates_before_manual_plan": [
         "G0U_APPROVAL",
         "G1DQ_SELECTION"
@@ -426,7 +469,7 @@
       "approval_channel": "policy_auto_after_plan",
       "exact_subject_digest_receipt_required": true,
       "qa_must_pass_before_auto_approval": true,
-      "manual_fallback_without_actual_photos": true,
+      "supplier_same_sku_fallback_without_actual_photos": true,
       "may_bypass_file_identity_claim_motion_export_or_remote_failures": false
     },
     "independent_qa_lanes": [

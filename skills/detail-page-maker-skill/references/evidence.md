@@ -8,7 +8,8 @@ locator를 우선한다. 도매꾹은 대표 이미지, 상세 원본, 상세 �
 
 - 공급처 URL은 필수다.
 - 사용자가 제공하는 실제 제품 사진은 선택 사항이며 `input/product/`에만 둔다.
-- 실제 사진이 없으면 최초 한 번만 추가 안내하고 `HOLD` 없이 계속한다.
+- 실제 사진은 최초 한 번만 요청한다. 없거나 답이 없으면 재질문·`HOLD` 없이
+  검증된 공급처 동일 SKU를 SSOT로 계속한다.
 - 같은 SKU의 공급처 이미지는 반드시 제품 동일성 SSOT와 ImageGen 참조로 쓴다.
 - 공급처 원본은 고객 광고에 직접 싣지 않고 승인된 생성·변환 결과만 사용한다.
 - 공급처가 도매꾹이면 `dmk-extractor`, 시장 근거가 쿠팡이면
@@ -66,7 +67,7 @@ locator를 우선한다. 도매꾹은 대표 이미지, 상세 원본, 상세 �
 결과는 현재 SSOT와 나란히 비교하고 필요한 경우 반투명 겹치기와 확대 검사를 한다.
 
 SSOT manifest에는 `identity_source`,
-`actual_photo_status: provided | absent_notified_once`,
+`actual_photo_status: provided | not_provided | no_response`,
 `supplier_media_required: true`, `supplier_use_roles:
 [product_identity_ssot, image_generation_reference]`,
 `direct_publication_allowed: false`를 기록한다.

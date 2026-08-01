@@ -55,14 +55,15 @@ test("G0부터 G5까지 필요한 프로젝트 로컬 스킬은 선언·잠금·
   );
 });
 
-test("상위 스킬은 God Tibo 기본값에 기대지 않고 8개 작업 단위를 명시한다", async () => {
+test("상위 스킬은 God Tibo 기본값에 기대지 않고 32개 동시 작업 단위를 명시한다", async () => {
   const [skill, assets] = await Promise.all([
     readFile(path.join(SKILL_ROOT, "SKILL.md"), "utf8"),
     readFile(path.join(SKILL_ROOT, "references", "assets.md"), "utf8"),
   ]);
 
   assert.doesNotMatch(skill, /기본\s*배치[^\n]*16개/);
-  assert.match(skill, /작업 단위는 8개 `items`로 명시/);
-  assert.match(assets, /작업 단위: 8개 `items`를 명시/);
+  assert.match(skill, /`items` 32개를/);
+  assert.match(assets, /기본 작업 단위: 서로 다른 용도의 32개 `items`를 한 job에 명시/);
+  assert.match(skill, /8×4 순차 배치로 실행하지 않는다/);
   assert.match(assets, /God Tibo의 기본값을 사용하지 않는다/);
 });

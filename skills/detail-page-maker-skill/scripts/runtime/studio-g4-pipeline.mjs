@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import {
   mkdir,
   readFile,
+  readdir,
   realpath,
   rename,
   writeFile,
@@ -474,6 +475,58 @@ export function createStudioG4Pipeline({
       challenge: session.challenge ?? null,
       session_sha256: session.session_sha256,
     };
+  }
+
+  async function readWorkingForEditor(sessionId) {
+    const session = await loadSession(sessionId);
+    if (session.status !== "working") {
+      fail(
+        "STUDIO_SESSION_NOT_MUTABLE",
+        "최종 수정은 working 상태의 Studio session에서만 가능합니다.",
+      );
+    }
+    const htmlPath = path.join(
+      path.resolve(session.working_state.root),
+      "index.html",
+    );
+    resolveInside(
+      await canonicalRootPromise,
+      htmlPath,
+      "working index.html",
+    );
+    return {
+      session: await inspectSession(sessionId),
+      html: await readFile(htmlPath, "utf8"),
+      editable_html_contract: structuredClone(
+        session.editable_html_contract,
+      ),
+    };
+  }
+
+  async function latestWorkingSession() {
+    let entries = [];
+    try {
+      entries = await readdir(sessionRoot, { withFileTypes: true });
+    } catch (error) {
+      if (error?.code === "ENOENT") return null;
+      throw error;
+    }
+    const sessions = [];
+    for (const entry of entries) {
+      if (!entry.isFile() || !entry.name.endsWith(".json")) continue;
+      try {
+        const session = await loadSession(entry.name.slice(0, -5));
+        if (session.status === "working") sessions.push(session);
+      } catch {
+        // 손상되거나 다른 버전인 세션은 최종 편집 후보에서 제외한다.
+      }
+    }
+    sessions.sort(
+      (left, right) =>
+        Date.parse(right.updated_at ?? right.imported_at ?? 0) -
+        Date.parse(left.updated_at ?? left.imported_at ?? 0),
+    );
+    return sessions[0] ? inspectSession(sessions[0].session_id) : null;
   }
 
   async function importWorking(payload) {
@@ -1181,5 +1234,7 @@ export function createStudioG4Pipeline({
     commitAndPlanCapture,
     completeCaptureAndOpenApproval,
     inspectSession,
+    readWorkingForEditor,
+    latestWorkingSession,
   });
 }

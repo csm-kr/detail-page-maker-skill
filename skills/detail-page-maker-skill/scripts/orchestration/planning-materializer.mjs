@@ -81,6 +81,43 @@ function renderCommercial(plan, digest) {
   ].join("\n");
 }
 
+function renderBenchmarkAssembly(plan, digest) {
+  return [
+    documentHeader("Competitor Benchmark Assembly", digest),
+    "## Supplier and one-time photo intake",
+    "",
+    jsonBlock({
+      supplier: plan.benchmark_assembly?.supplier,
+      photo_intake: plan.benchmark_assembly?.photo_intake,
+    }),
+    "",
+    "## Search strategy and ranked competitors",
+    "",
+    jsonBlock({
+      search_strategy: plan.benchmark_assembly?.search_strategy,
+      competitors: plan.benchmark_assembly?.competitors,
+    }),
+    "",
+    "## Primary backbone and B/C supplements",
+    "",
+    jsonBlock({
+      primary_backbone: plan.benchmark_assembly?.primary_backbone,
+      borrowed_strengths: plan.benchmark_assembly?.borrowed_strengths,
+    }),
+    "",
+    "## Section references and own-product rewrite",
+    "",
+    jsonBlock({
+      section_design_references:
+        plan.benchmark_assembly?.section_design_references,
+      own_product_rewrite:
+        plan.benchmark_assembly?.own_product_rewrite,
+      advantage_policy: plan.benchmark_assembly?.advantage_policy,
+    }),
+    "",
+  ].join("\n");
+}
+
 function renderDesign(plan, digest) {
   return [
     documentHeader("Design Plan", digest),
@@ -173,6 +210,10 @@ export async function materializePlanningDocuments({
   const root = path.resolve(projectRoot);
   const digest = planDigest(productionPlan);
   const documents = [
+    [
+      "BENCHMARK-ASSEMBLY.md",
+      renderBenchmarkAssembly(productionPlan, digest),
+    ],
     ["COMMERCIAL.md", renderCommercial(productionPlan, digest)],
     ["DESIGN.md", renderDesign(productionPlan, digest)],
     ["BUYER-JOURNEY.md", renderBuyerJourney(productionPlan, digest)],

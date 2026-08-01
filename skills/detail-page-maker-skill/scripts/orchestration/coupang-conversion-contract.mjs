@@ -297,7 +297,10 @@ export function validatePublicConversionHtml(html) {
       "공개 HTML에는 내부 ID·세션·QA·해시·로컬 Studio 런처가 없어야 합니다.",
     );
   }
-  if (/\bdata-[a-z0-9_-]+\s*=/i.test(source)) {
+  const markupOnly = source
+    .replace(/<!--[^]*?-->/g, "")
+    .replace(/<(?:style|script)\b[^>]*>[^]*?<\/(?:style|script)\s*>/gi, "");
+  if (/<[^>]*\sdata-[a-z0-9_-]+\s*=/i.test(markupOnly)) {
     add(
       errors,
       "PUBLIC_DATA_ATTRIBUTE_FORBIDDEN",

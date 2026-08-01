@@ -75,10 +75,12 @@ const WORKFLOW_APPROVAL_NOTICE = Object.freeze({
   ledgerScope: "asset-file-only",
   planOncePolicy: Object.freeze({
     policyId:
-      "policy.approval.plan-once-with-actual-photos.v1",
+      "policy.approval.url-only-autocontinue.v1",
     substitutesRepeatedUserConfirmation: true,
-    requiresVerifiedActualPhotos: true,
-    requiresManualG1PlanApproval: true,
+    requiresVerifiedProductIdentitySource: true,
+    actualPhotosPreferred: true,
+    supplierSameSkuFallbackAllowed: true,
+    planApprovalTimeoutMs: 120000,
     qaBypassAllowed: false,
   }),
   requiredStages: Object.freeze([
@@ -187,7 +189,9 @@ function isOpaqueAuthoringSubresource(request, expectedOrigin, pathname) {
     const refererUrl = new URL(referer);
     return (
       refererUrl.origin === expectedOrigin &&
-      refererUrl.pathname === "/authoring.html"
+      ["/authoring.html", "/studio-working.html"].includes(
+        refererUrl.pathname,
+      )
     );
   } catch {
     return false;
@@ -925,9 +929,10 @@ async function gateStatus(projectRoot, workflowEngine) {
   );
   const planOnceAssetApproval =
     fastPath?.policy_id ===
-      "policy.approval.plan-once-with-actual-photos.v1" &&
-    fastPath?.actual_product_photos_verified === true &&
-    fastPath?.manual_plan_approval_verified === true &&
+      "policy.approval.url-only-autocontinue.v1" &&
+    (fastPath?.actual_product_photos_verified === true ||
+      fastPath?.supplier_same_sku_verified === true) &&
+    fastPath?.accepted_plan_approval_verified === true &&
     ["G2U_APPROVAL", "G3U_APPROVAL"].every(
       (stageId) =>
         fastPathStageIds.has(stageId) &&
@@ -1860,10 +1865,14 @@ function serveHtml(response, html, extraHeaders = {}) {
   response.end(body);
 }
 
-export function injectLocalStudioLauncher(html) {
+export function injectLocalStudioLauncher(html, sessionId = null) {
   const source = String(html ?? "");
+  if (!sessionId) return source;
   if (source.includes("data-local-studio-launcher")) return source;
-  const launcher = `<a href="/studio.html" data-local-studio-launcher aria-label="상세페이지를 Studio에서 수정하기" style="position:fixed;z-index:2147483647;right:18px;bottom:18px;display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border:1px solid rgba(255,255,255,.24);border-radius:999px;background:#111827;color:#fff;font:800 15px/1.2 system-ui,-apple-system,'Noto Sans KR','Malgun Gothic',sans-serif;text-decoration:none;box-shadow:0 12px 32px rgba(0,0,0,.28)">Studio에서 수정하기</a>`;
+  const sessionQuery = sessionId
+    ? `?session_id=${encodeURIComponent(sessionId)}`
+    : "";
+  const launcher = `<a href="/studio.html${sessionQuery}" data-local-studio-launcher aria-label="완성된 상세페이지를 Studio에서 최종 수정하기" style="position:fixed;z-index:2147483647;right:18px;bottom:18px;display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border:1px solid rgba(255,255,255,.24);border-radius:999px;background:#111827;color:#fff;font:800 15px/1.2 system-ui,-apple-system,'Noto Sans KR','Malgun Gothic',sans-serif;text-decoration:none;box-shadow:0 12px 32px rgba(0,0,0,.28)">Studio에서 최종 수정</a>`;
   if (/<\/body>/i.test(source)) {
     return source.replace(/<\/body>/i, `${launcher}</body>`);
   }
@@ -2012,6 +2021,27 @@ export async function startStudioV1Server({
         }
         sendJson(response, 200, {
           session: await studioPipeline.inspectSession(sessionId),
+        });
+        return;
+      }
+      if (
+        request.method === "GET" &&
+        pathname === "/api/v1/studio/working/state"
+      ) {
+        const sessionId = url.searchParams.get("session_id");
+        if (!sessionId) {
+          throw new StudioV1Error(
+            "STUDIO_SESSION_ID_REQUIRED",
+            "session_id가 필요합니다.",
+          );
+        }
+        const working = await studioPipeline.readWorkingForEditor(
+          sessionId,
+        );
+        sendJson(response, 200, {
+          session: working.session,
+          editable_html_contract:
+            working.editable_html_contract,
         });
         return;
       }
@@ -2247,6 +2277,18 @@ export async function startStudioV1Server({
       }
 
       if (pathname === "/" || pathname === "/studio.html") {
+        if (!url.searchParams.get("session_id")) {
+          const latestSession = await studioPipeline.latestWorkingSession();
+          if (latestSession?.session_id) {
+            response.writeHead(302, {
+              Location: `/studio.html?session_id=${encodeURIComponent(latestSession.session_id)}`,
+              "Cache-Control": "no-store",
+              "Set-Cookie": capabilityCookie,
+            });
+            response.end();
+            return;
+          }
+        }
         serveHtml(
           response,
           studioHtml,
@@ -2261,6 +2303,20 @@ export async function startStudioV1Server({
         );
         return;
       }
+      if (pathname === "/studio-working.html") {
+        const sessionId = url.searchParams.get("session_id");
+        if (!sessionId) {
+          throw new StudioV1Error(
+            "STUDIO_SESSION_ID_REQUIRED",
+            "session_id가 필요합니다.",
+          );
+        }
+        const working = await studioPipeline.readWorkingForEditor(
+          sessionId,
+        );
+        serveHtml(response, working.html);
+        return;
+      }
       if (pathname === "/output/detail-page.html") {
         const outputPath = await resolveExistingInside(
           root,
@@ -2268,7 +2324,10 @@ export async function startStudioV1Server({
         );
         serveHtml(
           response,
-          injectLocalStudioLauncher(await readFile(outputPath, "utf8")),
+          injectLocalStudioLauncher(
+            await readFile(outputPath, "utf8"),
+            (await studioPipeline.latestWorkingSession())?.session_id ?? null,
+          ),
         );
         return;
       }
