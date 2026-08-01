@@ -8,23 +8,23 @@ Studio v1, `output/detail-page.html`, 쿠팡 Wing CDN 출력을 만드는 단일
 ## 제작 예시
 
 <p align="center">
-  <a href="examples/해충-끈끈이-상세페이지-v4.html">
+  <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80-v4.html">
     <img src="examples/previews/sticky-trap-detail-v4.png" width="390" alt="해충 끈끈이 상세페이지 v4 미리보기">
   </a>
 </p>
 <p align="center">
   <strong>1. 해충-끈끈이-상세페이지-v4</strong><br>
-  <a href="examples/해충-끈끈이-상세페이지-v4.html">HTML 파일 보기</a>
+  <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80-v4.html">실제 HTML로 더 보기 →</a>
 </p>
 
 <p align="center">
-  <a href="examples/coupang-wing-detail-780.html">
-    <img src="examples/previews/coupang-wing-detail-780.webp" width="390" alt="쿠팡 Wing 상세페이지 780px 미리보기">
+  <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/coupang-wing-detail-780.html">
+    <img src="examples/previews/coupang-wing-detail-780.png" width="390" alt="쿠팡 Wing 상세페이지 780px 미리보기">
   </a>
 </p>
 <p align="center">
   <strong>2. coupang-wing-detail-780</strong><br>
-  <a href="examples/coupang-wing-detail-780.html">HTML 파일 보기</a>
+  <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/coupang-wing-detail-780.html">실제 HTML로 더 보기 →</a>
 </p>
 
 ## 한 줄 설치
