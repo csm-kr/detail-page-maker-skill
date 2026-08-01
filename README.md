@@ -10,26 +10,26 @@ Studio v1, `output/detail-page.html`, 쿠팡 Wing CDN 출력을 만드는 단일
 <table>
   <thead>
     <tr>
-      <th align="center">해충-끈끈이-상세페이지-v4</th>
-      <th align="center">coupang-wing-detail-780</th>
+      <th align="center">노바페이스-깔창-상세페이지</th>
+      <th align="center">해충-끈끈이-상세페이지</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td align="center">
-        <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80-v4.html">
-          <img src="examples/previews/sticky-trap-detail-v4.png" width="360" alt="해충 끈끈이 상세페이지 v4 미리보기">
+        <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%EB%85%B8%EB%B0%94%ED%8E%98%EC%9D%B4%EC%8A%A4-%EA%B9%94%EC%B0%BD-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80.html">
+          <img src="examples/previews/novaface-insole-detail.png" width="360" alt="노바페이스 깔창 상세페이지 미리보기">
         </a>
       </td>
       <td align="center">
-        <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/coupang-wing-detail-780.html">
-          <img src="examples/previews/coupang-wing-detail-780.png" width="360" alt="쿠팡 Wing 상세페이지 780px 미리보기">
+        <a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80.html">
+          <img src="examples/previews/sticky-trap-detail.png" width="360" alt="해충 끈끈이 상세페이지 미리보기">
         </a>
       </td>
     </tr>
     <tr>
-      <td align="center"><a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80-v4.html"><strong>실제 HTML로 더 보기 →</strong></a></td>
-      <td align="center"><a href="https://csm-kr.github.io/detail-page-maker-skill/examples/coupang-wing-detail-780.html"><strong>실제 HTML로 더 보기 →</strong></a></td>
+      <td align="center"><a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%EB%85%B8%EB%B0%94%ED%8E%98%EC%9D%B4%EC%8A%A4-%EA%B9%94%EC%B0%BD-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80.html"><strong>실제 HTML로 더 보기 →</strong></a></td>
+      <td align="center"><a href="https://csm-kr.github.io/detail-page-maker-skill/examples/%ED%95%B4%EC%B6%A9-%EB%81%88%EB%81%88%EC%9D%B4-%EC%83%81%EC%84%B8%ED%8E%98%EC%9D%B4%EC%A7%80.html"><strong>실제 HTML로 더 보기 →</strong></a></td>
     </tr>
   </tbody>
 </table>
