@@ -1,110 +1,63 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  sanitizePublicHtml,
-  saveProjectOutput,
-} from "../runtime/project-output-runtime.mjs";
 
-const WORKSPACE_CONFIG_RELATIVE_PATH = path.join("config", "workspace.json");
+const SKILL_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
 
 function safeSlug(value) {
-  const slug = String(value)
+  return String(value || "product")
     .normalize("NFKC")
     .trim()
     .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-  return slug || "product";
+    .replace(/^-|-$/g, "") || "product";
 }
 
-function extractProductId(supplierUrl) {
+function requireHttpUrl(value, label) {
+  let parsed;
   try {
-    const url = new URL(supplierUrl);
-    const match = `${url.pathname}${url.search}`.match(/\d{6,}/);
-    return match?.[0] || "";
+    parsed = new URL(String(value || ""));
   } catch {
-    return "";
+    throw new Error(`${label} URL이 올바르지 않습니다.`);
   }
+  if (!new Set(["http:", "https:"]).has(parsed.protocol)) {
+    throw new Error(`${label} URL은 http 또는 https여야 합니다.`);
+  }
+  return parsed.toString();
 }
 
-function skillRoot() {
-  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+function render(template, values) {
+  return Object.entries(values).reduce(
+    (body, [key, value]) => body.replaceAll(`{{${key}}}`, String(value)),
+    template,
+  );
 }
 
-function sha256(value) {
-  return createHash("sha256").update(value).digest("hex");
+function publicHtml(authoringHtml) {
+  return authoringHtml
+    .replace(/\sdata-(?:studio-project|export-name|edit|edit-object)(?:="[^"]*")?/g, "")
+    .replace(/\sdata-layer-id="[^"]*"/g, "");
 }
 
 function workspaceConfig(startDirectory = process.cwd()) {
   let current = path.resolve(startDirectory);
   while (true) {
-    const configPath = path.join(current, WORKSPACE_CONFIG_RELATIVE_PATH);
-    if (existsSync(configPath)) {
-      const config = JSON.parse(readFileSync(configPath, "utf8"));
-      if (config.schemaVersion !== 1 || !config.projectsRoot) {
-        throw new Error(
-          `${WORKSPACE_CONFIG_RELATIVE_PATH}에는 schemaVersion 1과 projectsRoot가 필요합니다.`,
-        );
-      }
-      return { workspaceRoot: current, configPath, config };
+    const candidate = path.join(current, "config", "workspace.json");
+    if (existsSync(candidate)) {
+      const config = JSON.parse(readFileSync(candidate, "utf8"));
+      if (config.projectsRoot) return { root: current, config };
     }
     const parent = path.dirname(current);
     if (parent === current) return null;
     current = parent;
   }
-}
-
-function workspaceState() {
-  return {
-    schemaVersion: 1,
-    isolation: "self-contained",
-    externalFileDependencies: false,
-    pathPolicy: "project-relative-only",
-  };
-}
-
-function createInitialProject({
-  id = `project-${randomUUID()}`,
-  name,
-  supplierUrl,
-  productId = "",
-  createdAt = new Date().toISOString(),
-}) {
-  if (!String(name || "").trim()) throw new Error("상품명이 필요합니다.");
-  if (!String(supplierUrl || "").trim()) throw new Error("공급처 URL이 필요합니다.");
-  return {
-    schemaVersion: 1,
-    studioVersion: 1,
-    id,
-    name,
-    supplierUrl,
-    productId,
-    phase: "planning",
-    createdAt,
-    updatedAt: createdAt,
-    html: {
-      entry: "output/detail-page.html",
-      canonicalEntry: "output/detail-page.html",
-      internalEditableRevision:
-        ".detail-page/authoring/detail-page.html",
-      layerState: {},
-      viewportOverrides: {},
-    },
-    wing_export_required: true,
-    finalQa: {
-      status: "not_requested",
-      score: null,
-      hardFailures: [],
-      warnings: [],
-      userApproved: false,
-      reportPath: null,
-    },
-  };
 }
 
 export function defaultProjectsRoot({
@@ -114,196 +67,93 @@ export function defaultProjectsRoot({
   if (environment.DETAIL_PAGE_PROJECTS_ROOT) {
     return path.resolve(environment.DETAIL_PAGE_PROJECTS_ROOT);
   }
-  const discovered = workspaceConfig(startDirectory);
-  if (discovered) {
-    return path.resolve(discovered.workspaceRoot, discovered.config.projectsRoot);
+  const workspace = workspaceConfig(startDirectory);
+  if (workspace) {
+    return path.resolve(workspace.root, workspace.config.projectsRoot);
   }
-  return path.join(
-    os.homedir(),
-    "Documents",
-    "DetailPageStudio",
-    "projects",
-  );
+  return path.join(os.homedir(), "Documents", "DetailPageStudio", "projects");
 }
 
 export async function createProject({
   name,
   supplierUrl,
+  coupangUrl,
+  photoStatus,
   root = defaultProjectsRoot(),
 }) {
-  const productId = extractProductId(supplierUrl);
-  const folderName = safeSlug(
-    productId ? `${name}-${productId}` : `${name}-${Date.now()}`,
+  if (!String(name || "").trim()) throw new Error("상품명이 필요합니다.");
+  const supplier = requireHttpUrl(supplierUrl, "공급처");
+  const coupang = requireHttpUrl(coupangUrl, "쿠팡 기준상품");
+  if (!new Set(["yes", "no"]).has(photoStatus)) {
+    throw new Error("실제 제품 사진 보유 여부는 yes 또는 no여야 합니다.");
+  }
+
+  const projectRoot = path.resolve(
+    root,
+    `${safeSlug(name)}-${Date.now()}`,
   );
-  const projectRoot = path.resolve(root, folderName);
-  const directories = [
-    "input/product",
-    "output",
-    ".detail-page/authoring",
-  ];
   await mkdir(path.resolve(root), { recursive: true });
   await mkdir(projectRoot, { recursive: false });
-  await Promise.all(
-    directories.map((directory) =>
-      mkdir(path.join(projectRoot, directory), { recursive: true }),
-    ),
-  );
-  const state = {
-    ...createInitialProject({
-      name,
-      supplierUrl,
-      productId,
-    }),
-    workspace: workspaceState(),
-  };
-  await writeFile(
-    path.join(projectRoot, "project.json"),
-    `${JSON.stringify(state, null, 2)}\n`,
-    "utf8",
-  );
-  const templatePath = path.join(
-    skillRoot(),
-    "assets",
-    "project-template",
-    "detail-page.html",
-  );
-  const template = await readFile(templatePath, "utf8");
-  const projectKey = safeSlug(productId ? `${name}-${productId}` : name);
-  const exportFilename = `${projectKey}-standalone.html`;
-  const renderedTemplate = template
-    .replaceAll("{{PRODUCT_NAME}}", name)
-    .replaceAll("{{SUPPLIER_URL}}", supplierUrl)
-    .replaceAll("{{PROJECT_KEY}}", projectKey)
-    .replaceAll("{{EXPORT_FILENAME}}", exportFilename);
-  const publicTemplate = sanitizePublicHtml(renderedTemplate);
-  const sourceSha256 = sha256(renderedTemplate);
-  const publicSha256 = sha256(publicTemplate);
-  await writeFile(
-    path.join(projectRoot, ".detail-page", "authoring", "detail-page.html"),
-    renderedTemplate,
-    "utf8",
-  );
-  await writeFile(
-    path.join(projectRoot, "output", "detail-page.html"),
-    publicTemplate,
-    "utf8",
-  );
-  await writeFile(
-    path.join(projectRoot, ".detail-page", "output-state.json"),
-    `${JSON.stringify(
-      {
-        schema_version: "1.0",
-        wing_export_required: true,
-        canonical_entry: "output/detail-page.html",
-        source_revision_id: `source-initial-${sourceSha256.slice(0, 12)}`,
-        current_source_revision_sha256: sourceSha256,
-        current_authoring_sha256: sourceSha256,
-        current_public_sha256: publicSha256,
-        updated_at: new Date().toISOString(),
-      },
-      null,
-      2,
-    )}\n`,
-    "utf8",
-  );
-  await writeFile(
-    path.join(projectRoot, "README.md"),
-    `# ${name}
-
-- 공급처: ${supplierUrl}
-- 프로젝트 격리: \`self-contained\`
-- 외부 파일 의존성: 없음
-
-프로젝트의 제품 근거, 생성 자산, HyperFrames 원본, QA, 승인 기록과 HTML은 이
-폴더 안에서만 관리합니다. 다른 프로젝트나 저장소 공용 폴더를 파일 경로로
-참조하지 않습니다.
-`,
-    "utf8",
-  );
-  return {
-    projectRoot,
-    state,
-  };
-}
-
-export async function adoptProject({
-  projectRoot,
-  name,
-  supplierUrl,
-  productId = "",
-  phase = "final_qa",
-  score = null,
-  htmlEntry = "detail-page/index.html",
-}) {
-  const root = path.resolve(projectRoot);
-  const statePath = path.join(root, "project.json");
-  if (!existsSync(root)) {
-    throw new Error(`프로젝트 폴더를 찾을 수 없습니다: ${root}`);
-  }
-  if (existsSync(statePath)) {
-    throw new Error(`project.json이 이미 있습니다: ${statePath}`);
-  }
-  const now = new Date().toISOString();
-  const numericScore =
-    score === null || score === undefined ? null : Number(score);
-  const state = {
-    ...createInitialProject({
-      id: path.basename(root),
-      name,
-      supplierUrl,
-      productId,
-      createdAt: now,
-    }),
-    studioVersion: 1,
-    phase,
-    updatedAt: now,
-    workspace: {
-      ...workspaceState(),
-      adoptedLegacyProject: true,
-    },
-    html: {
-      entry: "output/detail-page.html",
-      canonicalEntry: "output/detail-page.html",
-      internalEditableRevision:
-        ".detail-page/authoring/detail-page.html",
-      importedLegacyEntry: htmlEntry,
-      layerState: {},
-      viewportOverrides: {},
-      sections: [],
-      checkpoints: [],
-    },
-    finalQa: {
-      status: numericScore === null ? "not_requested" : "passed",
-      score: numericScore,
-      hardFailures: [],
-      warnings: [],
-      userApproved: phase === "published",
-      reportPath: null,
-    },
-  };
-  const legacyHtmlPath = path.resolve(root, htmlEntry);
-  const legacyRelative = path.relative(root, legacyHtmlPath);
-  if (
-    legacyRelative.startsWith("..") ||
-    path.isAbsolute(legacyRelative) ||
-    !existsSync(legacyHtmlPath)
-  ) {
-    throw new Error(`legacy HTML 입력을 찾을 수 없습니다: ${htmlEntry}`);
-  }
-  const adoptedDirectories = [
+  await Promise.all([
     "input/product",
-    "output",
+    "output/media/images",
+    "output/media/gifs",
     ".detail-page/authoring",
-  ];
-  await Promise.all(
-    adoptedDirectories.map((directory) =>
-      mkdir(path.join(root, directory), { recursive: true }),
-    ),
+    ".detail-page/backups",
+  ].map((entry) => mkdir(path.join(projectRoot, entry), { recursive: true })));
+
+  const projectKey = safeSlug(name);
+  const createdAt = new Date().toISOString();
+  const request = {
+    schema_version: "1.0",
+    project_id: `detail-${randomUUID()}`,
+    name: String(name).trim(),
+    supplier_url: supplier,
+    coupang_url: coupang,
+    actual_product_photos: photoStatus,
+    target: {
+      width_px: 780,
+      still_count: 30,
+      gif_count: 10,
+      studio: true,
+      wing_cdn: true,
+      elapsed_minutes_goal: 60,
+    },
+    status: photoStatus === "yes" ? "awaiting_photo_files" : "ready",
+    created_at: createdAt,
+  };
+
+  const template = await readFile(
+    path.join(SKILL_ROOT, "assets", "project-template", "detail-page.html"),
+    "utf8",
   );
-  await writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
-  await saveProjectOutput(root, {
-    html: await readFile(legacyHtmlPath, "utf8"),
-    now: new Date(now),
+  const authoringHtml = render(template, {
+    PRODUCT_NAME: request.name,
+    PROJECT_KEY: projectKey,
+    EXPORT_FILENAME: `${projectKey}-detail-page.html`,
   });
-  return { projectRoot: root, state };
+  await Promise.all([
+    writeFile(
+      path.join(projectRoot, "project.json"),
+      `${JSON.stringify(request, null, 2)}\n`,
+      "utf8",
+    ),
+    writeFile(
+      path.join(projectRoot, ".detail-page", "request.json"),
+      `${JSON.stringify(request, null, 2)}\n`,
+      "utf8",
+    ),
+    writeFile(
+      path.join(projectRoot, ".detail-page", "authoring", "detail-page.html"),
+      authoringHtml,
+      "utf8",
+    ),
+    writeFile(
+      path.join(projectRoot, "output", "detail-page.html"),
+      publicHtml(authoringHtml),
+      "utf8",
+    ),
+  ]);
+
+  return { projectRoot, state: request };
 }

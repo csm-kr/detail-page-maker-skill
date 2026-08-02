@@ -2,51 +2,78 @@
 <html lang="ko" data-studio-project="{{PROJECT_KEY}}">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{PRODUCT_NAME}} 상세페이지 작업본</title>
+    <meta name="viewport" content="width=780" />
+    <title>{{PRODUCT_NAME}} 상세페이지</title>
     <style>
       :root {
-        --ink: #152034;
-        --muted: #66758d;
-        --line: #dce4ef;
-        --surface: #f4f7fb;
+        --ink: #142033;
+        --muted: #627086;
+        --surface: #f2f6fb;
         --accent: #176bff;
       }
       * { box-sizing: border-box; }
-      html { background: #dfe7f2; }
-      body { width: min(100%, 390px); margin: 0 auto; background: #fff; color: var(--ink); font-family: "Pretendard", "Malgun Gothic", sans-serif; }
-      section { min-height: 640px; padding: 84px 64px; border-bottom: 1px solid var(--line); }
-      .hero { display: grid; align-content: start; min-height: 900px; background: linear-gradient(150deg, #eef4ff, #fff 58%); }
-      .eyebrow { margin: 0 0 18px; color: var(--accent); font-size: 16px; font-weight: 800; }
+      html { background: #e4eaf2; }
+      body {
+        width: 780px;
+        margin: 0 auto;
+        background: #fff;
+        color: var(--ink);
+        font-family: "Pretendard", "Malgun Gothic", sans-serif;
+      }
+      section { padding: 88px 72px; }
+      section:nth-child(even) { background: var(--surface); }
+      .hero { min-height: 860px; padding-top: 112px; }
+      .eyebrow {
+        margin: 0 0 18px;
+        color: var(--accent);
+        font-size: 20px;
+        font-weight: 800;
+      }
       h1, h2, p { margin-top: 0; }
-      h1 { max-width: 680px; margin-bottom: 24px; font-size: clamp(48px, 8vw, 76px); line-height: 1.06; letter-spacing: -.055em; }
-      h2 { max-width: 620px; margin-bottom: 20px; font-size: clamp(36px, 6vw, 58px); line-height: 1.12; letter-spacing: -.045em; }
-      p { max-width: 560px; color: var(--muted); font-size: 22px; font-weight: 600; line-height: 1.65; }
-      .placeholder { display: grid; place-items: center; min-height: 360px; margin-top: 44px; border: 1px dashed #a9b8cc; border-radius: 20px; background: var(--surface); color: #71839c; font-weight: 800; }
-      @media (max-width: 520px) {
-        section { min-height: 520px; padding: 60px 28px; }
-        .hero { min-height: 720px; }
-        p { font-size: 18px; }
+      h1 {
+        margin-bottom: 24px;
+        font-size: 68px;
+        line-height: 1.08;
+        letter-spacing: -0.05em;
+      }
+      h2 {
+        margin-bottom: 20px;
+        font-size: 48px;
+        line-height: 1.16;
+        letter-spacing: -0.04em;
+      }
+      p {
+        color: var(--muted);
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.65;
+      }
+      .media-slot {
+        display: grid;
+        min-height: 520px;
+        margin-top: 44px;
+        place-items: center;
+        border-radius: 28px;
+        background: #dfe7f2;
+        color: #718099;
+        font-size: 22px;
+        font-weight: 800;
       }
     </style>
   </head>
   <body data-export-name="{{EXPORT_FILENAME}}">
     <main id="detailPage">
       <section class="hero" data-section="hero">
-        <p class="eyebrow" data-layer-id="hero-brand" data-edit>{{PRODUCT_NAME}}</p>
-        <h1 data-layer-id="hero-title" data-edit>승인된 에셋으로 첫 화면을 조립합니다.</h1>
-        <p data-layer-id="hero-body" data-edit>제품 사실과 사용자 승인이 준비되면 이 작업 화면이 상업 상세페이지로 바뀝니다.</p>
+        <p class="eyebrow" data-edit>{{PRODUCT_NAME}}</p>
+        <h1 data-edit>가장 중요한 변화가<br />첫 화면에 남도록</h1>
+        <p data-edit>지정한 쿠팡 페이지의 판매 흐름을 현재 상품의 사실과 장면으로 다시 설계합니다.</p>
+        <div class="media-slot" data-edit-object>780px Hero media</div>
       </section>
-      <section data-section="asset-proof">
-        <h2 data-layer-id="proof-title" data-edit>제품을 보여 줄 에셋을 먼저 완성해 주세요.</h2>
-        <p data-layer-id="proof-body" data-edit>이미지와 GIF를 개별 검수한 뒤 승인된 버전만 여기에 배치할 수 있습니다.</p>
-        <div class="placeholder" data-layer-id="proof-media" data-edit-object data-object-label="승인 에셋 자리">승인 에셋 자리</div>
-      </section>
-      <section data-section="source">
-        <h2 data-layer-id="source-title" data-edit>공급처 기준</h2>
-        <p data-layer-id="source-url" data-edit>{{SUPPLIER_URL}}</p>
+      <section data-section="next-message">
+        <h2 data-edit>한 패널에는<br />하나의 메시지만</h2>
+        <p data-edit>완성된 FLOW-PLAN의 다음 섹션이 여기에 조립됩니다.</p>
+        <div class="media-slot" data-edit-object>780px image or GIF</div>
       </section>
     </main>
-    <script src="app.js"></script>
   </body>
 </html>

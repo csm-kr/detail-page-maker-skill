@@ -1,961 +1,179 @@
+#!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import {
-  existsSync,
-  readFileSync,
-  readdirSync,
-} from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import {
-  adoptProject,
-  createProject,
-  defaultProjectsRoot,
-} from "./lib/new-project.mjs";
-import {
-  listProjects,
-  validateProjectIsolation,
-} from "./lib/project-manager.mjs";
-import {
-  buildLearningStatus,
-  findWorkspaceRoot,
-  renderLearningStatus,
-} from "./maintenance/learning-status.mjs";
-import {
-  ensureExperienceDrop,
-  syncTrustedExperiences,
-} from "./maintenance/experience-sync.mjs";
-import {
-  inspectAgentCapacity,
-  normalizeAgentSessionIds,
-  resolveWorkerAllocation,
-} from "./orchestration/agent-capacity.mjs";
-import { analyzePerformanceTrace } from "./orchestration/performance-profile.mjs";
-import {
-  createDependencyClosureReceipt,
-  inspectDependencyClosure,
-} from "./orchestration/dependency-closure.mjs";
-import {
-  dispatchParallelProductionFrontier,
-} from "./orchestration/parallel-dispatcher.mjs";
-import {
-  buildReferenceArtifactSet,
-  writeReferenceArtifactSet,
-} from "./orchestration/reference-artifact-set.mjs";
-import {
-  buildCategoryReferenceCohort,
-  CATEGORY_REFERENCE_LIBRARY_SHA256,
-  getCategoryReferenceLibrary,
-  validateCategoryReferenceLibrary,
-  validateCategoryReferenceLibraryFiles,
-} from "./orchestration/category-reference-library.mjs";
-import { createWorkflowEngine } from "./orchestration/workflow-engine.mjs";
-import { startStudioV1Server } from "./runtime/studio-v1-server.mjs";
+import { fileURLToPath } from "node:url";
+import { validateLeanPlan, buildExamplePlan } from "./lean-contract.mjs";
+import { validateHtmlProject } from "./lean-html-qa.mjs";
+import { createProject, defaultProjectsRoot } from "./lib/new-project.mjs";
 
-const CURRENT_SKILL_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-);
-const MINIMUM_NODE_VERSION = Object.freeze([22, 15, 0]);
+const SKILL_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const MINIMUM_NODE = [22, 15, 0];
 
 function parseArgs(argv) {
-  const result = { _: [] };
+  const args = { _: [] };
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (!token.startsWith("--")) {
-      result._.push(token);
+      args._.push(token);
       continue;
     }
     const key = token.slice(2);
     const next = argv[index + 1];
-    if (!next || next.startsWith("--")) {
-      result[key] = true;
-    } else {
-      result[key] = next;
+    if (!next || next.startsWith("--")) args[key] = true;
+    else {
+      args[key] = next;
       index += 1;
     }
   }
-  return result;
+  return args;
 }
 
-function versionTuple(version) {
-  return version.replace(/^v/, "").split(".").map(Number);
+function versionAtLeast(current, minimum) {
+  const parts = String(current).replace(/^v/, "").split(".").map(Number);
+  return minimum.every((part, index) =>
+    parts[index] === part || parts[index] > part ||
+    minimum.slice(0, index).some((prior, priorIndex) => parts[priorIndex] > prior),
+  );
 }
 
-function nodeSupported() {
-  const current = versionTuple(process.version);
-  for (let index = 0; index < MINIMUM_NODE_VERSION.length; index += 1) {
-    const currentPart = current[index] || 0;
-    const minimumPart = MINIMUM_NODE_VERSION[index];
-    if (currentPart > minimumPart) return true;
-    if (currentPart < minimumPart) return false;
-  }
-  return true;
-}
-
-function quoteWindowsArg(value) {
-  const text = String(value);
-  if (!/[\s"&|<>^]/.test(text)) return text;
-  return `"${text.replace(/"/g, '\\"')}"`;
-}
-
-function probe(command, args) {
-  const executable =
-    process.platform === "win32"
-      ? process.env.ComSpec || "C:\\Windows\\System32\\cmd.exe"
-      : command;
-  const commandArgs =
-    process.platform === "win32"
-      ? ["/d", "/s", "/c", [command, ...args].map(quoteWindowsArg).join(" ")]
-      : args;
-  const result = spawnSync(executable, commandArgs, {
-    encoding: "utf8",
-    windowsHide: true,
-  });
+function probe(command, args = []) {
+  const result = spawnSync(command, args, { encoding: "utf8" });
   return {
     ok: result.status === 0 && !result.error,
-    stdout: result.stdout || "",
-    stderr: result.stderr || "",
-    output: `${result.stdout || ""}${result.stderr || ""}${
-      result.error ? `\n${result.error.message}` : ""
-    }`.trim(),
+    version: `${result.stdout || ""}${result.stderr || ""}`.trim().split("\n")[0] || null,
   };
 }
 
-function requiredLocalSkills() {
-  try {
-    const manifest = JSON.parse(
-      readFileSync(
-        path.join(CURRENT_SKILL_ROOT, "dependencies.json"),
-        "utf8",
-      ),
-    );
-    return Array.isArray(manifest.skills)
-      ? manifest.skills.map((skill) => String(skill.name))
-      : [];
-  } catch (error) {
-    throw new Error(`dependencies.json을 읽지 못했습니다: ${error.message}`);
-  }
+function findHostSkill(name) {
+  const roots = [
+    process.env.CODEX_HOME ? path.join(process.env.CODEX_HOME, "skills") : null,
+    path.join(os.homedir(), ".codex", "skills"),
+    path.join(os.homedir(), ".agents", "skills"),
+    path.join(os.homedir(), ".claude", "skills"),
+  ].filter(Boolean);
+  return roots
+    .map((root) => path.join(root, name))
+    .find((candidate) => existsSync(path.join(candidate, "SKILL.md"))) || null;
 }
 
-function probeLocalSkill(skillName) {
-  const skillDirectory = path.join(
-    CURRENT_SKILL_ROOT,
-    ".agents",
-    "skills",
-    skillName,
-  );
-  const skillFile = path.join(skillDirectory, "SKILL.md");
-  const available = existsSync(skillFile);
-  return {
-    ok: available,
-    scope: "skill-folder",
-    path: available ? skillDirectory : null,
-    detail: available
-      ? null
-      : `내장 의존 스킬 '${skillName}'이 없습니다. Git 원본에서 detail-page-maker-skill 하나를 다시 설치하거나 업데이트하세요.`,
-  };
-}
-
-function probeGodTiboRuntime(localSkill) {
-  const skillRoot = localSkill?.path;
-  const runnerPath = skillRoot
-    ? path.join(skillRoot, "scripts", "tibo-batch.mjs")
-    : null;
-  const runtimePackagePath = skillRoot
-    ? path.join(
-        skillRoot,
-        "node_modules",
-        "god-tibo-imagen",
-        "package.json",
-      )
-    : null;
-  const ok =
-    localSkill?.ok === true &&
-    existsSync(runnerPath) &&
-    existsSync(runtimePackagePath);
-  return {
-    ok,
-    required: true,
-    skill: "god-tibo-gpt-image2-skill",
-    path: skillRoot || null,
-    runnerPath: existsSync(runnerPath || "") ? runnerPath : null,
-    runtimeInstalled: existsSync(runtimePackagePath || ""),
-    defaultProviderBatchSize: 32,
-    defaultProviderWorkers: 32,
-    detail: ok
-      ? null
-      : "내장 God Tibo GPT Image 2 실행 환경이 없습니다. Git 원본에서 상위 스킬 하나를 다시 설치하거나 업데이트하세요.",
-  };
-}
-
-function printHelp() {
-  console.log(`Detail Page Maker
-
-Commands:
-  doctor
-  agent-capacity [--worker-capacity <N|auto>] [--worker-sessions <ID[,ID]>]
-                 [--workspace <workspace-folder>]
-  performance-profile [--trace <JSON-file|JSON>]
-  workflow-status --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-  workflow-advance --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-                   [--worker-capacity <N|auto> --worker-sessions <ID[,ID]>]
-                   [--production-plan <JSON-file|JSON> --plan-approval <JSON-file|JSON>]
-                   [--approved-image-job-ids <ID[,ID]>]
-  workflow-resume --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-  workflow-decide --project <project-folder> --challenge <ID> --proof <JSON-file>
-  workflow-revision-plan --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-                         --change <JSON-file|JSON> [--agent-session <ID>]
-  workflow-revision-commit --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-                           --plan-digest <SHA-256> --decided-by <ID> --reason <TEXT>
-                           [--agent-session <ID>]
-  workflow-rubric-record --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-                         --result <JSON-file|JSON> --evaluator-session <ID>
-                         [--budget <JSON-file|JSON>] [--scope <full_page|section>]
-  workflow-rubric-status --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-  worker-lease --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-               --agent-session <ID> [--stage <stage-id[,stage-id]>]
-  worker-heartbeat --project <project-folder> --project-id <ID> --input-digest <SHA-256>
-                   --agent-session <ID> --work-order <ID> --fencing-token <TOKEN> --attempt <N>
-  worker-submit --project <project-folder> --work-order <ID> --result <JSON-file>
-  learning-status [--workspace <workspace 폴더>] [--json]
-  experience-init [--workspace <workspace 폴더>]
-  experience-sync [--workspace <workspace 폴더>] [--json]
-  reference-library [--primary <archetype-id>] [--secondary <archetype-id>]
-  reference-profile --project <프로젝트 폴더>
-                    [--reference <기준 HTML> --role <positive_reference|negative_reference|approved_exemplar>]
-                    [--output <reference-artifact-set.json>] [--workspace <workspace 폴더>]
-  list [--root <projects 폴더>] [--json]
-  validate [--project <프로젝트 폴더> | --root <projects 폴더>] [--json]
-  new --name <상품명> --supplier-url <URL> [--root <폴더>] [--no-start]
-  adopt --project <기존 프로젝트 폴더> --name <상품명> --supplier-url <URL>
-        [--product-id <ID>] [--phase <단계>] [--score <점수>]
-  start --project <프로젝트 폴더> [--port 8896] [--no-open]
-
-Default projects root:
-  ${defaultProjectsRoot()}
-`);
-}
-
-function workflowContext(args) {
-  if (!args.project || !args["project-id"] || !args["input-digest"]) {
-    throw new Error(
-      "workflow 명령에는 --project, --project-id, --input-digest가 필요합니다.",
-    );
-  }
-  return {
-    projectRoot: path.resolve(args.project),
-    projectRef: {
-      project_id: String(args["project-id"]),
-      input_digest: String(args["input-digest"]),
-      agent_session_id: args["agent-session"]
-        ? String(args["agent-session"])
-        : "cli-coordinator",
-    },
-  };
-}
-
-const ACTUAL_PRODUCT_PHOTO_EXTENSIONS = new Set([
-  ".avif",
-  ".gif",
-  ".heic",
-  ".heif",
-  ".jpeg",
-  ".jpg",
-  ".png",
-  ".webp",
-]);
-
-function explicitBoolean(value, label) {
-  if (value === true) return true;
-  const normalized = String(value).trim().toLowerCase();
-  if (["1", "true", "yes"].includes(normalized)) return true;
-  if (["0", "false", "no"].includes(normalized)) return false;
-  throw new Error(
-    `${label}은 true 또는 false여야 합니다.`,
-  );
-}
-
-function containsActualProductPhoto(directory) {
-  if (!existsSync(directory)) return false;
-  for (const entry of readdirSync(directory, {
-    withFileTypes: true,
-  })) {
-    if (entry.name.startsWith(".")) continue;
-    const entryPath = path.join(directory, entry.name);
-    if (
-      entry.isDirectory() &&
-      containsActualProductPhoto(entryPath)
-    ) {
-      return true;
-    }
-    if (
-      entry.isFile() &&
-      ACTUAL_PRODUCT_PHOTO_EXTENSIONS.has(
-        path.extname(entry.name).toLowerCase(),
-      )
-    ) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function workflowInputOptions(args, projectRoot) {
-  const explicitField = "actual-product-photos-present";
-  const actualProductPhotosPresent =
-    Object.prototype.hasOwnProperty.call(args, explicitField)
-      ? explicitBoolean(args[explicitField], `--${explicitField}`)
-      : containsActualProductPhoto(
-          path.join(projectRoot, "input", "product"),
-        );
-  return {
-    actual_product_photos_present: actualProductPhotosPresent,
-  };
-}
-
-function readJsonFile(filePath, label) {
-  try {
-    return JSON.parse(readFileSync(path.resolve(filePath), "utf8"));
-  } catch (error) {
-    throw new Error(`${label} JSON을 읽지 못했습니다: ${error.message}`);
-  }
-}
-
-function readJsonArgument(value, label) {
-  if (existsSync(path.resolve(value))) {
-    return readJsonFile(value, label);
-  }
-  try {
-    return JSON.parse(String(value));
-  } catch (error) {
-    throw new Error(`${label} JSON을 읽지 못했습니다: ${error.message}`);
-  }
-}
-
-function readProductionPlanArgument(value) {
-  const parsed = readJsonArgument(value, "ProductionPlan");
-  if (
-    parsed?.artifact?.type === "production.plan" &&
-    parsed.artifact.payload &&
-    typeof parsed.artifact.payload === "object" &&
-    !Array.isArray(parsed.artifact.payload)
-  ) {
-    return parsed.artifact.payload;
-  }
-  return parsed;
-}
-
-async function doctor() {
-  // `doctor` is diagnostic-only. Never let npx download or update a runtime.
-  const hyperframes = probe("npx", [
-    "--no-install",
-    "hyperframes",
-    "--version",
-  ]);
-  const browserHarness = probe("browser-harness", ["--version"]);
-  const ffmpeg = probe("ffmpeg", ["-version"]);
-  const dependencyClosure =
-    await inspectDependencyClosure(CURRENT_SKILL_ROOT);
-  const dependencyClosureReceipt = dependencyClosure.ok
-    ? await createDependencyClosureReceipt(CURRENT_SKILL_ROOT)
-    : null;
-  const categoryReferenceLibrary =
-    validateCategoryReferenceLibrary();
-  const categoryReferenceFiles =
-    await validateCategoryReferenceLibraryFiles({
-      skillRoot: CURRENT_SKILL_ROOT,
-    });
-  const localSkills = Object.fromEntries(
-    requiredLocalSkills().map((skillName) => [
-      skillName,
-      probeLocalSkill(skillName),
-    ]),
-  );
-  const localSkillsOk = Object.values(localSkills).every((skill) => skill.ok);
-  const designTasteFrontend = localSkills["design-taste-frontend"];
-  const godTiboGptImage2 = probeGodTiboRuntime(
-    localSkills["god-tibo-gpt-image2-skill"],
-  );
-  const agentCapacity = inspectAgentCapacity({
-    sessionIds: normalizeAgentSessionIds(
-      process.env.DETAIL_PAGE_AGENT_SESSION_IDS,
-    ),
-  });
+function doctor() {
+  const manifest = JSON.parse(readFileSync(path.join(SKILL_ROOT, "dependencies.json"), "utf8"));
+  const bundled = Object.fromEntries(manifest.bundled_skills.map((name) => {
+    const skillPath = path.join(SKILL_ROOT, ".agents", "skills", name);
+    return [name, { ok: existsSync(path.join(skillPath, "SKILL.md")), path: skillPath }];
+  }));
+  const host = Object.fromEntries(manifest.host_skills.map((name) => {
+    const skillPath = findHostSkill(name);
+    return [name, { ok: Boolean(skillPath), path: skillPath }];
+  }));
   const report = {
-    ok:
-      nodeSupported() &&
-      hyperframes.ok &&
-      browserHarness.ok &&
-      ffmpeg.ok &&
-      dependencyClosure.ok &&
-      categoryReferenceLibrary.ok &&
-      categoryReferenceFiles.ok &&
-      localSkillsOk &&
-      godTiboGptImage2.ok,
-    node: {
-      ok: nodeSupported(),
-      version: process.version,
-      required: ">=22.15.0",
-    },
-    hyperframes: {
-      ok: hyperframes.ok,
-      version: hyperframes.output || null,
-    },
-    browserHarness: {
-      ok: browserHarness.ok,
-      version: browserHarness.output || null,
-    },
-    ffmpeg: {
-      ok: ffmpeg.ok,
-      version: ffmpeg.output.split(/\r?\n/)[0] || null,
-    },
-    dependencyClosure,
-    dependencyClosureReceipt,
-    categoryReferenceLibrary: {
-      ...categoryReferenceLibrary,
-      library_sha256:
-        CATEGORY_REFERENCE_LIBRARY_SHA256,
-      files: categoryReferenceFiles,
-    },
-    localSkillRoot: path.join(CURRENT_SKILL_ROOT, ".agents", "skills"),
-    localSkills,
-    designTasteFrontend: {
-      ok: designTasteFrontend?.ok === true,
-      required: true,
-      path: designTasteFrontend?.path || null,
-      detail: designTasteFrontend?.detail || null,
-    },
-    godTiboGptImage2,
-    agentCapacity,
-    defaultProjectsRoot: defaultProjectsRoot(),
+    ok: versionAtLeast(process.version, MINIMUM_NODE),
+    node: { ok: versionAtLeast(process.version, MINIMUM_NODE), version: process.version, required: ">=22.15.0" },
+    ffmpeg: probe("ffmpeg", ["-version"]),
+    browser_harness: probe("browser-harness", ["--version"]),
+    bundled_skills: bundled,
+    host_skills: host,
+    note: "HyperFrames 실행 패키지는 motion 프로젝트에 로컬로 준비합니다.",
   };
+  report.ok = report.ok && report.ffmpeg.ok && report.browser_harness.ok &&
+    Object.values(bundled).every((item) => item.ok) &&
+    Object.values(host).every((item) => item.ok);
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exitCode = 1;
 }
 
-function commandWorkspaceRoot(args) {
-  return path.resolve(
-    args.workspace || findWorkspaceRoot(process.cwd()),
-  );
+function agentCapacity() {
+  const cpu = os.availableParallelism?.() || os.cpus().length;
+  const memoryGiB = os.totalmem() / 1024 ** 3;
+  const recommended = Math.max(1, Math.min(cpu - 1, Math.floor(memoryGiB / 2), 6));
+  console.log(JSON.stringify({
+    available_parallelism: cpu,
+    total_memory_gib: Number(memoryGiB.toFixed(1)),
+    recommended_worker_capacity: recommended,
+    note: "실제 동시 실행은 호스트가 제공한 agent slot 수를 넘지 않습니다. 브라우저 lane은 기본 1입니다.",
+  }, null, 2));
 }
 
-async function reconcileTrustedExperiences(args) {
-  return syncTrustedExperiences({
-    workspaceRoot: commandWorkspaceRoot(args),
-    skillRoot: CURRENT_SKILL_ROOT,
-  });
+function help() {
+  console.log(`Detail Page Maker — lean 780px workflow
+
+Commands:
+  doctor
+  agent-capacity
+  new --name <name> --supplier-url <url> --coupang-url <url> --photos <yes|no> [--root <folder>]
+  example-plan
+  validate-plan --file <flow-plan.json>
+  qa --project <folder> [--strict-media]
+  studio --project <folder> [--host <host>] [--port <port>]
+  wing --project <folder> [--mode <dry-run|publish>] [--confirm PUBLISH_CDN] [--page-url <url>]
+`);
 }
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const command = args._[0] || "help";
-  if (command === "help" || args.help) {
-    printHelp();
+  if (command === "help" || args.help) return help();
+  if (command === "doctor") return doctor();
+  if (command === "agent-capacity") return agentCapacity();
+  if (command === "example-plan") {
+    console.log(JSON.stringify(await buildExamplePlan(), null, 2));
     return;
   }
-  if (command === "doctor") {
-    await doctor();
-    return;
-  }
-  if (command === "agent-capacity") {
-    const sessionIds = normalizeAgentSessionIds(
-      args["worker-sessions"] ||
-        process.env.DETAIL_PAGE_AGENT_SESSION_IDS,
-    );
-    const profile = inspectAgentCapacity({ sessionIds });
-    const requested =
-      args["worker-capacity"] ||
-      process.env.DETAIL_PAGE_WORKER_CAPACITY ||
-      "auto";
-    const allocation =
-      sessionIds.length > 0
-        ? resolveWorkerAllocation({
-            requestedCapacity: requested,
-            cliSessionIds: sessionIds,
-          })
-        : null;
-    console.log(
-      JSON.stringify(
-        {
-          workspace_root: commandWorkspaceRoot(args),
-          profile,
-          allocation,
-        },
-        null,
-        2,
-      ),
-    );
-    return;
-  }
-  if (command === "performance-profile") {
-    const trace = args.trace
-      ? readJsonArgument(args.trace, "PerformanceTrace")
-      : [];
-    console.log(JSON.stringify(analyzePerformanceTrace(trace), null, 2));
-    return;
-  }
-  if (command === "experience-init") {
-    const output = await ensureExperienceDrop({
-      workspaceRoot: commandWorkspaceRoot(args),
-    });
-    console.log(JSON.stringify(output, null, 2));
-    return;
-  }
-  if (command === "experience-sync") {
-    const output = await reconcileTrustedExperiences(args);
-    console.log(JSON.stringify(output, null, 2));
-    if (output.quarantined > 0) process.exitCode = 2;
-    return;
-  }
-  if (command === "learning-status") {
-    const report = await buildLearningStatus({
-      workspaceRoot: commandWorkspaceRoot(args),
-    });
-    if (args.json === true) {
-      console.log(JSON.stringify(report, null, 2));
-    } else {
-      process.stdout.write(renderLearningStatus(report));
-    }
-    return;
-  }
-  if (command === "reference-library") {
-    const library = getCategoryReferenceLibrary();
-    const output = args.primary
-      ? {
-          cohort: buildCategoryReferenceCohort({
-            primaryArchetypeId: String(args.primary),
-            secondaryArchetypeIds: args.secondary
-              ? [String(args.secondary)]
-              : [],
-          }),
-          library_sha256:
-            CATEGORY_REFERENCE_LIBRARY_SHA256,
-        }
-      : {
-          library,
-          library_sha256:
-            CATEGORY_REFERENCE_LIBRARY_SHA256,
-        };
-    console.log(JSON.stringify(output, null, 2));
-    return;
-  }
-  if (command === "reference-profile") {
-    if (!args.project) {
-      throw new Error(
-        "reference-profile에는 --project 경로가 필요합니다.",
-      );
-    }
-    const projectRoot = path.resolve(args.project);
-    const workspaceRoot = commandWorkspaceRoot(args);
-    const references = args.reference
-      ? [
-          {
-            filePath: path.resolve(args.reference),
-            role: String(args.role || "positive_reference"),
-          },
-        ]
-      : [];
-    const artifactSet = await buildReferenceArtifactSet({
-      projectRoot,
-      workspaceRoot,
-      references,
-    });
-    const outputPath = path.resolve(
-      args.output ||
-        path.join(
-          projectRoot,
-          ".detail-page",
-          "research",
-          "reference-artifact-set.json",
-        ),
-    );
-    const referenceResearchRoot = path.join(
-      projectRoot,
-      ".detail-page",
-      "research",
-    );
-    const outputRelative = path.relative(
-      referenceResearchRoot,
-      outputPath,
-    );
-    if (
-      outputRelative.startsWith("..") ||
-      path.isAbsolute(outputRelative)
-    ) {
-      throw new Error(
-        "reference profile 출력은 프로젝트의 .detail-page/research 안에 있어야 합니다.",
-      );
-    }
-    await writeReferenceArtifactSet(outputPath, artifactSet);
-    console.log(
-      JSON.stringify(
-        {
-          output: path
-            .relative(workspaceRoot, outputPath)
-            .split(path.sep)
-            .join("/"),
-          reference_artifact_set: artifactSet,
-        },
-        null,
-        2,
-      ),
-    );
-    return;
-  }
-  if (
-    command === "workflow-revision-plan" ||
-    command === "workflow-revision-commit"
-  ) {
-    const { projectRoot, projectRef } = workflowContext(args);
-    const engine = createWorkflowEngine({ projectRoot });
-    let output;
-    if (command === "workflow-revision-plan") {
-      if (!args.change) {
-        throw new Error(
-          "workflow-revision-plan에는 --change가 필요합니다.",
-        );
-      }
-      output = await engine.planRevision(
-        projectRef,
-        readJsonArgument(args.change, "RevisionChange"),
-      );
-    } else {
-      if (
-        !args["plan-digest"] ||
-        !args["decided-by"] ||
-        !args.reason
-      ) {
-        throw new Error(
-          "workflow-revision-commit에는 --plan-digest, --decided-by, --reason이 필요합니다.",
-        );
-      }
-      output = await engine.commitRevision(projectRef, {
-        planDigest: String(args["plan-digest"]),
-        decidedBy: String(args["decided-by"]),
-        reason: String(args.reason),
-      });
-    }
-    console.log(JSON.stringify(output, null, 2));
-    return;
-  }
-  if (
-    command === "workflow-rubric-record" ||
-    command === "workflow-rubric-status"
-  ) {
-    const { projectRoot, projectRef } = workflowContext(args);
-    const engine = createWorkflowEngine({ projectRoot });
-    if (command === "workflow-rubric-status") {
-      const inspected = await engine.inspect(
-        projectRef,
-        workflowInputOptions(args, projectRoot),
-      );
-      console.log(
-        JSON.stringify(
-          {
-            project_id: inspected.project_id,
-            repair_loop: inspected.repair_loop,
-          },
-          null,
-          2,
-        ),
-      );
-      return;
-    }
-    if (!args.result || !args["evaluator-session"]) {
-      throw new Error(
-        "workflow-rubric-record에는 --result와 --evaluator-session이 필요합니다.",
-      );
-    }
-    const output = await engine.recordRubricIteration(
-      projectRef,
-      {
-        evaluator_agent_session_id: String(
-          args["evaluator-session"],
-        ),
-        rubric_result: readJsonArgument(
-          args.result,
-          "RubricResult",
-        ),
-        budget: args.budget
-          ? readJsonArgument(args.budget, "RunBudget")
-          : { state: "AVAILABLE" },
-        scope_kind: args.scope
-          ? String(args.scope)
-          : "full_page",
-      },
-    );
-    console.log(JSON.stringify(output, null, 2));
-    return;
-  }
-  if (
-    [
-      "workflow-status",
-      "workflow-advance",
-      "workflow-resume",
-      "worker-lease",
-      "worker-heartbeat",
-    ].includes(command)
-  ) {
-    const { projectRoot, projectRef } = workflowContext(args);
-    const engine = createWorkflowEngine({ projectRoot });
-    const inputOptions = workflowInputOptions(args, projectRoot);
-    let output;
-    if (command === "workflow-status") {
-      output = await engine.inspect(projectRef, inputOptions);
-    } else if (command === "workflow-advance") {
-      const experienceSync = await reconcileTrustedExperiences(args);
-      output = await engine.advance(projectRef, {
-        until: args.until || "next_user_gate",
-        ...inputOptions,
-      });
-      const workerSessionIds = String(
-        args["worker-sessions"] ?? "",
-      )
-        .split(",")
-        .map((sessionId) => sessionId.trim())
-        .filter(Boolean);
-      output = await dispatchParallelProductionFrontier({
-        engine,
-        project_root: projectRoot,
-        project_ref: projectRef,
-        advance_result: output,
-        production_plan: args["production-plan"]
-          ? readProductionPlanArgument(
-              args["production-plan"],
-            )
-          : null,
-        plan_approval: args["plan-approval"]
-          ? readJsonArgument(
-              args["plan-approval"],
-              "PlanApproval",
-            )
-          : null,
-        approved_image_job_ids: String(
-          args["approved-image-job-ids"] ?? "",
-        )
-          .split(",")
-          .map((jobId) => jobId.trim())
-          .filter(Boolean),
-        worker_capacity:
-          args["worker-capacity"] ||
-          process.env.DETAIL_PAGE_WORKER_CAPACITY ||
-          "auto",
-        worker_session_ids: workerSessionIds,
-        failed_members: args["failed-members"]
-          ? readJsonArgument(
-              args["failed-members"],
-              "FailedMembers",
-            )
-          : [],
-        retry_member_ids: String(
-          args["retry-member-ids"] ?? "",
-        )
-          .split(",")
-          .map((workItemId) => workItemId.trim())
-          .filter(Boolean),
-      });
-      if (output && typeof output === "object") {
-        output.experience_sync = experienceSync;
-      }
-    } else if (command === "workflow-resume") {
-      const experienceSync = await reconcileTrustedExperiences(args);
-      output = await engine.resume(projectRef, {
-        until: args.until || "next_user_gate",
-        ...inputOptions,
-      });
-      if (output && typeof output === "object") {
-        output.experience_sync = experienceSync;
-      }
-    } else if (command === "worker-lease") {
-      output = await engine.lease(projectRef, {
-        stage_ids: args.stage
-          ? String(args.stage)
-              .split(",")
-              .map((stageId) => stageId.trim())
-              .filter(Boolean)
-          : [],
-      });
-    } else {
-      if (
-        !args["work-order"] ||
-        !args["fencing-token"] ||
-        !Number.isInteger(Number(args.attempt))
-      ) {
-        throw new Error(
-          "worker-heartbeat에는 --work-order, --fencing-token, --attempt가 필요합니다.",
-        );
-      }
-      output = await engine.heartbeat(
-        String(args["work-order"]),
-        {
-          project_ref: projectRef,
-          fencing_token: String(args["fencing-token"]),
-          attempt: Number(args.attempt),
-        },
-      );
-    }
-    console.log(JSON.stringify(output, null, 2));
-    return;
-  }
-  if (command === "worker-submit") {
-    if (!args.project || !args["work-order"] || !args.result) {
-      throw new Error(
-        "worker-submit에는 --project, --work-order, --result가 필요합니다.",
-      );
-    }
-    const resultEnvelope = readJsonFile(args.result, "ResultEnvelope");
-    const engine = createWorkflowEngine({
-      projectRoot: path.resolve(args.project),
-    });
-    const output = resultEnvelope?.failure_receipt
-      ? await engine.failFrontierWorkItem(
-          String(args["work-order"]),
-          resultEnvelope,
-        )
-      : await engine.submit(
-          String(args["work-order"]),
-          resultEnvelope,
-        );
-    console.log(JSON.stringify(output, null, 2));
-    return;
-  }
-  if (command === "workflow-decide") {
-    if (!args.project || !args.challenge || !args.proof) {
-      throw new Error(
-        "workflow-decide에는 --project, --challenge, --proof가 필요합니다.",
-      );
-    }
-    const decisionProof = readJsonFile(args.proof, "DecisionProof");
-    const engine = createWorkflowEngine({
-      projectRoot: path.resolve(args.project),
-    });
-    const output = await engine.decide(
-      String(args.challenge),
-      decisionProof,
-    );
-    console.log(JSON.stringify(output, null, 2));
-    return;
-  }
-  if (command === "list") {
-    const root = path.resolve(args.root || defaultProjectsRoot());
-    const projects = await listProjects(root);
-    if (args.json === true) {
-      console.log(JSON.stringify({ root, projects }, null, 2));
-      return;
-    }
-    console.log(`Projects root: ${root}`);
-    if (projects.length === 0) {
-      console.log("관리 중인 프로젝트가 없습니다.");
-      return;
-    }
-    for (const project of projects) {
-      console.log(
-        `${project.id}\t${project.phase}\t${project.name}\t${project.path}`,
-      );
-    }
-    return;
-  }
-  if (command === "validate") {
-    const targets = args.project
-      ? [path.resolve(args.project)]
-      : (await listProjects(
-          path.resolve(args.root || defaultProjectsRoot()),
-        )).map((project) => project.path);
-    const reports = await Promise.all(
-      targets.map((projectRoot) => validateProjectIsolation(projectRoot)),
-    );
-    const ok = reports.every((report) => report.ok);
-    if (args.json === true) {
-      console.log(JSON.stringify({ ok, reports }, null, 2));
-    } else {
-      for (const report of reports) {
-        console.log(
-          `${report.ok ? "PASS" : "FAIL"} ${report.projectRoot}${
-            report.issues.length ? ` (${report.issues.length} issues)` : ""
-          }`,
-        );
-        for (const issue of report.issues) {
-          console.log(`  ${issue.file}: ${issue.reference}`);
-        }
-      }
-    }
-    if (!ok) process.exitCode = 1;
+  if (command === "validate-plan") {
+    if (!args.file) throw new Error("--file <flow-plan.json>이 필요합니다.");
+    const plan = JSON.parse(readFileSync(path.resolve(args.file), "utf8"));
+    const report = await validateLeanPlan(plan);
+    console.log(JSON.stringify(report, null, 2));
+    if (!report.ok) process.exitCode = 1;
     return;
   }
   if (command === "new") {
-    if (!args.name || !args["supplier-url"]) {
-      throw new Error(
-        "new 명령에는 --name과 --supplier-url이 필요합니다.",
-      );
-    }
-    const experienceSync = await reconcileTrustedExperiences(args);
     const created = await createProject({
       name: args.name,
       supplierUrl: args["supplier-url"],
-      root: args.root || defaultProjectsRoot(),
+      coupangUrl: args["coupang-url"],
+      photoStatus: args.photos,
+      root: args.root ? path.resolve(args.root) : defaultProjectsRoot(),
     });
-    console.log(`Project created: ${created.projectRoot}`);
-    console.log(
-      `Experience sync: promoted=${experienceSync.promoted} reused=${experienceSync.reused} quarantined=${experienceSync.quarantined}`,
-    );
-    if (args["no-start"] !== true) {
-      const started = await startStudioV1Server({
-        projectRoot: created.projectRoot,
-        port: Number(args.port || 8896),
-        open: args["no-open"] !== true,
-      });
-      console.log(`Detail Page Studio v1: ${started.url}`);
-    }
+    console.log(JSON.stringify(created, null, 2));
     return;
   }
-  if (command === "adopt") {
-    if (!args.project || !args.name || !args["supplier-url"]) {
-      throw new Error(
-        "adopt 명령에는 --project, --name, --supplier-url이 필요합니다.",
-      );
-    }
-    const experienceSync = await reconcileTrustedExperiences(args);
-    const adopted = await adoptProject({
-      projectRoot: args.project,
-      name: args.name,
-      supplierUrl: args["supplier-url"],
-      productId: args["product-id"] || "",
-      phase: args.phase || "final_qa",
-      score: args.score ?? null,
-      htmlEntry: args["html-entry"] || "detail-page/index.html",
-    });
-    console.log(`Project adopted: ${adopted.projectRoot}`);
-    console.log(
-      `Experience sync: promoted=${experienceSync.promoted} reused=${experienceSync.reused} quarantined=${experienceSync.quarantined}`,
-    );
+  if (command === "qa") {
+    if (!args.project) throw new Error("--project <folder>가 필요합니다.");
+    const report = validateHtmlProject(args.project, { strictMedia: Boolean(args["strict-media"]) });
+    console.log(JSON.stringify(report, null, 2));
+    if (!report.ok) process.exitCode = 1;
     return;
   }
-  if (command === "start") {
-    if (!args.project) {
-      throw new Error("start 명령에는 --project 경로가 필요합니다.");
-    }
-    const experienceSync = await reconcileTrustedExperiences(args);
-    const started = await startStudioV1Server({
+  if (command === "studio") {
+    if (!args.project) throw new Error("--project <folder>가 필요합니다.");
+    const { startLeanStudioServer } = await import("./lean-studio-server.mjs");
+    const runtime = await startLeanStudioServer({
       projectRoot: path.resolve(args.project),
-      port: Number(args.port || 8896),
-      open: args["no-open"] !== true,
+      host: args.host || "127.0.0.1",
+      port: args.port ? Number(args.port) : 0,
     });
-    console.log(`Detail Page Studio v1: ${started.url}`);
-    console.log(
-      `Experience sync: promoted=${experienceSync.promoted} reused=${experienceSync.reused} quarantined=${experienceSync.quarantined}`,
-    );
+    console.log(JSON.stringify({ url: runtime.url, project: path.resolve(args.project) }, null, 2));
     return;
   }
-  throw new Error(`알 수 없는 명령입니다: ${command}`);
+  if (command === "wing") {
+    if (!args.project) throw new Error("--project <folder>가 필요합니다.");
+    const { runLeanWingExport } = await import("./lean-wing-export.mjs");
+    const report = await runLeanWingExport({
+      projectRoot: path.resolve(args.project),
+      mode: args.mode || "dry-run",
+      confirm: args.confirm,
+      pageUrl: args["page-url"],
+    });
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
+  throw new Error(`알 수 없는 명령: ${command}`);
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {
-  main().catch((error) => {
-    const code = error?.code ? `[${error.code}] ` : "";
-    console.error(`ERROR ${code}${error.message || error}`);
-    if (error?.details && Object.keys(error.details).length > 0) {
-      console.error(JSON.stringify({ details: error.details }, null, 2));
-    }
-    process.exitCode = 1;
-  });
-}
+main().catch((error) => {
+  console.error(`ERROR ${error.message}`);
+  process.exitCode = 1;
+});

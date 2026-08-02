@@ -1,128 +1,72 @@
-# 이미지·자산 상태·승인
+# 이미지·GIF 제작
 
-## 생성 실행기
+G2와 G3에서 읽는다. 기본 목표는 최종 페이지에 필요한 정지 이미지 약 30개와
+GIF 약 10개다. 제품과 기준작에 따라 still 28~32개, GIF 8~12개 범위에서 AI가
+중복 없이 조절할 수 있다.
 
-모든 생성형 이미지 제작·편집은
-`.agents/skills/god-tibo-gpt-image2-skill/scripts/tibo-batch.mjs`로 실행한다.
-내장 이미지 생성 도구나 다른 모델을 우회 경로로 사용하지 않는다.
+## 이미지
 
-- 기본 작업 단위: 서로 다른 용도의 32개 `items`를 한 job에 명시
-- 기본 동시 실행: `workers: 32`, `single_concurrent_batch`
-- 32개를 8개씩 네 번 나누는 순차 실행은 금지한다.
-- `items`와 `workers`를 명시하며 God Tibo의 기본값을 사용하지 않는다.
-- 생성: 명시한 W×H를 갖는 `controllable`
-- 편집: 입력 크기를 보존하는 `invariant`
-- 모든 프롬프트: `QUALITY_GATE:CLEAN_COMMERCIAL`
+내장 `god-tibo-gpt-image2-skill`의 `tibo-batch.mjs`만 사용한다. 별도 목적의
+items를 한 job에 넣고 provider worker를 채워 한 번의 동시 batch로 실행한다.
+Hero와 중요한 기능은 필요할 때만 대안 컷을 만든다.
 
-결과에는 자글거림, 필름 그레인, 센서 노이즈, 색 노이즈, 디더링, 과한 샤픈,
-더러운 그림자 입자가 없어야 한다.
+각 item에는 다음을 지정한다.
 
-Orchestrator의 논리 작업 단위는 한 image cut당 한 WorkOrder member다. adapter는
-준비된 독립 cut 32개를 하나의 God Tibo `items` job으로 묶고 provider 요청을
-32 workers로 동시에 시작한다. provider worker는 Codex agent session이 아니라
-이미지 생성 동시 요청이다. 결과는 다시 cut별 artifact와 receipt로 분리하고 실패한
-cut과 실제 descendant만 같은 입력으로 재실행한다.
+- 섹션 역할과 고객에게 증명할 한 가지 내용
+- 참조할 동일 SKU 사진과 유지할 제품 면·부품·수량·방향
+- 제품 단독, 실제 사용, 구조 확대, 비교, 구성/규격 중 장면 유형
+- 카메라, 배경, 조명, 제품 점유율, 허용되는 보조 효과
+- 출력 폭 780px와 인접 이미지와의 차별점
 
-32개는 단순 변형 수가 아니라 용도 배치다. Hero, 문제 상황, 핵심 기능 근거,
-매크로 디테일, 사용 단계, 사용 장소, 비교, 썸네일 후보, GIF 첫·중간·끝 프레임을
-기획 단계에서 나눈다. HTML 빈칸을 만든 뒤 비슷한 이미지를 채우는 작업은 실패다.
+AI 생성 이미지에는 한글을 넣지 않는다. 제품, 배경, 인물, 손, 사용 상황만 만들고
+모든 한글 카피와 정확한 숫자·단위는 HTML 또는 검증된 영상 텍스트로 합성한다.
 
-논리 그룹은 기본적으로 제품 베이스 8, 기능·소재 디테일 6, 치수 4, 기능 전체 4,
-실제 상태 pair 4, 사용 4, 구성·구조 2를 권장한다. 다만 실제 치수나 전후 자료가
-없으면 해당 그룹을 만들지 않고 근거가 있는 shot으로 32개를 재배분한다. 이 그룹은
-하나의 32-worker provider job 안의 역할 분류이며 순차 batch가 아니다.
+생성 결과는 Product Card와 나란히 비교한다. 제품 실루엣, 색, 비율, 구멍·버튼,
+손잡이·끈·결합부, 로고·패턴, 구성품이 바뀐 컷은 사용하지 않는다. 배경과 조명은
+바꿀 수 있지만 분위기를 성능 증거처럼 쓰지 않는다.
 
-기본 shot type은 `hero_front`, `hero_angle`, `dimension_front`,
-`dimension_side`, `feature_overview`, `feature_detail_1/2`, `before_scene`,
-`after_scene`, `usage_scene_1/2`, `components_flatlay`, `exploded_view`,
-`material_macro`다. 32개 생성 후 동일성·상업성·모션 적합도가 높은 8~15개만
-대표 자산으로 선택한다.
+## GIF와 WebP
 
-선택 자산은 `image_id`, `shot_type`, `view_type`, `candidate_score`,
-`recommended_template`, `anchor_points`, `bbox_regions`, `dimension_safe_area`,
-`text_safe_area`, `before_after_pair_id`, `consistency_group`을 기록한다. 좌표는
-0~1 정규화 값으로 저장한다. 상세 연결 규칙은
-[`hyperframes-sales-motion.md`](hyperframes-sales-motion.md)를 따른다.
+한 motion은 고객 질문 하나와 눈에 보이는 변화 하나만 맡는다. 정지 이미지로 충분한
+정보에는 억지 motion을 붙이지 않는다. 약 10개 안에서 문제, 핵심 기능, 사용 과정,
+비교·규격·구성을 제품에 맞게 배분한다.
 
-모든 제품 cut은 같은 SKU의 공급처 이미지 SSOT를 ImageGen reference로 사용한다.
-사용자가 `input/product/`에 실제 사진을 넣으면 추가 identity reference로
-강화한다. 공급처 원본·쿠팡·Behance 이미지는 고객 광고 자산으로 직접 조립하지
-않는다.
+기능에 맞는 움직임을 선택한다.
 
-생성 전에 상품별 제품 불변 조건을 적어도 네 개 고정한다. 색, 외형과 비율,
-구멍·홈·끈 같은 부품 수와 위치, 실제 구성품, 로고·문구 금지 등이 이에 해당한다.
-모든 32개 item은 같은 canonical 제품 참조와 불변 조건을 공유한다.
+| 내용 | 적합한 변화 |
+| --- | --- |
+| 접기·설치 | 시작 → 조작 → 완료 |
+| 수납·세척 | 전 상태 → 행동 → 결과 |
+| 구조·소재 | 전체 → 부위 강조 → 설명 |
+| 규격 | 가로/세로 측정 → 전체 수치 |
+| 구성품 | 순차 등장 → 전체 정렬 |
+| 사용법 | 단계별 상태 전환 → 완료 |
 
-## Image job 시각 계약
+복잡한 장면은 HyperFrames의 결정론적 무음 MP4로 먼저 만들고 FFmpeg로 GIF와
+animated WebP를 파생한다. 제품 자체를 생성형 모핑으로 움직이지 않는다. 고정된
+제품 이미지 위 SVG, 마스크, 측정선, 콜아웃과 카드 애니메이션을 우선한다.
 
-각 cut은 identity·rights·size 외에 다음 `visual_contract`를 가진다.
+모든 motion은 다음을 확인한다.
 
-- `role`: hero, desire, pain, core_feature, mechanism, usage, outcome,
-  comparison, specification, decision_recap
-- `scene_kind`: isolated_product, contextual_use, mechanism_macro,
-  outcome_context, comparison, specification
-- `product_views`: top, bottom, side, front, back, detail, in_use
-- `usage_context`, `lighting`, `background`
-- `product_occupancy_percent`: 25~90
-- 다른 cut과 겹치지 않는 `differentiation_goal`
-- 해당 job을 target으로 하는 CR/TR `applied_rule_ids`
-- 선택 category reference card의 `trait_id`, 변형 의도, acceptance check binding
+- 첫 프레임부터 제품과 메시지가 보인다.
+- 시작, 핵심 행동, 결과 또는 자연스러운 복귀가 있다.
+- 손·소품·제품 크기와 위치가 이유 없이 튀지 않는다.
+- 제품 색·형태·부품·비율·구성이 프레임마다 유지된다.
+- 마지막 상태와 숫자가 정확하고 빈/검은 프레임이 없다.
+- 780px canvas에서 한글, 점멸, loop, poster fallback이 정상이다.
 
-Hero와 핵심 기능 cut은 후보 2개 이상을 만든다. 전체 image set은 제품별 필수 면과
-scene coverage를 선언하고 최소 한 개의 실제 사용 맥락을 포함한다. 같은 제한된 참조
-사진·각도·흰 배경을 Hero부터 FAQ·마무리까지 반복해 job 수만 채우는 것은 실패다.
-전체 set은 이미지 역할 5종, 장면 4종 이상이며 `isolated_product`는 35% 이하여야
-한다. Category reference의 실제 이미지 bytes는 generation reference로 전달하지
-않고 trait와 장면 역할만 prompt contract에 반영한다.
+## 병렬 제작
 
-## 상태 수명주기
+Planning agent가 still job과 GIF brief를 잠그면 이미지 provider batch를 즉시
+시작한다. 공급처 사진만 필요한 motion은 이미지 생성과 동시에 진행하고, 생성 컷이
+필요한 motion은 해당 컷이 통과하는 즉시 시작한다. sub-agent는 장면군 또는 motion
+module을 나눠 제작하며 QA agent는 생산 session과 분리한다.
 
-```text
-input 또는 ssot
-→ generated/pending
-→ 자동 검사와 시각 QA
-├─ 사용자 승인 또는 plan-once policy 승인 → generated/approved
-├─ 사용자 반려 → generated/rejected
-└─ 수정 필요 → 새 pending 버전
-```
+## 최종 미디어 QA
 
-파일을 덮어쓰지 않는다. 동일 역할의 새 결과는 버전이 다른 새 파일로 저장한다.
-제작 세션의 QA 자체를 사용자 승인으로 간주하지 않는다. 단,
-`input/product/` 원본 bytes와 사용자 승인 G1 plan이 있는 run은 독립 Image QA
-PASS를 plan-once policy가 exact digest로 승인할 수 있다.
-
-## Manifest 최소 필드
-
-```json
-{
-  "asset_id": "ASSET-HERO-01",
-  "kind": "image",
-  "role": "hero-product",
-  "status": "pending",
-  "path": "asset/generated/pending/image/hero-v01.png",
-  "sha256": "...",
-  "source_refs": ["asset/ssot/product-front.png"],
-  "claim_ids": ["CLAIM-001"],
-  "qa": {"hard_failures": [], "warnings": []},
-  "approval": null
-}
-```
-
-## 승인
-
-사용자의 Studio 승인 또는 검증된 plan-once policy receipt를 최종 결정으로
-기록한다. 승인은 에셋 ID, 버전, 해시, 결정, 시각, 승인 채널을 append-only
-원장에 남긴다. 원본이나 관련 제품 사실이 바뀌면 영향받는 승인만 무효화한다.
-
-## 조립 전 검사
-
-- pending 필수 에셋 0개
-- rejected 또는 deprecated 경로 참조 0개
-- 승인 파일의 현재 SHA-256과 manifest 일치
-- 제품 동일성 하드 실패 0개
-- 각 공개 주장에 승인된 직접 증거 존재
-- Hero는 제품 최대 시각·핵심 장점 한 개·정적 이미지
-- 각 해결 장점에 승인 still과 전용 motion용 source frame 존재
-- image set의 필수 제품 면·scene coverage 100%, contextual-use 1개 이상
-- Hero·핵심 기능 candidate 2개 이상과 중복 differentiation goal 0건
-- 390 CSS px 저작 화면과 780px 전달 자산 crop 안전영역 통과
+- 파일이 실제로 열리고 계획한 섹션과 연결된다.
+- 모든 정지 자산과 animation canvas가 780px 폭이다.
+- GIF/animated WebP가 두 프레임 이상이며 poster-only가 아니다.
+- 같은 주장을 still과 GIF로 연속 반복하지 않는다.
+- 제품이 충분히 크게 보이고 사용 장면과 카피가 같은 내용을 말한다.
+- 누락, 깨진 한글, 잘린 수치, 과도한 파일 크기를 수정한다.
