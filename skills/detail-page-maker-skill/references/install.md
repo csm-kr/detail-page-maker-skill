@@ -26,6 +26,10 @@ node scripts/detail-page.mjs agent-capacity
 Node.js 22.15.0 이상, FFmpeg, Browser Harness와 HyperFrames 지침이 필요하다.
 `doctor`가 누락 항목을 보고하면 해당 runtime이나 호스트 스킬을 준비한다.
 
+Windows에서 job JSON을 만들 때 PowerShell의 `Set-Content -Encoding utf8`과
+`Out-File`은 BOM을 붙인다. Node의 `JSON.parse`가 `Unexpected token '﻿'`로
+실패하므로 BOM 없이 저장하거나 편집기로 직접 작성한다.
+
 ## 새 프로젝트
 
 ```sh
