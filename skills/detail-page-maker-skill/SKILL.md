@@ -10,7 +10,9 @@ description: 공급처 URL과 지정 쿠팡 URL을 받아 쿠팡의 판매 흐�
 
 ## 시작
 
-1. 항상 [`references/workflow.md`](references/workflow.md)를 읽는다.
+1. 항상 [`references/workflow.md`](references/workflow.md)를 읽는다. 호스트가
+   Codex가 아니면 [`references/claude-code.md`](references/claude-code.md)를 함께
+   읽어 역할 배분과 QA gate를 먼저 정한다.
 2. 조사·카피에는 [`references/commercial.md`](references/commercial.md), 이미지·GIF에는
    [`references/assets.md`](references/assets.md), Studio·Wing에는
    [`references/studio.md`](references/studio.md)를 필요한 시점에만 읽는다.
