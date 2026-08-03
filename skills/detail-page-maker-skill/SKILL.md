@@ -16,6 +16,9 @@ description: 공급처 URL과 지정 쿠팡 URL을 받아 쿠팡의 판매 흐�
 2. 조사·카피에는 [`references/commercial.md`](references/commercial.md), 이미지·GIF에는
    [`references/assets.md`](references/assets.md), Studio·Wing에는
    [`references/studio.md`](references/studio.md)를 필요한 시점에만 읽는다.
+   카피를 설계하는 G1과 HTML을 조립하는 G4에서는
+   [`references/art-direction.md`](references/art-direction.md)를 **반드시** 읽는다.
+   사실과 안전선을 다 지켜도 이 문서를 어기면 결과물이 템플릿으로 보인다.
 3. 설치·진단 요청일 때만 [`references/install.md`](references/install.md)를 읽는다.
 4. 입력은 `supplier_url`, `coupang_url`, 선택적 실제 제품 사진이다. 사진은 한 번만
    확인하고 없으면 공급처의 동일 SKU 사진으로 계속한다.
@@ -48,6 +51,8 @@ description: 공급처 URL과 지정 쿠팡 URL을 받아 쿠팡의 판매 흐�
    한 질문에 답하게 한다.
 5. G4: 승인된 자산을 폭 780px HTML로 조립하고 QA한 뒤 Studio working session을
    제공한다. Studio를 열지 않아도 완성본 생성은 멈추지 않는다.
+   조립 전 `references/art-direction.md`의 자가 점검을 통과시킨다. 2단 웨이트 헤드라인,
+   단어 단위 강조, 라운드·그림자 일관성, 브랜드 컬러 단일화가 최소 조건이다.
 6. G5: `output/detail-page.html`, `output/media/{images,gifs}/`, 요청된 경우 새
    namespace의 `output/wing/<export-id>/`를 검증해 확정한다.
 
