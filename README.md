@@ -66,6 +66,34 @@ $detail-page-maker-skill로 상세페이지를 만들어줘.
 - <제품별 특이사항이 있으면 여기에>
 ```
 
+```
+https://github.com/csm-kr/detail-page-maker-skill
+
+다음 스킬을 이 폴더에서만 이용하도록 받아서 
+$detail-page-maker-skill로 상세페이지를 만들어줘.
+
+공급처:     https://domeggook.com/55873582?affid=
+기준 쿠팡:   https://www.coupang.com/vp/products/9516545017?itemId=28375543183&vendorItemId=95327801456&q=%ED%8C%94%ED%86%A0%EC%8B%9C&searchId=d039db6a651433&sourceType=search&itemsCount=36&searchRank=2&rank=2&traceId=mse3zhbu
+실제 사진:   /data 에 추가 
+
+공급처 사진: identity 레퍼런스로만 쓰고 페이지 이미지는 새로 생성한다
+             (또는: 공급처 사진을 페이지에 그대로 쓴다)
+
+배경·겹침:   배경 레이어를 만들어 겹침 구성을 넣되,
+             어떤 형태가 좋을지는 섹션마다 판단해서 정해줘
+검수:        gate 3단, codex와 오케스트레이터 양쪽이 모두 통과해야 진행
+호스트:      codex는 tmux로 띄운다
+보고:        스킬이 요구한 절차를 호스트 제약으로 생략하면 그 즉시 알린다
+
+추가 요구:
+- 공급처 사용설명서를 원문 훼손 없이 재구성해 한 섹션으로 넣는다
+- uv 차단 테스트 우리도 했으니 그대로 사용가능
+- 아주 화려하고 멋지게, 이펙트 많이 사용하여  gif 만들어서 생성 
+
+```
+
+
+
 배경·겹침을 **형태로 지정하지 않는 것이 요령이다.** "패럴랙스로 해줘"처럼 기법을
 못 박으면 그 기법이 안 맞는 섹션에도 들어간다. 목적만 주면 스킬이
 [`references/studio.md`](skills/detail-page-maker-skill/references/studio.md)의
