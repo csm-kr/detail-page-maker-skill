@@ -1,0 +1,8 @@
+{
+  "name": "detail-page-motion",
+  "private": true,
+  "description": "프로젝트-로컬 모션 런타임. 호스트 홈을 쓰지 않는다",
+  "dependencies": {
+    "hyperframes": "0.7.90"
+  }
+}
