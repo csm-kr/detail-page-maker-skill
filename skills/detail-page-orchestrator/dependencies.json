@@ -1,0 +1,32 @@
+{
+  "schema_version": "2.0",
+  "_note": "호스트 스킬 의존 개념을 없앴다. 스킬과 런타임은 프로젝트-로컬이고 인증만 호스트에 있다 — docs/adr/0004",
+  "runtimes": {
+    "node": ">=22.15.0",
+    "python": "required-for-media-verify",
+    "ffmpeg": "required-for-motion",
+    "browser-harness": "required-for-url-capture",
+    "browser-cdp": "required-for-mockup",
+    "hyperframes": "project-local-runtime-for-motion"
+  },
+  "bundled_skills": [
+    "browser-harness",
+    "coupang-extractor",
+    "design-taste-frontend",
+    "dmk-extractor",
+    "god-tibo-gpt-image2-skill"
+  ],
+  "host_auth": {
+    "codex_chatgpt": {
+      "files": ["~/.codex/auth.json", "~/.codex/installation_id"],
+      "purpose": "이미지 생성. 존재 여부만 확인하고 내용은 읽지 않는다",
+      "vendorable": false,
+      "user_action": "codex login"
+    },
+    "chatgpt_web": {
+      "purpose": "목업 대화 (CDP)",
+      "vendorable": false,
+      "user_action": "브라우저에서 로그인"
+    }
+  }
+}
