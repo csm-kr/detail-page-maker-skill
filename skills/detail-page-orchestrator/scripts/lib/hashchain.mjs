@@ -35,11 +35,23 @@ export async function hashTree(dir) {
     for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : 1))) {
       if (entry.name === "node_modules") continue;
       const full = path.join(current, entry.name);
-      if (entry.isDirectory()) {
-        await walk(full);
-      } else if (entry.isFile()) {
-        files.push(full);
+
+      // Windows 의 junction 은 isDirectory() 가 아니라 isSymbolicLink() 로 잡힌다.
+      // 건너뛰면 연결로 설치한 사본의 해시가 통째로 비어 버린다.
+      let isDir = entry.isDirectory();
+      let isFile = entry.isFile();
+      if (entry.isSymbolicLink()) {
+        try {
+          const target = await stat(full);
+          isDir = target.isDirectory();
+          isFile = target.isFile();
+        } catch {
+          continue; // 끊어진 링크
+        }
       }
+
+      if (isDir) await walk(full);
+      else if (isFile) files.push(full);
     }
   };
   await walk(dir);

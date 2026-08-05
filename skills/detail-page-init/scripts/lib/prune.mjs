@@ -59,14 +59,21 @@ export async function classify({ workspace, installedSkills = [], pollution = []
   const add = (grade, rel, why, absolute = null) =>
     entries.push({ grade, rel, why, absolute: absolute ?? path.join(workspace, rel) });
 
-  // A — 루트 work/ 의 빌드 스크립트. 단계 스킬로 옮긴 뒤 원본이 남으면 게이트를 안 거친다.
+  // 워크스페이스 work/ 는 env.* 와 회차 이력만 있어야 한다. 그 밖은 전부 잔여물이다.
+  // 아는 패턴만 치우면 "필요한 것만 둔다" 가 지켜지지 않는다.
+  const WORK_KEEP = new Set(["env.lock.json", "env.answers.json", "gates.history.json"]);
   for (const name of await readdir(path.join(workspace, "work")).catch(() => [])) {
-    if (/^(build|publish|render|verify|crop|embed)[-_].*\.(mjs|py)$/.test(name)) {
-      add(AUTO, path.join("work", name), "게이트를 거치지 않는 빌드 스크립트");
+    if (WORK_KEEP.has(name)) continue;
+    const rel = path.join("work", name);
+    if (/^(build|publish|render|verify|crop|embed|run)[-_].*\.(mjs|py|sh)$/.test(name)) {
+      add(AUTO, rel, "게이트를 거치지 않는 실행 스크립트");
+    } else if (name === "tests") {
+      add(AUTO, rel, "테스트는 단계 스킬 안으로 옮긴다");
+    } else if (name === "gen") {
+      add(CONFIRM, rel, "재생성 가능하나 비용이 크다");
+    } else {
+      add(CONFIRM, rel, "work/ 는 env.* 만 둔다. 확인 후 옮긴다");
     }
-  }
-  if (await exists(path.join(workspace, "work", "tests"))) {
-    add(AUTO, path.join("work", "tests"), "테스트는 단계 스킬 안으로 옮긴다");
   }
 
   // A — 빈 스켈레톤.
@@ -95,10 +102,8 @@ export async function classify({ workspace, installedSkills = [], pollution = []
   for (const name of await readdir(path.join(workspace, "projects")).catch(() => [])) {
     add(CONFIRM, path.join("projects", name), "옛 회차. 발행물을 포함한다");
   }
-  for (const rel of [path.join("work", "gen"), path.join("motion", "out")]) {
-    if (await exists(path.join(workspace, rel))) {
-      add(CONFIRM, rel, "재생성 가능하나 비용이 크다");
-    }
+  if (await exists(path.join(workspace, "motion", "out"))) {
+    add(CONFIRM, path.join("motion", "out"), "재생성 가능하나 비용이 크다");
   }
 
   return entries.filter((entry) => !isProtected(entry.rel));

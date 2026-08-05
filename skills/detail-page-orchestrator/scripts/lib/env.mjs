@@ -99,14 +99,41 @@ export async function requireEnv(workspace = resolveWorkspace()) {
     );
   }
 
-  const primary = lock.install?.targets?.["claude-code"] ?? ".claude/skills";
-  const actual = await hashTree(path.join(workspace, primary));
+  await requireInstallIntact(workspace, lock);
+  return lock;
+}
+
+/**
+ * 설치가 온전한지. 모드에 따라 비교 대상이 다르다.
+ *
+ * junction  사본이 아니라 원본 그 자체다. 저장된 해시 스냅샷과 비교하면 스킬을 고치는
+ *           순간 제작이 막혀 junction 의 장점이 차단 사유가 된다. **원본과 비교한다.**
+ * copy      사본이 낡았는지 봐야 하므로 **저장된 해시와 비교한다.**
+ */
+async function requireInstallIntact(workspace, lock) {
+  const targets = Object.values(lock.install?.targets ?? {});
+  if (targets.length === 0) return;
+
+  if (lock.install?.mode === "junction") {
+    const source = path.join(workspace, lock.install.source ?? ".skill-src/skills");
+    const expected = await hashTree(source);
+    for (const target of targets) {
+      const actual = await hashTree(path.join(workspace, target));
+      if (actual !== expected) {
+        throw new Refusal(
+          "INSTALL_HASH_MISMATCH",
+          `연결된 사본이 원본과 다르다. detail-page-init 을 다시 실행한다.\n  원본 ${source}\n  사본 ${target}`,
+        );
+      }
+    }
+    return;
+  }
+
+  const actual = await hashTree(path.join(workspace, targets[0]));
   if (lock.install?.sha256 && lock.install.sha256 !== actual) {
     throw new Refusal(
       "INSTALL_HASH_MISMATCH",
-      `설치 사본이 잠금과 다르다. detail-page-init --sync 로 맞춘다.\n  기록 ${lock.install.sha256}\n  실제 ${actual}`,
+      `설치 사본이 잠금과 다르다. detail-page-init 을 다시 실행해 맞춘다.\n  기록 ${lock.install.sha256}\n  실제 ${actual}`,
     );
   }
-
-  return lock;
 }

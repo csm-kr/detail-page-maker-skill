@@ -52,11 +52,12 @@ export async function vendorHyperframes({ workspace, install = true }) {
     return { mode: "project-local", path: "motion/", pin: HYPERFRAMES_PIN, installed: false };
   }
 
-  const result = spawnSync("npm", ["install", "--omit=dev", "--no-audit", "--no-fund"], {
+  // shell: true 로 인자를 넘기면 이스케이프되지 않는다. Windows 에서는 npm.cmd 를 직접 부른다.
+  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+  const result = spawnSync(npm, ["install", "--omit=dev", "--no-audit", "--no-fund"], {
     cwd: dir,
     encoding: "utf8",
     timeout: 180000,
-    shell: process.platform === "win32",
   });
 
   const after = await readJson(path.join(dir, "node_modules", "hyperframes", "package.json"));

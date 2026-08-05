@@ -5,7 +5,7 @@
 // 내므로 코드만 검사하면 거짓 GREEN 이 된다.
 
 import assert from "node:assert/strict";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
@@ -100,6 +100,36 @@ test("policy.model_face 가 없으면 start 를 거부한다", async () => {
 test("설치 사본 해시가 어긋나면 start 를 거부한다", async () => {
   const ws = await makeWorkspace({ installOk: false });
   try {
+    const { code, out } = orchestrate(startArgs, { workspace: ws.root });
+    assert.equal(code, 1);
+    assert.match(out, /INSTALL_HASH_MISMATCH/);
+  } finally {
+    await ws.cleanup();
+  }
+});
+
+test("junction 모드에서는 원본을 고쳐도 start 가 거부하지 않는다", async () => {
+  // junction 은 사본이 아니라 원본 그 자체다. 저장된 해시 스냅샷과 비교하면
+  // 스킬을 고치는 순간 제작이 막힌다 — junction 의 장점이 차단 사유가 된다.
+  const ws = await makeWorkspace({ installMode: "junction", installOk: false });
+  try {
+    const { code, out } = orchestrate(startArgs, { workspace: ws.root });
+    assert.equal(code, 0, out);
+    assert.doesNotMatch(out, /INSTALL_HASH_MISMATCH/);
+  } finally {
+    await ws.cleanup();
+  }
+});
+
+test("junction 모드에서 사본이 원본과 다르면 거부한다", async () => {
+  const ws = await makeWorkspace({ installMode: "junction" });
+  try {
+    // 연결을 끊고 다른 내용을 놓는다. 원본과 어긋난 상태다.
+    const link = path.join(ws.root, ".claude", "skills", "detail-page-g1-fact");
+    await rm(link, { recursive: true, force: true });
+    await mkdir(link, { recursive: true });
+    await writeFile(path.join(link, "SKILL.md"), "# 다른 내용\n", "utf8");
+
     const { code, out } = orchestrate(startArgs, { workspace: ws.root });
     assert.equal(code, 1);
     assert.match(out, /INSTALL_HASH_MISMATCH/);

@@ -5,7 +5,7 @@
 // 그 분리가 있어야 픽스처가 우회 경로가 되지 않는다.
 
 import { spawnSync } from "node:child_process";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,6 +54,7 @@ export async function makeWorkspace(options = {}) {
     envLock = true,
     modelFace = "crop-below-chin",
     installOk = true,
+    installMode = "copy",
   } = options;
 
   const root = await mkdtemp(path.join(tmpdir(), "dp-ws-"));
@@ -67,13 +68,24 @@ export async function makeWorkspace(options = {}) {
     await mkdir(path.join(root, dir), { recursive: true });
   }
 
-  // 설치 사본을 흉내 내는 최소 트리. 해시가 내용에서 나오므로 파일 하나로 충분하다.
+  // 원본 한 벌 + 두 호스트 경로. 해시가 내용에서 나오므로 파일 하나로 충분하다.
   const installed = ["detail-page-orchestrator", "detail-page-g1-fact"];
+  const source = path.join(root, ".skill-src", "skills");
+  for (const skill of installed) {
+    const dir = path.join(source, skill);
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, "SKILL.md"), `# ${skill}\n`, "utf8");
+  }
   for (const host of [".claude", ".agents"]) {
+    const hostDir = path.join(root, host, "skills");
+    await mkdir(hostDir, { recursive: true });
     for (const skill of installed) {
-      const dir = path.join(root, host, "skills", skill);
-      await mkdir(dir, { recursive: true });
-      await writeFile(path.join(dir, "SKILL.md"), `# ${skill}\n`, "utf8");
+      const link = path.join(hostDir, skill);
+      if (installMode === "junction") {
+        await symlink(path.join(source, skill), link, "junction");
+      } else {
+        await cp(path.join(source, skill), link, { recursive: true });
+      }
     }
   }
 
@@ -100,7 +112,7 @@ export async function makeWorkspace(options = {}) {
           blocked: options.blocked ?? [],
           hosts: ["claude-code", "codex"],
           install: {
-            mode: "copy",
+            mode: installMode,
             source: ".skill-src/skills",
             targets: {
               "claude-code": ".claude/skills",

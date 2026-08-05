@@ -65,8 +65,25 @@ async function bootstrap() {
   return created;
 }
 
+// 한글은 폭이 2 다. padEnd 로 맞추면 표가 어긋난다.
+function width(text) {
+  let total = 0;
+  for (const char of String(text)) {
+    total += /[ᄀ-ᇿ　-〿㄰-㆏가-힯＀-｠]/.test(char) ? 2 : 1;
+  }
+  return total;
+}
+
+function pad(text, columns) {
+  const space = columns - width(text);
+  return `${text}${" ".repeat(space > 0 ? space : 1)}`;
+}
+
 function row(label, value, mark) {
-  out(`  ${label.padEnd(14)}${String(value).padEnd(30)}${mark}`);
+  const text = String(value);
+  // 값이 길면 표시를 잘라서 줄을 넘기지 않는다. 첫 화면이 깨지면 신뢰가 깎인다.
+  const shown = width(text) > 44 ? `${text.slice(0, 41)}…` : text;
+  out(`  ${pad(label, 16)}${pad(shown, 46)}${mark}`.trimEnd());
 }
 
 function printDetection(result, missing) {

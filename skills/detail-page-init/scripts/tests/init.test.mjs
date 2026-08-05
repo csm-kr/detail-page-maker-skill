@@ -268,6 +268,27 @@ test("--prune --apply 는 삭제가 아니라 .trash 로 옮긴다", async () =>
   }
 });
 
+test("워크스페이스 work/ 의 모르는 잔여물도 정리 목록에 올린다", async () => {
+  // "필요한 것만 둔다" 는 아는 패턴만 치우는 것이 아니다. work/ 는 env.* 만 있어야 한다.
+  const ws = await makeWorkspace();
+  try {
+    run(["--apply", "--install-mode", "copy"], { workspace: ws.root });
+    await mkdir(path.join(ws.root, "work", "cpg-slices"), { recursive: true });
+    await writeFile(path.join(ws.root, "work", "studio.log"), "log\n", "utf8");
+    await writeFile(path.join(ws.root, "work", "run-stills.sh"), "#!/bin/sh\n", "utf8");
+
+    const { out } = run(["--prune"], { workspace: ws.root });
+    assert.match(out, /cpg-slices/);
+    assert.match(out, /studio\.log/);
+    assert.match(out, /run-stills\.sh/);
+    // env.* 는 보호 대상이므로 목록에 없어야 한다.
+    assert.doesNotMatch(out, /env\.lock\.json/);
+    assert.doesNotMatch(out, /env\.answers\.json/);
+  } finally {
+    await ws.cleanup();
+  }
+});
+
 test("보호 목록은 정리 대상에서 제외된다", async () => {
   const ws = await makeWorkspace();
   try {
