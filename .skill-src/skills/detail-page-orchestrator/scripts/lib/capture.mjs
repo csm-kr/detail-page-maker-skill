@@ -20,6 +20,16 @@ async function connect(wsUrl) {
     });
   });
 
+  // 소켓이 닫히면 대기 중인 모든 것을 거부한다. 이것이 없으면 브라우저가 죽었을 때
+  // promise 가 settle 되지 않고 그대로 매달린다 — 실제로 그렇게 멈췄다.
+  const abort = (reason) => {
+    for (const { reject } of pending.values()) reject(new Error(reason));
+    pending.clear();
+    for (const waiter of waiters.splice(0)) waiter.reject?.(new Error(reason));
+  };
+  socket.addEventListener("close", () => abort("CDP_CLOSED 브라우저와의 연결이 끊겼다"));
+  socket.addEventListener("error", () => abort("CDP_ERROR 브라우저 연결 오류"));
+
   socket.addEventListener("message", (event) => {
     const message = JSON.parse(event.data);
     if (message.id && pending.has(message.id)) {
@@ -38,17 +48,31 @@ async function connect(wsUrl) {
   });
 
   return {
-    send(method, params = {}) {
+    send(method, params = {}, timeoutMs = 60000) {
       seq += 1;
       const id = seq;
+      // 응답이 없으면 매달리지 않고 어느 호출이 문제인지 말한다.
       return new Promise((resolve, reject) => {
-        pending.set(id, { resolve, reject });
+        const timer = setTimeout(() => {
+          pending.delete(id);
+          reject(new Error(`CDP_TIMEOUT ${method}`));
+        }, timeoutMs);
+        pending.set(id, {
+          resolve: (value) => {
+            clearTimeout(timer);
+            resolve(value);
+          },
+          reject: (error) => {
+            clearTimeout(timer);
+            reject(error);
+          },
+        });
         socket.send(JSON.stringify({ id, method, params }));
       });
     },
     waitFor(method, timeoutMs = 30000) {
       return new Promise((resolve, reject) => {
-        const waiter = { method, resolve };
+        const waiter = { method, resolve, reject };
         waiters.push(waiter);
         setTimeout(() => {
           const index = waiters.indexOf(waiter);
@@ -75,7 +99,9 @@ export async function capturePage({
   width = 1280,
   settleMs = 2500,
 }) {
-  const created = await fetch(`${cdp}/json/new?${encodeURIComponent(url)}`, {
+  // **빈 탭을 먼저 만들고 붙은 뒤에 이동한다.** 주소를 붙여 열면 사이트의 리다이렉트가
+  // 타깃을 교체해 소켓이 끊긴다 — 쿠팡에서 실제로 그랬다.
+  const created = await fetch(`${cdp}/json/new?about:blank`, {
     method: "PUT",
   }).then((r) => r.json());
 
@@ -90,8 +116,9 @@ export async function capturePage({
       mobile: false,
     });
 
-    // 이미 열린 뒤일 수 있으므로 load 를 기다리다 실패해도 계속 간다.
-    await session.waitFor("Page.loadEventFired", 20000).catch(() => null);
+    const loaded = session.waitFor("Page.loadEventFired", 30000).catch(() => null);
+    await session.send("Page.navigate", { url });
+    await loaded;
 
     // 지연 로딩을 끌어내려면 끝까지 내려야 한다.
     await session.send("Runtime.evaluate", {
@@ -151,6 +178,14 @@ export async function capturePage({
     };
   } finally {
     session.close();
-    await fetch(`${cdp}/json/close/${created.id}`).catch(() => null);
+    // **마지막 탭은 닫지 않는다.** 닫으면 Chrome 이 종료되고 다음 캡처가 CDP 를 잃는다.
+    // 실제로 그렇게 브라우저가 매번 죽었다.
+    const pages = await fetch(`${cdp}/json/list`)
+      .then((r) => r.json())
+      .then((list) => list.filter((t) => t.type === "page"))
+      .catch(() => []);
+    if (pages.length > 1) {
+      await fetch(`${cdp}/json/close/${created.id}`).catch(() => null);
+    }
   }
 }

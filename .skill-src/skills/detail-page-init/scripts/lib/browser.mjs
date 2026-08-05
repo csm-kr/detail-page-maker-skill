@@ -93,10 +93,18 @@ export async function openBrowser({ workspace, port = DEFAULT_PORT, url = "https
     );
   }
 
-  const child = spawn(chrome, [...launchArgs(workspace, port), url], {
-    detached: true,
-    stdio: "ignore",
-  });
+  // Windows 는 명령을 job object 안에서 돌리므로 spawn detached 로는 부모가 끝날 때
+  // 브라우저까지 죽는다. 실제로 매 명령마다 CDP 가 사라져 캡처가 매달렸다.
+  // 셸의 start 에 넘겨 완전히 떼어 놓는다.
+  const args = [...launchArgs(workspace, port), url];
+  const child =
+    process.platform === "win32"
+      ? spawn("cmd", ["/c", "start", "", chrome, ...args], {
+          detached: true,
+          stdio: "ignore",
+          windowsVerbatimArguments: false,
+        })
+      : spawn(chrome, args, { detached: true, stdio: "ignore" });
   child.unref();
 
   // 붙을 수 있을 때까지 기다린다. 고정 대기시간을 두지 않는다.
