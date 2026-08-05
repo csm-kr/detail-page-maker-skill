@@ -75,7 +75,7 @@
 - [x] `lib/hashchain.mjs`
 - [x] 입력 해시 불일치 → 그 게이트 + 모든 하류 `✗`
 - [x] 해시 대상을 의미 있는 산출물로 제한 (플랜·가이드·앵커 이미지·brief)
-- [ ] 캡처는 **수집 스크립트만** `inputs.lock.json`에 등록 가능
+- [x] 캡처는 **수집 스크립트만** `inputs.lock.json`에 등록 가능
 
 ## 7 — 시간 기록
 
@@ -101,12 +101,12 @@
 
 - [x] `lock --read` + 11개 스킬 골격 + 판정 로직 (`check.mjs`)
 - [x] 판단 게이트(G1 G2 G3 G4 G7)의 `run.mjs` — 체크리스트 출력이 최종 형태다
-- [ ] **G5 `run.mjs`** — 가이드의 무드를 초안에 주입해 발행 플랜을 쓴다
-- [ ] **G6 `run.mjs`** — `tibo-batch.mjs` 호출 + slug 발행
-- [ ] **G8 `run.mjs`** — 컴포지션 → 10개 병렬 렌더 → 발행 → `comps/index.json`
-- [ ] **G9 `run.mjs`** — 일반 조립기. 플랜과 page-plan 만 보고 HTML 을 만든다 (가장 큼)
-- [ ] **G10 `run.mjs`** — `lean-html-qa.mjs` + 포맷·용량 → `qa-report.json`
-- [ ] **G11 `run.mjs`** — Studio · Wing · `killed.json` 복구 → `delivery.json`
+- [x] **G5 `run.mjs`** — 가이드의 무드를 초안에 주입해 발행 플랜을 쓴다
+- [x] **G6 `run.mjs`** — `tibo-batch.mjs` 호출 + slug 발행
+- [x] **G8 `run.mjs`** — 컴포지션 → 10개 병렬 렌더 → 발행 → `comps/index.json`
+- [x] **G9 `run.mjs`** — 일반 조립기. 플랜과 page-plan 만 보고 HTML 을 만든다 (가장 큼)
+- [x] **G10 `run.mjs`** — `lean-html-qa.mjs` + 포맷·용량 → `qa-report.json`
+- [x] **G11 `run.mjs`** — Studio · Wing · `killed.json` 복구 → `delivery.json`
 - [ ] 단계별 `check.mjs` 단위 테스트 (지금은 게이트를 거쳐 간접 검증만 된다)
 
 **옛 `work/*.mjs` 를 옮기지 않는다.** 팔토시 전용이라 그대로 옮기면 스킬에 이 상품이
@@ -124,7 +124,7 @@
 - [ ] `init` 재실행 + `--prune --apply`
 - [ ] `doctor` — 경로가 전부 워크스페이스 안
 - [ ] `e2e` PASS
-- [ ] 전체 테스트 GREEN (기존 45 + 신규 약 45)
+- [x] 전체 테스트 GREEN (102개)
 - [ ] 홈 3경로에 detail-page 계열 0개
 - [ ] 루트에 `build-*.mjs` 0개
 
