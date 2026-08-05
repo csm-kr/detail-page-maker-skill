@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { validateLeanPlan, buildExamplePlan } from "./lean-contract.mjs";
 import { validateHtmlProject } from "./lean-html-qa.mjs";
 import { createProject, defaultProjectsRoot } from "./lib/new-project.mjs";
+import { probeCdp } from "./lib/cdp.mjs";
 
 const SKILL_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MINIMUM_NODE = [22, 15, 0];
@@ -58,7 +59,7 @@ function findHostSkill(name) {
     .find((candidate) => existsSync(path.join(candidate, "SKILL.md"))) || null;
 }
 
-function doctor() {
+async function doctor() {
   const manifest = JSON.parse(readFileSync(path.join(SKILL_ROOT, "dependencies.json"), "utf8"));
   const bundled = Object.fromEntries(manifest.bundled_skills.map((name) => {
     const skillPath = path.join(SKILL_ROOT, ".agents", "skills", name);
@@ -68,16 +69,20 @@ function doctor() {
     const skillPath = findHostSkill(name);
     return [name, { ok: Boolean(skillPath), path: skillPath }];
   }));
+  // G1.5 Design Reference 단계가 ChatGPT 를 브라우저로 조작한다. endpoint 가 필요하다.
+  const cdp = await probeCdp({ environment: process.env });
+
   const report = {
     ok: versionAtLeast(process.version, MINIMUM_NODE),
     node: { ok: versionAtLeast(process.version, MINIMUM_NODE), version: process.version, required: ">=22.15.0" },
     ffmpeg: probe("ffmpeg", ["-version"]),
     browser_harness: probe("browser-harness", ["--version"]),
+    browser_cdp: cdp,
     bundled_skills: bundled,
     host_skills: host,
     note: "HyperFrames 실행 패키지는 motion 프로젝트에 로컬로 준비합니다.",
   };
-  report.ok = report.ok && report.ffmpeg.ok && report.browser_harness.ok &&
+  report.ok = report.ok && report.ffmpeg.ok && report.browser_harness.ok && cdp.ok &&
     Object.values(bundled).every((item) => item.ok) &&
     Object.values(host).every((item) => item.ok);
   console.log(JSON.stringify(report, null, 2));

@@ -156,11 +156,20 @@ test("Lean Studio·Wing 새 경로와 embedded renderer는 780px only이다", as
     /const LEAN_WING_RENDERER = String\.raw`([\s\S]*?)`;\n\nexport class/,
   );
   assert.ok(embedded, "embedded 780px renderer source");
-  const compiled = spawnSync(
-    "python3",
-    ["-c", 'import sys; compile(sys.stdin.read(), "lean-wing-renderer.py", "exec")'],
-    { input: embedded[1], encoding: "utf8" },
-  );
+  // Windows 의 `python3` 는 Microsoft Store 별칭 스텁이라 exit 9009 로 죽는다.
+  // 실제 인터프리터를 찾을 때까지 후보를 훑는다.
+  const args = ["-c", 'import sys; compile(sys.stdin.read(), "lean-wing-renderer.py", "exec")'];
+  const candidates = [process.env.DETAIL_PAGE_PYTHON, "python3", "python", "py"].filter(Boolean);
+  let compiled = null;
+  const tried = [];
+  for (const bin of candidates) {
+    const r = spawnSync(bin, args, { input: embedded[1], encoding: "utf8" });
+    tried.push(`${bin}=${r.error ? r.error.code : r.status}`);
+    if (r.error || r.status === 9009) continue;   // 없음 또는 Store 스텁
+    compiled = r;
+    break;
+  }
+  assert.ok(compiled, `Python 인터프리터를 찾지 못했습니다 (${tried.join(", ")})`);
   assert.equal(compiled.status, 0, compiled.stderr);
 });
 

@@ -4,6 +4,7 @@
     "node": ">=22.15.0",
     "ffmpeg": "required-for-motion",
     "browser-harness": "required-for-url-capture",
+    "browser-cdp": "required-for-design-reference",
     "hyperframes": "project-local-runtime-for-motion"
   },
   "bundled_skills": [
