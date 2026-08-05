@@ -216,7 +216,7 @@ description: 이 스킬은 detail-page-orchestrator 로 대체됐다. 상세페�
 | G6 | 혼합 | 남음 | `tibo-batch.mjs` 호출 + slug 발행 |
 | G8 | 혼합 | 남음 | 컴포지션 → 렌더(10개 병렬) → GIF 발행 → `comps/index.json` |
 | G9 | 스크립트 | 남음 | **일반 조립기.** 플랜과 page-plan 만 보고 HTML 을 만든다 |
-| G10 | 스크립트 | 남음 | `lean-html-qa.mjs` + 포맷·용량 → `qa-report.json` |
+| G10 | 스크립트 | **완료** | `lean-html-qa.mjs` 를 항상 strict 로 돌려 `qa-report.json` 을 쓴다 |
 | G11 | 혼합 | 남음 | Studio · Wing · `killed.json` 복구 → `delivery.json` |
 
 **G9 가 가장 크다.** 옛 `build-page.mjs` 는 이 상품 전용이라 옮길 수 없고, 플랜을 읽어
