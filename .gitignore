@@ -11,6 +11,7 @@
 # 기계마다 다른 상태. 다른 기계에서는 init 인터뷰를 다시 한다
 /work/env.lock.json
 /work/env.answers.json
+/work/active.json
 /work/gates.history.json
 
 # 회차 산출물과 입력. 상품마다 다르다 — 스킬이 아니다

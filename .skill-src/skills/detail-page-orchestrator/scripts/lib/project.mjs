@@ -1,6 +1,6 @@
 // 워크스페이스와 프로젝트 경로 해석. 절대 경로 리터럴도, 프로젝트 이름 리터럴도 두지 않는다.
 
-import { readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -57,11 +57,29 @@ export function projectsRoot(workspace = resolveWorkspace()) {
  * 프로젝트 경로. 여러 개면 DETAIL_PAGE_PROJECT 로 고른다.
  * 이름을 기본값으로 박아 두면 다음 회차에 조용히 옛 프로젝트를 빌드한다.
  */
+export function activePath(workspace = resolveWorkspace()) {
+  return path.join(workspace, "work", "active.json");
+}
+
+/** start 가 기록한 활성 프로젝트. 옛 회차를 남겨 둬도 명령마다 고르지 않아도 된다. */
+function readActive(workspace) {
+  try {
+    const parsed = JSON.parse(readFileSync(activePath(workspace), "utf8"));
+    const dir = path.join(projectsRoot(workspace), parsed.project);
+    return isDir(dir) ? dir : null;
+  } catch {
+    return null;
+  }
+}
+
 export function resolveProject(workspace = resolveWorkspace()) {
   const base = projectsRoot(workspace);
   if (process.env.DETAIL_PAGE_PROJECT) {
     return path.join(base, process.env.DETAIL_PAGE_PROJECT);
   }
+  const active = readActive(workspace);
+  if (active) return active;
+
   let dirs = [];
   try {
     dirs = readdirSync(base).filter((name) => isDir(path.join(base, name)));

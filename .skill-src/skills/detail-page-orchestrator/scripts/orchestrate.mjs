@@ -7,6 +7,7 @@ import { spawnSync } from "node:child_process";
 import { copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { capturePage } from "./lib/capture.mjs";
 import { runCheck } from "./lib/check.mjs";
 import { Refusal, requireEnv } from "./lib/env.mjs";
 import {
@@ -29,6 +30,7 @@ import { RUN_GATES, budgetTotalMin, gate, layers } from "./lib/gates.mjs";
 import { exists, hashFile } from "./lib/hashchain.mjs";
 import {
   SKILLS_ROOT,
+  activePath,
   projectsRoot,
   resolveProject,
   resolveWorkspace,
@@ -147,6 +149,14 @@ async function cmdStart(argv) {
   }
   await recordPass(state, "G0", { project, workspace, host: host() });
   await saveState(project, state);
+
+  // 활성 프로젝트를 기록한다. 옛 회차를 검증용으로 남겨 둬도 명령마다 고르지 않는다.
+  await writeFile(
+    activePath(workspace),
+    `${JSON.stringify({ project: path.basename(project), at: new Date().toISOString() }, null, 2)}
+`,
+    "utf8",
+  );
 
   out(`프로젝트  ${path.relative(workspace, project)}`);
   out(`사진      ${photoEntries.length}장 → input/photos/ (원본 ${photos}/)`);
@@ -302,6 +312,58 @@ async function cmdLock(argv) {
   out(`잠금 기록: ${target}`);
 }
 
+// ─── capture ──────────────────────────────────────────────────────────────
+
+async function cmdCapture(argv) {
+  const url = flag(argv, "url");
+  const label = flag(argv, "as");
+  if (typeof url !== "string" || typeof label !== "string") {
+    throw new Refusal("USAGE", "capture --url <url> --as <이름>");
+  }
+  const { workspace, project, lock } = await context();
+  const cdp = lock.browser?.cdp;
+  // 잠금 파일의 값만 믿지 않는다. 창은 닫힌다.
+  const alive = cdp
+    ? await fetch(`${cdp}/json/version`, { signal: AbortSignal.timeout(2000) })
+        .then((r) => r.ok)
+        .catch(() => false)
+    : false;
+  if (!alive) {
+    throw new Refusal(
+      "CDP_DEAD",
+      `브라우저 CDP 에 붙을 수 없다 (${cdp ?? "기록 없음"}).
+  detail-page-init 의 open-browser.mjs 로 다시 연다 — 쓰던 창은 닫지 않는다.`,
+    );
+  }
+
+  const dir = path.join(project, "input", "captures");
+  const png = path.join(dir, `${label}.png`);
+  const txt = path.join(dir, `${label}.txt`);
+  out(`수집 중  ${url}`);
+  const result = await capturePage({ cdp, url, outPng: png, outText: txt });
+
+  // 수집 스크립트만 등록할 수 있다. 손으로 놓은 파일은 lock 에 들어가지 않는다.
+  const lockFile = path.join(project, "work", "inputs.lock.json");
+  const parsed = JSON.parse(await readFile(lockFile, "utf8"));
+  parsed.captures[`input/captures/${label}.png`] = {
+    sha256: await hashFile(png),
+    locked_at: new Date().toISOString(),
+    url,
+    title: result.title,
+    size: `${result.width}x${result.height}`,
+    text: `input/captures/${label}.txt`,
+    chars: result.chars,
+    by: "capture",
+  };
+  await writeFile(lockFile, `${JSON.stringify(parsed, null, 2)}
+`, "utf8");
+
+  out(`  제목    ${result.title}`);
+  out(`  크기    ${result.width}x${result.height} · 본문 ${result.chars}자`);
+  out(`  저장    input/captures/${label}.{png,txt}`);
+  out(`  등록    inputs.lock.json`);
+}
+
 // ─── run ──────────────────────────────────────────────────────────────────
 
 async function cmdRun(argv) {
@@ -428,6 +490,7 @@ const COMMANDS = {
   gates: cmdGates,
   gate: cmdGate,
   lock: cmdLock,
+  capture: cmdCapture,
   run: cmdRun,
   report: cmdReport,
   doctor: cmdDoctor,
@@ -437,7 +500,7 @@ const argv = process.argv.slice(2);
 const command = argv[0];
 
 if (!command || !COMMANDS[command]) {
-  out("orchestrate <start|gates|gate|lock|run|report|doctor>");
+  out("orchestrate <start|gates|gate|lock|capture|run|report|doctor>");
   out("트래커는 track.mjs 로 띄운다.");
   process.exitCode = command ? 1 : 0;
 } else {
