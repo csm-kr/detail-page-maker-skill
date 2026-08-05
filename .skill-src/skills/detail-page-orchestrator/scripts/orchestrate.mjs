@@ -4,7 +4,7 @@
 // 우회 플래그는 없다. --force 를 만들지 않는다 — 게이트가 틀렸으면 게이트를 고친다.
 
 import { spawnSync } from "node:child_process";
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { runCheck } from "./lib/check.mjs";
@@ -95,15 +95,26 @@ async function cmdStart(argv) {
   }
 
   const project = path.join(projectsRoot(workspace), `${name}-${Date.now()}`);
-  for (const dir of ["work", path.join("output", "media")]) {
+  for (const dir of [
+    "work",
+    path.join("input", "photos"),
+    path.join("output", "media"),
+  ]) {
     await mkdir(path.join(project, dir), { recursive: true });
   }
 
-  const photoDir = path.resolve(workspace, photos);
+  // 회차에 필요한 것은 전부 프로젝트 아래로 모은다. 사진을 워크스페이스에 두고 참조하면
+  // 그 사진이 바뀌거나 사라졌을 때 회차를 재현할 수 없다.
+  const source = path.resolve(workspace, photos);
+  const inputDir = path.join(project, "input", "photos");
   const photoEntries = [];
-  for (const file of (await readdir(photoDir).catch(() => [])).sort()) {
+  for (const file of (await readdir(source).catch(() => [])).sort()) {
     if (!/\.(jpe?g|png|webp)$/i.test(file)) continue;
-    photoEntries.push({ file, sha256: await hashFile(path.join(photoDir, file)) });
+    await copyFile(path.join(source, file), path.join(inputDir, file));
+    photoEntries.push({
+      file: `input/photos/${file}`,
+      sha256: await hashFile(path.join(inputDir, file)),
+    });
   }
 
   await writeFile(
@@ -114,7 +125,7 @@ async function cmdStart(argv) {
         locked_at: new Date().toISOString(),
         supplier_url: supplierUrl,
         coupang_url: coupangUrl,
-        photos: { dir: photos, count: photoEntries.length, entries: photoEntries },
+        photos: { source: photos, count: photoEntries.length, entries: photoEntries },
         policy: {
           model_face: typeof modelFace === "string" ? modelFace : lock.policy.model_face,
         },
@@ -138,7 +149,7 @@ async function cmdStart(argv) {
   await saveState(project, state);
 
   out(`프로젝트  ${path.relative(workspace, project)}`);
-  out(`사진      ${photoEntries.length}장 (${photos}/)`);
+  out(`사진      ${photoEntries.length}장 → input/photos/ (원본 ${photos}/)`);
   out(`얼굴 정책 ${typeof modelFace === "string" ? modelFace : lock.policy.model_face}`);
   out("");
   await printTable({ workspace, project, state });
