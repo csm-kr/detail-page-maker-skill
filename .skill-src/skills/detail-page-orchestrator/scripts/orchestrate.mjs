@@ -8,6 +8,12 @@ import { copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path";
 
 import { capturePage } from "./lib/capture.mjs";
+import {
+  chooseExtractor,
+  extractorPresent,
+  findHarness,
+  runExtractor,
+} from "./lib/extract.mjs";
 import { runCheck } from "./lib/check.mjs";
 import { Refusal, requireEnv } from "./lib/env.mjs";
 import {
@@ -314,6 +320,48 @@ async function cmdLock(argv) {
 
 // ─── capture ──────────────────────────────────────────────────────────────
 
+/**
+ * 검증된 추출기로 수집한다. 등록하는 것은 번들의 manifest.json 하나다 —
+ * 그 안에 자산별 해시가 들어 있고, 추출기가 그것을 검증한 뒤에만 승격한다.
+ */
+async function cmdCaptureByExtractor({ entry, url, label, workspace, project }) {
+  const outDir = path.join(project, "input", "bundles", label);
+  if (await exists(outDir)) {
+    throw new Refusal(
+      "BUNDLE_EXISTS",
+      `이미 있다: input/bundles/${label}
+  추출기는 정상 번들을 덮어쓰지 않는다. 다른 이름을 쓰거나 그 디렉터리를 치운다.`,
+    );
+  }
+
+  out(`수집 중  ${url}`);
+  out(`  추출기  ${entry.skill} (요청 최소화: ${entry.args.join(" ")})`);
+  await runExtractor({ entry, url, outDir, onLine: (line) => line && out(`  │ ${line}`) });
+
+  const manifest = path.join(outDir, "manifest.json");
+  if (!(await exists(manifest))) {
+    throw new Refusal(
+      "BUNDLE_INCOMPLETE",
+      `${entry.skill} 가 manifest.json 을 남기지 않았다. 번들을 근거로 쓸 수 없다.
+  ${path.relative(workspace, outDir)} 의 evidence/ 에서 상태 코드를 확인한다.`,
+    );
+  }
+
+  const lockFile = path.join(project, "work", "inputs.lock.json");
+  const parsed = JSON.parse(await readFile(lockFile, "utf8"));
+  parsed.captures[`input/bundles/${label}/manifest.json`] = {
+    sha256: await hashFile(manifest),
+    locked_at: new Date().toISOString(),
+    url,
+    by: "extract",
+    skill: entry.skill,
+  };
+  await writeFile(lockFile, `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
+
+  out(`  저장    input/bundles/${label}/`);
+  out(`  등록    inputs.lock.json (manifest.json 해시)`);
+}
+
 async function cmdCapture(argv) {
   const url = flag(argv, "url");
   const label = flag(argv, "as");
@@ -321,6 +369,18 @@ async function cmdCapture(argv) {
     throw new Refusal("USAGE", "capture --url <url> --as <이름>");
   }
   const { workspace, project, lock } = await context();
+
+  // 아는 호스트는 검증된 추출기로 보낸다. 내장 캡처에는 차단 판정도 상품 ID 대조도
+  // 후기 개인정보 마스킹도 없다 — 같은 것을 다시 짜는 대신 부른다.
+  const entry = chooseExtractor(url);
+  if (entry && (await extractorPresent(entry))) {
+    const harness = await findHarness();
+    if (harness) {
+      return cmdCaptureByExtractor({ entry, url, label, workspace, project });
+    }
+    out(`알림    ${entry.skill} 를 쓰려 했으나 ${entry.requires} 명령이 없다. 내장 캡처로 내려간다.`);
+  }
+
   const cdp = lock.browser?.cdp;
   // 잠금 파일의 값만 믿지 않는다. 창은 닫힌다.
   const alive = cdp
@@ -340,7 +400,14 @@ async function cmdCapture(argv) {
   const png = path.join(dir, `${label}.png`);
   const txt = path.join(dir, `${label}.txt`);
   out(`수집 중  ${url}`);
-  const result = await capturePage({ cdp, url, outPng: png, outText: txt });
+  const asked = flag(argv, "min-height");
+  const result = await capturePage({
+    cdp,
+    url,
+    outPng: png,
+    outText: txt,
+    ...(typeof asked === "string" ? { minHeight: Number(asked) } : {}),
+  });
 
   // 수집 스크립트만 등록할 수 있다. 손으로 놓은 파일은 lock 에 들어가지 않는다.
   const lockFile = path.join(project, "work", "inputs.lock.json");

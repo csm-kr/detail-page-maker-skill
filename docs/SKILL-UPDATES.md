@@ -212,7 +212,7 @@ description: 이 스킬은 detail-page-orchestrator 로 대체됐다. 상세페�
 | 게이트 | 주체 | `run.mjs` 상태 | 무엇을 만들어야 하나 |
 | ---: | --- | --- | --- |
 | G1 G2 G3 G4 G7 | 에이전트 | **완료** | 체크리스트 출력이 최종 형태다 |
-| G5 | 혼합 | 남음 | 가이드의 무드를 초안에 주입해 발행 플랜을 쓴다 |
+| G5 | 혼합 | **완료** | 가이드의 무드를 초안에 주입해 발행 플랜을 쓴다 |
 | G6 | 혼합 | 남음 | `tibo-batch.mjs` 호출 + slug 발행 |
 | G8 | 혼합 | 남음 | 컴포지션 → 렌더(10개 병렬) → GIF 발행 → `comps/index.json` |
 | G9 | 스크립트 | 남음 | **일반 조립기.** 플랜과 page-plan 만 보고 HTML 을 만든다 |
@@ -223,3 +223,28 @@ description: 이 스킬은 detail-page-orchestrator 로 대체됐다. 상세페�
 섹션을 렌더하는 일반 구현을 새로 써야 한다. `check.mjs` 가 이미 그 계약을 고정하고 있다 —
 HTML 의 한글은 전부 플랜에서 와야 하고, hex 는 `:root` 에만 있어야 하고, 가이드 구성
 요소가 실제로 있어야 한다.
+
+## 9. 수집 경로 — 3회차 실테스트로 바뀐 것
+
+기준작 수집이 막힌 원인을 찾다가 `coupang-extractor` 와 `dmk-extractor` 가 이미 번들에
+있는 것을 발견했다. 2회차를 통과한 것들이고, 내장 캡처는 그것의 열등한 사본이었다.
+[ADR-0011](adr/0011-검증된-추출기를-1급-수집-경로로-쓴다.md) 로 정리했다.
+
+| 파일 | 상태 | 내용 |
+| --- | --- | --- |
+| `orchestrator/scripts/lib/extract.mjs` | 신설 | 호스트 → 추출기 라우터. 정확 일치만. 요청 최소화 인자 고정 |
+| `orchestrator/scripts/lib/capture.mjs` | 재작성 | 브라우저 수준 세션 + `flatten` 부착, 짧은 페이지 거부 |
+| `orchestrator/scripts/orchestrate.mjs` | 수정 | `capture` 가 라우터를 먼저 본다. 번들은 `manifest.json` 해시로 등록 |
+| `orchestrator/scripts/tests/extract.test.mjs` | 신설 | 7개 — 호스트 선택·부분 일치 방지·번들 존재 |
+| `orchestrator/scripts/tests/capture.test.mjs` | 신설 | 8개 — flatten 부착·남의 타깃 크래시 견딤·짧은 페이지 거부 |
+
+실테스트가 가르친 두 가지를 코드 주석과 테스트 이름에 그대로 남겼다.
+
+1. 페이지 소켓은 쿠팡의 `shared_worker` 크래시에 함께 죽는다. 브라우저 수준 + `flatten`
+   부착은 견딘다. 진단으로 `Inspector.targetCrashed` 두 번을 확인했고 페이지 타깃은
+   멀쩡했다.
+2. 없는 상품이 HTTP 200 + 스크린샷 성공으로 온다. 높이 1028px, 본문 "상품을 찾을 수
+   없습니다". 높이 2000px 미만은 `CAPTURE_TOO_SHORT` 로 거부한다.
+
+`browser-harness` 는 호스트 설치이므로 없는 기계에서는 내장 캡처로 내려가고 그 사실을
+알린다. 조용히 실패하지 않는다.
