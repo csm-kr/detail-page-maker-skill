@@ -137,7 +137,11 @@ export function blockers(result) {
   }
   if (!result.ffmpeg) missing.push("ffmpeg 를 찾지 못했다 (모션 렌더)");
   if (result.fonts.length === 0) missing.push("한글 폰트를 찾지 못했다");
-  if (!result.cdp) missing.push("브라우저 CDP 를 찾지 못했다 (목업 대화)");
+  if (!result.cdp) {
+    missing.push(
+      "브라우저 CDP 를 찾지 못했다 (목업 대화). `node scripts/open-browser.mjs` 로 연다 — 쓰던 창은 닫지 않는다",
+    );
+  }
   if (!result.auth.codex_auth) {
     missing.push("~/.codex/auth.json 이 없다. `codex login` 을 사용자가 실행한다 (이미지 생성)");
   }

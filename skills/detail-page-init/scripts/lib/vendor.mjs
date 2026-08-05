@@ -1,7 +1,7 @@
 // 런타임 벤더링. 호스트 홈 의존을 끊는다 — docs/adr/0004
 
 import { spawnSync } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export const HYPERFRAMES_PIN = "0.7.90";
@@ -70,12 +70,30 @@ export async function vendorHyperframes({ workspace, install = true }) {
   };
 }
 
-/** 폰트를 워크스페이스 안으로. 못 옮기면 경로만 잠근다. */
+/**
+ * 폰트를 워크스페이스 안으로 **복사한다.** 호스트 경로를 그대로 기록하면 다른 기계에서
+ * 죽는다 — 런타임은 프로젝트-로컬이라는 방침이 폰트에도 적용된다.
+ */
 export async function vendorFont({ workspace, candidates }) {
-  await mkdir(path.join(workspace, "runtime", "fonts"), { recursive: true });
-  const inside = candidates.find((file) => path.resolve(file).startsWith(path.resolve(workspace)));
-  if (inside) {
-    return path.relative(workspace, inside).split(path.sep).join("/");
+  const fonts = path.join(workspace, "runtime", "fonts");
+  await mkdir(fonts, { recursive: true });
+
+  const relative = (file) => path.relative(workspace, file).split(path.sep).join("/");
+
+  // 이미 워크스페이스 안에 있으면 그대로 쓴다.
+  const inside = candidates.find((file) =>
+    path.resolve(file).startsWith(path.resolve(workspace)),
+  );
+  if (inside) return relative(inside);
+
+  for (const candidate of candidates) {
+    const destination = path.join(fonts, path.basename(candidate));
+    try {
+      await copyFile(candidate, destination);
+      return relative(destination);
+    } catch {
+      // 다음 후보. 시스템 폰트는 잠겨 있을 수 있다
+    }
   }
-  return candidates[0] ?? null;
+  return null;
 }

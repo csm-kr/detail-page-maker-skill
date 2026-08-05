@@ -87,6 +87,9 @@ export async function makeWorkspace(options = {}) {
         await cp(path.join(source, skill), link, { recursive: true });
       }
     }
+    // 실제 install 이 남기는 표지. 원본에는 없다 — 픽스처가 이걸 빼면
+    // "사본과 원본을 통째로 비교" 하는 버그를 테스트가 놓친다.
+    await writeFile(path.join(hostDir, "GENERATED.md"), "# 생성물\n", "utf8");
   }
 
   if (envLock) {
@@ -119,6 +122,7 @@ export async function makeWorkspace(options = {}) {
               codex: ".agents/skills",
             },
             skills: installed.length,
+            skills_list: installed,
             sha256: installOk ? real : `sha256:${"0".repeat(64)}`,
           },
           runtimes: {

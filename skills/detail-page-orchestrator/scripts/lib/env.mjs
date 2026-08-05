@@ -115,15 +115,20 @@ async function requireInstallIntact(workspace, lock) {
   if (targets.length === 0) return;
 
   if (lock.install?.mode === "junction") {
+    // **스킬 단위로** 비교한다. 디렉터리를 통째로 비교하면 설치가 남기는
+    // GENERATED.md 같은 표지 때문에 언제나 어긋난다.
     const source = path.join(workspace, lock.install.source ?? ".skill-src/skills");
-    const expected = await hashTree(source);
+    const names = lock.install.skills_list ?? [];
     for (const target of targets) {
-      const actual = await hashTree(path.join(workspace, target));
-      if (actual !== expected) {
-        throw new Refusal(
-          "INSTALL_HASH_MISMATCH",
-          `연결된 사본이 원본과 다르다. detail-page-init 을 다시 실행한다.\n  원본 ${source}\n  사본 ${target}`,
-        );
+      for (const name of names) {
+        const expected = await hashTree(path.join(source, name));
+        const actual = await hashTree(path.join(workspace, target, name));
+        if (actual !== expected) {
+          throw new Refusal(
+            "INSTALL_HASH_MISMATCH",
+            `연결된 사본이 원본과 다르다: ${name}\n  원본 ${path.relative(workspace, source)}\n  사본 ${target}\n  detail-page-init 을 다시 실행한다.`,
+          );
+        }
       }
     }
     return;

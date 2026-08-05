@@ -317,6 +317,26 @@ test("보호 목록은 정리 대상에서 제외된다", async () => {
   }
 });
 
+test("폰트를 워크스페이스 안으로 들여온다", async () => {
+  // R8. 호스트 경로를 그대로 기록하면 다른 기계에서 죽는다.
+  const ws = await makeWorkspace();
+  // 워크스페이스 **밖**에 둔다. 안에 두면 "이미 안에 있음" 분기를 타서 검사가 무의미해진다.
+  const outside = await mkdtemp(path.join(tmpdir(), "dp-font-"));
+  const fake = path.join(outside, "outside-font.ttf");
+  await writeFile(fake, "0".repeat(64), "utf8");
+  try {
+    const { vendorFont } = await import("../lib/vendor.mjs");
+    const recorded = await vendorFont({ workspace: ws.root, candidates: [fake] });
+    assert.ok(recorded, "폰트를 기록하지 못했다");
+    assert.ok(!path.isAbsolute(recorded), `절대 경로가 기록됐다: ${recorded}`);
+    assert.ok(recorded.startsWith("runtime/fonts/"), `runtime/fonts 밖이다: ${recorded}`);
+    assert.ok(await exists(path.join(ws.root, recorded)), "복사된 폰트가 없다");
+  } finally {
+    await rm(outside, { recursive: true, force: true });
+    await ws.cleanup();
+  }
+});
+
 test("env.lock.json 에 hyperframes 가 프로젝트-로컬로 기록된다", async () => {
   const ws = await makeWorkspace();
   try {
