@@ -4,7 +4,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 
-import { hashTree } from "./hashchain.mjs";
+import { exists, hashTree } from "./hashchain.mjs";
 import { resolveWorkspace } from "./project.mjs";
 
 export class Refusal extends Error {
@@ -101,6 +101,68 @@ export async function requireEnv(workspace = resolveWorkspace()) {
 
   await requireInstallIntact(workspace, lock);
   return lock;
+}
+
+/** 잠금에 적힌 경로가 워크스페이스 안인가. 호스트 의존을 끊었다는 것이 여기서 고정된다. */
+function insideWorkspace(workspace, spec) {
+  if (path.isAbsolute(spec)) return false;
+  const rel = path.relative(workspace, path.resolve(workspace, spec));
+  return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
+}
+
+/**
+ * 잠금에 적힌 것이 지금도 사실인지. `doctor` 가 쓴다.
+ *
+ * 잠금을 그대로 출력하는 것은 진단이 아니다. init 이 세팅한 것은 그 뒤에 사라질 수 있고
+ * (폰트를 지웠다, motion/ 을 비웠다, 다른 기계에서 clone 했다) 그때 ○ 를 출력하면
+ * 제작 도중에야 발견한다.
+ *
+ * **파일로 확인되는 것만 거부 사유로 쓴다.** ffmpeg·python 은 init 이 탐지해 `ready` 에
+ * 반영하고, CDP 는 제작할 때 띄우는 것이라 진단이 그것으로 막으면 doctor 를 부를 때마다
+ * 브라우저가 필요해진다.
+ */
+export async function checkRuntimes(workspace, lock) {
+  const problems = [];
+
+  const declared = [
+    ["폰트", lock.runtimes?.font],
+    ["hyperframes", lock.runtimes?.hyperframes?.path],
+    ["설치 원본", lock.install?.source],
+    ...Object.entries(lock.install?.targets ?? {}),
+    ["프로젝트 루트", lock.policy?.project_root],
+  ].filter(([, spec]) => typeof spec === "string" && spec.length > 0);
+
+  for (const [label, spec] of declared) {
+    if (!insideWorkspace(workspace, spec)) {
+      problems.push({ code: "PATH_OUTSIDE_WORKSPACE", line: `${label} ${spec}` });
+    }
+  }
+  // 경로가 밖이면 존재 검사는 뜻이 없다. 고칠 곳이 잠금이라는 것만 알리고 끝낸다.
+  if (problems.length > 0) return problems;
+
+  const font = lock.runtimes?.font;
+  if (font && !(await exists(path.join(workspace, font)))) {
+    problems.push({ code: "RUNTIME_MISSING", line: `폰트 ${font}` });
+  }
+
+  const hyper = lock.runtimes?.hyperframes;
+  if (hyper?.mode === "project-local" && hyper.path) {
+    const rel = path.join(hyper.path, "node_modules", "hyperframes");
+    if (!(await exists(path.join(workspace, rel)))) {
+      problems.push({ code: "RUNTIME_MISSING", line: `hyperframes ${rel}` });
+    }
+  }
+
+  // 메이저만 본다. 패치까지 묶으면 node 를 올릴 때마다 제작이 막힌다.
+  const recorded = lock.runtimes?.node;
+  if (recorded && recorded.split(".")[0] !== process.versions.node.split(".")[0]) {
+    problems.push({
+      code: "RUNTIME_DRIFT",
+      line: `node 기록 ${recorded} · 실측 ${process.versions.node} — detail-page-init --recheck`,
+    });
+  }
+
+  return problems;
 }
 
 /**

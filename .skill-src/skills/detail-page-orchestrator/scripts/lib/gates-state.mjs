@@ -88,9 +88,14 @@ export async function recordPass(state, id, { project, workspace, host }) {
   return entry;
 }
 
+/**
+ * 거부 기록. 횟수를 누적한다 — 그 게이트가 **잡은 결함의 수**이고, 완화의 근거가 된다
+ * (ADR-0007: 3회 연속 통과 + 결함 0건). 마지막 사유만 남기면 셀 수 없다.
+ */
 export function recordReject(state, id, reasons) {
   const entry = state.gates[id] ?? (state.gates[id] = {});
   entry.status = REJECTED;
+  entry.rejections = (entry.rejections ?? 0) + 1;
   entry.rejected = { at: new Date().toISOString(), reasons };
   return entry;
 }

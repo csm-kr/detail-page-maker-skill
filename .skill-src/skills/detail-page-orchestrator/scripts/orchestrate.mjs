@@ -15,7 +15,7 @@ import {
   runExtractor,
 } from "./lib/extract.mjs";
 import { runCheck } from "./lib/check.mjs";
-import { Refusal, requireEnv } from "./lib/env.mjs";
+import { Refusal, checkRuntimes, requireEnv } from "./lib/env.mjs";
 import {
   PASSED,
   RUNNING,
@@ -33,6 +33,7 @@ import {
   statePath,
 } from "./lib/gates-state.mjs";
 import { RUN_GATES, budgetTotalMin, gate, layers } from "./lib/gates.mjs";
+import { recordRun } from "./lib/history.mjs";
 import { exists, hashFile } from "./lib/hashchain.mjs";
 import {
   SKILLS_ROOT,
@@ -501,6 +502,14 @@ async function cmdReport() {
   const rows = await evaluate(ctx.state, ctx);
   await persistEvaluation(ctx.project, ctx.state, rows);
 
+  // 막힌 회차도 남긴다. 재작업량은 완주한 회차가 아니라 막힌 회차에서 나온다.
+  await recordRun(ctx.workspace, {
+    project: ctx.project,
+    state: ctx.state,
+    rows,
+    targetMin: ctx.lock?.policy?.wallclock_target_min ?? 95,
+  });
+
   const left = rows.filter((row) => row.status !== PASSED);
   const lines = [
     `# 보고 — ${ctx.state.project}`,
@@ -539,15 +548,23 @@ async function cmdReport() {
 async function cmdDoctor() {
   const workspace = resolveWorkspace();
   const lock = await requireEnv(workspace);
+  const problems = await checkRuntimes(workspace, lock);
+
   out(`워크스페이스  ${workspace}`);
   out(`호스트        ${lock.hosts.join(", ")}`);
   out(`설치          ${lock.install.mode} · ${lock.install.skills}개`);
+  out(`node          ${process.versions.node} (기록 ${lock.runtimes.node})`);
   out(`hyperframes   ${lock.runtimes.hyperframes.mode} ${lock.runtimes.hyperframes.path}`);
   out(`폰트          ${lock.runtimes.font}`);
-  out(`CDP           ${lock.browser.cdp}`);
+  out(`CDP           ${lock.browser.cdp} (응답은 확인하지 않는다)`);
   out(`얼굴 정책     ${lock.policy.model_face}`);
   out(`게이트        ${RUN_GATES.length}개 · 예산 합계 ${budgetTotalMin()}분`);
   out("호스트 홈     오염 없음");
+
+  if (problems.length > 0) {
+    out("");
+    throw new Refusal(problems[0].code, problems.map((p) => p.line).join("\n"));
+  }
 }
 
 // ─── 진입 ─────────────────────────────────────────────────────────────────

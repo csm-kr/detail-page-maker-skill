@@ -19,6 +19,8 @@ const PROTECT = [
   path.join("work", "env.lock.json"),
   path.join("work", "env.answers.json"),
   path.join("work", "gates.history.json"),
+  // 활성 회차 포인터. 옮기면 프로젝트가 둘 이상일 때 AMBIGUOUS_PROJECT 로 회차가 막힌다.
+  path.join("work", "active.json"),
 ];
 
 function isProtected(rel) {
@@ -59,9 +61,14 @@ export async function classify({ workspace, installedSkills = [], pollution = []
   const add = (grade, rel, why, absolute = null) =>
     entries.push({ grade, rel, why, absolute: absolute ?? path.join(workspace, rel) });
 
-  // 워크스페이스 work/ 는 env.* 와 회차 이력만 있어야 한다. 그 밖은 전부 잔여물이다.
+  // 워크스페이스 work/ 는 env.* 와 오케스트레이터 상태만 있어야 한다. 그 밖은 잔여물이다.
   // 아는 패턴만 치우면 "필요한 것만 둔다" 가 지켜지지 않는다.
-  const WORK_KEEP = new Set(["env.lock.json", "env.answers.json", "gates.history.json"]);
+  const WORK_KEEP = new Set([
+    "env.lock.json",
+    "env.answers.json",
+    "gates.history.json",
+    "active.json",
+  ]);
   for (const name of await readdir(path.join(workspace, "work")).catch(() => [])) {
     if (WORK_KEEP.has(name)) continue;
     const rel = path.join("work", name);

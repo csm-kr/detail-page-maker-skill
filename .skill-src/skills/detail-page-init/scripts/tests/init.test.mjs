@@ -289,6 +289,39 @@ test("워크스페이스 work/ 의 모르는 잔여물도 정리 목록에 올�
   }
 });
 
+test("오케스트레이터의 상태 파일은 정리 대상이 아니다", async () => {
+  // active.json 을 옮기면 프로젝트가 둘 이상일 때 AMBIGUOUS_PROJECT 로 회차가 막힌다.
+  // gates.history.json 은 완화 판단의 유일한 근거다. 둘 다 work/ 에 남는다.
+  const ws = await makeWorkspace();
+  try {
+    run(["--apply", "--install-mode", "copy"], { workspace: ws.root });
+    await writeFile(
+      path.join(ws.root, "work", "active.json"),
+      '{"project":"테스트-1"}\n',
+      "utf8",
+    );
+    await writeFile(
+      path.join(ws.root, "work", "gates.history.json"),
+      '{"schema_version":"1.0","runs":[]}\n',
+      "utf8",
+    );
+
+    const { out } = run(["--prune"], { workspace: ws.root });
+    assert.doesNotMatch(out, /active\.json/);
+    assert.doesNotMatch(out, /gates\.history\.json/);
+
+    run(["--prune", "--apply"], { workspace: ws.root });
+    for (const kept of ["active.json", "gates.history.json"]) {
+      assert.ok(
+        await exists(path.join(ws.root, "work", kept)),
+        `오케스트레이터 상태 파일이 없어졌다: ${kept}`,
+      );
+    }
+  } finally {
+    await ws.cleanup();
+  }
+});
+
 test("보호 목록은 정리 대상에서 제외된다", async () => {
   const ws = await makeWorkspace();
   try {
