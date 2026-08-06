@@ -102,6 +102,41 @@ tl.to("#hl-1", { scaleX: 1, duration: 0.5, ease: "power2.out" }, 0.6);
 
 넓게 읽지 않는다. **우리가 답해야 할 구매 질문에서 시작해 역으로 찾는다.**
 
+### 0단계 — 경로가 도는가 (**했다**)
+
+먼저 이것부터 확인한다 — 안 돌면 48개 규칙이 있어도 못 쓴다. 재 봤다.
+
+```
+hyperframes --help     0.53초
+hyperframes doctor     7.3초
+  ✓ Chrome   cache: ~/.cache/hyperframes/chrome/chrome-headless-shell/win64-.../
+  ✓ FFmpeg   ffmpeg 8.1.2
+chrome 1프레임 780×520  0.9초   (지금 쓰는 경로)
+```
+
+**CLI 는 산다.** 3회차의 240초는 렌더가 느린 것이 아니라 `@puppeteer/browsers` 가
+첫 실행에서 Chrome 을 내려받은 시간이었다. 지금은 캐시에 있다.
+
+한 번의 실패가 경로를 죽은 것으로 만들었고, 아무도 다시 재지 않아서 우회가 굳었다.
+그래서 재는 것을 게이트로 만들었다 — `run.mjs --probe` 가
+`work/comps/render-probe.json` 을 남기고, 없거나 하루가 지났거나 살아 있는 경로가
+하나도 없으면 G8 이 거부한다. 예산은 그때 그 값 **240초**를 그대로 쓴다.
+
+같이 찾은 것: CLI 에 우리가 필요한 것이 이미 있다.
+
+```
+hyperframes snapshot [DIR] --output <dir> --frames <N> --at <초,초,…>
+  Capture key frames from a composition as PNG screenshots
+```
+
+MP4 가 아니라 **PNG 시퀀스**다. 그대로 `lib/gifasm.mjs` 에 넣을 수 있다 —
+속도 제어는 우리가 소유하므로 조립기를 안 바꿔도 된다. `lint` · `check` · `validate`
+(헤드리스 JS 오류·누락 자산·대비 검사) 도 같이 쓸 수 있다.
+
+기록은 [`detail-page-g8-motion/references/render-path.md`](../../.skill-src/skills/detail-page-g8-motion/references/render-path.md) 에 옮겼다.
+G8 세션의 컨텍스트 팩이 그 문서를 본문으로 받는다 — 이 파일은 사람이 읽는 기록이고,
+게이트가 읽는 정본은 스킬 안에 있어야 한다.
+
 ### 1단계 — 계약 (읽기, 반나절)
 
 먼저 이걸 읽어야 나머지가 읽힌다.
@@ -147,8 +182,7 @@ hyperframes-cli/references/preview-render.md            render --format png-sequ
 
 1. `lib/pacing.mjs` 의 속도 하한을 그대로 통과한다 — 화려해도 못 읽으면 소용없다
 2. `compUsesStill()` 을 통과한다 — **입력은 여전히 발행된 스틸이다**
-3. 렌더 경로가 실제로 돈다. 3회차에 hyperframes CLI 가 240초에 타임아웃했다.
-   **먼저 이것부터 확인한다** — 안 돌면 48개 규칙이 있어도 못 쓴다
+3. 렌더 경로가 실제로 돈다. **확인했다** — 0단계 참조. `run.mjs --probe` 가 게이트다
 4. 패턴마다 테스트 한 개. 지금 네 패턴에는 `UNKNOWN_PATTERN` 거부 테스트뿐이다
 
 ---
@@ -165,6 +199,12 @@ hyperframes-cli/references/preview-render.md            render --format png-sequ
 - **렌더가 한 번 실패했고 우회했다.** hyperframes CLI 가 타임아웃하자 Chrome 스크린샷으로
   갈아탔고, 그 뒤로 hyperframes 를 다시 시도하지 않았다. 우회가 굳었다
 
-3번이 제일 나쁘다. **의존성이 죽었는데 스킬 문서는 계속 hyperframes 를 가리키고 있었다.**
-`g8-motion/SKILL.md` 와 `motion.mjs` 의 주석을 이번에 고쳤지만, 렌더 경로를 되살릴지
-포기할지는 아직 정하지 않았다. 1단계가 그 답을 낸다.
+3번이 제일 나빴다. **의존성이 죽은 줄 알았는데 죽지 않았다** — 첫 실행에서 Chrome 을
+내려받는 4분이었고, 그 4분을 한 번 겪은 뒤로 아무도 다시 재지 않았다.
+
+고친 방식이 중요하다. "이번엔 hyperframes 를 쓰자" 가 아니라 **재는 것을 게이트로**
+만들었다. 다음에 또 죽으면 `--probe` 가 죽었다고 적고, 우회하면 우회했다고 적힌다.
+우회 자체가 잘못이 아니다 — 우회했다는 사실이 안 적히는 것이 잘못이다.
+
+컨텍스트 예산 문제(2번)도 같이 풀렸다. G8 세션은 이제 게이트 12개가 아니라
+`render-path.md` 하나를 들고 시작한다 (팩 6,279B · 전량의 4%).

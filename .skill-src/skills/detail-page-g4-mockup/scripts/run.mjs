@@ -51,11 +51,6 @@ try {
         "`harvest.md` 에 **무엇을 가져오고 무엇을 안 가져오는지** 적는다",
         "기준작 `benchmark/BENCHMARK.md` 의 팔레트·강조 장치와 대조한다. 저채도 단색은 상세페이지가 아니다",
       ],
-      reading: [
-        "references/templates.md",
-        "references/design-reference.md",
-        "../detail-page-orchestrator/references/benchmark/BENCHMARK.md",
-      ],
     });
     process.exit(0);
   }

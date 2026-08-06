@@ -11,6 +11,13 @@
 //   agent   판단이다. run.mjs 는 체크리스트만 출력하고 멈춘다
 //   script  결정적이다. run.mjs 가 일을 한다
 //   mixed   스크립트가 만들고 사람·에이전트가 판단한다
+//
+// reads
+//   그 게이트를 도는 세션이 **읽어야 하는 정본**. 스킬 트리 기준 상대 경로다.
+//   헤드리스 실행(`gate <id> --exec`)의 컨텍스트 팩이 이 목록을 본문으로 넣는다.
+//   여기 없는 문서는 그 게이트에 안 들어간다 — 통째로 붓지 않는 것이 요점이다.
+//   스크립트가 프로그램적으로 읽는 파일은 넣지 않는다. 그건 코드의 입력이지
+//   판단의 근거가 아니다 (예: G4 의 templates.md 는 assemblePrompt 가 읽는다).
 
 export const GATES = [
   {
@@ -21,6 +28,7 @@ export const GATES = [
     budgetMin: null,
     title: "환경 잠금",
     summary: "인터뷰·로컬 세팅·정리. 워크스페이스 1회",
+    reads: [],
     inputs: [],
     outputs: ["ws:work/env.lock.json"],
   },
@@ -32,6 +40,7 @@ export const GATES = [
     budgetMin: 1,
     title: "진입",
     summary: "프로젝트 생성. 두 URL 과 사진을 잠근다",
+    reads: [],
     inputs: ["ws:work/env.lock.json"],
     outputs: ["work/inputs.lock.json"],
   },
@@ -43,6 +52,9 @@ export const GATES = [
     budgetMin: 8,
     title: "사실 잠금",
     summary: "공급처와 사진에서 공개에 필요한 사실만 잠근다",
+    reads: [
+      "detail-page-g1-fact/references/commercial.md",
+    ],
     inputs: ["work/inputs.lock.json"],
     outputs: ["work/SSOT.md"],
   },
@@ -54,6 +66,10 @@ export const GATES = [
     budgetMin: 10,
     title: "기준작 판독",
     summary: "쿠팡 기준작에서 흐름과 디자인 분위기를 뽑는다",
+    reads: [
+      "detail-page-g1-fact/references/commercial.md",
+      "detail-page-orchestrator/references/sales-story.md",
+    ],
     inputs: ["work/inputs.lock.json"],
     outputs: ["work/flow-map.md"],
   },
@@ -65,6 +81,11 @@ export const GATES = [
     budgetMin: 12,
     title: "플랜",
     summary: "화면 문자열을 전량 담은 Lean Page Plan 초안",
+    reads: [
+      "detail-page-orchestrator/references/sales-story.md",
+      "detail-page-orchestrator/references/benchmark/BENCHMARK.md",
+      "detail-page-g9-build/references/art-direction.md",
+    ],
     inputs: ["work/SSOT.md", "work/flow-map.md"],
     outputs: ["work/flow-plan.draft.json"],
   },
@@ -76,6 +97,10 @@ export const GATES = [
     budgetMin: 23,
     title: "목업",
     summary: "templates.md 전량 조립 → 목업 → 가이드와 수확 계획",
+    reads: [
+      "detail-page-g4-mockup/references/design-reference.md",
+      "detail-page-orchestrator/references/benchmark/BENCHMARK.md",
+    ],
     inputs: ["work/flow-plan.draft.json"],
     outputs: [
       "work/design-ref/DESIGN-GUIDE.md",
@@ -90,6 +115,9 @@ export const GATES = [
     budgetMin: 2,
     title: "무드 주입",
     summary: "가이드를 플랜에 주입해 발행 플랜을 만든다",
+    reads: [
+      "detail-page-g9-build/references/art-direction.md",
+    ],
     inputs: [
       "work/design-ref/DESIGN-GUIDE.md",
       "work/flow-plan.draft.json",
@@ -104,6 +132,9 @@ export const GATES = [
     budgetMin: 12,
     title: "스틸",
     summary: "스틸 생성 후 원본 해상도로 선별한다",
+    reads: [
+      "detail-page-g6-stills/references/assets.md",
+    ],
     inputs: ["flow-plan.json"],
     outputs: ["work/selection.json"],
   },
@@ -115,6 +146,10 @@ export const GATES = [
     budgetMin: 8,
     title: "레이아웃",
     summary: "섹션별 레이아웃과 컴포넌트 구현 수단을 정한다",
+    reads: [
+      "detail-page-g11-deliver/references/studio.md",
+      "detail-page-g9-build/references/pipeline.md",
+    ],
     inputs: [
       "work/design-ref/harvest.md",
       "work/selection.json",
@@ -130,6 +165,9 @@ export const GATES = [
     budgetMin: 10,
     title: "모션",
     summary: "brief 로 컴포지션을 다시 쓰고 GIF 를 굽는다",
+    reads: [
+      "detail-page-g8-motion/references/render-path.md",
+    ],
     inputs: ["work/page-plan.md", "flow-plan.json"],
     outputs: ["work/comps/index.json"],
   },
@@ -141,6 +179,7 @@ export const GATES = [
     budgetMin: 6,
     title: "조립",
     summary: "폭 780px HTML 과 앵커 스냅샷",
+    reads: [],
     inputs: ["work/page-plan.md", "flow-plan.json"],
     outputs: ["output/detail-page.html", "work/anchors.json"],
   },
@@ -152,6 +191,7 @@ export const GATES = [
     budgetMin: 3,
     title: "QA",
     summary: "strict-media 와 포맷·용량",
+    reads: [],
     inputs: [
       "output/detail-page.html",
       "work/anchors.json",
@@ -167,6 +207,9 @@ export const GATES = [
     budgetMin: 5,
     title: "납품",
     summary: "authoring·Studio·Wing·보고. 죽인 서버를 되살린다",
+    reads: [
+      "detail-page-g11-deliver/references/studio.md",
+    ],
     inputs: ["work/qa-report.json"],
     outputs: ["work/report.md"],
   },

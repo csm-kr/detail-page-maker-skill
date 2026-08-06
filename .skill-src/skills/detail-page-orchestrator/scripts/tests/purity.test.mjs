@@ -100,25 +100,39 @@ test("run.mjs 의 체크리스트가 SKILL.md 와 갈리지 않는다", async ()
   assert.deepEqual(drifted, []);
 });
 
-test("run.mjs 가 읽으라는 문서가 실제로 있다", async () => {
+test("게이트가 읽으라는 정본이 실제로 있다", async () => {
   // 없는 파일을 읽으라고 하면 에이전트는 조용히 건너뛰거나 내용을 지어낸다.
   // 셋이 끊겨 있었다 — 내용이 없어서가 아니라 다른 스킬에 있는 것을 제 폴더로 가리켰다.
+  //
+  // 목록의 주인은 `gates.mjs` 의 `reads` 하나다. run.mjs 의 체크리스트도,
+  // 헤드리스 실행의 컨텍스트 팩도 같은 목록을 본다.
+  const { GATES } = await import("../lib/gates.mjs");
   const dangling = [];
-  for (const name of (await readdir(SKILLS_ROOT)).filter((n) => /^detail-page-g\d/.test(n))) {
-    const dir = path.join(SKILLS_ROOT, name);
-    const runner = await readFile(path.join(dir, "scripts", "run.mjs"), "utf8");
-    const block = runner.split(/reading:\s*\[/)[1]?.split(/^\s*\],$/m)[0] ?? "";
-    for (const [, rel] of block.matchAll(/"([^"]+)"/g)) {
-      // `work/…` 는 회차 중에 만들어지는 산출물이다. 스킬 트리에 있을 리 없다.
-      if (!/^(\.\.\/)?[\w.-]*\/?references\//.test(rel)) continue;
+  for (const g of GATES) {
+    for (const rel of g.reads) {
+      if (!/^detail-page-[\w-]+\/references\//.test(rel)) {
+        dangling.push(`${g.id} → ${rel} (스킬 트리 기준 경로가 아니다)`);
+        continue;
+      }
       try {
-        await stat(path.join(dir, rel));
+        await stat(path.join(SKILLS_ROOT, rel));
       } catch {
-        dangling.push(`${name} → ${rel}`);
+        dangling.push(`${g.id} → ${rel}`);
       }
     }
   }
   assert.deepEqual(dangling, []);
+});
+
+test("run.mjs 는 읽을 문서를 따로 적지 않는다", async () => {
+  // 두 벌이면 갈린다. 세션이 받는 문서와 사람이 보는 목록이 달라지는 순간
+  // "문서는 시키는데 산출물은 안 한다" 가 다시 생긴다.
+  const strays = [];
+  for (const name of (await readdir(SKILLS_ROOT)).filter((n) => /^detail-page-g\d/.test(n))) {
+    const runner = await readFile(path.join(SKILLS_ROOT, name, "scripts", "run.mjs"), "utf8");
+    if (/reading:\s*\[/.test(runner)) strays.push(name);
+  }
+  assert.deepEqual(strays, [], "gates.mjs 의 reads 로 옮긴다");
 });
 
 test("게이트 산출물 경로가 전부 프로젝트 아래이거나 명시적으로 워크스페이스다", async () => {

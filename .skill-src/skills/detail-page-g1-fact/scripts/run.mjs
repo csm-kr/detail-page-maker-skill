@@ -16,9 +16,6 @@ try {
           "`work/SSOT.md` 에 **공개 가능한 사실만** 쓴다. 근거 없는 제약을 규칙으로 적지 않는다",
           "사진이 있으면 확인을 `확인: 원본 해상도` 한 줄로 SSOT.md 에 남긴다"
     ],
-    reading: [
-          "references/commercial.md"
-    ],
   });
 } catch (error) {
   refuse(error);

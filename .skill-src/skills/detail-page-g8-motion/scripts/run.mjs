@@ -5,6 +5,7 @@
 // 이미지가 0건이었다 — 도형에 애니메이션을 걸었다. 그래서 스크립트가 스틸을 박아
 // 컴포지션을 만들고, 사람은 패턴과 자막만 고친다.
 //
+//   run.mjs --probe     → 렌더 경로가 예산(240초) 안에 도는지 실측한다. 굽기 전에 한다.
 //   run.mjs --scaffold  → brief 마다 컴포지션을 만든다. 스틸이 이미 들어가 있다.
 //   (사람)              → 패턴·자막을 손본다. 스틸을 지우지 않는다.
 //   run.mjs --render    → 두 수단 모두 **프레임까지만** 만들고 GIF 조립은 lib/gifasm.mjs 가 한다.
@@ -27,6 +28,7 @@ import {
   scaffoldStillMotion,
   tiboSequenceJob,
 } from "./lib/motion.mjs";
+import { RENDER_BUDGET_MS, probeLine } from "./lib/renderprobe.mjs";
 
 const COMPS_REL = path.join("work", "comps");
 const GIFS_REL = path.join("output", "media", "gifs");
@@ -67,7 +69,7 @@ async function newestFile(dir) {
   return best?.path ?? null;
 }
 
-function spawnTool(command, args, cwd, useShell = false) {
+function spawnTool(command, args, cwd, useShell = false, timeoutMs = 0) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       cwd,
@@ -75,17 +77,29 @@ function spawnTool(command, args, cwd, useShell = false) {
       shell: useShell && process.platform === "win32",
     });
     let stderr = "";
+    // 예산이 있으면 그 안에 끝나야 한다. 무한정 기다린 것이 3회차의 240초였다.
+    const timer =
+      timeoutMs > 0
+        ? setTimeout(() => {
+            child.kill();
+            reject(new Error(`TIMEOUT ${timeoutMs}ms 안에 끝나지 않았다`));
+          }, timeoutMs)
+        : null;
     child.stderr.on("data", (chunk) => {
       stderr += chunk.toString();
     });
-    child.on("error", (error) => reject(new Error(`SPAWN_FAILED ${error.message}`)));
-    child.on("close", (code) =>
+    child.on("error", (error) => {
+      if (timer) clearTimeout(timer);
+      reject(new Error(`SPAWN_FAILED ${error.message}`));
+    });
+    child.on("close", (code) => {
+      if (timer) clearTimeout(timer);
       code === 0
         ? resolve()
         : reject(
             new Error(`RENDER_FAILED 종료 코드 ${code}${stderr ? ` — ${stderr.trim().split("\n")[0]}` : ""}`),
-          ),
-    );
+          );
+    });
   });
 }
 
@@ -144,6 +158,72 @@ async function shootFrames({ chrome, indexPath, frameDir, count }) {
   return paths;
 }
 
+/**
+ * 렌더 경로 실측. **굽기 전에 한다.**
+ *
+ * 3회차에 hyperframes CLI 가 240초에 타임아웃하자 Chrome 스크린샷으로 갈아탔고
+ * 그 우회가 굳었다. 의존성은 계속 벤더링돼 있었고 문서는 계속 hyperframes 를
+ * 가리켰다 — 아무도 다시 재지 않았기 때문이다. 이제 잰 것만 근거가 된다.
+ */
+async function probeRenderPaths({ workspace, lock, scratch }) {
+  const paths = [];
+
+  const timed = async (name, work) => {
+    const startedAt = Date.now();
+    try {
+      const detail = await work();
+      paths.push({ name, ok: true, elapsed_ms: Date.now() - startedAt, detail });
+    } catch (error) {
+      paths.push({
+        name,
+        ok: false,
+        elapsed_ms: Date.now() - startedAt,
+        error: error.message.split("\n")[0],
+      });
+    }
+  };
+
+  // hyperframes — 벤더링된 CLI 가 쓸 수 있는 상태인가. doctor 가 Chrome 캐시와
+  // ffmpeg 를 확인한다. 3회차의 240초는 첫 실행에서 Chrome 을 내려받은 시간이었다.
+  const vendored = lock?.runtimes?.hyperframes?.path;
+  await timed("hyperframes", async () => {
+    if (!vendored) throw new Error("VENDOR_MISSING env.lock.json 에 hyperframes 경로가 없다");
+    const dir = path.resolve(workspace, vendored);
+    const bin = path.join(dir, "node_modules", "hyperframes", "bin", "hyperframes.mjs");
+    await stat(bin);
+    await spawnTool(process.execPath, [bin, "doctor"], dir, false, RENDER_BUDGET_MS);
+    return "doctor";
+  });
+
+  // chrome — G8 이 실제로 프레임을 찍는 경로. 한 장 찍는 데 얼마나 드는가.
+  await timed("chrome", async () => {
+    const chrome = await findChrome();
+    if (!chrome) throw new Error("CHROME_NOT_FOUND 컴포지션을 찍을 브라우저가 없다");
+    await mkdir(scratch, { recursive: true });
+    const page = path.join(scratch, "probe.html");
+    await writeFile(page, `<html><body style="background:#111"></body></html>`, "utf8");
+    const shot = path.join(scratch, "probe.png");
+    await spawnTool(
+      chrome,
+      [
+        "--headless=new",
+        "--disable-gpu",
+        "--hide-scrollbars",
+        `--window-size=${COMP_SIZE.width},${COMP_SIZE.height}`,
+        `--screenshot=${shot}`,
+        pathToFileURL(page).href,
+      ],
+      scratch,
+      false,
+      RENDER_BUDGET_MS,
+    );
+    await stat(shot);
+    return `프레임 1장 ${COMP_SIZE.width}x${COMP_SIZE.height}`;
+  });
+
+  return { at: new Date().toISOString(), budget_ms: RENDER_BUDGET_MS, paths };
+}
+
 /** 워커 풀. GIF 하나가 오래 걸려도 나머지가 기다리지 않는다. */
 async function pool(items, workers, handler) {
   const results = [];
@@ -160,7 +240,30 @@ async function pool(items, workers, handler) {
 
 try {
   const ctx = await guard("G8");
-  const mode = ["--scaffold", "--render"].find((flag) => process.argv.includes(flag));
+  const mode = ["--probe", "--scaffold", "--render"].find((flag) => process.argv.includes(flag));
+
+  // ── 렌더 경로 실측 ───────────────────────────────────────────────────────
+  // 플랜보다 먼저 본다. 경로가 죽어 있으면 brief 를 아무리 잘 써도 못 굽는다.
+  if (mode === "--probe") {
+    const probeDir = path.join(ctx.project, COMPS_REL);
+    await mkdir(probeDir, { recursive: true });
+    const probe = await probeRenderPaths({
+      workspace: ctx.workspace,
+      lock: ctx.lock,
+      scratch: path.join(probeDir, ".probe"),
+    });
+    await writeFile(
+      path.join(probeDir, "render-probe.json"),
+      `${JSON.stringify(probe, null, 2)}\n`,
+      "utf8",
+    );
+    out(probeLine(probe));
+    out(`  기록  ${COMPS_REL}/render-probe.json`);
+    for (const item of probe.paths) {
+      if (!item.ok) out(`  ! ${item.name} 을 쓸 수 없다 — ${item.error}`);
+    }
+    process.exit(0);
+  }
 
   const plan = await json(ctx.project, "flow-plan.json");
   if (!plan) throw new Error("PLAN_MISSING flow-plan.json 을 JSON 으로 읽을 수 없다");

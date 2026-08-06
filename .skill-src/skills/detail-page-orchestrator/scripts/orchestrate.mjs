@@ -15,6 +15,8 @@ import {
   runExtractor,
 } from "./lib/extract.mjs";
 import { runCheck } from "./lib/check.mjs";
+import { PACK_SHARE, buildPack, canonBytes, packableGates } from "./lib/contextpack.mjs";
+import { runExec } from "./lib/exec.mjs";
 import { Refusal, checkRuntimes, requireEnv } from "./lib/env.mjs";
 import {
   PASSED,
@@ -239,13 +241,63 @@ async function cmdGates() {
 
 // ─── gate ─────────────────────────────────────────────────────────────────
 
+/** 선행 게이트가 전부 통과했는지. 통과하지 않았으면 던진다. */
+async function requireDeps(id, ctx) {
+  const rows = await evaluate(ctx.state, ctx);
+  const byId = new Map(rows.map((row) => [row.gate.id, row]));
+  const blocked = gate(id)
+    .deps.filter((dep) => dep !== "INIT")
+    .filter((dep) => byId.get(dep)?.status !== PASSED);
+  if (blocked.length > 0) {
+    throw new Refusal("GATE_BLOCKED", `선행 게이트가 통과하지 않았다: ${blocked.join(", ")}`);
+  }
+}
+
+/**
+ * 게이트 하나를 헤드리스 세션에서 돈다. 컨텍스트는 팩(문서)으로만 넘어가고,
+ * 통과 판정은 자식이 아니라 **여기서** check.mjs 를 다시 돌려 한다.
+ */
+async function execGate(id, ctx) {
+  await requireDeps(id, ctx);
+  const { state, project, workspace } = ctx;
+
+  recordStart(state, id, { host: host() });
+  await saveState(project, state);
+
+  const result = await runExec(id, ctx, { onLine: (line) => out(`  ${line}`) });
+  await saveState(project, state); // 자식이 남긴 한 줄 요약
+
+  if (!result.ok) {
+    recordReject(state, id, result.reasons);
+    await saveState(project, state);
+    throw new Refusal(
+      "CHECK_FAILED",
+      `${id} 를 ${result.attempts.length}회 돌렸으나 부족한 것 ${result.reasons.length}건
+${result.reasons.map((r) => `- ${r}`).join("\n")}
+로그: work/exec/${id}-*.json`,
+    );
+  }
+
+  await recordPass(state, id, { project, workspace, host: host() });
+  invalidateDownstream(state, id);
+  await saveState(project, state);
+  out(`${id} 통과 기록 (헤드리스 ${result.attempts.length}회).`);
+  if (result.summary) out(`  요약  ${result.summary}`);
+}
+
 async function cmdGate(argv) {
   const id = argv[1];
-  if (!id) throw new Refusal("USAGE", "gate <id> --start | --check | --pass");
+  if (!id) throw new Refusal("USAGE", "gate <id> --start | --check | --pass | --exec");
   gate(id); // 없는 id 면 여기서 던진다
 
   const ctx = await context();
   const { workspace, project, state } = ctx;
+
+  if (argv.includes("--exec")) {
+    await execGate(id, ctx);
+    await printTable(ctx);
+    return;
+  }
 
   if (argv.includes("--start")) {
     recordStart(state, id, { host: host() });
@@ -255,17 +307,7 @@ async function cmdGate(argv) {
   }
 
   if (argv.includes("--check") || argv.includes("--pass")) {
-    const rows = await evaluate(state, ctx);
-    const byId = new Map(rows.map((row) => [row.gate.id, row]));
-    const blocked = gate(id)
-      .deps.filter((dep) => dep !== "INIT")
-      .filter((dep) => byId.get(dep)?.status !== PASSED);
-    if (blocked.length > 0) {
-      throw new Refusal(
-        "GATE_BLOCKED",
-        `선행 게이트가 통과하지 않았다: ${blocked.join(", ")}`,
-      );
-    }
+    await requireDeps(id, ctx);
 
     // 시간 기록은 통과의 전제다. 검사보다 먼저 본다 — 시간이 없으면 예산도 완화 판단도
     // 근거를 잃는다.
@@ -310,7 +352,7 @@ async function cmdGate(argv) {
     return;
   }
 
-  throw new Refusal("USAGE", "gate <id> --start | --check | --pass");
+  throw new Refusal("USAGE", "gate <id> --start | --check | --pass | --exec");
 }
 
 // ─── lock ─────────────────────────────────────────────────────────────────
@@ -468,6 +510,9 @@ async function cmdCapture(argv) {
 
 async function cmdRun(argv) {
   const parallel = argv.includes("--parallel");
+  // --exec 는 판단 게이트도 멈추지 않고 헤드리스 세션으로 돈다. 컨텍스트는 팩으로만
+  // 넘어가고 통과 판정은 언제나 부모의 check.mjs 다.
+  const headless = argv.includes("--exec");
   const ctx = await context();
 
   for (const layer of layers()) {
@@ -478,21 +523,26 @@ async function cmdRun(argv) {
 
     for (const id of todo) {
       const g = gate(id);
-      if (g.actor !== "script") {
-        out(`AGENT_GATE_STOP ${id}`);
-        out(
-          `  이 게이트는 ${g.actor === "agent" ? "에이전트" : "사람 또는 에이전트"}가 수행한다.`,
-        );
-        out(`  부를 스킬: ${g.skill}`);
-        out(`  ${g.title} — ${g.summary}`);
-        out("");
-        await printTable(ctx);
-        return;
+      if (g.actor === "script") continue;
+      if (headless) {
+        out(`${id} 헤드리스 (${g.skill})`);
+        await execGate(id, ctx);
+        continue;
       }
+      out(`AGENT_GATE_STOP ${id}`);
+      out(
+        `  이 게이트는 ${g.actor === "agent" ? "에이전트" : "사람 또는 에이전트"}가 수행한다.`,
+      );
+      out(`  부를 스킬: ${g.skill}`);
+      out(`  ${g.title} — ${g.summary}`);
+      out(`  헤드리스로 돌리려면  gate ${id} --exec`);
+      out("");
+      await printTable(ctx);
+      return;
     }
 
-    // 스크립트 게이트만 남은 층. 여기만 자동으로 걸어간다.
-    for (const id of todo) {
+    // 결정적인 게이트. 세션을 띄우지 않는다 — 판단할 것이 없다.
+    for (const id of todo.filter((item) => gate(item).actor === "script")) {
       const g = gate(id);
       out(`${id} 실행 (${g.skill})`);
       recordStart(ctx.state, id, { host: host() });
@@ -575,6 +625,40 @@ async function cmdReport() {
   out("모든 게이트 통과. work/report.md 를 썼다.");
 }
 
+// ─── pack ─────────────────────────────────────────────────────────────────
+
+/**
+ * 게이트가 헤드리스 세션에서 받는 것을 그대로 본다. 세션을 띄우지 않는다.
+ * ADR-0012 의 채택 기준(전량 대비 1/3)을 이 명령으로 잰다.
+ */
+async function cmdPack(argv) {
+  const ctx = await context();
+  const id = argv[1];
+  if (id && !id.startsWith("--")) {
+    const pack = await buildPack(id, ctx);
+    if (argv.includes("--write")) {
+      const file = path.join(ctx.project, "work", "exec", `${id}-pack.md`);
+      await mkdir(path.dirname(file), { recursive: true });
+      await writeFile(file, pack.text, "utf8");
+      out(`work/exec/${id}-pack.md · ${pack.bytes}B`);
+      return;
+    }
+    out(pack.text);
+    return;
+  }
+
+  const full = await canonBytes();
+  out(`전량 주입 ${full}B · 상한 ${Math.floor(full * PACK_SHARE)}B (1/3)`);
+  out("");
+  for (const g of packableGates()) {
+    const pack = await buildPack(g.id, ctx);
+    const share = ((100 * pack.bytes) / full).toFixed(0);
+    out(
+      `  ${g.id.padEnd(4)} ${String(pack.bytes).padStart(7)}B ${share.padStart(3)}%  정본 ${pack.canon.length}${pack.missing.length > 0 ? ` · 누락 ${pack.missing.join(", ")}` : ""}`,
+    );
+  }
+}
+
 // ─── doctor ───────────────────────────────────────────────────────────────
 
 async function cmdDoctor() {
@@ -611,13 +695,14 @@ const COMMANDS = {
   run: cmdRun,
   report: cmdReport,
   doctor: cmdDoctor,
+  pack: cmdPack,
 };
 
 const argv = process.argv.slice(2);
 const command = argv[0];
 
 if (!command || !COMMANDS[command]) {
-  out("orchestrate <start|gates|gate|lock|photos|capture|run|report|doctor>");
+  out("orchestrate <start|gates|gate|lock|photos|capture|run|report|doctor|pack>");
   out("트래커는 track.mjs 로 띄운다.");
   process.exitCode = command ? 1 : 0;
 } else {

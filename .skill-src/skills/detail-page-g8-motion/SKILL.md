@@ -58,9 +58,26 @@ gif-04·05      3프레임 · 0.48초 · 프레임마다 0.16초
 4회차에는 입력이 이미지로 바뀌었는데 **너무 빨리 지나가서 못 읽었다.** brief 에는
 "천천히 드러난다" 라고 적혀 있었다. 계획을 읽는 검사로는 잡을 수 없다.
 
+## 렌더 경로 — 굽기 전에 잰다
+
+3회차에 hyperframes CLI 가 **240초에 타임아웃했다.** Chrome 스크린샷으로 갈아탔고
+그 뒤로 다시 시도하지 않았다 — **우회가 굳었다.** 의존성은 계속 벤더링돼 있었고
+문서는 계속 hyperframes 를 가리켰다. 아무도 다시 재지 않았기 때문이다.
+
+이제 재는 것이 게이트다.
+
+```bash
+node scripts/run.mjs --probe
+```
+
+`work/comps/render-probe.json` 이 없거나, 하루가 지났거나, 살아 있는 경로가 하나도
+없으면 거부한다. 4회차 실측은 `hyperframes doctor` 7.3초 · `chrome` 1프레임 0.9초다.
+자세한 것은 [`references/render-path.md`](references/render-path.md).
+
 ## 진입
 
 ```bash
+node scripts/run.mjs --probe      # 렌더 경로가 예산 안에 도는가
 node scripts/run.mjs --scaffold   # brief 마다 컴포지션. 스틸이 이미 들어가 있다
 node scripts/run.mjs --render     # 굽는다
 ```
@@ -70,6 +87,7 @@ node scripts/run.mjs --render     # 굽는다
 
 ## 해야 하는 것
 
+- `--probe` 로 렌더 경로를 먼저 잰다. 죽은 경로 위에서 brief 를 아무리 잘 써도 못 굽는다
 - `--scaffold` 로 컴포지션을 만든다. 손으로 처음부터 쓰지 않는다
 - 컴포지션의 `<img>` 를 **지우지 않는다.** 지우면 게이트가 잡는다
 - `pattern` 을 brief 에 맞게 고른다 (reveal / zoom / sequence / measure)

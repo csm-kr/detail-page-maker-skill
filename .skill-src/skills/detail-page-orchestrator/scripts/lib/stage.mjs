@@ -64,8 +64,12 @@ export async function guard(id) {
 /**
  * 판단이 필요한 게이트의 run.mjs 는 일을 하지 않는다.
  * 무엇을 해야 하는지와 어디를 읽어야 하는지만 출력하고 멈춘다.
+ *
+ * **읽을 것은 `gates.mjs` 의 `reads` 가 소유한다.** run.mjs 가 따로 적으면 갈리고,
+ * 헤드리스 실행의 컨텍스트 팩이 같은 목록을 봐야 한다 — 두 벌이면 세션이 받는 문서와
+ * 사람이 보는 목록이 달라진다.
  */
-export function checklist({ gate: g, items, reading = [] }) {
+export function checklist({ gate: g, items }) {
   const lines = [
     `${g.id}  ${g.title} — ${g.summary}`,
     `주체 ${g.actor}${g.budgetMin ? ` · 예산 ${g.budgetMin}분` : ""}`,
@@ -73,13 +77,15 @@ export function checklist({ gate: g, items, reading = [] }) {
     "해야 하는 것",
     ...items.map((item) => `  - ${item}`),
   ];
-  if (reading.length > 0) {
-    lines.push("", "읽을 것", ...reading.map((item) => `  - ${item}`));
+  if (g.reads.length > 0) {
+    lines.push("", "읽을 것 (스킬 트리 기준)", ...g.reads.map((item) => `  - ${item}`));
   }
   lines.push(
     "",
     `끝나면  orchestrate gate ${g.id} --check  로 부족한 것을 확인하고`,
     `        orchestrate gate ${g.id} --pass   로 통과 기록을 남긴다`,
+    "",
+    `헤드리스로 돌리려면  orchestrate gate ${g.id} --exec`,
   );
   process.stdout.write(`${lines.join("\n")}\n`);
 }

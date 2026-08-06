@@ -211,6 +211,30 @@ INIT → G0 ─┬─ G1 ─┬─ G3 → G4 → G5 → G6 ─┐
 거치므로 순서를 문서에 맡기면 회차마다 갈린다. 판정은 언제나 `check.mjs`가 하고 —
 주체가 누구든 **통과 조건은 같다.**
 
+### 5.1 판단 게이트를 헤드리스로 돌린다
+
+한 세션이 게이트 12개를 다 들고 가면 실패한다. 실제로 난 것들은 설계 결함이 아니라
+**주의력 결함**이었다 — 필드 이름이 같은 세션에서 두 번 갈렸고, 목업을 "ChatGPT
+산출물이 아니다" 라고 알면서 자기 HTML 스크린샷으로 만들었다
+([ADR-0012](adr/0012-게이트를-헤드리스-세션으로-실행한다.md)).
+
+```
+orchestrate gate G3 --exec      게이트 하나를 새 세션에서
+orchestrate run --exec          판단 게이트도 멈추지 않고 완주
+orchestrate pack [<id>]         세션이 받는 것을 그대로 본다
+```
+
+| 자리 | 소유 |
+| --- | --- |
+| 세션이 읽을 정본 | `gates.mjs` 의 `reads` — **한 곳만.** `checklist()` 도 컨텍스트 팩도 같은 배열을 본다 |
+| 팩 조립 | `lib/contextpack.mjs` — 지시서·정본은 본문, 입력은 경로, 앞 게이트는 한 줄 |
+| 실행·재시도·로그 | `lib/exec.mjs` — `claude -p` 를 stdin 으로. 30분 · 최대 3회 |
+| 통과 판정 | **부모의 `check.mjs`.** 자식의 자기 보고는 통과가 아니다 |
+
+팩은 정본 전량의 **1/3 이하**여야 하고 상한은 `canonBytes() / 3` 으로 유도한다.
+결정적인 게이트(G0·G9·G10)는 세션을 띄우지 않는다. 로그는 `work/exec/<게이트>-<n>.json`
+과 팩 전문 `<게이트>-<n>.prompt.md` 로 남는다.
+
 ---
 
 ## 6. 강제 장치 7개
@@ -380,13 +404,15 @@ orchestrator track  →  http://127.0.0.1:9310
 │   ├── assets/project-template/     start 가 쓴다
 │   ├── policies/lean-page-plan-v1.json
 │   ├── scripts/
-│   │   ├── orchestrate.mjs          start · gates · gate · lock · run · report · doctor
+│   │   ├── orchestrate.mjs          start · gates · gate · lock · run · pack · report · doctor
 │   │   ├── track.mjs                트래커 서버
 │   │   ├── lib/
 │   │   │   ├── gates.mjs            ← 게이트 정의의 유일한 출처
 │   │   │   ├── gates-state.mjs      무효화 전파 · 시간 기록
 │   │   │   ├── hashchain.mjs  project.mjs  env.mjs
 │   │   │   ├── check.mjs  checkkit.mjs  stage.mjs
+│   │   │   ├── contextpack.mjs      게이트가 헤드리스 세션에서 받는 것
+│   │   │   ├── exec.mjs             claude -p 실행기 · 재시도 · 로그
 │   │   │   ├── cdp.mjs  new-project.mjs
 │   │   ├── lean-{contract,html-qa,studio-server,wing-export}.mjs
 │   │   ├── e2e.mjs · runtime/cloudflare-*.mjs

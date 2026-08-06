@@ -13,10 +13,6 @@ try {
           "목업에서 이탈하는 섹션은 **이유를 적는다**",
           "페이지에서 쓸 **부위 용어 집합**을 확정한다. G8 자막이 이 집합을 따른다"
     ],
-    reading: [
-          "../detail-page-g11-deliver/references/studio.md",
-          "work/design-ref/harvest.md"
-    ],
   });
 } catch (error) {
   refuse(error);

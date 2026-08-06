@@ -16,6 +16,7 @@ import { fakeGif, PACED_GIF } from "./gif-fixture.mjs";
 const INDEX = path.join("work", "comps", "index.json");
 const PLAN = "flow-plan.json";
 const PAGE = path.join("work", "page-plan.md");
+const PROBE = path.join("work", "comps", "render-probe.json");
 
 const PAGE_TEXT = `# page-plan
 
@@ -62,10 +63,25 @@ async function stamp(b, id, { gifOlder = false, gif: bytes = PACED_GIF } = {}) {
   await utimes(gif, new Date(gifAt), new Date(gifAt));
 }
 
-async function bed({ entries, briefs = BRIEFS, page = PAGE_TEXT, gifOlder = false, gif } = {}) {
+/** 방금 잰 살아 있는 렌더 경로. `--probe` 가 남기는 모양이다. */
+const freshProbe = (paths = [{ name: "chrome", ok: true, elapsed_ms: 4_100 }]) => ({
+  at: new Date().toISOString(),
+  budget_ms: 240_000,
+  paths,
+});
+
+async function bed({
+  entries,
+  briefs = BRIEFS,
+  page = PAGE_TEXT,
+  gifOlder = false,
+  gif,
+  probe = freshProbe(),
+} = {}) {
   const b = await makeCheckbed();
   const list = entries ?? BRIEFS.map((brief) => entry(brief.id));
   if (page !== null) await b.write(PAGE, page);
+  if (probe !== null) await b.write(PROBE, probe);
   await b.write(PLAN, { gif_briefs: briefs });
   for (const item of list) {
     if (item.comp) await stamp(b, item.brief, { gifOlder, ...(gif ? { gif } : {}) });
@@ -78,6 +94,39 @@ test("전부 갖추면 통과한다", async () => {
   const b = await bed();
   try {
     assert.deepEqual((await check(b.ctx)).reasons, []);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("렌더 경로를 재지 않았으면 거부한다", async () => {
+  // 3회차는 hyperframes 가 240초에 타임아웃하자 조용히 Chrome 으로 갈아탔고
+  // 그 우회가 굳었다. 재지 않으면 우회가 우회인지도 모른다.
+  const b = await bed({ probe: null });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.equal(reasons.length, 1);
+    assert.match(reasons[0], /--probe/);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("살아 있는 렌더 경로가 없으면 거부한다", async () => {
+  const b = await bed({
+    probe: {
+      at: new Date().toISOString(),
+      budget_ms: 240_000,
+      paths: [
+        { name: "hyperframes", ok: false, elapsed_ms: 240_000, error: "TIMEOUT" },
+        { name: "chrome", ok: false, elapsed_ms: 300, error: "CHROME_NOT_FOUND" },
+      ],
+    },
+  });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.equal(reasons.length, 1);
+    assert.match(reasons[0], /살아 있는 렌더 경로가 없다/);
   } finally {
     await b.cleanup();
   }

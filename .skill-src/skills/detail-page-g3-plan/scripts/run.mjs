@@ -21,11 +21,6 @@ try {
           "`tibo-sequence` 의 `frames` 는 장면 하나에 0.9초씩 든다. 12장을 넘기지 않는다",
           "출처 없는 성능·효능·인증·수치·후기·판매량을 만들지 않는다"
     ],
-    reading: [
-          "../detail-page-orchestrator/references/sales-story.md",
-          "../detail-page-orchestrator/references/benchmark/BENCHMARK.md",
-          "../detail-page-g9-build/references/art-direction.md"
-    ],
   });
 } catch (error) {
   refuse(error);

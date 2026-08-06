@@ -13,6 +13,7 @@ import {
 import { readGifTiming } from "./lib/gifmeta.mjs";
 import { compUsesStill } from "./lib/motion.mjs";
 import { pacingFaults } from "./lib/pacing.mjs";
+import { probeFaults } from "./lib/renderprobe.mjs";
 
 /** page-plan 의 `## 용어 집합` 에 적힌 부위 용어. 자막은 이 집합에서만 고른다. */
 function pageTerms(page) {
@@ -35,6 +36,12 @@ export async function check({ project }) {
     reasons.push("work/comps/index.json 이 없다. brief↔컴포지션↔GIF 대응을 남긴다");
     return { reasons };
   }
+
+  // 어느 경로로 구웠는지, 그 경로가 예산 안에 도는지. 3회차는 hyperframes 가
+  // 240초에 타임아웃하자 조용히 Chrome 으로 갈아탔고 그 우회가 굳었다.
+  reasons.push(
+    ...probeFaults(await json(project, path.join("work", "comps", "render-probe.json"))),
+  );
 
   const entries = index.entries ?? [];
   const briefs = plan?.gif_briefs ?? [];
