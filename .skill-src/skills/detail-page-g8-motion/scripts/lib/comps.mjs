@@ -13,11 +13,14 @@ export const METHOD_CAP = 8;
  *   comp    컴포지션 원본 파일의 프로젝트 상대 경로 (디렉터리가 아니다)
  *   gif     구운 GIF 의 프로젝트 상대 경로
  */
-export function buildEntry({ brief, meta, comp, gif }) {
+export function buildEntry({ brief, meta, comp, gif, sourceStill = null, frames = 0 }) {
   return {
     brief,
     method: meta?.method ?? null,
     subtitles: meta?.subtitles ?? [],
+    // GIF 의 입력이 된 스틸. 이 값이 비면 도형에서 시작했다는 뜻이다.
+    source_still: sourceStill ?? meta?.source_still ?? null,
+    frames,
     comp,
     gif,
   };

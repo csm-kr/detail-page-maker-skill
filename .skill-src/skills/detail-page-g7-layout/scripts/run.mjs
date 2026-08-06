@@ -14,7 +14,7 @@ try {
           "페이지에서 쓸 **부위 용어 집합**을 확정한다. G8 자막이 이 집합을 따른다"
     ],
     reading: [
-          "references/layout.md",
+          "../detail-page-g11-deliver/references/studio.md",
           "work/design-ref/harvest.md"
     ],
   });

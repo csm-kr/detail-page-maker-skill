@@ -37,7 +37,12 @@ function stripTags(value) {
     .trim();
 }
 
-export function validateHtmlProject(projectRoot, { strictMedia = false } = {}) {
+/**
+ * `expected` 는 이 회차가 **실제로 계획한** 수다 (G6 채택 컷 수, G8 brief 수).
+ * 예전에는 28~32 라는 임의의 범위였고, 그래서 엄격한 선별이 12장만 채택했을 때
+ * 통과할 방법이 없었다. 선별을 잘할수록 막히는 검사는 검사가 아니다.
+ */
+export function validateHtmlProject(projectRoot, { strictMedia = false, expected = null } = {}) {
   const root = path.resolve(projectRoot);
   const outputRoot = path.join(root, "output");
   const htmlPath = path.join(outputRoot, "detail-page.html");
@@ -95,12 +100,16 @@ export function validateHtmlProject(projectRoot, { strictMedia = false } = {}) {
     .filter((file) => MEDIA_EXTENSIONS.has(path.extname(file).toLowerCase()));
   const gifs = walk(path.join(outputRoot, "media", "gifs"))
     .filter((file) => ANIMATION_EXTENSIONS.has(path.extname(file).toLowerCase()));
-  if (strictMedia && (images.length < 28 || images.length > 32)) {
-    errors.push({ code: "STILL_COUNT_OUT_OF_RANGE", count: images.length });
+  if (expected && Number.isInteger(expected.images) && images.length !== expected.images) {
+    errors.push({ code: "IMAGE_COUNT_MISMATCH", count: images.length, expected: expected.images });
   }
-  if (strictMedia && (gifs.length < 8 || gifs.length > 12)) {
-    errors.push({ code: "GIF_COUNT_OUT_OF_RANGE", count: gifs.length });
+  if (expected && Number.isInteger(expected.gifs) && gifs.length !== expected.gifs) {
+    errors.push({ code: "GIF_COUNT_MISMATCH", count: gifs.length, expected: expected.gifs });
   }
+
+  // "화면마다 볼 것이 있는가" 는 여기서 재지 않는다. 기준작 v4 의 규격 섹션에도
+  // 이미지가 없다 — 기준작이 못 지키는 규칙은 규칙이 아니다.
+  // 밋밋한 페이지는 `lib/benchmark.mjs` 의 하한이 G9 에서 잡는다.
 
   for (const file of [...images, ...gifs]) {
     if (strictMedia && !referenced.has(file)) {

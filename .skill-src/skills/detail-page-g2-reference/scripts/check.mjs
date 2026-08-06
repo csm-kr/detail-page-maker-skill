@@ -11,8 +11,9 @@ import {
   text,
   want,
 } from "../../detail-page-orchestrator/scripts/lib/checkkit.mjs";
+import { MIN_PHRASES, appealPhrases } from "../../detail-page-orchestrator/scripts/lib/appeal.mjs";
 
-const REQUIRED = ["섹션 순서", "고객 질문", "증명 방식", "디자인 분위기"];
+const REQUIRED = ["섹션 순서", "고객 질문", "증명 방식", "소구점", "디자인 분위기"];
 
 export async function check({ project }) {
   const reasons = [];
@@ -35,7 +36,8 @@ export async function check({ project }) {
   want(
     reasons,
     captured,
-    `기준작 캡처가 inputs.lock.json 에 없다. 손으로 놓은 파일은 등록되지 않는다. orchestrate lock --read <캡처> --url ${lock.coupang_url}`,
+    `기준작 캡처가 inputs.lock.json 에 없다. 손으로 놓은 파일은 등록되지 않는다.
+  orchestrate capture --url ${lock.coupang_url} --as reference — 아는 호스트는 검증된 추출기로 간다`,
   );
 
   if (!map) return { reasons };
@@ -50,6 +52,18 @@ export async function check({ project }) {
     reasons,
     order.length >= 5,
     `\`## 섹션 순서\` 의 섹션이 ${order.length}개다. 기준작을 실제로 읽었다면 더 나온다`,
+  );
+
+  // 같은 상품이다. 그 상품의 **판매 언어**를 가져오지 않으면 페이지가 아무 표현도
+  // 물려받지 못한다. 3회차 flow-map 은 `완벽 포획` `강력 접착` 을 전부
+  // "옮겨 오지 않는 것" 으로 분류했고, 그래서 소구점이 하나도 없는 페이지가 나왔다.
+  // 지어내지 않는 것과 옮기지 않는 것은 다르다.
+  const phrases = appealPhrases(map);
+  want(
+    reasons,
+    phrases.length >= MIN_PHRASES,
+    `\`## 소구점\` 의 소구점이 ${phrases.length}개다. ${MIN_PHRASES}개 이상 모은다 —
+  공급처와 쿠팡이 실제로 쓰는 표현을 \`백틱\` 이나 "따옴표" 로 원문 그대로 옮긴다`,
   );
 
   const mood = section(map, "디자인 분위기") ?? "";

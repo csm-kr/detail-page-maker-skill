@@ -11,6 +11,7 @@ import test from "node:test";
 
 import { check } from "../check.mjs";
 import { makeCheckbed } from "../../../detail-page-orchestrator/scripts/tests/fixture.mjs";
+import { fakeGif, PACED_GIF } from "./gif-fixture.mjs";
 
 const INDEX = path.join("work", "comps", "index.json");
 const PLAN = "flow-plan.json";
@@ -28,37 +29,46 @@ const PAGE_TEXT = `# page-plan
 `;
 
 const BRIEFS = [
-  { id: "g01", method: "hyperframes", keywords: ["통기성"] },
-  { id: "g02", method: "god-tibo", keywords: [] },
+  { id: "g01", method: "still-motion", source_still: "c01", keywords: ["통기성"] },
+  { id: "g02", method: "tibo-sequence", source_still: "c02", keywords: [] },
 ];
 
-const entry = (id, extra = {}) => ({
-  brief: id,
-  method: BRIEFS.find((b) => b.id === id)?.method,
-  comp: `work/comps/${id}.html`,
-  gif: `output/media/gifs/${id}.gif`,
-  subtitles: ["팔토시"],
-  notes: "통기성",
-  ...extra,
-});
+const entry = (id, extra = {}) => {
+  const brief = BRIEFS.find((b) => b.id === id);
+  return {
+    brief: id,
+    method: brief?.method,
+    source_still: brief?.source_still,
+    frames: brief?.method === "tibo-sequence" ? 6 : 0,
+    comp: `work/comps/${id}.html`,
+    gif: `output/media/gifs/${id}.gif`,
+    subtitles: ["팔토시"],
+    notes: "통기성",
+    ...extra,
+  };
+};
+
+/** still-motion 컴포지션은 발행된 스틸을 실제로 써야 한다. */
+const compHtml = (id) =>
+  `<html><img src="../../../output/media/images/${BRIEFS.find((b) => b.id === id)?.source_still}.webp"></html>`;
 
 /** comp 를 먼저, gif 를 나중으로 못박는다. 신선도 검사는 이 순서를 본다. */
-async function stamp(b, id, { gifOlder = false } = {}) {
-  const comp = await b.write(`work/comps/${id}.html`, "<html></html>\n");
-  const gif = await b.write(`output/media/gifs/${id}.gif`, "GIF89a\n");
+async function stamp(b, id, { gifOlder = false, gif: bytes = PACED_GIF } = {}) {
+  const comp = await b.write(`work/comps/${id}.html`, compHtml(id));
+  const gif = await b.write(`output/media/gifs/${id}.gif`, bytes);
   const base = Date.now();
   await utimes(comp, new Date(base), new Date(base));
   const gifAt = gifOlder ? base - 60000 : base + 60000;
   await utimes(gif, new Date(gifAt), new Date(gifAt));
 }
 
-async function bed({ entries, briefs = BRIEFS, page = PAGE_TEXT, gifOlder = false } = {}) {
+async function bed({ entries, briefs = BRIEFS, page = PAGE_TEXT, gifOlder = false, gif } = {}) {
   const b = await makeCheckbed();
   const list = entries ?? BRIEFS.map((brief) => entry(brief.id));
   if (page !== null) await b.write(PAGE, page);
   await b.write(PLAN, { gif_briefs: briefs });
   for (const item of list) {
-    if (item.comp) await stamp(b, item.brief, { gifOlder });
+    if (item.comp) await stamp(b, item.brief, { gifOlder, ...(gif ? { gif } : {}) });
   }
   await b.write(INDEX, { entries: list });
   return b;
@@ -102,7 +112,7 @@ test("method 가 brief 와 다르면 양쪽 값을 함께 낸다", async () => {
   try {
     const { reasons } = await check(b.ctx);
     assert.equal(reasons.length, 1, reasons.join(" / "));
-    assert.match(reasons[0], /g01 의 method 가 brief 와 다르다 \(brief hyperframes · 실제 ffmpeg\)/);
+    assert.match(reasons[0], /g01 의 method 가 brief 와 다르다 \(brief still-motion · 실제 ffmpeg\)/);
   } finally {
     await b.cleanup();
   }
@@ -171,7 +181,11 @@ test("대응하는 brief 가 없는 컴포지션을 거부한다", async () => {
 
 test("comp 나 gif 경로가 없으면 거부한다", async () => {
   const b = await bed({
-    entries: [entry("g01"), { brief: "g02", method: "god-tibo", subtitles: [] }],
+    // comp·gif 만 빠뜨린다. 나머지는 맞춰 둬야 이 검사만 걸린다.
+    entries: [
+      entry("g01"),
+      { brief: "g02", method: "tibo-sequence", source_still: "c02", frames: 6, subtitles: [] },
+    ],
   });
   try {
     const { reasons } = await check(b.ctx);
@@ -185,12 +199,15 @@ test("comp 나 gif 경로가 없으면 거부한다", async () => {
 test("한 수단이 8개를 넘으면 거부한다", async () => {
   const briefs = Array.from({ length: 9 }, (_, i) => ({
     id: `g${i + 1}`,
-    method: "hyperframes",
+    method: "tibo-sequence",
+    source_still: `c${i + 1}`,
     keywords: [],
   }));
   const entries = briefs.map((brief) => ({
     brief: brief.id,
-    method: "hyperframes",
+    method: "tibo-sequence",
+    source_still: brief.source_still,
+    frames: 6,
     comp: `work/comps/${brief.id}.html`,
     gif: `output/media/gifs/${brief.id}.gif`,
     subtitles: [],
@@ -199,7 +216,79 @@ test("한 수단이 8개를 넘으면 거부한다", async () => {
   try {
     const { reasons } = await check(b.ctx);
     assert.equal(reasons.length, 1, reasons.join(" / "));
-    assert.match(reasons[0], /method hyperframes 가 9개다/);
+    assert.match(reasons[0], /method tibo-sequence 가 9개다/);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+// ── GIF 의 입력이 이미지인가 ────────────────────────────────────────────────
+// 1회차: 컴포지션 10개 전부 `<img>` 가 0건이었다. 파일은 다 있었으므로 존재 검사와
+// 신선도 검사는 전부 통과했다. 여기서만 잡힌다.
+
+test("컴포지션이 스틸을 쓰지 않으면 거부한다 — 도형에 애니메이션을 걸지 않는다", async () => {
+  const b = await bed();
+  try {
+    // 1회차 컴포지션의 실제 모양으로 덮어쓴다.
+    await b.write(
+      "work/comps/g01.html",
+      '<html><div style="width:150px;height:230px;background:#ECC623"></div></html>\n',
+    );
+    const { reasons } = await check(b.ctx);
+    assert.ok(
+      reasons.some((r) => /컴포지션이 스틸 c01 을 쓰지 않는다/.test(r)),
+      reasons.join(" / "),
+    );
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("연속 프레임이 2장 미만이면 거부한다", async () => {
+  const b = await bed({ entries: [entry("g01"), entry("g02", { frames: 1 })] });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.ok(reasons.some((r) => /생성 프레임이 1장이다/.test(r)), reasons.join(" / "));
+  } finally {
+    await b.cleanup();
+  }
+});
+
+// ── GIF 가 얼마나 오래 보이는가 ────────────────────────────────────────────
+// 3회차: 브리프에는 "천천히 드러난다" 라고 적혀 있었고 실제 파일은 3프레임 0.48초였다.
+// 계획을 읽는 검사로는 못 잡는다. 구운 파일을 연다.
+
+test("너무 빨리 지나가는 GIF 를 거부한다", async () => {
+  // 실제로 나온 것: 3프레임 · 0.16초씩.
+  const b = await bed({ gif: fakeGif([16, 16, 16]) });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.ok(reasons.some((r) => /g01 이 너무 빨리 지나간다/.test(r)), reasons.join(" / "));
+    assert.match(reasons.join(" / "), /첫 프레임이 160ms/);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("장면이 바뀌는 GIF 에는 더 긴 잣대를 댄다", async () => {
+  // 보간으로는 통과하는 속도. tibo-sequence(g02)에서만 걸려야 한다.
+  const b = await bed({ gif: fakeGif([80, 20, 20, 20, 20, 100]) });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.ok(!reasons.some((r) => /g01 이 너무 빨리/.test(r)), reasons.join(" / "));
+    assert.ok(reasons.some((r) => /g02 이 너무 빨리/.test(r)), reasons.join(" / "));
+    assert.match(reasons.join(" / "), /장면/);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("GIF 를 열 수 없으면 통과시키지 않는다", async () => {
+  const b = await bed();
+  try {
+    await b.write("output/media/gifs/g01.gif", "이건 GIF 가 아니다");
+    const { reasons } = await check(b.ctx);
+    assert.ok(reasons.some((r) => /g01 의 GIF 를 읽을 수 없다/.test(r)), reasons.join(" / "));
   } finally {
     await b.cleanup();
   }

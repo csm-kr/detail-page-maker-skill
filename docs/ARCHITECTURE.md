@@ -110,15 +110,15 @@ detail-page-orchestrator          제작 진입점. 순서·상태·검사·보�
 | **INIT** | `detail-page-init` | — | 혼합 | — | `work/env.lock.json` | 런타임·인증·폰트 결여 · **호스트 홈 오염** · `model_face` 미응답 |
 | **G0** | (orchestrator `start`) | INIT | 스크립트 | 1분 | `gates.json`, `inputs.lock.json` | 두 URL 중 하나 없음 · env.lock 해시 불일치 · `policy.model_face` 결여 |
 | **G1** | `g1-fact` | G0 | 에이전트 | 8분 | `work/SSOT.md` | 공급처 캡처가 `capture_max_age_days` 초과 · 사진을 원본 해상도로 열지 않음 |
-| **G2** | `g2-reference` | G0 | 에이전트 | 10분 | `work/flow-map.md` | 기준작 캡처 해시가 lock에 없음 · 4개 절(섹션 순서 / 고객 질문 / 증명 방식 / **디자인 분위기**) 결여 · 분위기 절 실측 hex 3개 미만 |
-| **G3** | `g3-plan` | G1, G2 | 에이전트 | 12분 | `work/flow-plan.draft.json` | 섹션 집합이 flow-map과 불일치 · **화면 문자열이 플랜 밖** · 금지 표현·미근거 수치 · `method` 미지정 |
-| **G4** | `g4-mockup` | G3 | 에이전트 | 23분 | 목업, `variants/`, `DESIGN-GUIDE.md`, **`harvest.md`**, `prompts/` | 템플릿 블록 누락 · **무드 레퍼런스 0장** · 섹션↔파일 1:1 분류 기록 없음 · `harvest.md` 없음 · 얼굴 정책 미주입 |
+| **G2** | `g2-reference` | G0 | 에이전트 | 10분 | `work/flow-map.md` | 기준작 캡처 해시가 lock에 없음 · 5개 절(섹션 순서 / 고객 질문 / 증명 방식 / **소구점** / 디자인 분위기) 결여 · 분위기 절 실측 hex 3개 미만 · **소구점 원문 6개 미만** |
+| **G3** | `g3-plan` | G1, G2 | 에이전트 | 12분 | `work/flow-plan.draft.json` | 섹션 집합이 flow-map과 불일치 · 섹션 13개 미만 · **화면 문자열이 플랜 밖** · **소구점을 3개 미만 사용** · 약사법 표현 · 원문에 없는 과장 표현 · `method`·`source_still` 미지정 |
+| **G4** | `g4-mockup` | G3 | 혼합 | 23분 | 목업, `DESIGN-GUIDE.md`, **`harvest.md`**, `prompts-sent/` | 템플릿 블록 누락 · **무드 레퍼런스 0장** · **목업 출처가 `god-tibo` 가 아님(자기 HTML 스크린샷)** · 섹션↔파일 1:1 분류 기록 없음 · `harvest.md` 없음 · 얼굴 정책 미주입 |
 | **G5** | `g5-inject` | G4 | 혼합 | 2분 | `flow-plan.json` (발행 플랜) | still 프롬프트에 가이드 배경 키워드·브랜드 hex 부재 · 주입 전후 컷 집합 불일치 |
-| **G6** | `g6-stills` | G5 | 혼합 | 12분 | 스틸 N장, `selection.json` | 컷마다 레퍼런스 두 축 미충족 · **원본 해상도 검사 기록 없음** · 탈락 컷 재생성 job 없음 · 얼굴 정책 위반 컷이 발행 목록에 있음 |
+| **G6** | `g6-stills` | G5 | 혼합 | 12분 | 기준 컷, 스틸 N장, `selection.json` | **기준 컷 없음** · 원본 해상도 검사 기록 없음 · 탈락 컷 재생성 job 없음 · 얼굴 정책 위반 컷이 발행 목록에 있음 |
 | **G7** | `g7-layout` | G4, G6 | 에이전트 | 8분 | `work/page-plan.md` | 섹션 수 불일치 · **목업 이탈에 이유 없음** · 컴포넌트별 수단 열 결여 · `harvest.md` 미참조 |
-| **G8** | `g8-motion` | G7 | 혼합 | 10분 | `work/comps/index.json` (+ 컴포지션·GIF) | brief↔컴포지션 수 불일치 · **자막 용어가 페이지 용어 집합 밖** · `method` 불일치 · GIF가 컴포지션보다 오래됨 |
-| **G9** | `g9-build` | G7 | 스크립트 | 6분 | `output/detail-page.html`, `work/anchors.json` | **HTML에 플랜 밖의 문자열** · `:root` 밖의 hex · 가이드 구성 요소 누락 · 앵커 이미지 해시 불일치 |
-| **G10** | `g10-qa` | G8, G9 | 스크립트 | 3분 | `work/qa-report.json` | `strict-media` 실패 · 사진 포맷 불일치 · 미디어 총량 초과 |
+| **G8** | `g8-motion` | G7 | 혼합 | 10분 | `work/comps/index.json` (+ 컴포지션·GIF) | **컴포지션이 발행 스틸을 쓰지 않음** · **구운 GIF가 속도 하한 미달(첫 0.8초·끝 1.0초·한 바퀴 2.5~12초·장면 0.9초)** · brief↔컴포지션 수 불일치 · 자막 용어가 페이지 용어 집합 밖 · `method` 불일치 · GIF가 컴포지션보다 오래됨 |
+| **G9** | `g9-build` | G7 | 스크립트 | 6분 | `output/detail-page.html`, `work/anchors.json` | **HTML에 플랜 밖의 문자열** · `:root` 밖의 hex · 가이드 구성 요소 누락 · 앵커 이미지 해시 불일치 · **기준작 하한 미달** · **제작자 언어가 화면에 있음** · 푸터 고지 없음 |
+| **G10** | `g10-qa` | G8, G9 | 스크립트 | 3분 | `work/qa-report.json` | `strict-media` 실패 · **계획 대비 발행 수 불일치** · 사진 포맷 불일치 · 미디어 총량 초과 |
 | **G11** | `g11-deliver` | G10 | 혼합 | 5분 | `work/report.md` (+ `work/delivery.json`) | `killed.json`의 서버 미복구 · Studio 미확인 · Wing 산출물 없음 |
 
 예산 합계는 병렬을 반영해 **86분**이고 목표 95분에 9분 여유가 있다

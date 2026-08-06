@@ -78,9 +78,21 @@ test("빈 워크스페이스에서 필요한 디렉터리를 부트스트랩한�
   try {
     const { code, out } = run(["--apply"], { workspace: ws.root });
     assert.equal(code, 0, out);
-    for (const dir of ["work", "data", "projects", path.join(".claude", "skills"), path.join(".agents", "skills")]) {
+    for (const dir of ["work", "projects", path.join(".claude", "skills"), path.join(".agents", "skills")]) {
       assert.ok(await exists(path.join(ws.root, dir)), `${dir} 가 없다`);
     }
+  } finally {
+    await ws.cleanup();
+  }
+});
+
+test("워크스페이스에 사진 폴더를 만들지 않는다", async () => {
+  // 사진은 회차 폴더 안에서만 산다. 워크스페이스에 data/ 가 생겨 있으면 거기 넣게 되고,
+  // 그 사진은 해시 체인 밖이라 회차를 재현하지 못한다.
+  const ws = await makeWorkspace();
+  try {
+    run(["--apply"], { workspace: ws.root });
+    assert.ok(!(await exists(path.join(ws.root, "data"))), "data/ 를 만들었다");
   } finally {
     await ws.cleanup();
   }
@@ -366,6 +378,26 @@ test("폰트를 워크스페이스 안으로 들여온다", async () => {
     assert.ok(await exists(path.join(ws.root, recorded)), "복사된 폰트가 없다");
   } finally {
     await rm(outside, { recursive: true, force: true });
+    await ws.cleanup();
+  }
+});
+
+test("npm 을 실제로 띄운다", async () => {
+  // Windows 는 Node 18.20/20.12 이후 shell 없이 .cmd 를 spawn 하지 않는다. 런처가 거부되면
+  // 벤더링이 조용히 실패하고 G8 에서야 드러난다.
+  // 의존성 없는 package.json 을 미리 둬서 레지스트리를 받지 않고 런처만 검사한다.
+  const ws = await makeWorkspace();
+  try {
+    await mkdir(path.join(ws.root, "motion"), { recursive: true });
+    await writeFile(
+      path.join(ws.root, "motion", "package.json"),
+      `${JSON.stringify({ name: "dp-motion-launch", private: true, dependencies: {} }, null, 2)}\n`,
+      "utf8",
+    );
+    const { vendorHyperframes } = await import("../lib/vendor.mjs");
+    const result = await vendorHyperframes({ workspace: ws.root, install: true });
+    assert.equal(result.note, null, `npm 을 띄우지 못했다: ${result.note}`);
+  } finally {
     await ws.cleanup();
   }
 });

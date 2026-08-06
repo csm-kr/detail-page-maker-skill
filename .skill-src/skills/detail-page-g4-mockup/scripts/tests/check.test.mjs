@@ -10,13 +10,18 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import { check } from "../check.mjs";
+import { ORIGIN } from "../lib/mockup.mjs";
 import {
   headings,
   text,
 } from "../../../detail-page-orchestrator/scripts/lib/checkkit.mjs";
 import { makeCheckbed } from "../../../detail-page-orchestrator/scripts/tests/fixture.mjs";
 
-const SKILL_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const SKILL_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "..",
+);
 const REF = path.join("work", "design-ref");
 const IDS = ["hero", "problem", "solution"];
 
@@ -40,21 +45,33 @@ const HARVEST = `# harvest
 
 /** templates.md 의 블록 이름을 전량 담은 프롬프트. 실제 문서에서 뽑는다. */
 async function fullPrompt(modelFace = "crop-below-chin") {
-  const template = await text(SKILL_ROOT, path.join("references", "templates.md"));
-  const blocks = headings(template, 2).map((title) => title.replace(/^\d+\.\s*/, ""));
+  const template = await text(
+    SKILL_ROOT,
+    path.join("references", "templates.md"),
+  );
+  const blocks = headings(template, 2).map((title) =>
+    title.replace(/^\d+\.\s*/, ""),
+  );
   return `${blocks.join("\n")}\n얼굴 정책: ${modelFace}\n`;
 }
 
 async function bed({
   prompt,
   moods = ["mood-1.png"],
-  index = { sections: Object.fromEntries(IDS.map((id) => [id, `${id}.png`])) },
+  index = {
+    origin: ORIGIN,
+    sections: Object.fromEntries(IDS.map((id) => [id, `${id}.png`])),
+  },
   guide = GUIDE,
   harvest = HARVEST,
 } = {}) {
   const b = await makeCheckbed();
-  await b.write(path.join(REF, "prompts-sent", "batch-1.md"), prompt ?? (await fullPrompt()));
-  for (const name of moods) await b.write(path.join(REF, "mood", name), "무드 자리\n");
+  await b.write(
+    path.join(REF, "prompts-sent", "batch-1.md"),
+    prompt ?? (await fullPrompt()),
+  );
+  for (const name of moods)
+    await b.write(path.join(REF, "mood", name), "무드 자리\n");
   if (index !== null) await b.write(path.join(REF, "mockup-index.json"), index);
   if (guide !== null) await b.write(path.join(REF, "DESIGN-GUIDE.md"), guide);
   if (harvest !== null) await b.write(path.join(REF, "harvest.md"), harvest);
@@ -123,7 +140,12 @@ test("mockup-index.json 이 없으면 거부한다", async () => {
 });
 
 test("목업이 없는 섹션이 있으면 그 섹션을 지목한다", async () => {
-  const b = await bed({ index: { sections: { hero: "hero.png", problem: "problem.png" } } });
+  const b = await bed({
+    index: {
+      origin: ORIGIN,
+      sections: { hero: "hero.png", problem: "problem.png" },
+    },
+  });
   try {
     const { reasons } = await check(b.ctx);
     assert.equal(reasons.length, 1, reasons.join(" / "));
@@ -135,7 +157,14 @@ test("목업이 없는 섹션이 있으면 그 섹션을 지목한다", async ()
 
 test("한 목업 파일이 두 섹션에 쓰이면 거부한다 — 개수 검사가 놓친 중복이다", async () => {
   const b = await bed({
-    index: { sections: { hero: "hero.png", problem: "hero.png", solution: "solution.png" } },
+    index: {
+      origin: ORIGIN,
+      sections: {
+        hero: "hero.png",
+        problem: "hero.png",
+        solution: "solution.png",
+      },
+    },
   });
   try {
     const { reasons } = await check(b.ctx);
@@ -149,7 +178,12 @@ test("한 목업 파일이 두 섹션에 쓰이면 거부한다 — 개수 검�
 test("한 섹션에 파일이 둘이면 콜라주로 본다", async () => {
   const b = await bed({
     index: {
-      sections: { hero: ["hero-a.png", "hero-b.png"], problem: "problem.png", solution: "solution.png" },
+      origin: ORIGIN,
+      sections: {
+        hero: ["hero-a.png", "hero-b.png"],
+        problem: "problem.png",
+        solution: "solution.png",
+      },
     },
   });
   try {
@@ -162,13 +196,21 @@ test("한 섹션에 파일이 둘이면 콜라주로 본다", async () => {
 });
 
 test("얼굴 정책이 보낸 프롬프트에 없으면 거부한다", async () => {
-  const template = await text(SKILL_ROOT, path.join("references", "templates.md"));
-  const blocks = headings(template, 2).map((title) => title.replace(/^\d+\.\s*/, ""));
+  const template = await text(
+    SKILL_ROOT,
+    path.join("references", "templates.md"),
+  );
+  const blocks = headings(template, 2).map((title) =>
+    title.replace(/^\d+\.\s*/, ""),
+  );
   const b = await bed({ prompt: `${blocks.join("\n")}\n` });
   try {
     const { reasons } = await check(b.ctx);
     assert.equal(reasons.length, 1, reasons.join(" / "));
-    assert.match(reasons[0], /얼굴 정책 "crop-below-chin" 이 보낸 프롬프트에 없다/);
+    assert.match(
+      reasons[0],
+      /얼굴 정책 "crop-below-chin" 이 보낸 프롬프트에 없다/,
+    );
   } finally {
     await b.cleanup();
   }
@@ -204,6 +246,44 @@ test("harvest.md 에 수확 금지 항목이 없으면 거부한다", async () =
     const { reasons } = await check(b.ctx);
     assert.equal(reasons.length, 1, reasons.join(" / "));
     assert.match(reasons[0], /수확 금지 항목이 없다/);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+// ── 목업이 어디서 왔는가 ──────────────────────────────────────────────────
+// 3회차: `mockup-index.json` 에 `"origin": "self-rendered"` 가 적혀 있었다.
+// 우리가 만든 mockup.html 을 headless Chrome 으로 찍은 스크린샷이었다.
+// 디자인 목표가 곧 결과물이면 G4 는 아무것도 끌어올리지 못한다. 여섯 검사가 전부 통과했다.
+
+test("우리 HTML 을 찍은 스크린샷을 목업으로 받지 않는다", async () => {
+  const b = await bed({
+    index: {
+      origin: "self-rendered",
+      sections: Object.fromEntries(IDS.map((id) => [id, `${id}.png`])),
+    },
+  });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.ok(
+      reasons.some((r) => /목업의 출처가/.test(r)),
+      reasons.join(" / "),
+    );
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("출처가 아예 없어도 거부한다", async () => {
+  const b = await bed({
+    index: { sections: Object.fromEntries(IDS.map((id) => [id, `${id}.png`])) },
+  });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.ok(
+      reasons.some((r) => /목업의 출처가/.test(r)),
+      reasons.join(" / "),
+    );
   } finally {
     await b.cleanup();
   }

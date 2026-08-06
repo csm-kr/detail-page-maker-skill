@@ -39,7 +39,7 @@ junction 으로 건다. **호스트 홈에는 아무것도 설치하지 않는�
 ### 2. 회차마다 — 제작
 
 ```sh
-node .skill-src/skills/detail-page-orchestrator/scripts/orchestrate.mjs start --name 팔토시 --supplier-url <공급처 URL> --coupang-url <기준 쿠팡 URL> --photos data/
+node .skill-src/skills/detail-page-orchestrator/scripts/orchestrate.mjs start --name 팔토시 --supplier-url <공급처 URL> --coupang-url <기준 쿠팡 URL>
 ```
 
 그다음은 `gates` 가 알려주는 대로 따라간다. 순서를 사람이 정하지 않는다.
@@ -75,7 +75,6 @@ orchestrate.mjs gate G2 --pass    # 검사를 다시 돌린 뒤에만 통과가 
 ## 폴더
 
 ```text
-├── data/                 ★ 실물 제품 사진을 여기 넣는다
 ├── docs/                 문서 정본
 ├── .skill-src/skills/    ◆ 스킬 원본. 편집은 여기만
 ├── .claude/skills/       ○ init 이 건다 (Claude Code)
@@ -84,6 +83,7 @@ orchestrate.mjs gate G2 --pass    # 검사를 다시 돌린 뒤에만 통과가 
 ├── runtime/fonts/        ○ 한글 폰트
 ├── work/                 ○ env.lock.json · gates.history.json · active.json
 └── projects/<이름>-<시각>/   ● 회차마다 하나. output/ 만 공개된다
+    └── input/photos/     ★ 실물 제품 사진 (없어도 된다)
 ```
 
 ★ 사용자가 넣는다 · ◆ 사람이 편집 · ○ `init` 이 만든다 · ● 제작이 만든다

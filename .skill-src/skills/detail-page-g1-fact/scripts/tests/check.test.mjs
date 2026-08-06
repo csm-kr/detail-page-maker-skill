@@ -84,6 +84,20 @@ test("공급처가 아닌 호스트의 캡처는 공급처 캡처로 세지 않�
   }
 });
 
+test("공급처 캡처를 요구할 때 추출기 경로를 알려준다", async () => {
+  // 막힌 사람이 읽는 곳이 이 문장이다. `lock --read` 만 적어 두면 손으로 캡처해서
+  // 등록하고, dmk-extractor 의 차단 판정·상품 ID 대조·후기 마스킹을 통째로 놓친다.
+  const b = await bed({ captures: {} });
+  try {
+    const { reasons } = await check(b.ctx);
+    const missing = reasons.find((reason) => /공급처 캡처가/.test(reason));
+    assert.ok(missing, reasons.join(" / "));
+    assert.match(missing, /orchestrate capture --url/);
+  } finally {
+    await b.cleanup();
+  }
+});
+
 test("이전 회차 파생본을 입력으로 쓰면 거부한다", async () => {
   const b = await bed({
     captures: {
@@ -100,12 +114,39 @@ test("이전 회차 파생본을 입력으로 쓰면 거부한다", async () => 
   }
 });
 
-test("실물 사진이 0장이면 거부한다", async () => {
-  const b = await bed({ photos: { count: 0, files: [] } });
+test("사진이 0장이어도 거부하지 않는다", async () => {
+  // 계약은 "없으면 공급처 동일 SKU로 진행" 이다 — docs/GUIDE.md §3. 검사가 사진을
+  // 강제하면 공급처 근거만으로 도는 회차가 시작조차 못 한다.
+  const b = await bed({ photos: { count: 0, entries: [] } });
   try {
     const { reasons } = await check(b.ctx);
+    assert.deepEqual(reasons, []);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("input/photos 에 잠기지 않은 사진이 있으면 거부한다", async () => {
+  // 손으로 놓은 사진은 해시 체인 밖이다. 그것으로 만든 산출물은 재현되지 않는다.
+  const b = await bed({ photos: { count: 0, entries: [] } });
+  try {
+    await b.write(path.join("input", "photos", "손으로놓음.jpg"), "사진 자리");
+    const { reasons } = await check(b.ctx);
     assert.equal(reasons.length, 1, reasons.join(" / "));
-    assert.match(reasons[0], /실물 사진이 없다/);
+    assert.match(reasons[0], /잠기지 않은 사진/);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("잠긴 사진만 있으면 통과한다", async () => {
+  const b = await bed({
+    photos: { count: 1, entries: [{ file: "input/photos/실물-1.jpg", sha256: `sha256:${"a".repeat(64)}` }] },
+  });
+  try {
+    await b.write(path.join("input", "photos", "실물-1.jpg"), "사진 자리");
+    const { reasons } = await check(b.ctx);
+    assert.deepEqual(reasons, []);
   } finally {
     await b.cleanup();
   }

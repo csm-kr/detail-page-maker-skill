@@ -1,5 +1,6 @@
 // G8 판정. brief 를 고치고 컴포지션은 옛것을 재렌더한 것을 잡는다.
 
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import {
@@ -9,6 +10,9 @@ import {
   text,
   want,
 } from "../../detail-page-orchestrator/scripts/lib/checkkit.mjs";
+import { readGifTiming } from "./lib/gifmeta.mjs";
+import { compUsesStill } from "./lib/motion.mjs";
+import { pacingFaults } from "./lib/pacing.mjs";
 
 /** page-plan 의 `## 용어 집합` 에 적힌 부위 용어. 자막은 이 집합에서만 고른다. */
 function pageTerms(page) {
@@ -78,6 +82,47 @@ export async function check({ project }) {
       absent.length === 0,
       `${entry.brief} 의 brief 핵심 명사가 컴포지션에 없다: ${absent.join(" · ")}`,
     );
+
+    // GIF 의 입력이 이미지인가. 1회차에 컴포지션 10개 전부 도형이었고, 그래서
+    // "상업적 이미지가 생성되지 않은 느낌" 이 났다. 여기서만 잡을 수 있다.
+    want(
+      reasons,
+      Boolean(brief.source_still) && entry.source_still === brief.source_still,
+      `${entry.brief} 의 source_still 이 brief 와 다르다 (brief ${brief.source_still ?? "없음"} · 실제 ${entry.source_still ?? "없음"})`,
+    );
+    if (entry.method === "still-motion" && entry.comp && brief.source_still) {
+      const html = await text(project, entry.comp);
+      want(
+        reasons,
+        compUsesStill(html ?? "", brief.source_still),
+        `${entry.brief} 의 컴포지션이 스틸 ${brief.source_still} 을 쓰지 않는다. 도형에 애니메이션을 걸지 않는다`,
+      );
+    }
+    if (entry.method === "tibo-sequence") {
+      want(
+        reasons,
+        (entry.frames ?? 0) >= 2,
+        `${entry.brief} 의 생성 프레임이 ${entry.frames ?? 0}장이다. 2장 이상이어야 이어지는 GIF 다`,
+      );
+    }
+
+    // 얼마나 오래 보이는가. **구운 파일을 연다.**
+    // 3회차 brief 에는 "천천히 드러난다" 라고 적혀 있었고 실제 파일은 3프레임 0.48초였다.
+    // 계획을 읽는 검사로는 못 잡는다.
+    if (entry.gif) {
+      let timing = null;
+      try {
+        timing = readGifTiming(await readFile(path.join(project, entry.gif)));
+      } catch (error) {
+        reasons.push(`${entry.brief} 의 GIF 를 읽을 수 없다: ${error.message.split("\n")[0]}`);
+      }
+      if (timing) {
+        const faults = pacingFaults(timing, { scenes: entry.method === "tibo-sequence" });
+        if (faults.length > 0) {
+          reasons.push(`${entry.brief} 이 너무 빨리 지나간다 — ${faults.join(" · ")}`);
+        }
+      }
+    }
 
     // GIF 가 컴포지션보다 오래되면 옛 설계를 재렌더한 것이다.
     if (entry.comp && entry.gif) {

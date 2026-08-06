@@ -67,6 +67,60 @@ test("생성물이 스킬 안에 없다", async () => {
   );
 });
 
+test("run.mjs 의 체크리스트가 SKILL.md 와 갈리지 않는다", async () => {
+  // 같은 목록이 두 곳에 있으면 갈린다. 실제로 갈렸다 — SKILL.md 만 고쳤더니 런타임에
+  // 뜨는 문구는 옛것이었고, 에이전트가 읽는 것은 run.mjs 쪽이다.
+  // 최상위 `- ` 항목만 본다. 들여쓴 하위 항목은 설명이다.
+  const drifted = [];
+  for (const name of (await readdir(SKILLS_ROOT)).filter((n) => /^detail-page-g\d/.test(n))) {
+    const doc = await readFile(path.join(SKILLS_ROOT, name, "SKILL.md"), "utf8");
+    const runner = await readFile(path.join(SKILLS_ROOT, name, "scripts", "run.mjs"), "utf8");
+
+    const section = doc.split(/^## 해야 하는 것$/m)[1]?.split(/^## /m)[0] ?? "";
+    const documented = [...section.matchAll(/^- (.+)$/gm)].map((m) => m[1].trim());
+
+    // 체크리스트가 없는 게이트는 스크립트가 직접 산출물을 쓴다. 대조할 목록이 없다.
+    if (!/checklist\(/.test(runner)) continue;
+
+    const items = runner.split(/items:\s*\[/)[1]?.split(/^\s*\],$/m)[0] ?? "";
+    const printed = [...items.matchAll(/^\s*"((?:[^"\\]|\\.)*)"/gm)].map((m) =>
+      m[1].replace(/\\"/g, '"').trim(),
+    );
+
+    if (documented.length === 0 || printed.length === 0) {
+      drifted.push(`${name}: 목록을 읽지 못했다 (문서 ${documented.length} · 런타임 ${printed.length})`);
+      continue;
+    }
+    for (const [index, expected] of documented.entries()) {
+      if (printed[index] !== expected) {
+        drifted.push(`${name}[${index}]\n    SKILL.md: ${expected}\n    run.mjs : ${printed[index] ?? "(없음)"}`);
+      }
+    }
+  }
+  assert.deepEqual(drifted, []);
+});
+
+test("run.mjs 가 읽으라는 문서가 실제로 있다", async () => {
+  // 없는 파일을 읽으라고 하면 에이전트는 조용히 건너뛰거나 내용을 지어낸다.
+  // 셋이 끊겨 있었다 — 내용이 없어서가 아니라 다른 스킬에 있는 것을 제 폴더로 가리켰다.
+  const dangling = [];
+  for (const name of (await readdir(SKILLS_ROOT)).filter((n) => /^detail-page-g\d/.test(n))) {
+    const dir = path.join(SKILLS_ROOT, name);
+    const runner = await readFile(path.join(dir, "scripts", "run.mjs"), "utf8");
+    const block = runner.split(/reading:\s*\[/)[1]?.split(/^\s*\],$/m)[0] ?? "";
+    for (const [, rel] of block.matchAll(/"([^"]+)"/g)) {
+      // `work/…` 는 회차 중에 만들어지는 산출물이다. 스킬 트리에 있을 리 없다.
+      if (!/^(\.\.\/)?[\w.-]*\/?references\//.test(rel)) continue;
+      try {
+        await stat(path.join(dir, rel));
+      } catch {
+        dangling.push(`${name} → ${rel}`);
+      }
+    }
+  }
+  assert.deepEqual(dangling, []);
+});
+
 test("게이트 산출물 경로가 전부 프로젝트 아래이거나 명시적으로 워크스페이스다", async () => {
   const { GATES } = await import("../lib/gates.mjs");
   const strays = [];

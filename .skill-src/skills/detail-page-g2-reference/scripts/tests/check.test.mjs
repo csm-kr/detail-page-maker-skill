@@ -37,6 +37,16 @@ const GOOD_MAP = `# flow-map
 - 실측 사진
 - 소재 수치
 
+## 소구점
+| 표현 | 출처 |
+| --- | --- |
+| \`강력 점착\` | 공급처 |
+| \`생활방수\` | 공급처 |
+| \`50장 대용량\` | 공급처 |
+| \`완벽 포획\` | 쿠팡 |
+| \`끈적임 오래 지속\` | 쿠팡 |
+| \`한 번 붙으면 끝\` | 쿠팡 |
+
 ## 디자인 분위기
 배경 #F5F5F5 · 본문 #1A1A1A · 강조 #C8A96E
 `;
@@ -68,6 +78,19 @@ test("기준작 캡처가 lock 에 없으면 거부한다 — 손으로 놓은 �
     const { reasons } = await check(b.ctx);
     assert.equal(reasons.length, 1, reasons.join(" / "));
     assert.match(reasons[0], /기준작 캡처가 inputs\.lock\.json 에 없다/);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("기준작 캡처를 요구할 때 추출기 경로를 알려준다", async () => {
+  // coupang-extractor 는 ACCESS_BLOCKED 판정과 상품 ID 대조를 한다. 손 캡처에는 없다.
+  const b = await bed({ captures: {} });
+  try {
+    const { reasons } = await check(b.ctx);
+    const missing = reasons.find((reason) => /기준작 캡처가/.test(reason));
+    assert.ok(missing, reasons.join(" / "));
+    assert.match(missing, /orchestrate capture --url/);
   } finally {
     await b.cleanup();
   }
@@ -156,6 +179,34 @@ test("flow-map 이 없으면 캡처 사유까지만 내고 절 검사로 넘어�
   try {
     const { reasons } = await check(b.ctx);
     assert.equal(reasons.length, 1, reasons.join(" / "));
+  } finally {
+    await b.cleanup();
+  }
+});
+
+// ── 소구점 ────────────────────────────────────────────────────────────────
+// 같은 상품이다. 그 상품의 판매 언어를 안 가져오면 페이지가 아무 표현도 물려받지 못한다.
+// 3회차 flow-map 은 `완벽 포획` `강력 접착` 을 전부 "옮겨 오지 않는 것" 으로 분류했다.
+
+test("소구점 절이 없으면 거부한다", async () => {
+  const b = await bed({ map: GOOD_MAP.replace(/## 소구점[\s\S]*?(?=## 디자인)/, "") });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.ok(reasons.some((r) => /소구점/.test(r)), reasons.join(" / "));
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("표현이 너무 적으면 거부한다 — 훑기만 한 것이다", async () => {
+  // 쿠팡에서 온 세 줄을 뺀다. 공급처 표현 3개만 남는다.
+  const thin = GOOD_MAP.split("\n")
+    .filter((line) => !line.endsWith("| 쿠팡 |"))
+    .join("\n");
+  const b = await bed({ map: thin });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.ok(reasons.some((r) => /소구점이 3개다/.test(r)), reasons.join(" / "));
   } finally {
     await b.cleanup();
   }

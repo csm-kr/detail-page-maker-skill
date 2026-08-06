@@ -4,6 +4,7 @@ import path from "node:path";
 
 import {
   json,
+  listFiles,
   policy,
   want,
 } from "../../detail-page-orchestrator/scripts/lib/checkkit.mjs";
@@ -13,6 +14,18 @@ export async function check({ workspace, project }) {
   const plan = await json(project, "flow-plan.json");
   const selection = await json(project, path.join("work", "selection.json"));
   const { model_face: modelFace } = await policy(workspace);
+
+  // 기준 컷. 이것이 없으면 30장이 각자 따로 생성된다 — 1회차에 references 가 전부
+  // 비어 있었고 18장이 제품 동일성으로 탈락했다.
+  const base = await listFiles(
+    path.join(project, "work", "stills", "base"),
+    /\.(png|webp|jpe?g)$/i,
+  );
+  want(
+    reasons,
+    base.length > 0,
+    "기준 컷이 없다 (work/stills/base). --base 로 한 장을 먼저 만들어 나머지의 레퍼런스로 쓴다",
+  );
 
   if (!selection) {
     reasons.push("work/selection.json 이 없다. 컷마다 채택·탈락과 이유를 남긴다");

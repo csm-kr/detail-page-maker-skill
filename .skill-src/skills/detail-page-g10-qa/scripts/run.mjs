@@ -8,6 +8,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { json } from "../../detail-page-orchestrator/scripts/lib/checkkit.mjs";
 import { guard, refuse } from "../../detail-page-orchestrator/scripts/lib/stage.mjs";
 import { validateHtmlProject } from "../../detail-page-orchestrator/scripts/lean-html-qa.mjs";
 import { shapeReport } from "./lib/report.mjs";
@@ -18,7 +19,19 @@ try {
   const ctx = await guard("G10");
   const out = (text) => process.stdout.write(`${text}\n`);
 
-  const result = validateHtmlProject(ctx.project, { strictMedia: true });
+  // 수량은 **이 회차가 계획한 만큼**을 본다. 예전에는 28~32 라는 임의의 범위였고,
+  // 그래서 엄격한 선별이 12장만 채택했을 때 통과할 방법이 없었다.
+  const selection = await json(ctx.project, path.join("work", "selection.json"));
+  const comps = await json(ctx.project, path.join("work", "comps", "index.json"));
+  const expected =
+    selection || comps
+      ? {
+          images: (selection?.entries ?? []).filter((entry) => entry.decision === "accept").length,
+          gifs: (comps?.entries ?? []).length,
+        }
+      : null;
+
+  const result = validateHtmlProject(ctx.project, { strictMedia: true, expected });
   const report = shapeReport(result, { strictMedia: true });
 
   await mkdir(path.join(ctx.project, "work"), { recursive: true });
@@ -31,6 +44,7 @@ try {
   out(`QA 완료 → ${OUT_REL}`);
   out(`  HTML      ${report.html ?? "없음"}`);
   out(`  미디어    이미지 ${report.media.images}개 · GIF ${report.media.gifs}개`);
+  if (expected) out(`  계획      이미지 ${expected.images}개 · GIF ${expected.gifs}개`);
   out(`  오류      ${report.errors.length}건`);
   for (const line of report.errors.slice(0, 10)) out(`    - ${line}`);
   if (report.errors.length > 10) out(`    … ${report.errors.length - 10}건 더`);

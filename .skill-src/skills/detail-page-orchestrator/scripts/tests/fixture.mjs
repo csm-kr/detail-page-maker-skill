@@ -198,7 +198,8 @@ export async function makeProject(options = {}) {
  * 단계 스킬의 `check.mjs` 를 직접 부르기 위한 최소 구조. `start` 를 돌리지 않는다 —
  * 판정만 보는 테스트가 게이트 엔진 전체에 묶이면 무엇이 깨졌는지 흐려진다.
  *
- * `write` 는 산출물을 놓는다. 문자열은 그대로, 객체는 JSON 으로 쓴다.
+ * `write` 는 산출물을 놓는다. 문자열은 그대로, `Buffer` 는 바이트 그대로,
+ * 나머지 객체는 JSON 으로 쓴다. GIF 처럼 게이트가 **바이트를 여는** 산출물이 있다.
  */
 export async function makeCheckbed(options = {}) {
   const ws = await makeWorkspace(options);
@@ -214,11 +215,14 @@ export async function makeCheckbed(options = {}) {
   const write = async (rel, content) => {
     const full = path.join(project, rel);
     await mkdir(path.dirname(full), { recursive: true });
-    await writeFile(
-      full,
-      typeof content === "string" ? content : `${JSON.stringify(content, null, 2)}\n`,
-      "utf8",
-    );
+    if (Buffer.isBuffer(content)) await writeFile(full, content);
+    else {
+      await writeFile(
+        full,
+        typeof content === "string" ? content : `${JSON.stringify(content, null, 2)}\n`,
+        "utf8",
+      );
+    }
     return full;
   };
 

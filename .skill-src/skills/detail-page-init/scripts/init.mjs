@@ -14,6 +14,7 @@ import { blockers, detect } from "./lib/detect.mjs";
 import { HOST_DIRS, installSkills } from "./lib/install.mjs";
 import { InterviewError, ask, readAnswers, validate, writeAnswers } from "./lib/interview.mjs";
 import { AUTO, CONFIRM, classify, moveToTrash } from "./lib/prune.mjs";
+import { smokeGodTibo } from "./lib/smoke.mjs";
 import { vendorFont, vendorHyperframes } from "./lib/vendor.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -47,7 +48,6 @@ async function bootstrap() {
   const created = [];
   for (const dir of [
     "work",
-    "data",
     "projects",
     "motion",
     path.join("runtime", "fonts"),
@@ -216,6 +216,8 @@ async function cmdInit() {
   row("설치", `${install.skills.length}개 · ${install.mode}`, "○");
   for (const [host, dir] of Object.entries(install.targets)) row("", `${host} → ${dir}`, "");
 
+  const primary = install.targets["claude-code"] ?? Object.values(install.targets)[0];
+
   const hyperframes = await vendorHyperframes({
     workspace: WORKSPACE,
     install: answers.vendor_hyperframes === true,
@@ -228,15 +230,36 @@ async function cmdInit() {
   const font = await vendorFont({ workspace: WORKSPACE, candidates: detection.fonts });
   row("폰트", font ?? "없음", font ? "○" : "✗");
 
-  const primary = install.targets["claude-code"] ?? Object.values(install.targets)[0];
+  // 이미지 생성 경로를 **한 장 만들어서** 확인한다. 인증 파일이 있는 것과 이미지가
+  // 나오는 것은 다른 일이고, 1회차는 G6 에서 30장을 요청하고 나서야 그 차이를 알았다.
+  // 소스가 아니라 **방금 설치한 것**을 검사한다. 설치가 반쪽이면 여기서 드러난다.
+  const smoke = await smokeGodTibo({
+    tiboRoot: path.join(
+      WORKSPACE,
+      primary,
+      "detail-page-orchestrator",
+      ".agents",
+      "skills",
+      "god-tibo-gpt-image2-skill",
+    ),
+    workspace: WORKSPACE,
+  });
+  row("이미지 생성", smoke.ok ? `한 장 확인 ${smoke.detail}` : smoke.detail, smoke.ok ? "○" : "✗");
+
   const sha256 = await hashTree(path.join(WORKSPACE, primary));
 
-  const ready = missing.length === 0 && hyperframes.installed && Boolean(font);
+  const ready = missing.length === 0 && hyperframes.installed && Boolean(font) && smoke.ok;
   const lock = {
     schema_version: "1.0",
     initialized_at: new Date().toISOString(),
     ready,
-    blocked: ready ? [] : [...missing, ...(hyperframes.installed ? [] : ["hyperframes 미설치"])],
+    blocked: ready
+      ? []
+      : [
+          ...missing,
+          ...(hyperframes.installed ? [] : ["hyperframes 미설치"]),
+          ...(smoke.ok ? [] : [`이미지 생성 실패: ${smoke.detail}`]),
+        ],
     hosts: answers.hosts,
     install: {
       mode: install.mode,
@@ -252,6 +275,7 @@ async function cmdInit() {
       ffmpeg: detection.ffmpeg,
       hyperframes,
       font,
+      image_gen: { ok: smoke.ok, detail: smoke.detail },
     },
     browser: { cdp: detection.cdp, chatgpt_login: answers.chatgpt_login === true },
     auth: {

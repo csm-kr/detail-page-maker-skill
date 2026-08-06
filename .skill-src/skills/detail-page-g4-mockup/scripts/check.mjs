@@ -12,6 +12,7 @@ import {
   text,
   want,
 } from "../../detail-page-orchestrator/scripts/lib/checkkit.mjs";
+import { ORIGIN } from "./lib/mockup.mjs";
 
 const SKILL_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -61,6 +62,16 @@ export async function check({ workspace, project }) {
       "work/design-ref/mockup-index.json 이 없다. 섹션↔목업 파일 1:1 분류를 기록한다",
     );
   } else if (plan) {
+    // 3a. 목업이 밖에서 왔는가. 3회차에는 우리가 만든 mockup.html 을 headless Chrome 으로
+    // 찍어 놓고 `origin: "self-rendered"` 라고 적었다. 그러면 디자인 목표가 곧 결과물이라
+    // 목업이 아무것도 끌어올리지 못한다 — 나머지 여섯 검사는 전부 통과한 채로.
+    want(
+      reasons,
+      index.origin === ORIGIN,
+      `목업의 출처가 "${index.origin ?? "없음"}" 이다. ${ORIGIN} 이 만든 목업이어야 한다 — ` +
+        "우리 HTML 을 찍은 스크린샷은 목업이 아니라 결과물이다. `run.mjs --generate` 로 받는다",
+    );
+
     const wanted = (plan.sections ?? []).map((s) => s.id);
     const mapped = index.sections ?? {};
     const missing = wanted.filter((id) => !mapped[id]);

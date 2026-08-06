@@ -1,24 +1,40 @@
 #!/usr/bin/env node
 // G8 모션. 첫 줄이 선행 게이트 검사다.
 //
-// 혼합 게이트다. **컴포지션은 사람이 다시 쓴다** — 2회차에 옛 컴포지션을 재렌더해서
-// brief 와 무관한 GIF 가 나왔다. 스크립트는 굽고 색인만 만든다.
+// **GIF 의 입력은 발행된 스틸이다.** 1회차에 컴포지션 10개를 손으로 썼고 10개 전부
+// 이미지가 0건이었다 — 도형에 애니메이션을 걸었다. 그래서 스크립트가 스틸을 박아
+// 컴포지션을 만들고, 사람은 패턴과 자막만 고친다.
 //
-//   run.mjs           → brief 와 용어 집합을 펼쳐 보여 준다. 그리고 멈춘다.
-//   (사람)            → work/comps/<brief>/ 에 컴포지션과 meta.json 을 쓴다.
-//   run.mjs --render  → 병렬로 구워 output/media/gifs/ 와 index.json 을 만든다.
+//   run.mjs --scaffold  → brief 마다 컴포지션을 만든다. 스틸이 이미 들어가 있다.
+//   (사람)              → 패턴·자막을 손본다. 스틸을 지우지 않는다.
+//   run.mjs --render    → 두 수단 모두 **프레임까지만** 만들고 GIF 조립은 lib/gifasm.mjs 가 한다.
 
 import { spawn } from "node:child_process";
 import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+import { findChrome } from "../../detail-page-init/scripts/lib/browser.mjs";
 
 import { json, section, text } from "../../detail-page-orchestrator/scripts/lib/checkkit.mjs";
+import { BUNDLE_ROOT } from "../../detail-page-orchestrator/scripts/lib/extract.mjs";
 import { guard, refuse } from "../../detail-page-orchestrator/scripts/lib/stage.mjs";
 import { buildEntry, methodOverflow, missingKeywords, straySubtitles } from "./lib/comps.mjs";
+import { concatScript, ffmpegArgs, framePacing } from "./lib/gifasm.mjs";
+import {
+  COMP_SIZE,
+  STILL_MOTION_FRAMES,
+  scaffoldStillMotion,
+  tiboSequenceJob,
+} from "./lib/motion.mjs";
 
 const COMPS_REL = path.join("work", "comps");
 const GIFS_REL = path.join("output", "media", "gifs");
+const IMAGES_REL = path.join("output", "media", "images");
+const TIBO = path.join(BUNDLE_ROOT, "god-tibo-gpt-image2-skill");
+const EXT = { "webp-q85": ".webp", "jpeg-q88": ".jpg", png: ".png" };
 const WORKERS = 4;
+
 
 const out = (line) => process.stdout.write(`${line}\n`);
 
@@ -51,24 +67,81 @@ async function newestFile(dir) {
   return best?.path ?? null;
 }
 
-function render(cwd, output, hyperframes) {
+function spawnTool(command, args, cwd, useShell = false) {
   return new Promise((resolve, reject) => {
-    const child = spawn(hyperframes, ["render", "--quality", "high", "--output", output], {
+    const child = spawn(command, args, {
       cwd,
       stdio: ["ignore", "ignore", "pipe"],
-      shell: process.platform === "win32",
+      shell: useShell && process.platform === "win32",
     });
     let stderr = "";
     child.stderr.on("data", (chunk) => {
       stderr += chunk.toString();
     });
-    child.on("error", (error) => reject(new Error(`HYPERFRAMES_SPAWN_FAILED ${error.message}`)));
+    child.on("error", (error) => reject(new Error(`SPAWN_FAILED ${error.message}`)));
     child.on("close", (code) =>
       code === 0
         ? resolve()
-        : reject(new Error(`RENDER_FAILED 종료 코드 ${code}${stderr ? ` — ${stderr.trim().split("\n")[0]}` : ""}`)),
+        : reject(
+            new Error(`RENDER_FAILED 종료 코드 ${code}${stderr ? ` — ${stderr.trim().split("\n")[0]}` : ""}`),
+          ),
     );
   });
+}
+
+/**
+ * 프레임 이미지 → GIF. **두 수단이 같은 조립기를 쓴다.**
+ *
+ * 3회차에는 hyperframes 와 god-tibo 가 각자 조립했고 둘 다 일정 fps 였다.
+ * 그래서 프레임마다 머무는 시간을 줄 방법이 없었고 3장이 0.48초에 지나갔다.
+ * 지연은 `lib/gifasm.mjs` 가 소유한다.
+ */
+async function assembleGif({ framePaths, outputPath, scenes, workDir }) {
+  const ms = framePacing(framePaths.length, { scenes });
+  const listPath = path.join(workDir, "gif-frames.txt");
+  await writeFile(
+    listPath,
+    concatScript(framePaths.map((file, index) => ({ path: file, ms: ms[index] }))),
+    "utf8",
+  );
+  await spawnTool("ffmpeg", ffmpegArgs({ concatPath: listPath, outputPath }), workDir, true);
+  return ms;
+}
+
+/** 디렉터리의 프레임 이미지. 이름 순서가 곧 프레임 순서다. */
+async function framesIn(dir) {
+  return (await readdir(dir))
+    .filter((name) => /\.(png|webp|jpe?g)$/i.test(name))
+    .sort()
+    .map((name) => path.join(dir, name));
+}
+
+/**
+ * 컴포지션의 프레임을 한 장씩 찍는다. `scaffoldStillMotion` 이 `?f=N` 을 읽는다.
+ * headless Chrome 을 쓴다 — 이 경로가 실제로 도는 것을 3회차에 확인했다.
+ */
+async function shootFrames({ chrome, indexPath, frameDir, count }) {
+  if (!chrome) throw new Error("CHROME_NOT_FOUND 컴포지션을 찍을 브라우저가 없다");
+  const url = pathToFileURL(indexPath).href;
+  const paths = [];
+  for (let index = 0; index < count; index += 1) {
+    const file = path.join(frameDir, `frame-${String(index).padStart(3, "0")}.png`);
+    await spawnTool(
+      chrome,
+      [
+        "--headless=new",
+        "--disable-gpu",
+        "--hide-scrollbars",
+        "--force-device-scale-factor=1",
+        `--window-size=${COMP_SIZE.width},${COMP_SIZE.height}`,
+        `--screenshot=${file}`,
+        `${url}?f=${index}`,
+      ],
+      frameDir,
+    );
+    paths.push(file);
+  }
+  return paths;
 }
 
 /** 워커 풀. GIF 하나가 오래 걸려도 나머지가 기다리지 않는다. */
@@ -87,7 +160,7 @@ async function pool(items, workers, handler) {
 
 try {
   const ctx = await guard("G8");
-  const doRender = process.argv.includes("--render");
+  const mode = ["--scaffold", "--render"].find((flag) => process.argv.includes(flag));
 
   const plan = await json(ctx.project, "flow-plan.json");
   if (!plan) throw new Error("PLAN_MISSING flow-plan.json 을 JSON 으로 읽을 수 없다");
@@ -96,33 +169,74 @@ try {
 
   const page = await text(ctx.project, path.join("work", "page-plan.md"));
   const terms = pageTerms(page);
+  const imageExt = EXT[ctx.policy?.photo_format] ?? ".webp";
 
-  if (!doRender) {
-    out(`brief ${briefs.length}개. 컴포지션을 **새로 쓴다** — 옛것을 재렌더하지 않는다.`);
-    out("");
+  // ── 컴포지션 만들기 ──────────────────────────────────────────────────────
+  if (mode === "--scaffold") {
+    const made = [];
+    const skipped = [];
+    for (const brief of briefs) {
+      const dir = path.join(ctx.project, COMPS_REL, brief.id);
+      await mkdir(dir, { recursive: true });
+      const meta = {
+        method: brief.method,
+        source_still: brief.source_still ?? null,
+        subtitles: (brief.frames ?? []).filter((frame) => terms.includes(frame)),
+      };
+      await writeFile(path.join(dir, "meta.json"), `${JSON.stringify(meta, null, 2)}\n`, "utf8");
+
+      if (brief.method !== "still-motion") {
+        skipped.push(`${brief.id} (${brief.method} — --render 가 직접 굽는다)`);
+        continue;
+      }
+      try {
+        const html = scaffoldStillMotion({
+          brief,
+          imageExt,
+          subtitles: meta.subtitles,
+          tokens: plan.tokens ?? {},
+        });
+        await writeFile(path.join(dir, "index.html"), html, "utf8");
+        made.push(brief.id);
+      } catch (error) {
+        skipped.push(`${brief.id}: ${error.message.split("\n")[0]}`);
+      }
+    }
+
+    out(`컴포지션 ${made.length}개를 만들었다 → ${COMPS_REL}/<brief>/index.html`);
+    out("스틸이 이미 `<img>` 로 들어가 있다. **지우지 않는다** — 게이트가 본다.");
     if (terms.length === 0) {
-      out("경고: page-plan.md 의 `## 용어 집합` 을 읽을 수 없다. 자막을 고를 근거가 없다.");
+      out("");
+      out("경고: page-plan.md 의 `## 용어 집합` 을 읽을 수 없어 자막을 비웠다.");
     } else {
       out(`자막은 이 용어에서만 고른다: ${terms.join(" · ")}`);
     }
+    if (skipped.length > 0) {
+      out("");
+      for (const line of skipped) out(`  - ${line}`);
+    }
+    out("");
+    out("패턴·자막을 손본 뒤 --render 로 굽는다.");
+    process.exit(0);
+  }
+
+  if (mode !== "--render") {
+    out(`brief ${briefs.length}개.`);
     out("");
     for (const brief of briefs) {
       out(`  ${brief.id}  [${brief.method ?? "method 없음"}]  ${brief.question ?? ""}`);
-      out(`      ${brief.start ?? ""} → ${brief.action ?? ""} → ${brief.result ?? ""}`);
-      if (brief.keywords?.length) out(`      핵심 명사: ${brief.keywords.join(", ")}`);
+      out(`      스틸 ${brief.source_still ?? "없음"} · 패턴 ${brief.pattern ?? "없음"}`);
+      if (brief.frames?.length) out(`      프레임: ${brief.frames.join(" → ")}`);
     }
     out("");
-    out(`각 brief 마다 ${COMPS_REL}/<brief>/ 에 컴포지션을 만들고 그 안에 meta.json 을 둔다.`);
-    out('  { "method": "<brief 와 같은 수단>", "subtitles": ["<용어 집합에서>"] }');
-    out("");
-    out("다 쓰면 --render 로 굽는다.");
+    out("--scaffold 로 컴포지션을 만든 뒤 --render 로 굽는다.");
     process.exit(0);
   }
 
   // ── 렌더 ────────────────────────────────────────────────────────────────
   const gifDir = path.join(ctx.project, GIFS_REL);
   await mkdir(gifDir, { recursive: true });
-  const hyperframes = ctx.lock?.runtimes?.hyperframes?.bin ?? "npx hyperframes";
+  const chrome = await findChrome();
 
   const results = await pool(briefs, WORKERS, async (brief) => {
     const compDir = path.join(ctx.project, COMPS_REL, brief.id);
@@ -131,13 +245,64 @@ try {
     try {
       meta = JSON.parse(await readFile(path.join(compDir, "meta.json"), "utf8"));
     } catch {
-      return { brief: brief.id, error: `meta.json 이 없다: ${COMPS_REL}/${brief.id}/meta.json` };
+      return { brief: brief.id, error: `meta.json 이 없다. --scaffold 를 먼저 돌린다` };
     }
+
+    // 연속 프레임은 god-tibo 가 스틸을 레퍼런스로 프레임을 만들고 GIF 까지 조립한다.
+    if (brief.method === "tibo-sequence") {
+      const stillPath = path.join(ctx.project, IMAGES_REL, `${brief.source_still}${imageExt}`);
+      try {
+        await stat(stillPath);
+      } catch {
+        return { brief: brief.id, error: `스틸이 발행되지 않았다: ${brief.source_still}` };
+      }
+      const job = tiboSequenceJob({
+        brief,
+        stillPath,
+        outputDir: compDir,
+        targetSize: "780x520",
+      });
+      const jobPath = path.join(compDir, "tibo-job.json");
+      try {
+        await writeFile(jobPath, `${JSON.stringify(job, null, 2)}\n`, "utf8");
+        await spawnTool(process.execPath, [path.join(TIBO, "scripts", "tibo-batch.mjs"), "--job", jobPath], TIBO);
+        // 프레임 하나가 장면 하나다. 보간보다 오래 머물러야 읽힌다.
+        await assembleGif({
+          framePaths: await framesIn(compDir),
+          outputPath: gifAbs,
+          scenes: true,
+          workDir: compDir,
+        });
+      } catch (error) {
+        return { brief: brief.id, error: error.message };
+      }
+      return {
+        brief: brief.id,
+        entry: buildEntry({
+          brief: brief.id,
+          meta,
+          comp: path.relative(ctx.project, jobPath).split(path.sep).join("/"),
+          gif: `${GIFS_REL.split(path.sep).join("/")}/${brief.id}.gif`,
+          sourceStill: brief.source_still,
+          frames: job.prompts.length,
+        }),
+      };
+    }
+
     const compFile = await newestFile(compDir).catch(() => null);
     if (!compFile) return { brief: brief.id, error: "컴포지션 파일이 없다" };
-
     try {
-      await render(compDir, gifAbs, hyperframes);
+      // 컴포지션은 `?f=N` 으로 프레임 하나를 그린다. 프레임을 먼저 다 찍고 조립한다 —
+      // 렌더러에게 GIF 까지 맡기면 일정 fps 가 되어 속도를 제어할 수 없다.
+      const frameDir = path.join(compDir, "frames");
+      await mkdir(frameDir, { recursive: true });
+      const framePaths = await shootFrames({
+        chrome,
+        indexPath: path.join(compDir, "index.html"),
+        frameDir,
+        count: STILL_MOTION_FRAMES,
+      });
+      await assembleGif({ framePaths, outputPath: gifAbs, scenes: false, workDir: compDir });
     } catch (error) {
       return { brief: brief.id, error: error.message };
     }
@@ -146,8 +311,9 @@ try {
       entry: buildEntry({
         brief: brief.id,
         meta,
-        comp: path.relative(ctx.project, compFile).split(path.sep).join("/"),
+        comp: path.relative(ctx.project, path.join(compDir, "index.html")).split(path.sep).join("/"),
         gif: `${GIFS_REL.split(path.sep).join("/")}/${brief.id}.gif`,
+        sourceStill: brief.source_still,
       }),
     };
   });
@@ -175,6 +341,7 @@ try {
     if (brief && entry.method !== brief.method) {
       out(`  ! ${entry.brief} method 가 brief 와 다르다 (${brief.method} ≠ ${entry.method})`);
     }
+    if (!entry.source_still) out(`  ! ${entry.brief} 에 source_still 이 없다 — 이미지에서 시작하지 않았다`);
     if (absent.length) out(`  ! ${entry.brief} 핵심 명사 누락: ${absent.join(", ")}`);
     if (stray.length) out(`  ! ${entry.brief} 자막이 용어 집합 밖: ${stray.join(", ")}`);
   }

@@ -85,6 +85,25 @@ async function context() {
 
 // ─── start ────────────────────────────────────────────────────────────────
 
+const PHOTO_EXT = /\.(jpe?g|png|webp)$/i;
+
+/**
+ * `input/photos/` 를 그대로 읽어 해시로 잠근다. 사진의 원본은 회차 폴더 안이고
+ * 목록은 디스크가 소유한다 — 잠금 파일이 디스크보다 앞서면 없는 사진이 근거가 된다.
+ */
+async function scanPhotos(project) {
+  const dir = path.join(project, "input", "photos");
+  const entries = [];
+  for (const file of (await readdir(dir).catch(() => [])).sort()) {
+    if (!PHOTO_EXT.test(file)) continue;
+    entries.push({
+      file: `input/photos/${file}`,
+      sha256: await hashFile(path.join(dir, file)),
+    });
+  }
+  return entries;
+}
+
 async function cmdStart(argv) {
   const workspace = resolveWorkspace();
   const lock = await requireEnv(workspace);
@@ -92,7 +111,7 @@ async function cmdStart(argv) {
   const name = flag(argv, "name");
   const supplierUrl = flag(argv, "supplier-url");
   const coupangUrl = flag(argv, "coupang-url");
-  const photos = flag(argv, "photos") ?? "data";
+  const photos = flag(argv, "photos");
   const modelFace = flag(argv, "model-face");
 
   const missing = [];
@@ -113,18 +132,17 @@ async function cmdStart(argv) {
   }
 
   // 회차에 필요한 것은 전부 프로젝트 아래로 모은다. 사진을 워크스페이스에 두고 참조하면
-  // 그 사진이 바뀌거나 사라졌을 때 회차를 재현할 수 없다.
-  const source = path.resolve(workspace, photos);
-  const inputDir = path.join(project, "input", "photos");
-  const photoEntries = [];
-  for (const file of (await readdir(source).catch(() => [])).sort()) {
-    if (!/\.(jpe?g|png|webp)$/i.test(file)) continue;
-    await copyFile(path.join(source, file), path.join(inputDir, file));
-    photoEntries.push({
-      file: `input/photos/${file}`,
-      sha256: await hashFile(path.join(inputDir, file)),
-    });
+  // 그 사진이 바뀌거나 사라졌을 때 회차를 재현할 수 없다. 그래서 사진이 사는 곳은
+  // `input/photos/` 하나다. `--photos` 는 다른 데 있는 것을 들여올 때만 쓴다.
+  if (typeof photos === "string") {
+    const source = path.resolve(workspace, photos);
+    const inputDir = path.join(project, "input", "photos");
+    for (const file of (await readdir(source).catch(() => [])).sort()) {
+      if (!PHOTO_EXT.test(file)) continue;
+      await copyFile(path.join(source, file), path.join(inputDir, file));
+    }
   }
+  const photoEntries = await scanPhotos(project);
 
   await writeFile(
     path.join(project, "work", "inputs.lock.json"),
@@ -134,7 +152,7 @@ async function cmdStart(argv) {
         locked_at: new Date().toISOString(),
         supplier_url: supplierUrl,
         coupang_url: coupangUrl,
-        photos: { source: photos, count: photoEntries.length, entries: photoEntries },
+        photos: { count: photoEntries.length, entries: photoEntries },
         policy: {
           model_face: typeof modelFace === "string" ? modelFace : lock.policy.model_face,
         },
@@ -166,7 +184,7 @@ async function cmdStart(argv) {
   );
 
   out(`프로젝트  ${path.relative(workspace, project)}`);
-  out(`사진      ${photoEntries.length}장 → input/photos/ (원본 ${photos}/)`);
+  out(`사진      ${photoEntries.length}장 · input/photos/ (더 넣으면 orchestrate photos)`);
   out(`얼굴 정책 ${typeof modelFace === "string" ? modelFace : lock.policy.model_face}`);
   out("");
   await printTable({ workspace, project, state });
@@ -317,6 +335,20 @@ async function cmdLock(argv) {
   };
   await writeFile(lockFile, `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
   out(`잠금 기록: ${target}`);
+}
+
+// ─── photos ───────────────────────────────────────────────────────────────
+
+/** 시작한 뒤에 `input/photos/` 에 넣은 사진을 다시 잠근다. */
+async function cmdPhotos() {
+  const { project } = await context();
+  const entries = await scanPhotos(project);
+  const lockFile = path.join(project, "work", "inputs.lock.json");
+  const parsed = JSON.parse(await readFile(lockFile, "utf8"));
+  parsed.photos = { count: entries.length, entries };
+  await writeFile(lockFile, `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
+  out(`사진 ${entries.length}장 잠금 · input/photos/`);
+  for (const entry of entries) out(`  ${entry.file}`);
 }
 
 // ─── capture ──────────────────────────────────────────────────────────────
@@ -574,6 +606,7 @@ const COMMANDS = {
   gates: cmdGates,
   gate: cmdGate,
   lock: cmdLock,
+  photos: cmdPhotos,
   capture: cmdCapture,
   run: cmdRun,
   report: cmdReport,
@@ -584,7 +617,7 @@ const argv = process.argv.slice(2);
 const command = argv[0];
 
 if (!command || !COMMANDS[command]) {
-  out("orchestrate <start|gates|gate|lock|capture|run|report|doctor>");
+  out("orchestrate <start|gates|gate|lock|photos|capture|run|report|doctor>");
   out("트래커는 track.mjs 로 띄운다.");
   process.exitCode = command ? 1 : 0;
 } else {

@@ -29,7 +29,14 @@ try {
   if (!pagePlan) throw new Error("PAGE_PLAN_MISSING work/page-plan.md 이 없다");
 
   const imageExt = EXT[ctx.policy?.photo_format] ?? ".webp";
-  const html = renderHtml(plan, { imageExt });
+
+  // G6 가 실제로 발행한 컷만 싣는다. 플랜은 선별 결과를 모른다.
+  const selection = await json(ctx.project, path.join("work", "selection.json"));
+  const accepted = selection
+    ? new Set((selection.entries ?? []).filter((e) => e.decision === "accept").map((e) => e.cut))
+    : null;
+
+  const html = renderHtml(plan, { imageExt, accepted });
 
   await mkdir(path.join(ctx.project, "output"), { recursive: true });
   await writeFile(path.join(ctx.project, HTML_REL), html, "utf8");

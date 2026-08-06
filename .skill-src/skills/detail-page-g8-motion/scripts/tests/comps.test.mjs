@@ -19,14 +19,29 @@ const entry = buildEntry({
   gif: "output/media/gifs/gf-01.gif",
 });
 
-test("색인 항목에 brief·method·자막·경로가 다 있다", () => {
+test("색인 항목에 brief·method·자막·스틸·경로가 다 있다", () => {
   assert.deepEqual(entry, {
     brief: "gf-01",
     method: "svg",
     subtitles: ["손등"],
+    source_still: null,
+    frames: 0,
     comp: "work/comps/gf-01/scene.json",
     gif: "output/media/gifs/gf-01.gif",
   });
+});
+
+test("입력 스틸을 색인에 남긴다 — 이 값이 비면 도형에서 시작했다는 뜻이다", () => {
+  const withStill = buildEntry({
+    brief: "gf-03",
+    meta: { method: "still-motion" },
+    comp: "a",
+    gif: "b",
+    sourceStill: "cut-07",
+    frames: 12,
+  });
+  assert.equal(withStill.source_still, "cut-07");
+  assert.equal(withStill.frames, 12);
 });
 
 test("meta 가 없으면 method 를 null 로 남긴다 — 없는 채로 통과시키지 않는다", () => {

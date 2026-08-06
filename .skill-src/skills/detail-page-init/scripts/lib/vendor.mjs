@@ -52,12 +52,14 @@ export async function vendorHyperframes({ workspace, install = true }) {
     return { mode: "project-local", path: "motion/", pin: HYPERFRAMES_PIN, installed: false };
   }
 
-  // shell: true 로 인자를 넘기면 이스케이프되지 않는다. Windows 에서는 npm.cmd 를 직접 부른다.
+  // Windows 는 Node 18.20/20.12 이후 shell 없이 .cmd 를 spawn 하지 않는다 — 거기서만 shell 을 켠다.
+  // 인자가 전부 고정 문자열이고 경로는 cwd 옵션으로 가므로 셸이 해석할 입력이 없다.
   const npm = process.platform === "win32" ? "npm.cmd" : "npm";
   const result = spawnSync(npm, ["install", "--omit=dev", "--no-audit", "--no-fund"], {
     cwd: dir,
     encoding: "utf8",
     timeout: 180000,
+    shell: process.platform === "win32",
   });
 
   const after = await readJson(path.join(dir, "node_modules", "hyperframes", "package.json"));

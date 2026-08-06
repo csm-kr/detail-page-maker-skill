@@ -12,6 +12,23 @@ description: detail-page-orchestrator 가 G9 에서 호출한다. 발행 플랜�
 
 2회차에 빌더에 한글 문자열 약 100개가 박혀 있었고, 콜아웃·지시선 좌표가 비결정적 생성 이미지에 하드코딩돼 조용히 깨질 구조였다.
 
+4회차에는 그것을 다 고쳤는데도 "쿠팡과 비교해 상업적이지 않다" 는 말을 들었다.
+원인은 **타입 사다리가 한 단**이었다는 것이다. `.headline` 하나로 히어로도 규격표도
+주의사항도 찍었고, 서로 다른 글자 크기가 10가지뿐이었다 (기준작은 21가지).
+크기가 한 단이면 위계가 없고, 위계가 없으면 눈이 어디를 먼저 볼지 정하지 못한다.
+
+## 화려함은 잰다
+
+`../detail-page-orchestrator/references/benchmark/BENCHMARK.md` 의 여섯 지표다.
+**하한은 두 기준작 실측의 최솟값**이고 사람이 고르지 않는다.
+
+```
+sections 13 · fullBleed 4 · overlays 3 · visualStages 8 · maxTypePx 116 · typeScale 21
+```
+
+조립기의 타입 사다리(`scripts/lib/render.mjs` 의 `STYLE`)가 이 하한의 근거다.
+단을 합치거나 크기를 낮추면 게이트에 걸린다. 그러라고 있는 값들이다.
+
 ## 진입
 
 ```bash

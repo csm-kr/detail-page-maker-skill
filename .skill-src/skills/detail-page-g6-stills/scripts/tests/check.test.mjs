@@ -14,6 +14,7 @@ import { makeCheckbed } from "../../../detail-page-orchestrator/scripts/tests/fi
 const PLAN = "flow-plan.json";
 const SELECTION = path.join("work", "selection.json");
 const IDS = ["c1", "c2", "c3"];
+const BASE = path.join("work", "stills", "base", "frame-000.png");
 
 const accepted = (cut, extra = {}) => ({
   cut,
@@ -23,9 +24,10 @@ const accepted = (cut, extra = {}) => ({
   ...extra,
 });
 
-async function bed({ entries, modelFace = "crop-below-chin", cuts = IDS } = {}) {
+async function bed({ entries, modelFace = "crop-below-chin", cuts = IDS, base = true } = {}) {
   const b = await makeCheckbed({ modelFace });
   await b.write(PLAN, { cuts: cuts.map((id) => ({ id })) });
+  if (base) await b.write(BASE, "PNG 자리\n");
   if (entries !== null) {
     await b.write(SELECTION, { entries: entries ?? IDS.map((id) => accepted(id)) });
   }
@@ -214,6 +216,16 @@ test("no_product 컷에 레퍼런스가 붙어 있으면 거부한다 — 제품
     const { reasons } = await check(b.ctx);
     assert.equal(reasons.length, 1, reasons.join(" / "));
     assert.match(reasons[0], /no_product 컷에 레퍼런스가 붙어 있다: c2/);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("기준 컷이 없으면 거부한다 — 컷마다 따로 생성되면 같은 제품으로 보이지 않는다", async () => {
+  const b = await bed({ base: false });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.ok(reasons.some((r) => /기준 컷이 없다/.test(r)), reasons.join(" / "));
   } finally {
     await b.cleanup();
   }

@@ -6,7 +6,7 @@
 // 그러므로 아는 호스트는 추출기로 보내고, 내장 캡처는 그 외 페이지용으로만 남긴다.
 
 import assert from "node:assert/strict";
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
@@ -47,6 +47,20 @@ test("추출기가 지목한 스킬이 실제로 번들에 있다", async () => 
     const dir = path.join(SKILLS_ROOT, "detail-page-orchestrator", ".agents", "skills", entry.skill);
     await access(path.join(dir, "SKILL.md"));
     await access(path.join(dir, "scripts", entry.entry));
+  }
+});
+
+test("단계 문서가 추출기 경로로 보낸다", async () => {
+  // 배선은 `orchestrate capture` 안에 있는데 단계 문서가 `lock --read` 만 가리키면
+  // 에이전트는 추출기를 한 번도 부르지 않는다. 그러면 위의 선택 로직이 전부 죽은
+  // 코드가 된다 — 3회차가 그렇게 지나갔다.
+  for (const skill of ["detail-page-g1-fact", "detail-page-g2-reference"]) {
+    const doc = await readFile(path.join(SKILLS_ROOT, skill, "SKILL.md"), "utf8");
+    assert.match(
+      doc,
+      /orchestrate capture --url/,
+      `${skill}/SKILL.md 가 capture 를 지시하지 않는다`,
+    );
   }
 });
 

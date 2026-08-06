@@ -33,7 +33,6 @@ detail-page-orchestrator             →  node scripts/orchestrate.mjs start \
 ```text
 팔토시-스킬/                          워크스페이스 루트 (git 저장소 아님)
 │
-├── data/                            ★ 실물 제품 사진을 여기 넣는다
 ├── docs/                            문서. 이 파일이 있는 곳
 │   ├── reference/templates.md         프롬프트 템플릿 (G4가 전량 검사)
 │   └── history/                       기록. 갱신하지 않는다
@@ -56,6 +55,7 @@ detail-page-orchestrator             →  node scripts/orchestrate.mjs start \
 ├── .trash/<ISO 타임스탬프>/          ○ init --prune 이 옮긴 것. 삭제 아님
 │
 └── projects/<이름>-<타임스탬프>/      ● start 생성. 회차마다 하나
+    └── input/photos/                ★ 실물 제품 사진을 여기 넣는다 (없어도 된다)
     ├── flow-plan.json                 G3 작성 → G5 갱신. 화면 문자열 전량
     ├── work/
     │   ├── gates.json                 게이트 상태·해시·시각·수행 호스트
@@ -101,7 +101,7 @@ detail-page-orchestrator             →  node scripts/orchestrate.mjs start \
 | --- | --- | --- |
 | 공급처 URL | `start --supplier-url` | 도매꾹 등 |
 | 기준 쿠팡 URL | `start --coupang-url` | 흐름을 베낄 기준작 **하나** |
-| 실물 제품 사진 | **`data/`** | 없으면 공급처 동일 SKU로 진행. 있으면 최우선 |
+| 실물 제품 사진 | **`projects/<회차>/input/photos/`** | 없으면 공급처 동일 SKU로 진행. 있으면 최우선. start 뒤에 넣었으면 `orchestrate photos` 로 잠근다 |
 | ChatGPT 로그인 | **전용 브라우저 프로필** (아래) | **사용자만 한다.** G4가 이것을 쓴다 |
 | Codex 로그인 | `codex login` | **사용자만 한다.** G6 이미지 생성이 `~/.codex/auth.json`을 읽는다 |
 
@@ -236,9 +236,11 @@ $ node scripts/init.mjs
 node scripts/orchestrate.mjs start \
   --name 팔토시 \
   --supplier-url https://… \
-  --coupang-url https://… \
-  --photos data/
+  --coupang-url https://…
 ```
+
+사진은 인자로 받지 않는다. `start` 가 만든 `input/photos/` 에 넣고 `orchestrate photos`
+로 잠근다 — 사진은 회차 폴더 안에서만 산다. 다른 데 있는 것을 들여올 때만 `--photos <디렉터리>`.
 
 `gates.json`과 `inputs.lock.json`을 만들고 게이트 표를 출력한다.
 `env.lock.json`이 없거나, 설치 해시가 어긋나거나, **호스트 홈이 오염돼 있으면 거부한다.**

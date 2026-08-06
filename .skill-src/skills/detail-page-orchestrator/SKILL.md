@@ -18,7 +18,7 @@ description: 공급처 URL과 지정 쿠팡 URL로 폭 780px 상세페이지를 
 
    ```bash
    node scripts/orchestrate.mjs start --name <이름> \
-     --supplier-url <공급처> --coupang-url <기준 쿠팡> [--photos data]
+     --supplier-url <공급처> --coupang-url <기준 쿠팡>
    ```
 
 3. 출력된 표에서 **첫 번째 미통과 게이트의 스킬을 부른다.** 순서를 바꾸지 않는다.
@@ -47,6 +47,29 @@ description: 공급처 URL과 지정 쿠팡 URL로 폭 780px 상세페이지를 
 | `doctor` | 런타임·설치·정책 확인 |
 
 트래커는 `node scripts/track.mjs`.
+
+## 품질의 정의
+
+이 스킬은 "단계를 밟았는가" 가 아니라 **"기준작만큼 나왔는가"** 를 본다.
+
+| 문서 | 무엇 |
+| --- | --- |
+| [`references/benchmark/BENCHMARK.md`](references/benchmark/BENCHMARK.md) | 기준작 2개와 실측 하한. G3·G9 가 검사한다 |
+| [`references/sales-story.md`](references/sales-story.md) | 판매 서사 순서와 `role`, 소구점 계약. G2·G3 가 검사한다 |
+
+**하한은 두 기준작 실측의 최솟값이다.** 사람이 고르지 않는다 — 낮춰 잡은 하한은
+하한이 아니라 면제다. 올리고 싶으면 하한이 아니라 기준작을 바꾼다.
+
+```
+sections 13 · fullBleed 4 · overlays 3 · visualStages 8 · maxTypePx 116 · typeScale 21
+```
+
+- 공급처와 쿠팡이 쓰는 판매 표현은 **그대로 쓴다.** 과장이어도 원문에 있으면 쓴다.
+  G2 가 6개 이상 모으고 G3 이 3개 이상 실제로 쓰는지 본다
+- 고객 화면에 제작 과정을 쓰지 않는다. 한계 고지는 **푸터 한 줄**로 모은다
+- GIF 의 입력은 **발행된 스틸**이다. 도형에 애니메이션을 걸지 않는다
+- GIF 는 **얼마나 오래 보이는가**도 잰다. 첫 프레임 0.8초, 마지막 1초, 한 바퀴 2.5초 이상
+- 목업은 **밖에서** 온다. 우리 HTML 을 찍은 스크린샷은 목업이 아니라 결과물이다
 
 ## 규칙
 
