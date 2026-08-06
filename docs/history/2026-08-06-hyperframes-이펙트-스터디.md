@@ -133,6 +133,13 @@ MP4 가 아니라 **PNG 시퀀스**다. 그대로 `lib/gifasm.mjs` 에 넣을 �
 속도 제어는 우리가 소유하므로 조립기를 안 바꿔도 된다. `lint` · `check` · `validate`
 (헤드리스 JS 오류·누락 자산·대비 검사) 도 같이 쓸 수 있다.
 
+**갈아탔다.** `--render` 가 `snapshot --at <시각들> --no-end` 로 프레임을 받는다.
+12프레임 6~8초 (Chrome 은 프로세스 12번, 약 11초).
+
+옮기면서 계약을 안 읽고 시작해 **두 번 조용히 실패했다** — 클립이 없어서, 그리고
+자산을 `../` 로 가리켜서. 둘 다 12프레임이 전부 같은 그림인데 렌더는 성공이라고 했다.
+`hyperframes validate .` 이 둘 다 한 줄로 말해 준다. 아래 1단계를 건너뛴 대가다.
+
 기록은 [`detail-page-g8-motion/references/render-path.md`](../../.skill-src/skills/detail-page-g8-motion/references/render-path.md) 에 옮겼다.
 G8 세션의 컨텍스트 팩이 그 문서를 본문으로 받는다 — 이 파일은 사람이 읽는 기록이고,
 게이트가 읽는 정본은 스킬 안에 있어야 한다.

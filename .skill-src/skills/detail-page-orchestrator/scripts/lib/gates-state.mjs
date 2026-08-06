@@ -18,6 +18,8 @@ export const RUNNING = "RUNNING";
 export const PASSED = "PASSED";
 export const STALE = "STALE";
 export const REJECTED = "REJECTED";
+/** 사람이 봐야 끝나는 자리. 실패가 아니다 — 재시도로 풀리지 않는다. */
+export const BLOCKED = "BLOCKED";
 
 export const SYMBOL = {
   [PENDING]: "✗",
@@ -25,6 +27,7 @@ export const SYMBOL = {
   [PASSED]: "○",
   [STALE]: "⚠",
   [REJECTED]: "⛔",
+  [BLOCKED]: "✋",
 };
 
 export function statePath(project) {
@@ -71,6 +74,7 @@ export function recordStart(state, id, { host }) {
   entry.started_at = new Date().toISOString();
   entry.by_host = host;
   delete entry.rejected;
+  delete entry.blocked; // 사람이 보고 다시 시작한다. 막힘은 영구 표시가 아니다
   return entry;
 }
 
@@ -100,6 +104,23 @@ export function recordReject(state, id, reasons) {
   return entry;
 }
 
+/**
+ * 사람 대기 기록. G6 의 컷 선별, init 의 두 로그인처럼 **에이전트가 아무리 잘해도
+ * 못 끝내는** 자리가 있다. REJECTED 로 남기면 표를 보는 사람이 "검사에 걸렸다" 와
+ * "네가 봐야 한다" 를 구분할 수 없다.
+ *
+ * 거부 횟수를 늘리지 않는다 — 막힌 것은 그 게이트가 잡은 결함이 아니다 (ADR-0007).
+ */
+export function recordBlock(state, id, reason) {
+  if (!reason || !String(reason).trim()) {
+    throw new Error("BLOCK_REASON_REQUIRED 왜 막혔는지가 없으면 REJECTED 와 같다");
+  }
+  const entry = state.gates[id] ?? (state.gates[id] = {});
+  entry.status = BLOCKED;
+  entry.blocked = { at: new Date().toISOString(), reason: String(reason).trim() };
+  return entry;
+}
+
 function elapsedMin(entry) {
   if (!entry?.started_at) return null;
   const end = entry.ended_at ? Date.parse(entry.ended_at) : Date.now();
@@ -118,7 +139,7 @@ export async function evaluate(state, { workspace, project }) {
     if (g.id === "INIT") continue; // requireEnv 가 이미 본다
     const entry = state.gates[g.id] ?? { status: PENDING };
     let status = entry.status ?? PENDING;
-    let reason = null;
+    let reason = status === BLOCKED ? (entry.blocked?.reason ?? null) : null;
 
     if (status === PASSED) {
       const current = await hashSpecs(g.inputs, ctx);

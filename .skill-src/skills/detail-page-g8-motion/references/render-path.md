@@ -29,8 +29,11 @@ node scripts/run.mjs --probe
 
 | 경로 | 무엇을 재는가 | 4회차 실측 |
 | --- | --- | ---: |
-| `hyperframes` | 벤더링된 CLI 가 쓸 수 있는 상태인가 (`doctor`) | **7.3초** |
-| `chrome` | G8 이 실제로 프레임을 찍는 경로 (1장 780×520) | **0.9초** |
+| `hyperframes` | **실제로 12프레임이 나오는가** (`snapshot`) | **6~8초** |
+| `chrome` | 프레임 1장 780×520 | **0.9초** (×12 = 약 11초) |
+
+`doctor` 는 재지 않는다 — 그건 렌더가 아니다. 프로브는 실제 컴포지션을 만들고
+자산까지 안에 넣은 뒤 `snapshot` 을 돌린다. **그래야 계약을 확인한 것이다.**
 
 ### 240초는 무엇이었나
 
@@ -60,27 +63,66 @@ MP4 가 아니라 **PNG 시퀀스**다. 그대로 `lib/gifasm.mjs` 에 넣을 �
 
 같이 쓸 수 있는 것: `lint` · `check` · `validate` (헤드리스에서 JS 오류·누락 자산·대비 검사).
 
-**아직 안 옮겼다.** 지금 `--render` 는 `?f=N` + Chrome 스크린샷이다. 옮기려면
-컴포지션 계약을 먼저 읽는다 — `hyperframes-core/references/minimal-composition.md`,
-`determinism-rules.md`, `hyperframes-animation/rules-index.md`. 계약을 모르고 CLI 만
-갈아 끼우면 스틸이 빠지고 `compUsesStill()` 이 거부한다.
+**옮겼다.** `--render` 가 `hyperframes snapshot --at <시각들> --no-end` 로 프레임을 받는다.
+브라우저를 한 번만 띄우므로 12장에 6~8초다 (Chrome 은 프로세스 12번, 약 11초).
 
-## 지금 쓰는 경로 — `?f=N` + Chrome
+`--at` 으로 시각을 직접 준다. 기본 `--frames N` 은 마지막을 **97% 지점**에서 찍어
+결과 상태에 도달하지 못한 프레임이 마지막이 된다 — MR-006 위반이다.
 
-컴포지션은 프레임 번호를 쿼리로 받는다.
+## 컴포지션 계약 — 두 가지를 어겼다가 조용히 실패했다
 
-```js
-const t = f / (STILL_MOTION_FRAMES - 1);   // 0 → 1
+`--scaffold` 가 만드는 것은 hyperframes 컴포지션이다.
+
+```html
+<div id="root" data-composition-id="main" data-start="0" data-duration="1.2"
+     data-width="780" data-height="520">
+  <div class="clip" data-start="0" data-duration="1.2" data-track-index="1">
+    <img class="shot" src="./c07.webp">   ← 발행된 스틸
+  </div>
+</div>
+<script>
+  const tl = gsap.timeline({ paused: true });   // 일시정지된 타임라인 하나
+  tl.to(rule, { scaleY: 1, ease: "power1.out", duration: D }, 0);
+  window.__timelines["main"] = tl;
+</script>
 ```
 
-프레임마다 Chrome 을 한 번 띄워 `--screenshot` 을 찍는다. 12장에 약 11초.
+### 1. 클립이 없으면 타임라인이 안 걸린다
 
-**결정론은 지킨다** — `t` 가 프레임 번호의 순함수이고 `Math.random()` 도 `Date.now()` 도
-없다. hyperframes 의 결정론 계약과 같은 조건이다.
+계약: *"At least one clip (any element with `data-start`, `data-duration`,
+`data-track-index`)"*. 빠뜨렸더니 **12프레임이 전부 같은 그림**이었다.
 
-**어기고 있는 것 하나:** `measure` 패턴이 `rule.style.height` 를 트윈한다.
-hyperframes 규칙은 레이아웃 속성(`width`/`height`/`top`/`left`)을 트윈하지 말라고 한다.
-`transform: scaleY()` 나 SVG path draw 로 바꿔야 한다. 규칙을 안 읽어서 어겼다.
+### 2. `../` 로 자산을 가리키면 404 다
+
+hyperframes 는 **컴포지션 디렉터리를 웹 루트로 서빙하고 `../` 를 거부한다.**
+
+```
+[StaticGuard] asset path(s) traversing above the project root with "../"
+✗ 404 loading motion/node_modules/gsap/dist/gsap.min.js
+✗ gsap is not defined
+```
+
+gsap 이 안 실려 스크립트가 죽고, 타임라인이 등록되지 않고, 또 12프레임이 전부 같은
+그림이었다. **그런데 렌더는 성공이라고 했다.** 그래서 `--scaffold` 가 자산을 안으로 복사한다.
+
+| 자산 | 어디서 | 컴포지션 안 이름 |
+| --- | --- | --- |
+| gsap | `motion/node_modules/gsap/dist/gsap.min.js` | `gsap.min.js` |
+| 한글 폰트 | `runtime/fonts/NotoSansKR-VF.ttf` | `font.ttf` (+ `@font-face`) |
+| 스틸 | `output/media/images/<컷>.webp` | `<컷>.webp` — **컷 id 를 남긴다** |
+
+폰트도 계약이다. `validate` 가 이렇게 경고한다 — *"Font families used without
+@font-face declaration: noto sans kr … Text will fall back to a generic font."*
+
+두 실패 모두 **조용히 같은 그림이 나오는** 실패다. `hyperframes validate .` 이
+둘 다 한 줄로 말해 준다. 컴포지션을 고쳤으면 이걸 먼저 돌린다.
+
+### 결정론과 레이아웃 트윈
+
+- 절대값만 쓴다. `+=` 상대 트윈은 양방향 seek 에서 어긋난다
+- `Math.random()` · `Date.now()` 를 쓰지 않는다
+- **레이아웃 속성(`width`/`height`/`top`/`left`)을 트윈하지 않는다.**
+  옛 `measure` 는 `rule.style.height` 를 트윈했다 — 규칙을 안 읽어서 어겼다. 이제 `scaleY` 다
 
 ## 순서
 

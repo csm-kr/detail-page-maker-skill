@@ -24,11 +24,47 @@ export const MAX_ATTEMPTS = 3;
 const EXEC_REL = path.join("work", "exec");
 
 /**
+ * 게이트 세션이 쓸 수 있는 도구. **게이트는 파일을 고치고 node 를 부른다. 그 이상은 없다.**
+ * 프롬프트가 아니라 실행기가 정한다 — 프롬프트로 부탁한 제약은 제약이 아니다.
+ */
+export const ALLOWED_TOOLS = [
+  "Read",
+  "Write",
+  "Edit",
+  "Glob",
+  "Grep",
+  "TodoWrite",
+  "Bash(node *)",
+];
+
+/**
+ * 막는 것. 수집은 `orchestrate capture` 가 하고 해시로 잠근다 —
+ * 세션이 직접 받아 오면 근거가 잠금 밖에 생기고 회차가 재현되지 않는다.
+ */
+export const DISALLOWED_TOOLS = ["WebFetch", "WebSearch"];
+
+/**
  * `claude -p` 인자. **프롬프트는 여기 없다 — stdin 으로 넘긴다.**
  * 팩이 30KB 이고 Windows 명령줄 상한은 32KB 다. argv 로 넘기면 어느 날 조용히 잘린다.
+ *
+ * 권한을 통째로 끄지 않는다. `--dangerously-skip-permissions` 를 게이트마다 도는 것은
+ * 자식이 god-tibo 를 부르고 Chrome 을 띄우는 것을 무제한 허용하는 것이다.
+ * 편집은 자동 승인하되(`acceptEdits`) 작업 범위는 **회차 폴더**로 묶는다.
  */
-export function execArgs() {
-  return ["-p", "--dangerously-skip-permissions", "--output-format", "json"];
+export function execArgs(project) {
+  return [
+    "-p",
+    "--output-format",
+    "json",
+    "--permission-mode",
+    "acceptEdits",
+    "--add-dir",
+    project,
+    "--allowedTools",
+    ALLOWED_TOOLS.join(","),
+    "--disallowedTools",
+    DISALLOWED_TOOLS.join(","),
+  ];
 }
 
 export function logPath(project, id, attempt) {
@@ -130,7 +166,7 @@ export async function runExec(id, ctx, options = {}) {
     const startedAt = Date.now();
     const child = await spawn({
       command,
-      args: execArgs(),
+      args: execArgs(ctx.project),
       stdin,
       cwd: ctx.project,
       timeoutMs: EXEC_TIMEOUT_MS,

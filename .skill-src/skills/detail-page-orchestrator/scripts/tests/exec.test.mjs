@@ -36,7 +36,7 @@ async function bed() {
 test("프롬프트는 argv 가 아니라 stdin 으로 넘긴다", async () => {
   // 팩이 30KB 다. Windows 의 명령줄 상한은 32KB 이고 인용까지 하면 더 짧다.
   // argv 로 넘기면 게이트 하나가 커진 날 조용히 잘린다.
-  const args = execArgs();
+  const args = execArgs("/tmp/p");
   assert.ok(args.includes("-p"), "-p 가 없다");
   assert.deepEqual(args.slice(args.indexOf("--output-format"), args.indexOf("--output-format") + 2), [
     "--output-format",
@@ -46,6 +46,45 @@ test("프롬프트는 argv 가 아니라 stdin 으로 넘긴다", async () => {
     !args.some((arg) => arg.length > 200),
     `프롬프트가 argv 에 들어 있다: ${args.join(" ")}`,
   );
+});
+
+test("권한을 통째로 끄지 않는다", async () => {
+  // --dangerously-skip-permissions 를 루프에서 7번 도는 것이 앞선 위험이었다.
+  // 게이트는 파일을 고치고 node 를 부른다. 그 이상은 필요 없다.
+  const args = execArgs("/tmp/project");
+  assert.ok(
+    !args.includes("--dangerously-skip-permissions"),
+    "권한을 통째로 껐다",
+  );
+  assert.deepEqual(
+    args.slice(args.indexOf("--permission-mode"), args.indexOf("--permission-mode") + 2),
+    ["--permission-mode", "acceptEdits"],
+  );
+  // 작업 범위는 회차 폴더다. 워크스페이스 전체가 아니다.
+  assert.deepEqual(args.slice(args.indexOf("--add-dir"), args.indexOf("--add-dir") + 2), [
+    "--add-dir",
+    "/tmp/project",
+  ]);
+});
+
+test("게이트 세션은 웹을 직접 받지 않는다", async () => {
+  // 수집은 orchestrate capture 가 하고 해시로 잠근다. 세션이 직접 받아 오면
+  // 근거가 잠금 밖에 생기고 회차가 재현되지 않는다.
+  const args = execArgs("/tmp/project");
+  const disallowed = args[args.indexOf("--disallowedTools") + 1] ?? "";
+  for (const tool of ["WebFetch", "WebSearch"]) {
+    assert.ok(disallowed.includes(tool), `${tool} 이 막혀 있지 않다`);
+  }
+});
+
+test("허용 도구는 파일 편집과 node 뿐이다", async () => {
+  const args = execArgs("/tmp/project");
+  const allowed = args[args.indexOf("--allowedTools") + 1] ?? "";
+  assert.match(allowed, /Bash\(node \*\)/, "게이트는 node 로만 일한다");
+  for (const tool of ["Read", "Write", "Edit"]) {
+    assert.ok(allowed.includes(tool), `${tool} 이 없다`);
+  }
+  assert.ok(!/Bash\(\*\)|Bash(?!\()/.test(allowed), `Bash 를 통째로 열었다: ${allowed}`);
 });
 
 test("타임아웃은 harness 와 같은 30분이다", () => {

@@ -29,14 +29,15 @@ test("수단은 두 가지뿐이다", () => {
   assert.deepEqual(METHODS, ["still-motion", "tibo-sequence"]);
 });
 
-test("컴포지션에서 발행된 스틸까지의 경로", () => {
-  // work/comps/<brief>/index.html → 프로젝트 루트까지 세 단계
-  assert.equal(stillHref("cut-03", ".webp"), "../../../output/media/images/cut-03.webp");
+test("컴포지션 안에서의 스틸 이름", () => {
+  // hyperframes 는 컴포지션 디렉터리를 웹 루트로 서빙하고 `../` 를 거부한다.
+  // 스틸은 --scaffold 가 안으로 복사하고, 파일 이름에 컷 id 를 남긴다.
+  assert.equal(stillHref("cut-03", ".webp"), "./cut-03.webp");
 });
 
 test("scaffold 가 스틸을 실제 이미지로 넣는다", () => {
   const html = scaffoldStillMotion({ brief: BRIEF, imageExt: ".webp", subtitles: ["점착면"] });
-  assert.match(html, /<img[^>]+src="\.\.\/\.\.\/\.\.\/output\/media\/images\/cut-03\.webp"/);
+  assert.match(html, /<img[^>]+src="\.\/cut-03\.webp"/);
 });
 
 test("scaffold 가 자막을 넣는다", () => {
@@ -59,7 +60,7 @@ test("이미지가 없는 컴포지션을 잡는다", () => {
 });
 
 test("다른 컷을 쓴 컴포지션도 잡는다", () => {
-  const wrong = `<img src="../../../output/media/images/cut-99.webp">`;
+  const wrong = `<img src="./cut-99.webp">`;
   assert.equal(compUsesStill(wrong, "cut-03"), false);
   assert.equal(compUsesStill(wrong, "cut-99"), true);
 });
@@ -105,7 +106,7 @@ test("reveal 은 첫 프레임을 통째로 가리지 않는다", () => {
   // 1회차 검증에서 gif-02 의 첫 프레임이 완전 검정으로 나왔다.
   // 모든 GIF 의 첫 프레임에는 제품이 보여야 한다.
   const html = scaffoldStillMotion({ brief: BRIEF, imageExt: ".webp" });
-  const start = /inset\(0 0 0 " \+ \((\d+) \+/.exec(html);
+  const start = /tl\.set\(veil, \{ opacity: [\d.]+, xPercent: (\d+) \}/.exec(html);
   assert.ok(start, "reveal 의 시작 위치를 읽을 수 없다");
   assert.ok(Number(start[1]) > 0, "첫 프레임이 화면 전체를 덮는다");
 });

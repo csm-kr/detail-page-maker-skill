@@ -11,7 +11,7 @@
 //   run.mjs --render    → 두 수단 모두 **프레임까지만** 만들고 GIF 조립은 lib/gifasm.mjs 가 한다.
 
 import { spawn } from "node:child_process";
-import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -25,7 +25,11 @@ import { concatScript, ffmpegArgs, framePacing } from "./lib/gifasm.mjs";
 import {
   COMP_SIZE,
   STILL_MOTION_FRAMES,
+  TIMELINE_SEC,
+  compositionAssets,
+  compositionConfig,
   scaffoldStillMotion,
+  snapshotTimes,
   tiboSequenceJob,
 } from "./lib/motion.mjs";
 import { RENDER_BUDGET_MS, probeLine } from "./lib/renderprobe.mjs";
@@ -36,6 +40,11 @@ const IMAGES_REL = path.join("output", "media", "images");
 const TIBO = path.join(BUNDLE_ROOT, "god-tibo-gpt-image2-skill");
 const EXT = { "webp-q85": ".webp", "jpeg-q88": ".jpg", png: ".png" };
 const WORKERS = 4;
+/** 프로브가 스틸 자리에 놓는 1×1 PNG. 없으면 404 가 나고 무엇이 실패했는지 흐려진다. */
+const ONE_PIXEL_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64",
+);
 
 
 const out = (line) => process.stdout.write(`${line}\n`);
@@ -130,32 +139,62 @@ async function framesIn(dir) {
     .map((name) => path.join(dir, name));
 }
 
+/** 벤더링된 hyperframes CLI. `env.lock.json` 이 경로를 갖고 있다. */
+function hyperframesBin(workspace, lock) {
+  const vendored = lock?.runtimes?.hyperframes?.path;
+  if (!vendored) throw new Error("VENDOR_MISSING env.lock.json 에 hyperframes 경로가 없다");
+  return path.join(
+    path.resolve(workspace, vendored),
+    "node_modules",
+    "hyperframes",
+    "bin",
+    "hyperframes.mjs",
+  );
+}
+
 /**
- * 컴포지션의 프레임을 한 장씩 찍는다. `scaffoldStillMotion` 이 `?f=N` 을 읽는다.
- * headless Chrome 을 쓴다 — 이 경로가 실제로 도는 것을 3회차에 확인했다.
+ * 컴포지션이 쓰는 자산을 **안으로 복사한다.**
+ *
+ * hyperframes 는 컴포지션 디렉터리를 웹 루트로 서빙하고 `../` 를 거부한다. 처음에
+ * 상대 경로로 가리켰더니 gsap 이 404 로 죽었고, 타임라인이 등록되지 않았고,
+ * **12프레임이 전부 같은 그림으로 나왔는데 렌더는 성공이라고 했다.**
  */
-async function shootFrames({ chrome, indexPath, frameDir, count }) {
-  if (!chrome) throw new Error("CHROME_NOT_FOUND 컴포지션을 찍을 브라우저가 없다");
-  const url = pathToFileURL(indexPath).href;
-  const paths = [];
-  for (let index = 0; index < count; index += 1) {
-    const file = path.join(frameDir, `frame-${String(index).padStart(3, "0")}.png`);
-    await spawnTool(
-      chrome,
-      [
-        "--headless=new",
-        "--disable-gpu",
-        "--hide-scrollbars",
-        "--force-device-scale-factor=1",
-        `--window-size=${COMP_SIZE.width},${COMP_SIZE.height}`,
-        `--screenshot=${file}`,
-        `${url}?f=${index}`,
-      ],
-      frameDir,
-    );
-    paths.push(file);
+async function stageAssets({ compDir, brief, imageExt, workspace, project }) {
+  for (const asset of compositionAssets(brief, imageExt)) {
+    const source = asset.from
+      ? path.resolve(workspace, asset.from)
+      : path.join(project, asset.project);
+    await copyFile(source, path.join(compDir, asset.as));
   }
-  return paths;
+  await writeFile(
+    path.join(compDir, "hyperframes.json"),
+    `${JSON.stringify(compositionConfig(), null, 2)}
+`,
+    "utf8",
+  );
+}
+
+/**
+ * 컴포지션의 프레임을 받는다. **hyperframes 가 브라우저를 한 번만 띄운다** —
+ * Chrome 을 프레임마다 띄우면 12장에 11초, 여기서는 6~7초다.
+ *
+ * `--at` 으로 시각을 직접 준다. 기본 `--frames N` 은 마지막을 97% 지점에서 찍어
+ * 결과 상태에 도달하지 못한 프레임이 마지막이 된다 (MR-006 위반).
+ */
+async function snapshotFrames({ hf, compDir, frameDir, count }) {
+  const times = snapshotTimes(count, TIMELINE_SEC);
+  await spawnTool(
+    process.execPath,
+    [hf, "snapshot", ".", "--output", frameDir, "--at", times.join(","), "--no-end"],
+    compDir,
+    false,
+    RENDER_BUDGET_MS,
+  );
+  const frames = await framesIn(frameDir);
+  if (frames.length !== count) {
+    throw new Error(`FRAME_COUNT ${frames.length}장이 나왔다. ${count}장이어야 한다`);
+  }
+  return frames;
 }
 
 /**
@@ -183,16 +222,41 @@ async function probeRenderPaths({ workspace, lock, scratch }) {
     }
   };
 
-  // hyperframes — 벤더링된 CLI 가 쓸 수 있는 상태인가. doctor 가 Chrome 캐시와
-  // ffmpeg 를 확인한다. 3회차의 240초는 첫 실행에서 Chrome 을 내려받은 시간이었다.
-  const vendored = lock?.runtimes?.hyperframes?.path;
+  // hyperframes — **실제로 프레임이 나오는가.** doctor 는 렌더가 아니다.
+  // 3회차의 240초는 첫 실행에서 Chrome 을 내려받은 시간이었고, 그 뒤로 아무도 안 쟀다.
   await timed("hyperframes", async () => {
-    if (!vendored) throw new Error("VENDOR_MISSING env.lock.json 에 hyperframes 경로가 없다");
-    const dir = path.resolve(workspace, vendored);
-    const bin = path.join(dir, "node_modules", "hyperframes", "bin", "hyperframes.mjs");
+    const bin = hyperframesBin(workspace, lock);
     await stat(bin);
-    await spawnTool(process.execPath, [bin, "doctor"], dir, false, RENDER_BUDGET_MS);
-    return "doctor";
+    const dir = path.join(scratch, "hf");
+    const frameDir = path.join(dir, "frames");
+    await mkdir(frameDir, { recursive: true });
+    // 실제 컴포지션과 같은 모양으로 만든다. 자산까지 안에 넣어야 계약을 확인한 것이다.
+    await writeFile(
+      path.join(dir, "index.html"),
+      scaffoldStillMotion({ brief: { id: "probe", pattern: "measure", source_still: "probe" } }),
+      "utf8",
+    );
+    await writeFile(
+      path.join(dir, "hyperframes.json"),
+      `${JSON.stringify(compositionConfig(), null, 2)}\n`,
+      "utf8",
+    );
+    for (const asset of compositionAssets({ source_still: "probe" }, ".webp")) {
+      if (asset.from) {
+        await copyFile(path.resolve(workspace, asset.from), path.join(dir, asset.as));
+        continue;
+      }
+      // 스틸은 회차 산출물이다. 프로브는 자리만 채운다 — 404 가 나면 무엇이 실패한
+      // 것인지 흐려진다. 1×1 PNG 로 충분하다 (브라우저는 확장자가 아니라 내용을 본다).
+      await writeFile(path.join(dir, asset.as), ONE_PIXEL_PNG);
+    }
+    const frames = await snapshotFrames({
+      hf: bin,
+      compDir: dir,
+      frameDir,
+      count: STILL_MOTION_FRAMES,
+    });
+    return `snapshot ${frames.length}프레임`;
   });
 
   // chrome — G8 이 실제로 프레임을 찍는 경로. 한 장 찍는 데 얼마나 드는가.
@@ -300,6 +364,14 @@ try {
           tokens: plan.tokens ?? {},
         });
         await writeFile(path.join(dir, "index.html"), html, "utf8");
+        // 자산은 컴포지션 **안에** 있어야 한다. hyperframes 가 `../` 를 거부한다.
+        await stageAssets({
+          compDir: dir,
+          brief,
+          imageExt,
+          workspace: ctx.workspace,
+          project: ctx.project,
+        });
         made.push(brief.id);
       } catch (error) {
         skipped.push(`${brief.id}: ${error.message.split("\n")[0]}`);
@@ -339,7 +411,7 @@ try {
   // ── 렌더 ────────────────────────────────────────────────────────────────
   const gifDir = path.join(ctx.project, GIFS_REL);
   await mkdir(gifDir, { recursive: true });
-  const chrome = await findChrome();
+  const hf = hyperframesBin(ctx.workspace, ctx.lock);
 
   const results = await pool(briefs, WORKERS, async (brief) => {
     const compDir = path.join(ctx.project, COMPS_REL, brief.id);
@@ -395,13 +467,13 @@ try {
     const compFile = await newestFile(compDir).catch(() => null);
     if (!compFile) return { brief: brief.id, error: "컴포지션 파일이 없다" };
     try {
-      // 컴포지션은 `?f=N` 으로 프레임 하나를 그린다. 프레임을 먼저 다 찍고 조립한다 —
-      // 렌더러에게 GIF 까지 맡기면 일정 fps 가 되어 속도를 제어할 수 없다.
+      // 프레임을 먼저 다 받고 조립한다 — 렌더러에게 GIF 까지 맡기면 일정 fps 가 되어
+      // 프레임마다 머무는 시간을 줄 수 없다.
       const frameDir = path.join(compDir, "frames");
       await mkdir(frameDir, { recursive: true });
-      const framePaths = await shootFrames({
-        chrome,
-        indexPath: path.join(compDir, "index.html"),
+      const framePaths = await snapshotFrames({
+        hf,
+        compDir,
         frameDir,
         count: STILL_MOTION_FRAMES,
       });

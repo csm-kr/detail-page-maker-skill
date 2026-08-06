@@ -19,6 +19,7 @@ import { PACK_SHARE, buildPack, canonBytes, packableGates } from "./lib/contextp
 import { runExec } from "./lib/exec.mjs";
 import { Refusal, checkRuntimes, requireEnv } from "./lib/env.mjs";
 import {
+  BLOCKED,
   PASSED,
   RUNNING,
   STALE,
@@ -28,6 +29,7 @@ import {
   invalidateDownstream,
   loadState,
   persistEvaluation,
+  recordBlock,
   recordPass,
   recordReject,
   recordStart,
@@ -287,7 +289,7 @@ ${result.reasons.map((r) => `- ${r}`).join("\n")}
 
 async function cmdGate(argv) {
   const id = argv[1];
-  if (!id) throw new Refusal("USAGE", "gate <id> --start | --check | --pass | --exec");
+  if (!id) throw new Refusal("USAGE", "gate <id> --start | --check | --pass | --exec | --block <이유>");
   gate(id); // 없는 id 면 여기서 던진다
 
   const ctx = await context();
@@ -303,6 +305,19 @@ async function cmdGate(argv) {
     recordStart(state, id, { host: host() });
     await saveState(project, state);
     out(`${id} 시작 기록. ${new Date().toISOString()}`);
+    return;
+  }
+
+  // 사람이 봐야 끝나는 자리. 실패와 구분한다 — 재시도로 풀리지 않는다.
+  if (argv.includes("--block")) {
+    const reason = flag(argv, "block");
+    if (typeof reason !== "string") {
+      throw new Refusal("USAGE", `gate ${id} --block "<왜 사람이 봐야 하는가>"`);
+    }
+    recordBlock(state, id, reason);
+    await saveState(project, state);
+    out(`${id} 사람 대기. ${reason}`);
+    out(`      보고 나면  gate ${id} --start  로 다시 시작한다`);
     return;
   }
 
@@ -352,7 +367,7 @@ async function cmdGate(argv) {
     return;
   }
 
-  throw new Refusal("USAGE", "gate <id> --start | --check | --pass | --exec");
+  throw new Refusal("USAGE", "gate <id> --start | --check | --pass | --exec | --block <이유>");
 }
 
 // ─── lock ─────────────────────────────────────────────────────────────────

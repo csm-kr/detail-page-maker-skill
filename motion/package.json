@@ -3,6 +3,7 @@
   "private": true,
   "description": "프로젝트-로컬 모션 런타임. 호스트 홈을 쓰지 않는다",
   "dependencies": {
+    "gsap": "^3.14.2",
     "hyperframes": "0.7.90"
   }
 }
