@@ -10,6 +10,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  CLIP_SEC,
   COMP_SIZE,
   STILL_MOTION_FRAMES,
   compUsesStill,
@@ -48,7 +49,9 @@ test("컴포지션이 hyperframes 계약을 지킨다", () => {
   assert.match(out, /data-composition-id="main"/);
   assert.match(out, new RegExp(`data-width="${COMP_SIZE.width}"`));
   assert.match(out, new RegExp(`data-height="${COMP_SIZE.height}"`));
-  assert.match(out, new RegExp(`data-duration="${TIMELINE_SEC}"`));
+  assert.match(out, new RegExp(`data-duration="${CLIP_SEC}"`));
+  // 움직임은 TIMELINE_SEC 에 끝난다. 화면에 남아 있는 시간은 그보다 길다.
+  assert.match(out, new RegExp(`const D = ${TIMELINE_SEC};`));
   // 일시정지된 타임라인 하나. 자동 재생하지 않고 두 번째 타임라인을 만들지 않는다.
   assert.match(out, /window\.__timelines\["main"\]\s*=/);
   assert.match(out, /gsap\.timeline\(\{\s*paused:\s*true\s*\}\)/);
@@ -63,7 +66,7 @@ test("클립이 최소 하나 있다", () => {
   assert.match(out, /data-track-index="1"/);
   const clip = /<div class="clip"[^>]*>/.exec(out)?.[0] ?? "";
   assert.match(clip, /data-start="0"/);
-  assert.match(clip, new RegExp(`data-duration="${TIMELINE_SEC}"`));
+  assert.match(clip, new RegExp(`data-duration="${CLIP_SEC}"`));
 });
 
 test("결정론 — 시각의 순함수다", () => {
@@ -157,7 +160,37 @@ test("자막은 타임라인 위에 놓인다", () => {
   assert.match(out, /tl\.set\(/);
 });
 
+test("자막 뒤에 스크림을 깐다 — 밝은 사진 위 흰 글씨는 안 읽힌다", () => {
+  // `hyperframes check` 실측 (5회차): g01 의 `#cap` 이 12프레임 내내 **1.53:1** 이었다.
+  // 하한은 3:1 이다. 포획면이 밝은 노랑이라 paper 자막이 배경에 녹는다 —
+  // text-shadow 는 이 차이를 못 메운다. page-plan 의 places 타일이 쓰는 것과 같은
+  // 수단으로 푼다: "글자 뒤에 아래에서 올라오는 스크림을 깐다".
+  const out = html();
+  assert.match(out, /class="scrim"/);
+  // 스크림은 자막보다 **먼저** 그려져야 한다. 뒤에 그리면 글자를 덮는다.
+  assert.ok(out.indexOf('id="scrim"') < out.indexOf('id="cap"'), "스크림이 자막을 덮는다");
+  // 자막 높이만큼은 불투명해야 한다. 그라디언트가 글자 자리에서 다 사라지면 소용없다.
+  assert.match(out, /linear-gradient/);
+});
+
 test("기본 프레임 수와 타임라인 길이가 짝이다", () => {
   assert.equal(STILL_MOTION_FRAMES, 12);
   assert.equal(snapshotTimes(STILL_MOTION_FRAMES, TIMELINE_SEC).length, STILL_MOTION_FRAMES);
+});
+
+test("마지막 프레임을 찍을 때 클립이 아직 화면에 있다", () => {
+  // 5회차 실측. 클립이 `data-duration="1.2"` 인데 마지막 샘플이 정확히 **1.2** 였다.
+  // 클립 창은 반열린 구간 [0, 1.2) 이므로 그 시각에는 아무것도 그려지지 않는다 —
+  // 10개 GIF 전부 `frame-11-at-1.2s.png` 가 2249바이트짜리 **검은 화면**이었다.
+  //
+  // 그리고 그 검은 화면이 결과 상태 자리에서 1초를 머물렀다 (MR-006). 속도 검사는
+  // ms 만 재므로 통과시켰다 — 3회차의 `../` 404 와 같은, **조용히 빈 그림이 나오는** 실패다.
+  const last = snapshotTimes(STILL_MOTION_FRAMES, TIMELINE_SEC).at(-1);
+  const out = html();
+  const clip = /<div class="clip"[^>]*>/.exec(out)?.[0] ?? "";
+  const clipSec = Number(/data-duration="([\d.]+)"/.exec(clip)?.[1]);
+  const rootSec = Number(/<div id="root"[^>]*data-duration="([\d.]+)"/s.exec(out)?.[1]);
+
+  assert.ok(clipSec > last, `클립이 ${clipSec}s 에 끝나는데 마지막 프레임은 ${last}s 다`);
+  assert.ok(rootSec >= clipSec, `컴포지션(${rootSec}s)이 클립(${clipSec}s)보다 먼저 끝난다`);
 });

@@ -74,13 +74,27 @@ node scripts/run.mjs --probe
 없으면 거부한다. 4회차 실측은 `hyperframes doctor` 7.3초 · `chrome` 1프레임 0.9초다.
 자세한 것은 [`references/render-path.md`](references/render-path.md).
 
+## 용량 — 페이지 전체의 미디어 예산을 여기서 지킨다
+
+5회차에 G10 이 미디어 총량 12.6MB 로 거부했는데 그중 **84%가 GIF** 였다. G10 은 스크립트
+게이트라 스스로 줄이지 못하고, 거기까지 가면 앞 게이트를 전부 되돌려야 한다.
+그래서 상한(정책값 `media_budget_mb`)을 굽는 자리에서 같이 본다.
+
+줄이는 곳은 **조립기의 팔레트**다. 폭 780px 은 그대로 둔다 — 페이지 폭이 780px 이라
+줄이면 그만큼 흐려진다. 실측과 왜 그 값인지는 [`references/render-path.md`](references/render-path.md).
+
 ## 진입
 
 ```bash
 node scripts/run.mjs --probe      # 렌더 경로가 예산 안에 도는가
 node scripts/run.mjs --scaffold   # brief 마다 컴포지션. 스틸이 이미 들어가 있다
 node scripts/run.mjs --render     # 굽는다
+node scripts/run.mjs --assemble   # 프레임은 그대로 두고 GIF 만 다시 굽는다
 ```
+
+`--assemble` 은 조립 설정(팔레트·디더·지연)만 바뀌었을 때 쓴다. `--render` 를 다시 돌리면
+`tibo-sequence` 프레임을 이미지 API 로 **다시 생성해서** 돈이 다시 들고 이미 승인된 장면이
+다른 그림으로 바뀐다. 컴포지션이나 brief 를 고쳤으면 `--assemble` 이 아니라 `--render` 다.
 
 첫 줄이 선행 게이트 검사다. 통과하지 않았으면 거부하고 부족한 게이트를 알려준다.
 순서와 상태는 오케스트레이터가 소유하고 이 스킬은 **판정과 작업만** 소유한다.

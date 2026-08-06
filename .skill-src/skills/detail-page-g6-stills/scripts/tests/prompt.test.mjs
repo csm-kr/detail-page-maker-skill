@@ -44,6 +44,31 @@ test("얼굴 정책이 프롬프트에 문자로 들어간다", () => {
   assert.ok(items[0].prompt.includes("crop-below-chin"));
 });
 
+test("no_product 컷에는 기준 이미지를 붙이지 않는다", () => {
+  const cuts = [...CUTS, { id: "cut-03", prompt: "제품 없는 문제 제기 컷", no_product: true }];
+  const items = buildItems(cuts, { face: "allow", base: "work/stills/base.png" });
+  assert.ok(
+    !("references" in items[2]),
+    "제품 사진을 Image 1 로 주면 '제품을 넣지 않는다' 프롬프트를 이긴다",
+  );
+});
+
+test("no_product 컷이 가진 레퍼런스도 떼어 낸다", () => {
+  const cuts = [
+    { id: "cut-03", prompt: "제품 없는 문제 제기 컷", no_product: true, references: ["input/photos/a.jpg"] },
+  ];
+  const items = buildItems(cuts, { face: "allow", base: "work/stills/base.png" });
+  assert.ok(!("references" in items[0]), "no_product 컷에는 레퍼런스가 하나도 붙지 않는다");
+});
+
+test("no_product 컷은 재생성에서도 레퍼런스가 붙지 않는다", () => {
+  const cuts = [{ id: "cut-03", prompt: "제품 없는 문제 제기 컷", no_product: true }];
+  const selection = { entries: [{ cut: "cut-03", decision: "reject", regen_job: "벌레를 더 크게" }] };
+  const items = regenItems(cuts, selection, { face: "allow", base: "work/stills/base.png" });
+  assert.equal(items.length, 1);
+  assert.ok(!("references" in items[0]), "재생성에서 제품이 다시 끼어든다");
+});
+
 test("기준 이미지 자신은 자기를 레퍼런스로 삼지 않는다", () => {
   const items = buildItems(CUTS, { face: "allow", base: "work/stills/cut-01.png", baseCut: "cut-01" });
   assert.ok(!("references" in items[0]), "기준 컷이 자기를 참조한다");

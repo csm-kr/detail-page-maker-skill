@@ -9,6 +9,7 @@
 //   run.mjs --scaffold  → brief 마다 컴포지션을 만든다. 스틸이 이미 들어가 있다.
 //   (사람)              → 패턴·자막을 손본다. 스틸을 지우지 않는다.
 //   run.mjs --render    → 두 수단 모두 **프레임까지만** 만들고 GIF 조립은 lib/gifasm.mjs 가 한다.
+//   run.mjs --assemble  → 프레임은 그대로 두고 GIF 만 다시 굽는다.
 
 import { spawn } from "node:child_process";
 import { copyFile, mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
@@ -21,7 +22,7 @@ import { json, section, text } from "../../detail-page-orchestrator/scripts/lib/
 import { BUNDLE_ROOT } from "../../detail-page-orchestrator/scripts/lib/extract.mjs";
 import { guard, refuse } from "../../detail-page-orchestrator/scripts/lib/stage.mjs";
 import { buildEntry, methodOverflow, missingKeywords, straySubtitles } from "./lib/comps.mjs";
-import { concatScript, ffmpegArgs, framePacing } from "./lib/gifasm.mjs";
+import { concatScript, ffmpegArgs, framePacing, frameFiles } from "./lib/gifasm.mjs";
 import {
   COMP_SIZE,
   STILL_MOTION_FRAMES,
@@ -127,16 +128,18 @@ async function assembleGif({ framePaths, outputPath, scenes, workDir }) {
     concatScript(framePaths.map((file, index) => ({ path: file, ms: ms[index] }))),
     "utf8",
   );
-  await spawnTool("ffmpeg", ffmpegArgs({ concatPath: listPath, outputPath }), workDir, true);
+  await spawnTool(
+    "ffmpeg",
+    ffmpegArgs({ concatPath: listPath, outputPath, finalDelayMs: ms[ms.length - 1] }),
+    workDir,
+    true,
+  );
   return ms;
 }
 
-/** 디렉터리의 프레임 이미지. 이름 순서가 곧 프레임 순서다. */
+/** 디렉터리의 프레임 이미지. 무엇이 프레임인지는 `lib/gifasm.mjs` 가 정한다. */
 async function framesIn(dir) {
-  return (await readdir(dir))
-    .filter((name) => /\.(png|webp|jpe?g)$/i.test(name))
-    .sort()
-    .map((name) => path.join(dir, name));
+  return frameFiles(await readdir(dir)).map((name) => path.join(dir, name));
 }
 
 /** 벤더링된 hyperframes CLI. `env.lock.json` 이 경로를 갖고 있다. */
@@ -304,7 +307,18 @@ async function pool(items, workers, handler) {
 
 try {
   const ctx = await guard("G8");
-  const mode = ["--probe", "--scaffold", "--render"].find((flag) => process.argv.includes(flag));
+  const mode = ["--probe", "--scaffold", "--render", "--assemble"].find((flag) =>
+    process.argv.includes(flag),
+  );
+
+  /**
+   * 프레임을 다시 만들지 않고 이미 있는 것으로 조립만 다시 한다.
+   *
+   * 조립 설정(팔레트·디더·지연)을 바꾸면 GIF 를 다시 구워야 하는데, `--render` 를
+   * 돌리면 tibo 프레임을 **이미지 API 로 다시 생성한다** — 돈이 다시 들고 승인된 장면이
+   * 다른 그림으로 바뀐다. 프레임이 그대로면 다시 만들 이유가 없다.
+   */
+  const reuseFrames = mode === "--assemble";
 
   // ── 렌더 경로 실측 ───────────────────────────────────────────────────────
   // 플랜보다 먼저 본다. 경로가 죽어 있으면 brief 를 아무리 잘 써도 못 굽는다.
@@ -395,7 +409,7 @@ try {
     process.exit(0);
   }
 
-  if (mode !== "--render") {
+  if (mode !== "--render" && mode !== "--assemble") {
     out(`brief ${briefs.length}개.`);
     out("");
     for (const brief of briefs) {
@@ -439,8 +453,13 @@ try {
       });
       const jobPath = path.join(compDir, "tibo-job.json");
       try {
-        await writeFile(jobPath, `${JSON.stringify(job, null, 2)}\n`, "utf8");
-        await spawnTool(process.execPath, [path.join(TIBO, "scripts", "tibo-batch.mjs"), "--job", jobPath], TIBO);
+        // 프레임을 다시 만들지 않으면 작업 파일도 건드리지 않는다.
+        if (!reuseFrames) {
+          await writeFile(jobPath, `${JSON.stringify(job, null, 2)}\n`, "utf8");
+          await spawnTool(process.execPath, [path.join(TIBO, "scripts", "tibo-batch.mjs"), "--job", jobPath], TIBO);
+        } else {
+          await stat(jobPath);
+        }
         // 프레임 하나가 장면 하나다. 보간보다 오래 머물러야 읽힌다.
         await assembleGif({
           framePaths: await framesIn(compDir),
@@ -471,12 +490,9 @@ try {
       // 프레임마다 머무는 시간을 줄 수 없다.
       const frameDir = path.join(compDir, "frames");
       await mkdir(frameDir, { recursive: true });
-      const framePaths = await snapshotFrames({
-        hf,
-        compDir,
-        frameDir,
-        count: STILL_MOTION_FRAMES,
-      });
+      const framePaths = reuseFrames
+        ? await framesIn(frameDir)
+        : await snapshotFrames({ hf, compDir, frameDir, count: STILL_MOTION_FRAMES });
       await assembleGif({ framePaths, outputPath: gifAbs, scenes: false, workDir: compDir });
     } catch (error) {
       return { brief: brief.id, error: error.message };
@@ -503,7 +519,9 @@ try {
     "utf8",
   );
 
-  out(`렌더 완료  ${entries.length}/${briefs.length}개 → ${GIFS_REL}`);
+  out(
+    `${reuseFrames ? "재조립" : "렌더"} 완료  ${entries.length}/${briefs.length}개 → ${GIFS_REL}`,
+  );
   out(`  색인      ${COMPS_REL}/index.json`);
 
   // 게이트가 볼 것을 스크립트가 먼저 말한다.

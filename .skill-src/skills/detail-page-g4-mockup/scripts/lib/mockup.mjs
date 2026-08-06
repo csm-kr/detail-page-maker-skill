@@ -21,11 +21,21 @@ export function blockTitles(markdown) {
 }
 
 /**
- * 섹션 하나의 장면 지시. 화면 문자열은 넣지 않는다 — 이미지에 글자를 굽지 않는다.
+ * 섹션 하나의 장면 지시. 화면 문자열을 **이미지 안에 조판하라고** 준다.
  *
  * 필드 이름은 **플랜이 쓰는 그대로** 읽는다. 3회차에 여기만 `headline_lines` 였고
  * 플랜은 `headline` 이었다. 조용히 빈 문자열이 되어 섹션 메시지가 한 줄도 들어가지
  * 않은 채 목업이 생성됐다. 조립기에서 같은 일이 한 번 있었고 여기서 또 있었다.
+ *
+ * 4회차에는 반대 방향으로 틀렸다. 이 함수의 마지막 줄이 `이미지 안에 한글이나 영문
+ * 글자를 그리지 않는다` 였다. 그런데 이 지시 **앞에** 실린 templates.md 원문은
+ * `모든 문구는 자연스러운 한글로 작성한다`·`한 이미지당 메인 헤드라인은 1개만` 을
+ * 열한 번 말한다. 생성기는 맨 뒤의 가장 구체적인 지시를 따랐고, 14장이 전부 문자 없는
+ * 제품 사진으로 왔다 — 팔레트는 재도 **타이포와 구성 요소는 잴 것이 없었다.**
+ * 목업이 상세페이지 목업이 아니면 G4 가 아무것도 끌어올리지 못한다.
+ *
+ * `글자를 굽지 않는다` 는 **발행 컷(G6)의 규칙**이지 목업의 규칙이 아니다. 목업은
+ * 발행하지 않으므로 한글이 깨져도 손해가 없고, 깨진 글자는 가이드에 오류로 적는다.
  */
 function scene(section) {
   const lines = [
@@ -33,11 +43,14 @@ function scene(section) {
     `- 섹션 id: ${section.id}`,
     `- 역할: ${section.role ?? "solution"}`,
   ];
+  if (section.kicker) lines.push(`- 소제목 (작게, 헤드라인 위): ${section.kicker}`);
   const head = String(section.headline ?? "").replace(/<br\s*\/?>/gi, " ").trim();
-  if (head) lines.push(`- 이 장이 전할 메시지: ${head}`);
-  if (section.subcopy) lines.push(`- 보조 메시지: ${section.subcopy}`);
+  if (head) lines.push(`- 메인 헤드라인 (가장 크게, 한 개만): ${head}`);
+  if (section.emphasis) lines.push(`- 강조 낱말: ${section.emphasis}`);
+  if (section.subcopy) lines.push(`- 보조 문구: ${section.subcopy}`);
   lines.push(
-    "- 위 메시지는 **장면으로** 표현한다. 이미지 안에 한글이나 영문 글자를 그리지 않는다.",
+    "- 이 장은 상세페이지 한 장이다. 위 문구를 **이미지 안에 한글로 조판하고** 제품 장면과 함께 배치한다.",
+    "- 문구는 **위에 적은 문구만** 쓴다. 새 문장·수치·인증·후기·로고·페이지 번호를 만들지 않는다.",
   );
   return lines.join("\n");
 }

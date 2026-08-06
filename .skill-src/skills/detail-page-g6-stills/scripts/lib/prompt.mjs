@@ -20,8 +20,13 @@ function compose(body, face) {
 /**
  * 레퍼런스 목록. 기준 이미지가 Image 1 이다 — god-tibo 가 첫 장을 canonical base 로 잡는다.
  * 기준 컷 자신은 자기를 참조하지 않는다.
+ *
+ * `no_product` 컷에는 **하나도 붙이지 않는다.** 문제 제기·설치 전 컷의 프롬프트는
+ * "제품을 넣지 않는다" 인데 Image 1 로 제품 사진을 주면 canonical base 가 그 문장을
+ * 이긴다. check.mjs 가 판정 기록에서 같은 것을 막고 있으므로 생성도 같은 규칙을 따른다.
  */
 function references(cut, base, baseCut) {
+  if (cut.no_product === true) return {};
   if (!base || cut.id === baseCut) {
     return cut.references?.length ? { references: [...cut.references] } : {};
   }

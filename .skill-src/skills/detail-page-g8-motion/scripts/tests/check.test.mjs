@@ -5,7 +5,7 @@
 // 존재 검사는 통과했다. **신선도와 용어 집합**을 본다.
 
 import assert from "node:assert/strict";
-import { utimes } from "node:fs/promises";
+import { mkdir, utimes, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
@@ -89,6 +89,28 @@ async function bed({
   await b.write(INDEX, { entries: list });
   return b;
 }
+
+test("미디어가 예산을 넘으면 GIF 를 굽는 자리에서 잡는다", async () => {
+  // 5회차: G10 이 `미디어 총량 12.6 MB 가 상한 12 MB 를 넘는다` 로 거부했다. 그런데
+  // 총량의 84%가 GIF 이고 GIF 를 굽는 것은 G8 이다. 만드는 자리에서 모르면 파이프라인
+  // 끝까지 가서야 알고, G10 은 스크립트 게이트라 스스로 줄일 수도 없다.
+  // 숫자를 새로 정하지 않는다 — G10 이 보는 그 정책값을 그대로 본다.
+  const b = await bed();
+  try {
+    await mkdir(path.join(b.ctx.workspace, "work"), { recursive: true });
+    await writeFile(
+      path.join(b.ctx.workspace, "work", "env.lock.json"),
+      JSON.stringify({ policy: { media_budget_mb: 0.000_01 } }),
+      "utf8",
+    );
+    assert.ok(
+      (await check(b.ctx)).reasons.some((reason) => /미디어 총량/.test(reason)),
+      "예산을 넘겼는데 G8 이 잡지 않았다",
+    );
+  } finally {
+    await b.cleanup();
+  }
+});
 
 test("전부 갖추면 통과한다", async () => {
   const b = await bed();

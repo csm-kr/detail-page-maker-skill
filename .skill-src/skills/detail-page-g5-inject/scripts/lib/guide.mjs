@@ -24,12 +24,20 @@ export function parsePalette(block) {
   return tokens;
 }
 
-/** 배경·장식 키워드. 프롬프트에 주입할 한글 낱말만 뽑는다. */
+/**
+ * 배경·장식 키워드. `## 배경` 의 **첫 줄만** 읽는다.
+ *
+ * 절 전체를 훑으면 아래 설명 문단에서 `줄이다`·`못하므로` 같은 활용형이 함께 뽑힌다.
+ * 그것들은 프롬프트에 주입되지는 않지만(주입은 앞의 넷) 발행 플랜의 `mood.background`
+ * 에 그대로 실려 G6 까지 흘러간다. 뽑기가 조사를 떼지 못하므로 **경계는 첫 줄이다.**
+ */
 export function parseBackground(block) {
   if (!block) return [];
+  const line = block.split("\n").find((row) => row.trim() !== "");
+  if (!line) return [];
   return [
     ...new Set(
-      block
+      line
         .split(/[\s,·、]+/)
         .map((word) => word.replace(/[`*_()[\]:.]/g, "").trim())
         .filter((word) => /^[가-힣]{2,}$/.test(word)),
@@ -58,7 +66,9 @@ export async function readGuide(project) {
     reasons.push("팔레트에 `brand` 가 없다. 주입할 브랜드 색을 이름으로 정한다");
   }
   if (background.length === 0) {
-    reasons.push("`## 배경` 절에서 주입할 키워드를 찾을 수 없다");
+    reasons.push(
+      "`## 배경` 첫 줄에서 주입할 키워드를 찾을 수 없다. 조사 없는 낱말만 첫 줄에 둔다",
+    );
   }
 
   return {
@@ -74,12 +84,12 @@ export async function readGuide(project) {
 export function moodBlock({ palette, background }, cut) {
   const keywords = background.slice(0, 4).join(", ");
   const accents = [palette.brand, palette.navy].filter(Boolean).join(" ");
-  return [
-    "",
+  // 빈 줄로 시작해야 원문 프롬프트의 마지막 마침표와 붙지 않는다.
+  // `.filter(Boolean)` 이 선행 빈 줄까지 지워 `daylight.배경과` 가 한 낱말이 됐었다.
+  const lines = [
     `배경과 장식: ${keywords}`,
     `강조 색: ${accents}`,
     cut.no_product ? "제품을 넣지 않는다." : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  ].filter(Boolean);
+  return `\n\n${lines.join("\n")}`;
 }

@@ -181,3 +181,35 @@ test("harvest 가 크롭을 계획했는데 crop 수단이 없으면 거부한�
     await b.cleanup();
   }
 });
+
+// 위 검사는 harvest 의 `크롭` 이라는 **낱말**만 본다. "크롭한다" 와 "크롭하지 않는다" 를
+// 가리지 못하므로, 목업 사진에 오류가 있어 크롭을 접은 판까지 막는다.
+// 접었으면 접은 이유를 적게 한다 — `이탈 이유:` 와 같은 형태다.
+
+test("크롭하지 않기로 했으면 `crop 없음 이유:` 로 통과한다", async () => {
+  const page = GOOD_PAGE.replace(
+    "harvest.md 의 수확 계획을 따른다.",
+    "harvest.md 의 수확 계획을 따른다.\n\ncrop 없음 이유: 목업 사진에 제품 identity 오류가 구워져 있어 크롭 발행하지 않는다",
+  ).replace("수단: crop, css", "수단: generate, css");
+  const b = await bed({ page });
+  try {
+    assert.deepEqual((await check(b.ctx)).reasons, []);
+  } finally {
+    await b.cleanup();
+  }
+});
+
+test("`crop 없음 이유:` 뒤가 비면 거부한다 — 낱말만 적고 넘어가는 것을 막는다", async () => {
+  const page = GOOD_PAGE.replace(
+    "harvest.md 의 수확 계획을 따른다.",
+    "harvest.md 의 수확 계획을 따른다.\n\ncrop 없음 이유:",
+  ).replace("수단: crop, css", "수단: generate, css");
+  const b = await bed({ page });
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.equal(reasons.length, 1, reasons.join(" / "));
+    assert.match(reasons[0], /크롭을 계획했는데 page-plan 에 crop 수단이 없다/);
+  } finally {
+    await b.cleanup();
+  }
+});

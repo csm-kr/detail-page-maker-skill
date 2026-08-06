@@ -86,11 +86,15 @@ export async function check({ project }) {
     );
   }
 
+  // `크롭` 은 낱말 검사라 "크롭한다" 와 "크롭하지 않는다" 를 가리지 못한다. 목업 사진에
+  // identity 오류가 구워져 있어 크롭을 접는 판이 있으므로, 접었으면 접은 이유를 적게 한다.
   if (harvest && /크롭/.test(harvest)) {
     want(
       reasons,
-      found.includes("crop") || /전부 SVG 이유:/.test(page),
-      "harvest.md 는 크롭을 계획했는데 page-plan 에 crop 수단이 없다",
+      found.includes("crop") ||
+        /crop 없음 이유:[ \t]*\S/.test(page) ||
+        /전부 SVG 이유:/.test(page),
+      "harvest.md 는 크롭을 계획했는데 page-plan 에 crop 수단이 없다. 크롭하지 않기로 했으면 `crop 없음 이유:` 를 적는다",
     );
   }
 

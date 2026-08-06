@@ -33,6 +33,21 @@ export const STILL_MOTION_FRAMES = 12;
 export const TIMELINE_SEC = 1.2;
 
 /**
+ * 클립과 컴포지션이 **화면에 남아 있는** 시간. 움직임보다 길다.
+ *
+ * 5회차 실측: 클립도 `data-duration="1.2"`, 마지막 샘플도 정확히 `1.2` 였다.
+ * 클립 창은 반열린 구간 [0, 1.2) 이라 그 시각에는 아무것도 안 그려진다 —
+ * `frame-11-at-1.2s.png` 가 10개 컴포지션 전부 2249바이트짜리 **검은 화면**이었고,
+ * 그것이 결과 상태 자리에서 1초를 머물렀다 (MR-006).
+ *
+ * 속도 검사는 ms 만 재므로 통과시켰다. `../` 404 로 12프레임이 같은 그림이던 것과
+ * 같은 종류 — **조용히 빈 그림이 나오는** 실패다. 그래서 닫힌 구간 [0, TIMELINE_SEC]
+ * 을 덮도록 꼬리를 붙인다. 움직임은 여전히 TIMELINE_SEC 에 끝난다.
+ */
+export const HOLD_TAIL_SEC = 0.2;
+export const CLIP_SEC = Number((TIMELINE_SEC + HOLD_TAIL_SEC).toFixed(3));
+
+/**
  * 컴포지션이 쓰는 자산. **전부 컴포지션 디렉터리 안에 있어야 한다.**
  *
  * hyperframes 는 컴포지션 디렉터리를 웹 루트로 서빙하고 `../` 를 거부한다 —
@@ -164,16 +179,19 @@ html,body{width:${COMP_SIZE.width}px;height:${COMP_SIZE.height}px;overflow:hidde
  border-radius:50%;border:6px solid ${brand};opacity:0}
 .rule{position:absolute;left:64px;top:56px;width:6px;height:340px;background:${brand};opacity:0;
  transform-origin:50% 0%}
+.scrim{position:absolute;left:0;right:0;bottom:0;height:170px;
+ background:linear-gradient(to top,${ink} 0%,${ink} 56%,transparent 100%)}
 .cap{position:absolute;left:0;right:0;bottom:34px;text-align:center;color:${paper};
- font-size:38px;font-weight:900;letter-spacing:-.04em;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+ font-size:38px;font-weight:900;letter-spacing:-.04em}
 </style></head><body>
-<div id="root" data-composition-id="main" data-start="0" data-duration="${TIMELINE_SEC}"
+<div id="root" data-composition-id="main" data-start="0" data-duration="${CLIP_SEC}"
      data-width="${COMP_SIZE.width}" data-height="${COMP_SIZE.height}">
-  <div class="clip" data-start="0" data-duration="${TIMELINE_SEC}" data-track-index="1">
+  <div class="clip" data-start="0" data-duration="${CLIP_SEC}" data-track-index="1">
     <img class="shot" id="shot" src="${stillHref(brief.source_still, imageExt)}" alt="">
     <div class="veil" id="veil"></div>
     <div class="ring" id="ring"></div>
     <div class="rule" id="rule"></div>
+    <div class="scrim" id="scrim"></div>
     <div class="cap" id="cap"></div>
   </div>
 </div>

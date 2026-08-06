@@ -393,6 +393,34 @@ test("공급처 원문에 있는 과장 표현은 쓸 수 있다", async () => {
   }
 });
 
+test("출처 없는 `완벽` 은 거부한다", async () => {
+  // 5회차: 히어로가 `걸어두면 완벽 포획` 으로 발행됐다. 기준작에 있는 표현이라 옮긴 것은
+  // 맞지만, `완벽` 이 어느 목록에도 없어서 **지어내도 통과하는 상태**였다.
+  // SSOT 는 이미 정확히 판정했다 — "`완벽` 은 근거 없는 절대 표현이다".
+  const b = await bed(
+    { sections: asSections(IDS, (id) => (id === "hero" ? { headline: "걸어두면 완벽 포획" } : {})) },
+    { map: `# flow-map
+
+## 섹션 순서
+${IDS.map((id, i) => `${i + 1}. ${id}`).join("\n")}
+
+## 소구점
+- "강력 점착"
+- "생활방수"
+- "50장 대용량"
+- "끈적임 오래"
+- "한 번 붙으면"
+- "바로 포획"
+` },
+  );
+  try {
+    const { reasons } = await check(b.ctx);
+    assert.ok(reasons.some((r) => /"완벽"/.test(r)), reasons.join(" / "));
+  } finally {
+    await b.cleanup();
+  }
+});
+
 test("원문에 없는 과장 표현은 여전히 거부한다", async () => {
   const b = await bed({
     sections: asSections(IDS, (id) => (id === "hero" ? { headline: "업계 1위 상품" } : {})),

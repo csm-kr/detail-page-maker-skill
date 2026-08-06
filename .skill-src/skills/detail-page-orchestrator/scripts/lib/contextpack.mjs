@@ -57,6 +57,14 @@ async function readIfPresent(file) {
 }
 
 /**
+ * 세션의 Bash 는 Git Bash 다. 거기서 백슬래시는 경로 구분자가 아니라 **이스케이프**라
+ * `C:\a\b` 가 `C:ab` 로 뭉개진다. 4회차 G1 이 그래서 검사를 한 번도 못 돌렸다.
+ */
+function posix(file) {
+  return file.split(path.sep).join("/");
+}
+
+/**
  * 게이트 하나의 컨텍스트 팩.
  *   ctx  { workspace, project, state, skillsRoot? }
  */
@@ -107,12 +115,13 @@ export async function buildPack(id, ctx) {
     "- 코드를 제외한 설명과 주석은 한국어로 쓴다",
     "- 출처 없는 성능·효능·인증·수치를 만들지 않는다",
     "- 마지막 줄에 `SUMMARY: <한 줄>` 을 쓴다. 다음 게이트가 이 한 줄만 받는다",
+    "- 쉘은 `node` 로 **시작하는 한 줄**만 쓸 수 있다. `cd`·`&&`·`;`·파이프를 붙이면 거부된다",
     "",
     "## 작업 위치",
     "",
     "```",
-    `프로젝트  ${ctx.project}`,
-    `스킬      ${skillDir}`,
+    `프로젝트  ${posix(ctx.project)}`,
+    `스킬      ${posix(skillDir)}`,
     "```",
     "",
     `## 지시서 — ${g.skill}/SKILL.md`,
@@ -156,7 +165,7 @@ export async function buildPack(id, ctx) {
     "## 끝내는 법",
     "",
     "```bash",
-    `node ${path.join(skillsRoot, "detail-page-orchestrator", "scripts", "orchestrate.mjs")} gate ${g.id} --check`,
+    `node "${posix(path.join(skillsRoot, "detail-page-orchestrator", "scripts", "orchestrate.mjs"))}" gate ${g.id} --check`,
     "```",
     "",
     "이 명령이 통과할 때까지 고친다. 통과 기록은 부모가 남긴다.",

@@ -5,18 +5,23 @@
 // check.mjs 를 다시 돌린다. 헤드리스로 가면 사람이 안 보므로 오히려 더 중요하다.
 
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
 import {
+  ALLOWED_TOOLS,
   EXEC_TIMEOUT_MS,
   MAX_ATTEMPTS,
   execArgs,
+  execDenials,
   execSummary,
+  execTimeoutMs,
   logPath,
   runExec,
+  shellQuote,
 } from "../lib/exec.mjs";
+import { gate } from "../lib/gates.mjs";
 import { loadState } from "../lib/gates-state.mjs";
 import { makeProject, orchestrate } from "./fixture.mjs";
 
@@ -122,6 +127,130 @@ test("자식이 끝났다고 해도 부모가 check 를 다시 돌린다", async
   }
 });
 
+test("Windows 셸에서 허용 목록이 쪼개지지 않는다", () => {
+  // 4회차의 진짜 원인. `shell: true` 로 spawn 하면 Node 는 인자를 **이스케이프 없이
+  // 이어붙인다**(DEP0190 이 그렇게 경고한다). 그러면 cmd.exe 가 `Bash(node *)` 의
+  // 공백과 괄호에서 인자를 쪼개고, 자식은 **깨진 허용 목록**을 받는다.
+  // 그 세션에서는 `node -e "console.log(1+1)"` 조차 거부됐다.
+  assert.equal(shellQuote("Read,Bash(node *)"), '"Read,Bash(node *)"');
+  assert.equal(shellQuote("-p"), "-p", "단순한 인자까지 감싸면 읽기 어렵다");
+
+  const quoted = execArgs("C:/p/해충끈끈이-1").map(shellQuote);
+  assert.ok(
+    quoted.includes(`"${ALLOWED_TOOLS.join(",")}"`),
+    `허용 목록이 한 인자로 남지 않았다: ${quoted.join(" ")}`,
+  );
+  assert.ok(quoted.includes('"C:/p/해충끈끈이-1"'), "한글 경로가 감싸이지 않았다");
+});
+
+test("남의 산출물을 만졌으면 로그와 화면에 남는다", async () => {
+  // 5회차에 두 번 있었다.
+  //   G3 이 G2 의 flow-map.md 를 고쳤다 — 팩이 금지한 일이다
+  //   G11 이 G9 의 detail-page.html 을 고쳤다 — 정본은 허락하지만 그래프는 모른다
+  // 둘 다 **git 을 열어보기 전에는 아무도 몰랐다.** 막지는 않는다. 판정은 check.mjs 다.
+  const ws = await bed();
+  try {
+    const lines = [];
+    await runExec("G3", ws.ctx, {
+      spawn: async () => {
+        // G2 의 산출물이다. G3 의 것이 아니다.
+        await writeFile(path.join(ws.project, "work", "flow-map.md"), "고쳤다", "utf8");
+        return childOutput("SUMMARY: 했다");
+      },
+      check: async () => ({ ok: true, reasons: [] }),
+      onLine: (line) => lines.push(line),
+    });
+    const record = JSON.parse(await readFile(logPath(ws.project, "G3", 1), "utf8"));
+    assert.deepEqual(record.child.trespass, ["G2: work/flow-map.md"]);
+    assert.ok(lines.some((line) => /남의 산출물/.test(line)), lines.join(" / "));
+  } finally {
+    await ws.cleanup();
+  }
+});
+
+test("자기 산출물을 쓰는 것은 침범이 아니다", async () => {
+  const ws = await bed();
+  try {
+    await runExec("G3", ws.ctx, {
+      spawn: async () => {
+        await writeFile(path.join(ws.project, "work", "flow-plan.draft.json"), "{}", "utf8");
+        return childOutput("SUMMARY: 했다");
+      },
+      check: async () => ({ ok: true, reasons: [] }),
+    });
+    const record = JSON.parse(await readFile(logPath(ws.project, "G3", 1), "utf8"));
+    assert.deepEqual(record.child.trespass, []);
+  } finally {
+    await ws.cleanup();
+  }
+});
+
+test("타임아웃은 예산에서 나온다. 게이트마다 다르다", () => {
+  // 5회차 G11 은 예산 5분짜리인데 30분 밧줄을 세 번 받아 **90분**을 썼다.
+  // 예산의 세 배를 넘겼으면 그건 프롬프트가 아니라 게이트를 볼 자리다.
+  assert.ok(execTimeoutMs(gate("G11")) < EXEC_TIMEOUT_MS, "예산 5분 게이트가 상한을 다 쓴다");
+  assert.ok(execTimeoutMs(gate("G4")) > execTimeoutMs(gate("G11")), "예산이 큰 게이트가 더 짧다");
+  assert.ok(execTimeoutMs(gate("G5")) >= 10 * 60_000, "예산 2분 게이트에 시작 비용도 못 준다");
+});
+
+test("타임아웃으로 죽인 자식을 조용히 통과시키지 않는다", async () => {
+  // 5회차 G11 은 세 시도가 전부 정확히 1800초였다. 로그에는 `code: 124` 가 남았는데
+  // 화면에는 `G11 통과 · 1800초` 만 나왔다. **끝까지 간 세션과 죽인 세션이 같아 보였다.**
+  // 판정은 그대로 check.mjs 가 한다 — 다만 반쪽일 수 있다는 사실은 남긴다.
+  const ws = await bed();
+  try {
+    const lines = [];
+    const result = await runExec("G3", ws.ctx, {
+      spawn: async () => ({ code: 124, stdout: "", stderr: "TIMEOUT 1800000ms" }),
+      check: async () => ({ ok: true, reasons: [] }),
+      onLine: (line) => lines.push(line),
+    });
+    assert.equal(result.ok, true, "판정은 check.mjs 가 한다");
+    assert.ok(lines.some((line) => /타임아웃/.test(line)), lines.join(" / "));
+    const record = JSON.parse(await readFile(logPath(ws.project, "G3", 1), "utf8"));
+    assert.equal(record.child.timed_out, true);
+  } finally {
+    await ws.cleanup();
+  }
+});
+
+test("자식이 무엇을 거부당했는지 로그에 남는다", async () => {
+  // 4회차 G1 은 두 회차 연속 "node 실행 권한이 막혔다" 고 보고했다. 실제로 그 명령을
+  // 그대로 돌려 보면 거부 0건에 종료 코드 0 이다 — **자식의 진단을 검증할 수단이 없었다.**
+  // `claude -p --output-format json` 이 permission_denials 를 주는데 실행기가 버리고 있었다.
+  const ws = await bed();
+  try {
+    const denied = [{ tool_name: "Bash", tool_input: { command: 'node x.mjs; echo "$?"' } }];
+    await runExec("G3", ws.ctx, {
+      spawn: async () => ({
+        code: 0,
+        stdout: JSON.stringify({ result: "SUMMARY: 했다", permission_denials: denied }),
+        stderr: "",
+      }),
+      check: async () => ({ ok: true, reasons: [] }),
+    });
+    const record = JSON.parse(await readFile(logPath(ws.project, "G3", 1), "utf8"));
+    assert.deepEqual(record.child.denials, ['Bash: node x.mjs; echo "$?"']);
+  } finally {
+    await ws.cleanup();
+  }
+});
+
+test("거부가 없으면 없다고 남는다", async () => {
+  // 빈 배열이어야 "못 봤다" 와 "없었다" 가 구분된다.
+  const ws = await bed();
+  try {
+    await runExec("G3", ws.ctx, {
+      spawn: async () => childOutput("SUMMARY: 했다"),
+      check: async () => ({ ok: true, reasons: [] }),
+    });
+    const record = JSON.parse(await readFile(logPath(ws.project, "G3", 1), "utf8"));
+    assert.deepEqual(record.child.denials, []);
+  } finally {
+    await ws.cleanup();
+  }
+});
+
 test("실패하면 사유를 프롬프트에 넣어 재시도한다", async () => {
   const ws = await bed();
   try {
@@ -218,6 +347,8 @@ test("자식의 마지막 SUMMARY 한 줄만 다음 게이트로 넘어간다", 
   // SUMMARY 가 없으면 대화 전문을 넘기지 않는다. 그게 맥락 유실 방지의 핵심이다.
   assert.equal(execSummary(JSON.stringify({ result: "그냥 끝냈다" })), null);
   assert.equal(execSummary("JSON 이 아니다"), null);
+  assert.deepEqual(execDenials("JSON 이 아니다"), []);
+  assert.deepEqual(execDenials(JSON.stringify({ result: "x" })), []);
 });
 
 test("CLI 는 선행 게이트가 막혀 있으면 세션을 띄우지 않는다", async () => {

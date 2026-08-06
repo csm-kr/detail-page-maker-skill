@@ -45,7 +45,14 @@ const TEMPLATE = `# templates.md — 원본
 // 3회차에 여기만 `headline_lines` 였고, 그래서 섹션 메시지가 프롬프트에 한 줄도
 // 들어가지 않은 채 목업이 생성됐다. 테스트가 같은 오타를 쓰고 있어서 초록이었다.
 const SECTIONS = [
-  { id: "hero", role: "hero", headline: "가지에 걸어두면<br>그걸로 끝", subcopy: "한 장이면 됩니다" },
+  {
+    id: "hero",
+    role: "hero",
+    kicker: "해충끈끈이",
+    emphasis: "강력한 접착력",
+    headline: "가지에 걸어두면<br>그걸로 끝",
+    subcopy: "한 장이면 됩니다",
+  },
   { id: "problem", role: "pain", headline: "한두 마리라고", subcopy: "그냥 두실 건가요" },
 ];
 
@@ -77,6 +84,36 @@ test("섹션의 헤드라인과 역할이 프롬프트에 들어간다", () => {
   assert.ok(prompt.includes("그걸로 끝"), "두 번째 줄이 빠졌다");
   assert.ok(prompt.includes("한 장이면 됩니다"), "보조 메시지가 빠졌다");
   assert.ok(prompt.includes("hero"));
+});
+
+// 4회차: 조립기가 템플릿을 전량 싣고 **맨 끝에서 그것을 뒤집었다.** templates.md 는
+// `모든 문구는 자연스러운 한글로 작성한다`·`한 이미지당 메인 헤드라인은 1개만` 을 11번
+// 말하는데, `scene()` 의 마지막 줄이 `이미지 안에 한글이나 영문 글자를 그리지 않는다` 였다.
+// 생성기는 가장 뒤의 가장 구체적인 지시를 따랐고, 14장이 전부 **문자 없는 제품 사진**으로
+// 왔다. 팔레트는 재도 타이포는 잴 것이 없어서 가이드의 §타이포·§구성 요소 — 이 문서의
+// 핵심 — 가 통째로 비었다. 목업이 상세페이지 목업이 아니면 이 게이트는 아무것도 못 끌어올린다.
+test("장면 지시가 템플릿을 뒤집지 않는다 — 글자를 빼라고 하지 않는다", () => {
+  const prompt = assemblePrompt({ template: TEMPLATE, section: SECTIONS[0], face: "allow" });
+  assert.ok(
+    !/글자를 그리지 않는다|글자를 넣지 않는다/.test(prompt),
+    "조립기가 템플릿의 한글 헤드라인 지시를 맨 끝에서 취소한다",
+  );
+});
+
+test("화면 문자를 이미지 안에 조판하라고 지시한다", () => {
+  const prompt = assemblePrompt({ template: TEMPLATE, section: SECTIONS[0], face: "allow" });
+  assert.match(prompt, /조판/, "문구를 이미지 안에 넣으라는 지시가 없다");
+});
+
+test("kicker 와 emphasis 도 프롬프트에 들어간다", () => {
+  const prompt = assemblePrompt({ template: TEMPLATE, section: SECTIONS[0], face: "allow" });
+  assert.ok(prompt.includes("해충끈끈이"), "kicker 가 빠졌다");
+  assert.ok(prompt.includes("강력한 접착력"), "emphasis 가 빠졌다");
+});
+
+test("적어 준 문구 밖을 지어내지 말라고 못 박는다", () => {
+  const prompt = assemblePrompt({ template: TEMPLATE, section: SECTIONS[0], face: "allow" });
+  assert.match(prompt, /위에 적은 문구만/, "근거 없는 문장·수치를 막는 줄이 없다");
 });
 
 test("섹션마다 하나씩 작업을 만든다", () => {

@@ -46,6 +46,7 @@ import {
   resolveProject,
   resolveWorkspace,
 } from "./lib/project.mjs";
+import { tileBundle } from "./lib/tiles.mjs";
 
 const out = (text) => process.stdout.write(`${text}\n`);
 
@@ -436,6 +437,10 @@ async function cmdCaptureByExtractor({ entry, url, label, workspace, project }) 
   ${path.relative(workspace, outDir)} 의 evidence/ 에서 상태 코드를 확인한다.`,
     );
   }
+
+  // 받은 것과 읽은 것은 다른 일이다. 공급처 상세는 한 장으로 오는 경우가 있고
+  // (4회차 도매꾹: 800×16820) 그대로 열면 축소본이라 문자가 사라진다.
+  await tileBundle({ dir: outDir, onLine: out });
 
   const lockFile = path.join(project, "work", "inputs.lock.json");
   const parsed = JSON.parse(await readFile(lockFile, "utf8"));

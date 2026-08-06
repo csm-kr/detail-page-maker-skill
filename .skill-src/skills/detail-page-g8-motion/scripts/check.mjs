@@ -4,8 +4,10 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import {
+  bytesUnder,
   json,
   mtime,
+  policy,
   section,
   text,
   want,
@@ -26,7 +28,7 @@ function pageTerms(page) {
     .filter(Boolean);
 }
 
-export async function check({ project }) {
+export async function check({ workspace, project }) {
   const reasons = [];
   const index = await json(project, path.join("work", "comps", "index.json"));
   const plan = await json(project, "flow-plan.json");
@@ -147,6 +149,17 @@ export async function check({ project }) {
       reasons.push(`${entry.brief} 에 comp 와 gif 경로가 필요하다`);
     }
   }
+
+  // 미디어 예산은 **만드는 자리에서** 본다. 5회차에 G10 이 12.6MB 로 거부했는데 그중
+  // 84%가 GIF 였다. G10 은 스크립트 게이트라 스스로 줄이지 못하고, 여기까지 오면
+  // 앞 게이트를 전부 되돌려야 한다. 숫자는 정책값 하나를 G10 과 같이 본다.
+  const { media_budget_mb: budgetMb = 12 } = await policy(workspace);
+  const mediaMb = (await bytesUnder(path.join(project, "output", "media"))) / (1024 * 1024);
+  want(
+    reasons,
+    mediaMb <= budgetMb,
+    `미디어 총량 ${mediaMb.toFixed(1)} MB 가 상한 ${budgetMb} MB 를 넘는다. GIF 가 대부분이면 여기서 줄인다`,
+  );
 
   const counts = new Map();
   for (const entry of entries) counts.set(entry.method, (counts.get(entry.method) ?? 0) + 1);

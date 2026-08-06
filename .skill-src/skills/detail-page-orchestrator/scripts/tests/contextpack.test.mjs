@@ -136,6 +136,39 @@ test("모든 팩이 정본 전량의 1/3 이하다", async () => {
   }
 });
 
+test("팩이 주는 경로를 쉘이 그대로 쓸 수 있다", async () => {
+  // 4회차 G1: 팩이 `node C:\a\b\orchestrate.mjs ... --check` 를 bash 블록으로 줬다.
+  // Git Bash 에서 백슬래시는 이스케이프다 — 인자가 `C:ab...` 로 뭉개져
+  // ENOENT 가 났고, 자식은 그것을 "샌드박스가 node 를 막았다" 로 보고했다.
+  // 그래서 검사를 한 번도 못 돌렸다. 오진이 아니라 **팩이 못 쓰는 경로를 준 것**이다.
+  const ws = await bed();
+  try {
+    const pack = await buildPack("G1", ws.ctx);
+    const fenced = [...pack.text.matchAll(/```(?:bash)?\n([\s\S]*?)```/g)].map((m) => m[1]);
+    assert.ok(fenced.length > 0, "팩에 코드 블록이 없다");
+    for (const block of fenced) {
+      assert.ok(!/[A-Za-z]:\\/.test(block), `백슬래시 경로가 남아 있다:\n${block}`);
+    }
+    assert.match(pack.text, /orchestrate\.mjs gate G1 --check/);
+  } finally {
+    await ws.cleanup();
+  }
+});
+
+test("팩이 쉘에서 무엇이 거부되는지 알려준다", async () => {
+  // 도구 허용은 `Bash(node *)` 다 — `node` 로 **시작하는** 명령만 매치한다.
+  // 4회차 자식이 `node ... ; echo "EXIT_CODE=$?"` 를 붙였다가 거부당했다.
+  // 실행기가 정한 제약이면 실행기가 말해 줘야 한다.
+  const ws = await bed();
+  try {
+    const pack = await buildPack("G1", ws.ctx);
+    assert.match(pack.text, /&&/);
+    assert.match(pack.text, /거부/);
+  } finally {
+    await ws.cleanup();
+  }
+});
+
 test("읽으라는 정본이 없으면 조용히 넘어가지 않는다", async () => {
   const ws = await bed();
   try {

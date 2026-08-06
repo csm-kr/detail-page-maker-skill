@@ -14,9 +14,22 @@ import path from "node:path";
 
 import { runCheck } from "./check.mjs";
 import { buildPack } from "./contextpack.mjs";
+import { RUN_GATES } from "./gates.mjs";
+import { hashFile } from "./hashchain.mjs";
 
-/** harness 와 같다. 게이트 하나가 30분을 넘으면 그건 게이트가 큰 것이다. */
+/** 어느 게이트도 이보다 오래 잡고 있지 않는다. */
 export const EXEC_TIMEOUT_MS = 30 * 60 * 1000;
+
+/**
+ * 게이트 하나의 밧줄. **예산에서 나온다.**
+ *
+ * 5회차 G11 은 예산 5분짜리인데 30분을 세 번 받아 **90분**을 썼다. 예산의 세 배를
+ * 넘겼으면 그건 프롬프트가 아니라 게이트를 볼 자리다. 바닥 10분은 세션 시작 비용이다 —
+ * 예산 2분짜리 게이트도 모델을 띄우고 파일을 읽는 데는 같은 시간이 든다.
+ */
+export function execTimeoutMs(g) {
+  return Math.min(EXEC_TIMEOUT_MS, Math.max(10, (g?.budgetMin ?? 10) * 3) * 60 * 1000);
+}
 
 /** 세 번까지. harness 와 같다 — 네 번째는 프롬프트가 아니라 게이트를 고칠 자리다. */
 export const MAX_ATTEMPTS = 3;
@@ -91,6 +104,55 @@ export function execSummary(stdout) {
   return found ? found[1] : null;
 }
 
+/**
+ * 자식이 무엇을 거부당했는가. **자식의 진단을 그대로 믿지 않기 위해 필요하다** —
+ * 4회차 G1 은 두 회차 연속 "node 실행 권한이 막혔다" 고 보고했는데 그 명령을 그대로
+ * 돌리면 거부 0건에 종료 코드 0 이었다. 없으면 빈 배열이다: "못 봤다" 와 구분한다.
+ */
+export function execDenials(stdout) {
+  let list;
+  try {
+    list = JSON.parse(stdout)?.permission_denials;
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(list)) return [];
+  return list.map((item) => {
+    const name = item?.tool_name ?? "?";
+    const input = item?.tool_input ?? {};
+    const detail = input.command ?? input.file_path ?? input.url ?? "";
+    return detail ? `${name}: ${detail}` : name;
+  });
+}
+
+/**
+ * 다른 게이트의 산출물. 팩은 "다른 게이트의 파일을 고치지 않는다" 고 말하지만
+ * **말로 한 제약은 제약이 아니다.** 5회차에 두 번 어겼고 둘 다 git 을 열기 전에는 몰랐다.
+ */
+function foreignOutputs(id) {
+  return RUN_GATES.filter((g) => g.id !== id).flatMap((g) =>
+    (g.outputs ?? []).map((rel) => ({ owner: g.id, rel })),
+  );
+}
+
+async function ownershipSnapshot(project, id) {
+  const shot = new Map();
+  for (const item of foreignOutputs(id)) {
+    shot.set(`${item.owner}: ${item.rel}`, await hashFile(path.join(project, item.rel)));
+  }
+  return shot;
+}
+
+/** 스냅샷 뒤로 바뀐 남의 산출물. 막지는 않는다 — 판정은 언제나 check.mjs 다. */
+async function trespassSince(project, id, before) {
+  const changed = [];
+  for (const [key, digest] of before) {
+    const rel = key.slice(key.indexOf(": ") + 2);
+    if ((await hashFile(path.join(project, rel))) !== digest) changed.push(key);
+  }
+  return changed;
+}
+
 /** 재시도 프롬프트. 앞 시도가 무엇으로 거부됐는지 넣는다. */
 export function retryText(packText, reasons, attempt) {
   return [
@@ -105,13 +167,28 @@ export function retryText(packText, reasons, attempt) {
   ].join("\n");
 }
 
+/**
+ * Windows 에서 `claude` 는 `.cmd` 셔임이라 셸 없이는 뜨지 않는다. 그런데 `shell: true`
+ * 로 spawn 하면 Node 는 인자를 **이스케이프 없이 이어붙인다**(DEP0190 이 그렇게 경고한다).
+ *
+ * 4회차: 그래서 `--allowedTools ... Bash(node *)` 가 cmd.exe 에서 공백과 괄호로 쪼개졌고,
+ * 자식은 깨진 허용 목록을 받아 **모든 Bash 를 거부당했다.** `node -e "console.log(1+1)"`
+ * 조차 막혔다. 자식은 "node 실행 권한이 막혔다" 고 정확히 보고했는데, 실행기가 그 보고를
+ * 남기지 않아 두 회차를 오진으로 흘려보냈다.
+ */
+export function shellQuote(arg) {
+  const value = String(arg);
+  return /^[A-Za-z0-9_.:\\/=-]+$/.test(value) ? value : `"${value.replace(/"/g, '\\"')}"`;
+}
+
 /** 기본 실행기. 테스트는 이 자리를 갈아 끼운다. */
 function realSpawn({ command, args, stdin, cwd, timeoutMs }) {
   return new Promise((resolve, reject) => {
-    const child = nodeSpawn(command, args, {
+    const shell = process.platform === "win32";
+    const child = nodeSpawn(command, shell ? args.map(shellQuote) : args, {
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
-      shell: process.platform === "win32",
+      shell,
     });
     let stdout = "";
     let stderr = "";
@@ -163,21 +240,38 @@ export async function runExec(id, ctx, options = {}) {
     await writeFile(promptPath(ctx.project, id, attempt), stdin, "utf8");
 
     onLine(`${id} 시도 ${attempt}/${MAX_ATTEMPTS} · 팩 ${Buffer.byteLength(stdin, "utf8")}B`);
+    const owned = await ownershipSnapshot(ctx.project, id);
     const startedAt = Date.now();
     const child = await spawn({
       command,
       args: execArgs(ctx.project),
       stdin,
       cwd: ctx.project,
-      timeoutMs: EXEC_TIMEOUT_MS,
+      timeoutMs: execTimeoutMs(pack.gate),
     });
     const elapsedMs = Date.now() - startedAt;
+
+    // 끝까지 간 세션과 죽인 세션이 같아 보이면 안 된다. 5회차 G11 은 세 시도가 전부
+    // 타임아웃이었는데 화면에는 `통과 · 1800초` 만 나왔다.
+    const timedOut = child.code === 124;
+    if (timedOut) {
+      onLine(
+        `${id} 시도 ${attempt} 타임아웃 ${Math.round(execTimeoutMs(pack.gate) / 60000)}분 — 자식을 죽였다`,
+      );
+    }
 
     // 자식이 무엇을 보고했든 **부모가 다시 판정한다.**
     const verdict = await check(attempt);
     reasons = verdict.reasons ?? [];
     const line = execSummary(child.stdout);
     if (line) summary = line;
+    const denials = execDenials(child.stdout);
+    if (denials.length > 0) onLine(`${id} 자식이 거부당한 것 ${denials.length}건 — ${denials[0]}`);
+
+    const trespass = await trespassSince(ctx.project, id, owned);
+    if (trespass.length > 0) {
+      onLine(`${id} 남의 산출물을 만졌다 ${trespass.length}건 — ${trespass.join(" · ")}`);
+    }
 
     const record = {
       gate: id,
@@ -190,7 +284,13 @@ export async function runExec(id, ctx, options = {}) {
         missing: pack.missing,
         inputs: pack.inputs.map((item) => item.spec),
       },
-      child: { code: child.code, stderr: (child.stderr ?? "").slice(0, 4000) },
+      child: {
+        code: child.code,
+        stderr: (child.stderr ?? "").slice(0, 4000),
+        denials,
+        timed_out: timedOut,
+        trespass,
+      },
       summary: line,
       check: { ok: verdict.ok === true, reasons },
     };
@@ -201,7 +301,11 @@ export async function runExec(id, ctx, options = {}) {
       if (summary && ctx.state?.gates) {
         (ctx.state.gates[id] ??= {}).summary = summary;
       }
-      onLine(`${id} 통과 · ${Math.round(elapsedMs / 1000)}초`);
+      onLine(
+        `${id} 통과 · ${Math.round(elapsedMs / 1000)}초${
+          timedOut ? " · 다만 자식은 죽인 것이다. 산출물이 반쪽일 수 있다" : ""
+        }`,
+      );
       return { ok: true, attempts, reasons: [], summary };
     }
 
