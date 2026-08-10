@@ -8,6 +8,13 @@
       "computedHash": "4cbf53edc1aa424f143cc4b44fedb838a77c1e2cf97e10236a762639c4c8a139",
       "skillFileSha256": "5f1fe24c7a59cfbc5ea55b3ab8716f51fc1726b2a60bb1c435ff05ef9e7ad485"
     },
+    "commercial-render": {
+      "source": "commercial-render skill",
+      "sourceType": "generated-local",
+      "skillPath": "skills/commercial-render/SKILL.md",
+      "computedHash": "aa407ae1a7dffaf81a2c07e04196756377327cd6f0a05ab0d3eb31c6d7720588",
+      "skillFileSha256": "dd5cde30ba00c3189a99319bfaf4681667f0e28253d74aceaeec4157e6b47fc1"
+    },
     "coupang-extractor": {
       "source": "project-vendored skill",
       "sourceType": "vendored-project",
@@ -84,6 +91,13 @@
       "skillPath": "skills/hyperframes-registry/SKILL.md",
       "computedHash": "19ca0bf6b757d91963e57b182c3bbf2304362752670bf47093035c75c760e820",
       "skillFileSha256": "19ca0bf6b757d91963e57b182c3bbf2304362752670bf47093035c75c760e820"
+    },
+    "make-consistent-gif": {
+      "source": "make-consistent-gif skill",
+      "sourceType": "generated-local",
+      "skillPath": "skills/make-consistent-gif/SKILL.md",
+      "computedHash": "74c45f6b506c44fabcf376859887be6f51a2403c0492288eabc4944da37777a9",
+      "skillFileSha256": "c798e39ed7c0db9907af595af09a87b753e511c637c3a3663f5f7b1057a3d9d2"
     },
     "media-use": {
       "source": "heygen-com/hyperframes",

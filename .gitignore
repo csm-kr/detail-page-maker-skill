@@ -19,3 +19,7 @@
 **/qa/captures/
 **/__pycache__/
 *.pyc
+
+# 스모크 렌더는 spec.json 에서 재생성한다
+**/commercial-render/smoke/renders/
+**/commercial-render/smoke/projects/

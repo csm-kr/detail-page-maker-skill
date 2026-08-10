@@ -11,6 +11,8 @@ description: 상세페이지 상업 증명 모션을 만든다. 제품 사실과
 ## 실행
 
 1. [`references/proof-verbs.md`](references/proof-verbs.md)에서 이 제품이 **실제로 증명 가능한** 동사만 고른다.
+   감각·성능처럼 사진으로 안 보이는 주장은 [`references/claim-visuals.md`](references/claim-visuals.md)에서
+   시각 은유를 먼저 고르고 근거 등급을 확인한다.
 2. 동사마다 근거를 확인한다. 근거가 약하면 대체 동사를 검토하되, 슬롯 발급을 막지는 않는다.
 3. [`references/engine-routing.md`](references/engine-routing.md)로 동사별 엔진을 확정한다.
 4. `motions.json` 슬롯 스펙을 쓴다. 스키마는 `scripts/build_motions.py --schema`.
@@ -49,6 +51,12 @@ make-consistent-gif로 오버레이 정보 모션을 만들지 않는다. 결정
 
 `visible_delta`를 쓸 수 없으면 그 모션은 장식이다. 정지 이미지로 내린다.
 
+## 커버리지
+
+문제 2+ · 해결 장점별 1+ · 사용 1+ · 비교 1+ · **치수 1+**.
+치수는 상품 종류와 무관하게 항상 만든다. 수치 근거가 없으면 `재기` 대신
+`대보기`(기준물 비교)로 바꾸되 슬롯 자체를 빼지 않는다.
+
 ## 하드 게이트 — 이것만 실패로 막는다
 
 - 첫 프레임에 제품 또는 문제 · 한 줄 메시지 · 시각 근거가 **모두** 보인다.
@@ -79,6 +87,7 @@ make-consistent-gif로 오버레이 정보 모션을 만들지 않는다. 결정
 | 상황 | 문서 |
 | --- | --- |
 | 동사 고르기·근거 게이트·카테고리별 기본 세트 | [`proof-verbs.md`](references/proof-verbs.md) |
+| 안 보이는 주장을 무엇으로 보이게 할지 | [`claim-visuals.md`](references/claim-visuals.md) |
 | 엔진 결정·fallback·두 엔진 혼용 | [`engine-routing.md`](references/engine-routing.md) |
 | 780 컴포지션 뼈대·오버레이 종류·결정론 허용 속성 | [`composition.md`](references/composition.md) |
 | fps·팔레트·디더·용량 예산 | [`gif-budget.md`](references/gif-budget.md) |
