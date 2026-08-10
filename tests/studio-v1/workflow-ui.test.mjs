@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 const REPOSITORY_ROOT = path.resolve(
-  new URL("../..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1"),
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
 );
 
 async function studioFile(fileName) {

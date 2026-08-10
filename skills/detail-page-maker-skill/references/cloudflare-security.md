@@ -18,7 +18,7 @@ bootstrap, owner, runtime integrity 검증은 선택 사항이 아니다.
 - `wrangler_entry_sha256`
 - `wrangler_runtime_tree_sha256`
 - canonical `runtime_root`, `wrangler_runtime_lock`, `bootstrap_receipt_path`
-- `node-permission-register-hooks-memory-v1` execution policy
+- `node-permission-register-hooks-memory-auth-read-project-write-v3` execution policy
 - machine-local `writer_id`
 
 secret과 writer ID 원문은 config, receipt, manifest, 결과, stdout/stderr에 기록하지

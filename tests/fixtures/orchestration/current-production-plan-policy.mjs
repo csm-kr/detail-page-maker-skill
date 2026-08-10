@@ -3,6 +3,11 @@ import {
   CATEGORY_REFERENCE_QA_DIMENSIONS,
   getCategoryReferenceLibrary,
 } from "../../../skills/detail-page-maker-skill/scripts/orchestration/category-reference-library.mjs";
+import {
+  SALES_ASSET_METADATA_FIELDS,
+  SALES_MOTION_PHASES,
+  SALES_MOTION_TEMPLATE_IDS,
+} from "../../../skills/detail-page-maker-skill/scripts/orchestration/sales-motion-pipeline-contract.mjs";
 
 const SHA256 = "a".repeat(64);
 const REFERENCE_QA_DIMENSIONS = [
@@ -180,26 +185,201 @@ function bindMotion(plan, profileDigest) {
       customer_question:
         "이 제품의 구조가 사용 중 어떻게 달라지는가?",
       feature_part: `feature-part-${index + 1}`,
-      method: "hybrid",
+      method: "fixed-product-graphics",
       pattern_id: patternIds[index] ?? `motion-pattern-${index + 1}`,
       start_state: `start-state-${index + 1}`,
       mid_state: `mid-state-${index + 1}`,
       end_state: `end-state-${index + 1}`,
       visible_delta:
         "제품 본체의 위치·형태·접촉 상태가 프레임 사이에서 분명히 달라진다.",
-      overlay_only: false,
+      decorative_overlay_only: false,
+      one_message: true,
+      information_delivery_mode: "fixed_product_graphic_composite",
       background_contrast: "제품 윤곽이 분리되는 고대비 배경",
-      answer_within_seconds: 1.5,
+      answer_within_seconds: 1,
       canvas: { width: 780, height: 600 },
       fps: 24,
       duration_seconds: 4,
       output_format: "gif+animated-webp",
       placement_scale: "chapter",
+      template_id: "T1_HERO_REVEAL",
+      purpose: `chapter-${index + 1}의 구매 질문 하나를 1초 안에 답한다.`,
+      product_geometry_locked: true,
+      generative_product_morphing_allowed: false,
+      generative_morphing_allowed: false,
+      public_media_strategy:
+        "single_motion_surface_with_poster_fallback",
+      effect_policy: {
+        base_transition_family_count: 1,
+        accent_transition_count: index === 0 ? 1 : 0,
+        strong_effect_usage:
+          index === 0 ? "product_entrance" : "none",
+        information_remains_primary: true,
+      },
+      // 인접 GIF가 카메라·핵심 변화·전환·강조 그래픽 네 축 모두에서 달라지도록
+      // index로 값을 벌린다. 계약은 최소 두 축을 요구한다.
+      camera: `camera-${index + 1}`,
+      core_change: `core-change-${index + 1}`,
+      transition: `transition-${index + 1}`,
+      emphasis_graphic: `emphasis-${index + 1}`,
+      first_frame: {
+        product_or_problem_visible: true,
+        message: `chapter-${index + 1}의 한 줄 메시지`,
+        visual_evidence: `chapter-${index + 1}에서 확인되는 구조 근거`,
+      },
+      loop: {
+        mode: "ping_pong",
+        pixel_boundary_pass_required: true,
+        perceptual_continuity_pass_required: true,
+      },
+      identity_invariants: [
+        "제품 색상은 승인된 기준 이미지와 같다.",
+        "제품 외형과 부품 구성은 바뀌지 않는다.",
+        "제품 비율과 크기 관계는 고정된다.",
+        "표면 재질 표현은 실제 자산에서만 온다.",
+      ],
     };
     brief.reference_profile_digest = profileDigest;
     brief.knowledge_rule_packet_digest = "9".repeat(64);
     brief.applied_rule_ids = ["MR-001"];
   });
+}
+
+const IMAGE_CANDIDATE_COUNTS = [8, 8, 6, 6, 4];
+const IMAGE_SHOT_TYPES = [
+  "hero_front",
+  "feature_detail_1",
+  "usage_scene_1",
+  "before_scene",
+  "feature_overview",
+];
+const IMAGE_TEMPLATES = [
+  "T1_HERO_REVEAL",
+  "T3_FEATURE_HOTSPOT",
+  "T6_STEPS_FLOW",
+  "T5_BEFORE_AFTER_SLIDER",
+  "T10_INFO_CARDS",
+];
+const LOGICAL_SHOT_GROUPS = [
+  ["product_base", 8, ["hero_front", "hero_angle"]],
+  ["feature_detail", 6, ["feature_detail_1", "feature_detail_2"]],
+  ["dimension", 4, ["dimension_front", "dimension_side"]],
+  ["feature_overview", 4, ["feature_overview"]],
+  ["state_pair", 4, ["before_scene", "after_scene"]],
+  ["usage", 4, ["usage_scene_1", "usage_scene_2"]],
+  ["component_structure", 2, ["components_flatlay", "exploded_view"]],
+];
+
+function bindImageBatch(plan) {
+  plan.image_job_set.jobs.forEach((job, index) => {
+    job.candidate_count = IMAGE_CANDIDATE_COUNTS[index] ?? 0;
+    job.shot_type = IMAGE_SHOT_TYPES[index];
+    job.recommended_template = IMAGE_TEMPLATES[index];
+    job.identity = {
+      ...(job.identity ?? {}),
+      canonical_reference_required: true,
+      invariant_conditions: [
+        "승인된 기준 이미지의 색상을 유지한다.",
+        "제품 형태와 외곽선을 바꾸지 않는다.",
+        "부품 구성과 개수를 유지한다.",
+        "제품 비율과 구성 배치를 유지한다.",
+      ],
+    };
+  });
+  plan.image_job_set.generation_batch = {
+    strategy: "single_concurrent_batch",
+    planned_images: 32,
+    provider_workers: 32,
+  };
+}
+
+function bindSectionMessages(plan) {
+  plan.section_graph_draft.sections.forEach((section, index) => {
+    section.message_contract = {
+      message_count: 1,
+      customer_sentence:
+        "빠르게 넘겨도 이 구간의 핵심 하나가 바로 읽힌다.",
+      headline_lines: [`chapter-${index + 1} 핵심 한 줄`],
+      primary_media: index % 2 === 0 ? "image" : "motion",
+      visual_proof: "제품 구조를 그대로 보여주는 주 시각 하나",
+      next_section_reason:
+        "확인한 장점을 실제 사용 장면으로 이어서 증명한다.",
+      alignment: "center",
+      minimum_visual_occupancy_percent: 60,
+    };
+  });
+}
+
+function bindSolutionMedia(plan) {
+  for (const solution of plan.commercial_flow.solution_modules) {
+    solution.public_media_strategy = "single_primary_surface";
+    solution.still_role = "motion_poster_or_separate_evidence_section";
+  }
+}
+
+function bindScrollQa(plan) {
+  plan.rubric_target.coupang_scroll_qa = {
+    first_second_message_required: true,
+    fast_scroll_story_required: true,
+    center_axis_max_offset_px: 8,
+    minimum_title_px_390: 28,
+    minimum_title_px_780: 44,
+    minimum_visual_density_percent: 55,
+    lazy_loading_fast_scroll_pass_required: true,
+    redundant_still_motion_allowed: false,
+  };
+}
+
+function bindSalesMotionPipeline(plan) {
+  plan.sales_motion_pipeline = {
+    phases: [...SALES_MOTION_PHASES],
+    image_generation: {
+      provider: "chatgpt-image-2-via-god-tibo",
+      candidate_count: 32,
+      provider_workers: 32,
+      execution_strategy: "single_concurrent_batch",
+      role_groups_are_logical_only: true,
+      sequential_role_batches_allowed: false,
+      logical_groups: LOGICAL_SHOT_GROUPS.map(
+        ([groupId, candidateCount, shotTypes]) => ({
+          group_id: groupId,
+          candidate_count: candidateCount,
+          shot_types: [...shotTypes],
+        }),
+      ),
+      anchor_set: {
+        count: 4,
+        source: "approved_actual_or_supplier_references",
+        identity_invariants: [
+          "형태",
+          "색",
+          "비율",
+          "부품",
+          "재질",
+          "표면",
+        ],
+        anchor_first_only_when_source_views_insufficient: true,
+      },
+    },
+    asset_selection: {
+      use_all_candidates: false,
+      selected_count_minimum: 8,
+      selected_count_maximum: 15,
+      required_metadata_fields: [...SALES_ASSET_METADATA_FIELDS],
+    },
+    callout_fallback_policy: {
+      point_threshold: 0.85,
+      bbox_threshold: 0.6,
+      low_confidence: "separate_detail_card",
+    },
+    render_pipeline: {
+      primary: "deterministic_silent_mp4",
+      converter: "ffmpeg",
+      derivatives: ["gif", "animated_webp"],
+      hyperframes_direct_gif_allowed: false,
+    },
+    template_catalog: [...SALES_MOTION_TEMPLATE_IDS],
+  };
 }
 
 function bindReferences(plan) {
@@ -368,6 +548,11 @@ export function applyCurrentProductionPlanPolicy(plan) {
   bindRules(plan);
   const profileDigest = bindReferences(plan);
   bindMotion(plan, profileDigest);
+  bindImageBatch(plan);
+  bindSectionMessages(plan);
+  bindSolutionMedia(plan);
+  bindScrollQa(plan);
+  bindSalesMotionPipeline(plan);
   bindRubricAndPlanning(plan);
   plan.commercial_flow.decision_recap ??= {
     section_id:

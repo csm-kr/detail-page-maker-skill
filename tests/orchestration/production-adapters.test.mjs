@@ -38,6 +38,7 @@ const SHA = Object.freeze({
   render: "9".repeat(64),
   gif: "a".repeat(64),
   qa: "b".repeat(64),
+  animatedWebp: "c".repeat(64),
 });
 const MOTION_SEMANTIC_CONTRACT = Object.freeze({
   customer_question: "제품 구조는 사용 중 어떻게 변하는가?",
@@ -140,11 +141,17 @@ function imageItemSpecs(referenceRoot) {
       candidate_id: "candidate-a",
       prompt: "제품의 정면 구조를 깨끗한 상업 사진으로 보여 준다.",
       references: [path.join(referenceRoot, "front-a.png")],
+      shot_type: "hero_front",
+      recommended_template: "T1_HERO_REVEAL",
+      consistency_group: "product-core",
     },
     {
       candidate_id: "candidate-b",
       prompt: "제품의 사용 상태를 동일한 구조로 보여 준다.",
       references: [path.join(referenceRoot, "front-b.png")],
+      shot_type: "usage_scene_1",
+      recommended_template: "T6_STEPS_FLOW",
+      consistency_group: "product-core",
     },
   ];
 }
@@ -253,6 +260,8 @@ function completeMotionChain(briefDigest) {
       motion_project_digest: SHA.project,
       preview_approval_digest: SHA.approval,
       source_identity_digest: SHA.identity,
+      output_format: "mp4",
+      audio: "silent",
       created_at: "2026-07-30T01:04:00.000Z",
     },
     gif: {
@@ -260,6 +269,10 @@ function completeMotionChain(briefDigest) {
       digest: SHA.gif,
       render_digest: SHA.render,
       source_identity_digest: SHA.identity,
+      conversion_engine: "ffmpeg",
+      source_format: "mp4",
+      output_format: "gif",
+      animated_webp_digest: SHA.animatedWebp,
       created_at: "2026-07-30T01:05:00.000Z",
     },
     final_qa: {
@@ -274,10 +287,11 @@ function completeMotionChain(briefDigest) {
         meaningful_state_change: true,
         static_superiority: true,
         pattern_distinct_from_adjacent: true,
-        overlay_only: false,
+        decorative_overlay_only: false,
+        information_overlay_verified: true,
         visible_delta_observation:
           "제품 본체의 형태와 접촉 위치가 달라졌다.",
-        answer_within_seconds: 1.5,
+        answer_within_seconds: 1,
         first_frame_sha256: "1".repeat(64),
         mid_frame_sha256: "2".repeat(64),
         last_frame_sha256: "3".repeat(64),
@@ -324,38 +338,43 @@ test("God Tibo adapter는 로컬 runner와 명시적 one-cut-per-worker argv만 
     );
     assert.equal(plan.adapter, "GodTiboImageAdapter");
     assert.equal(plan.runner_path, expectedRunner);
-    assert.equal(plan.commands.length, 2);
+    // 후보마다 커맨드를 나누지 않고 candidate 수만큼의 worker를 가진
+    // 단일 동시 batch 하나만 만든다.
+    assert.equal(plan.commands.length, 1);
+    const [command] = plan.commands;
     assert.deepEqual(
-      plan.commands.map((command) => command.candidate_id),
+      command.candidate_bindings.map(
+        (binding) => binding.candidate_id,
+      ),
       ["candidate-a", "candidate-b"],
     );
-    for (const command of plan.commands) {
-      assert.equal(command.command, process.execPath);
-      assert.equal(Array.isArray(command.argv), true);
-      assert.equal(command.argv[0], expectedRunner);
-      assert.equal(command.argv[1], "--job");
-      assert.equal(command.argv.length, 3);
-      assert.equal(command.job_spec.items.length, 1);
-      assert.equal(command.job_spec.workers, 1);
-      assert.equal(command.job_spec.detail_level, 3);
-      assert.equal(command.job_spec.size_mode, "controllable");
-      assert.equal(command.job_spec.target_size, "800x2000");
-      assert.equal(command.job_spec.gif, false);
-      assert.match(
-        command.job_spec.items[0].prompt,
-        /QUALITY_GATE:CLEAN_COMMERCIAL/,
-      );
-      assert.equal(
-        path.relative(stagingRoot, command.job_path).startsWith(".."),
-        false,
-      );
-      assert.equal(
-        path.relative(stagingRoot, command.job_spec.output_dir).startsWith(
-          "..",
-        ),
-        false,
-      );
+    assert.equal(command.provider_batch_size, 2);
+    assert.equal(command.provider_workers, 2);
+    assert.equal(command.command, process.execPath);
+    assert.equal(Array.isArray(command.argv), true);
+    assert.equal(command.argv[0], expectedRunner);
+    assert.equal(command.argv[1], "--job");
+    assert.equal(command.argv.length, 3);
+    assert.equal(command.job_spec.items.length, 2);
+    assert.equal(command.job_spec.workers, 2);
+    assert.equal(command.job_spec.detail_level, 3);
+    assert.equal(command.job_spec.size_mode, "controllable");
+    assert.equal(command.job_spec.target_size, "800x2000");
+    assert.equal(command.job_spec.gif, false);
+    for (const item of command.job_spec.items) {
+      assert.match(item.prompt, /QUALITY_GATE:CLEAN_COMMERCIAL/);
     }
+    assert.equal(
+      path.relative(stagingRoot, command.job_path).startsWith(".."),
+      false,
+    );
+    assert.equal(
+      path.relative(stagingRoot, command.job_spec.output_dir).startsWith(
+        "..",
+      ),
+      false,
+    );
+    assert.equal(plan.planning_receipt.provider_batch_count, 1);
     assert.equal(
       plan.planning_receipt.size_confirmation_decision_id,
       "decision-size-001",
@@ -380,11 +399,17 @@ test("God Tibo retry는 실패한 member만 같은 input hash로 다시 계획�
     });
 
     assert.equal(plan.retry_mode, "failed_members_only");
+    assert.equal(plan.commands.length, 1);
+    const bindings = plan.commands[0].candidate_bindings;
     assert.deepEqual(
-      plan.commands.map((command) => command.candidate_id),
+      bindings.map((binding) => binding.candidate_id),
       ["candidate-b"],
     );
-    assert.equal(plan.commands[0].input_sha256, SHA.inputB);
+    assert.equal(bindings[0].input_sha256, SHA.inputB);
+    assert.deepEqual(
+      plan.planning_receipt.planned_candidate_ids,
+      ["candidate-b"],
+    );
   });
 });
 
@@ -519,32 +544,37 @@ test("HyperFrames render/GIF argv는 exact preview approval digest 뒤에만 생
     });
 
     assert.equal(plan.gate_status, "preview_approved");
-    assert.equal(plan.render_commands.length, 2);
+    // 정본은 결정론적 무음 MP4 하나이고 GIF·animated WebP는 FFmpeg 파생이다.
+    assert.equal(plan.render_commands.length, 3);
     assert.deepEqual(
-      plan.render_commands.map((command) => command.argv.slice(1, 3)),
+      plan.render_commands.map((command) => command.step_id),
       [
-        ["render", "."],
-        ["render", "."],
+        "final-render",
+        "ffmpeg-gif-derivative",
+        "ffmpeg-animated-webp-derivative",
       ],
     );
+    const [renderCommand, gifCommand, webpCommand] =
+      plan.render_commands;
+    assert.deepEqual(renderCommand.argv.slice(1, 3), ["render", "."]);
+    assert.equal(renderCommand.command, process.execPath);
+    assert.equal(renderCommand.argv[0], fixture.cliPath);
+    assert.equal(renderCommand.argv.includes("mp4"), true);
     assert.equal(
-      plan.render_commands[0].argv.includes("mp4"),
-      true,
+      renderCommand.preview_approval_digest,
+      SHA.approval,
     );
-    assert.equal(
-      plan.render_commands[1].argv.includes("gif"),
-      true,
-    );
-    assert.equal(
-      plan.render_commands.every(
-        (command) =>
-          command.preview_approval_digest === SHA.approval &&
-          command.command === process.execPath &&
-          command.argv[0] === fixture.cliPath &&
-          Array.isArray(command.argv),
-      ),
-      true,
-    );
+    for (const derivative of [gifCommand, webpCommand]) {
+      assert.equal(derivative.command, "ffmpeg");
+      assert.equal(derivative.conversion_engine, "ffmpeg");
+      assert.equal(
+        derivative.source_artifact_type,
+        "motion.render.mp4",
+      );
+      assert.equal(Array.isArray(derivative.argv), true);
+    }
+    assert.match(gifCommand.argv.at(-1), /animation\.gif$/);
+    assert.match(webpCommand.argv.at(-1), /animation\.webp$/);
     assert.deepEqual(
       plan.qa_spec.frames.map((frame) => frame.at_seconds),
       [0, 2, 3.966667],

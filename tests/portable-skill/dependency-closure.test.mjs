@@ -55,14 +55,17 @@ test("G0부터 G5까지 필요한 프로젝트 로컬 스킬은 선언·잠금·
   );
 });
 
-test("상위 스킬은 God Tibo 기본값에 기대지 않고 8개 작업 단위를 명시한다", async () => {
+test("상위 스킬은 God Tibo 기본값에 기대지 않고 32개 작업 단위를 명시한다", async () => {
   const [skill, assets] = await Promise.all([
     readFile(path.join(SKILL_ROOT, "SKILL.md"), "utf8"),
     readFile(path.join(SKILL_ROOT, "references", "assets.md"), "utf8"),
   ]);
 
   assert.doesNotMatch(skill, /기본\s*배치[^\n]*16개/);
-  assert.match(skill, /작업 단위는 8개 `items`로 명시/);
-  assert.match(assets, /작업 단위: 8개 `items`를 명시/);
-  assert.match(assets, /God Tibo의 기본값을 사용하지 않는다/);
+  assert.match(skill, /`items` 32개/);
+  assert.match(skill, /`workers: 32`/);
+  assert.match(assets, /기본 작업 단위: 서로 다른 용도의 32개 `items`/);
+  assert.match(assets, /`workers: 32`, `single_concurrent_batch`/);
+  // 32개를 작은 batch로 쪼개 순차 실행하는 우회를 문서가 금지해야 한다.
+  assert.match(assets, /8개씩 네 번 나누는 순차 실행은 금지한다/);
 });

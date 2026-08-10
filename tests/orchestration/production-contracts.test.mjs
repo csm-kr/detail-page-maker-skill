@@ -120,6 +120,8 @@ function motionChain(overrides = {}) {
       motion_project_digest: SHA.project,
       preview_approval_digest: SHA.approval,
       source_identity_digest: SHA.identity,
+      output_format: "mp4",
+      audio: "silent",
       created_at: "2026-07-30T01:04:00.000Z",
     },
     gif: {
@@ -127,6 +129,10 @@ function motionChain(overrides = {}) {
       digest: SHA.gif,
       render_digest: SHA.render,
       source_identity_digest: SHA.identity,
+      conversion_engine: "ffmpeg",
+      source_format: "mp4",
+      output_format: "gif",
+      animated_webp_digest: "c".repeat(64),
       created_at: "2026-07-30T01:05:00.000Z",
     },
     final_qa: {
@@ -141,10 +147,11 @@ function motionChain(overrides = {}) {
         meaningful_state_change: true,
         static_superiority: true,
         pattern_distinct_from_adjacent: true,
-        overlay_only: false,
+        decorative_overlay_only: false,
+        information_overlay_verified: true,
         visible_delta_observation:
           "제품 본체의 형태와 접촉 위치가 달라졌다.",
-        answer_within_seconds: 1.5,
+        answer_within_seconds: 1,
         first_frame_sha256: "1".repeat(64),
         mid_frame_sha256: "2".repeat(64),
         last_frame_sha256: "3".repeat(64),

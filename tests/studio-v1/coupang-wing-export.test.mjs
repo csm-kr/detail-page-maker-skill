@@ -156,6 +156,127 @@ async function addVerifiedPublishApproval(state, projectRoot) {
   }));
 }
 
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, canonicalize(value[key])]),
+    );
+  }
+  return value;
+}
+
+function canonicalSha256(value) {
+  return sha256(JSON.stringify(canonicalize(value)));
+}
+
+// Wing 내보내기는 workflow artifact와 일치하는 immutable revision
+// directory 하나를 요구한다.
+async function addCommittedStudioRevision(state, projectRoot) {
+  const html = [
+    "<!doctype html>",
+    '<html lang="ko"><body><main>',
+    '<section data-section-id="hero"><h1>승인 상세페이지</h1></section>',
+    "</main></body></html>",
+  ].join("");
+  const revisionBody = {
+    schema_version: "1.0",
+    revision_id: "studio-rev-wing-fixture",
+    revision_kind: "committed",
+    mutable: false,
+    artifact_id: "studio-artifact-wing-fixture",
+    artifact_sha256: "4".repeat(64),
+    html_sha256: sha256(html),
+    rubric_sha256: "5".repeat(64),
+  };
+  const revision = {
+    ...revisionBody,
+    commit_sha256: canonicalSha256(revisionBody),
+    committed_at: "2026-07-30T12:00:00.000Z",
+  };
+  const revisionRoot = path.join(
+    projectRoot,
+    ".detail-page",
+    "workflow",
+    "revisions",
+    revision.revision_id,
+  );
+  await mkdir(revisionRoot, { recursive: true });
+  await writeFile(path.join(revisionRoot, "index.html"), html, "utf8");
+  await writeFile(
+    path.join(revisionRoot, "revision.json"),
+    `${JSON.stringify(revision, null, 2)}\n`,
+    "utf8",
+  );
+  await writeFile(
+    path.join(revisionRoot, "asset-manifest.json"),
+    `${JSON.stringify({ schema_version: "1.0", assets: [] }, null, 2)}\n`,
+    "utf8",
+  );
+
+  const artifact = {
+    artifact_id: revision.artifact_id,
+    type: "studio.committed_revision",
+    manifest_sha256: revision.commit_sha256,
+    member_ids: ["revision.json", "index.html"],
+    status: "fresh",
+    produced_by_stage: "G4C_STUDIO_COMMIT",
+    producer_agent_session_id: "studio-commit-producer",
+  };
+  const workOrder = {
+    work_order_id: "fixture-g4c-studio-commit",
+    stage_id: "G4C_STUDIO_COMMIT",
+    assigned_agent_session_id: "studio-commit-producer",
+    input_set_digest: "9".repeat(64),
+    expected_output_types: [artifact.type],
+    allowed_output_variants: [],
+    gate_policy_id: "policy.studio.commit.v1",
+  };
+  const commitValidationReceipt = createStructuralValidationReceipt({
+    workOrder,
+    outputArtifacts: [artifact],
+    workflowVersion: state.workflow_version,
+    createdAt: "2026-07-30T10:00:00.000Z",
+  });
+  artifact.commit_validation_receipt = structuredClone(
+    commitValidationReceipt,
+  );
+  const record = await createArtifactRecordStore(projectRoot).commit({
+    project_id: state.project_id,
+    work_order_id: workOrder.work_order_id,
+    stage_id: workOrder.stage_id,
+    input_set_digest: workOrder.input_set_digest,
+    producer_agent_session_id: "studio-commit-producer",
+    artifact,
+    execution_receipt: {
+      execution_id: "execution-fixture-g4c-studio-commit",
+      adapter_id: "StudioCommitAdapter",
+      adapter_version: "1.0.0",
+      adapter_code_sha256: "8".repeat(64),
+    },
+    commit_validation_receipt: commitValidationReceipt,
+  });
+  artifact.record_locator = record.record_locator;
+  artifact.record_sha256 = record.record_sha256;
+
+  state.stages.G4C_STUDIO_COMMIT.status = "completed";
+  state.graph.artifacts.push(artifact);
+  const publishBundle = state.graph.artifacts.find(
+    (candidate) => candidate.type === "page.publish_bundle",
+  );
+  state.graph.edges.push({
+    from: artifact.artifact_id,
+    to: publishBundle.artifact_id,
+    relation: "evidence_for",
+  });
+}
+
 
 test("쿠팡 Wing 내보내기는 G5 뒤 config namespace로 render·upload·verify하고 client URL을 무시한다", async () => {
   const temporaryRoot = await mkdtemp(
@@ -334,6 +455,10 @@ test("쿠팡 Wing 내보내기는 G5 뒤 config namespace로 render·upload·ver
     const stateStore = createFileStateStore(created.projectRoot);
     const workflowState = await stateStore.load(project.id);
     await addVerifiedPublishApproval(
+      workflowState,
+      created.projectRoot,
+    );
+    await addCommittedStudioRevision(
       workflowState,
       created.projectRoot,
     );

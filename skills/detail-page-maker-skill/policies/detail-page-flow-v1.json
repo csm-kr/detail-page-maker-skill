@@ -358,7 +358,7 @@
     "writer_transfer_requires_new_pages_project_and_base_url": true,
     "wrangler_execution": {
       "minimum_node_version": "22.15.0",
-      "execution_policy_id": "node-permission-register-hooks-memory-v1",
+      "execution_policy_id": "node-permission-register-hooks-memory-auth-read-project-write-v3",
       "disk_snapshot_allowed": false,
       "memory_sealed_sources_required": true,
       "module_register_hooks_required": true,

@@ -71,6 +71,9 @@ export function attachValidHeroAssurance(contract, {
   heroArtifactSha256 = sha256(
     "approved hero image bytes fixture",
   ),
+  // materialized member 조회는 artifact_id 또는 이 경로로 이뤄지므로
+  // 프로젝트 자산 매니페스트의 path와 같아야 한다.
+  heroArtifactPath = "assets/hero.bin",
   productBox = { x: 35, y: 170, width: 320, height: 430 },
   peerVisualBoxes = [
     { element_id: "hero-badge", x: 18, y: 24, width: 100, height: 40 },
@@ -168,6 +171,7 @@ export function attachValidHeroAssurance(contract, {
       (artifact) => artifact.artifact_id === heroArtifactId,
     );
   Object.assign(heroArtifact, {
+    path: heroArtifact.path ?? heroArtifactPath,
     sha256: heroSha256,
     approval_status: "approved",
     production_use_allowed: true,

@@ -207,7 +207,8 @@ async function addCommittedStudioRevision(state, projectRoot) {
   };
   const revisionRoot = path.join(
     projectRoot,
-    "studio",
+    ".detail-page",
+    "workflow",
     "revisions",
     revision.revision_id,
   );

@@ -104,8 +104,9 @@ Wrangler는 프로젝트 로컬 runtime을 검증한 뒤 Node 22.15+의 인라�
 launcher가 자식 시작 시 봉인한 memory source의 pinned entrypoint만
 Node argv와 `shell:false`로 실행한다. disk temp snapshot은 만들지 않는다.
 production child는 `node --permission`이며 child process·worker thread·native
-addon·WASI 권한을 열지 않는다. OAuth는 OS keyring을 사용하고 모든 호출에
-`CLOUDFLARE_AUTH_USE_KEYRING=true`를 강제한다. API token·OAuth token·Authorization
+addon·WASI 권한을 열지 않는다. OS keyring은 native addon을 요구해 이 권한
+경계에서 열 수 없으므로 모든 호출에 `CLOUDFLARE_AUTH_USE_KEYRING=false`를
+강제하고 자격 증명은 봉인한 env allowlist 밖으로 내보내지 않는다. API token·OAuth token·Authorization
 값을 config, job, manifest, stdout/stderr에 기록하지 않는다. package version뿐
 아니라 entrypoint 실제 파일 bytes의 SHA-256이 `wrangler_entry_sha256`과 정확히
 같아야 하며, runtime 경로의 symlink는 허용하지 않는다. load hook은

@@ -377,7 +377,7 @@ test("immutable Studio+HTML+rubric에 고정된 deterministic Browser Harness Wo
     );
     assert.match(
       captureCommand.stdin,
-      /goto_url\(URL\)/,
+      /new_background_tab\(URL\)/,
     );
     assert.match(
       captureCommand.stdin,

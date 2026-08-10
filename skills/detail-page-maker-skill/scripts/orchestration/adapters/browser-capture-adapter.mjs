@@ -70,13 +70,13 @@ export const PINNED_BEHANCE_RUBRIC = Object.freeze({
   rubric_id: "behance-commerce",
   rubric_version: "behance-commerce-v0.1",
   rubric_sha256:
-    "2dde69f994ffaf32518fa6f66d586559d36a2cfc61835a3695877e100fac4c55",
+    "49d95ead77ea9d19ac01707f813886e1ee7b0f8779d58b923ec5bd4d4253337c",
   policy_id: "policy.qa.behance-commerce.v0.1",
   policy_sha256:
     "66a11c24f43fd1c66fa17e1dadf7aa79dd5663eae4bc5b1d09d8fba9e3de4e65",
   source_snapshot_id: "behance-detail-page-2026-07-30-s01-s08",
   source_snapshot_sha256:
-    "9db5fcded9c2ef114875836c31e9a0cdef2c24081547dc2747f8959f1d7c43c6",
+    "e079d9c5c1760bc0a1b4c1a872f9f065e13057340f812573f12e85d625dd2ff4",
 });
 
 export class BrowserCaptureAdapterError extends Error {

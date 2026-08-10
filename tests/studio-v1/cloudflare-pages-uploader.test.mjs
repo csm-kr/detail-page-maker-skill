@@ -64,7 +64,8 @@ function ownerDigest({
     runtime_root: ".agents/runtime/cloudflare-pages",
     wrangler_runtime_lock: "wrangler-runtime-lock.json",
     bootstrap_receipt_path: ".detail-page/cloudflare-pages-bootstrap.json",
-    execution_policy_id: "node-permission-register-hooks-memory-v1",
+    execution_policy_id:
+      "node-permission-register-hooks-memory-auth-read-project-write-v3",
     writer_id: TEST_WRITER_ID,
   };
   return createHmac("sha256", TEST_OWNER_SECRET)
@@ -334,7 +335,7 @@ test("프로젝트 로컬 pinned Wrangler를 shell:false/keyring 강제로 실�
     for (const call of calls) {
       assert.equal(call.command, process.execPath);
       assert.equal(call.shell, false);
-      assert.equal(call.env.CLOUDFLARE_AUTH_USE_KEYRING, "true");
+      assert.equal(call.env.CLOUDFLARE_AUTH_USE_KEYRING, "false");
       assert.equal(call.env.CLOUDFLARE_API_TOKEN, undefined);
       assert.match(
         call.args[0],
@@ -465,6 +466,9 @@ test("새 namespace URL이 이미 200이면 deploy를 호출하지 않고 typed 
         runner,
         fetchImpl: async (url) => {
           if (url === item.asset.cdn_url) return response(item.assetBytes);
+          if (url === `${PUBLIC_BASE_URL}/deploy-index.json`) {
+            return response("", { status: 404 });
+          }
           throw new Error(`unexpected URL: ${url}`);
         },
       }),

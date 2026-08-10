@@ -4,12 +4,12 @@
   "rubric_version": "behance-commerce-v0.1",
   "version": "0.1.0",
   "status": "research-calibration",
-  "rubric_sha256": "2dde69f994ffaf32518fa6f66d586559d36a2cfc61835a3695877e100fac4c55",
+  "rubric_sha256": "49d95ead77ea9d19ac01707f813886e1ee7b0f8779d58b923ec5bd4d4253337c",
   "source_snapshot": {
     "snapshot_id": "behance-detail-page-2026-07-30-s01-s08",
     "research_date": "2026-07-30",
     "reference_path": "references/behance-rubric.md",
-    "sha256": "9db5fcded9c2ef114875836c31e9a0cdef2c24081547dc2747f8959f1d7c43c6",
+    "sha256": "e079d9c5c1760bc0a1b4c1a872f9f065e13057340f812573f12e85d625dd2ff4",
     "primary_urls": [
       "https://www.behance.net/gallery/246328393/_",
       "https://www.behance.net/gallery/240887707/_",
