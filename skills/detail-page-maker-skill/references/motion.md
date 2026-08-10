@@ -42,7 +42,7 @@ WorkOrder를 발급하지 않는다.
 - `template_id: T1~T10`, `one_message: true`, `answer_within_seconds` 1 이하
 - `information_delivery_mode`, `decorative_overlay_only: false`,
   `product_geometry_locked: true`, `generative_product_morphing_allowed: false`
-- 기본 전환 한 계열, 강조 전환 최대 2개, 강한 효과의 허용 용도
+- 전환 계열과 강조 전환 계획. 개수 상한은 없다. 강한 효과의 허용 용도
 - 폭 780 canvas, FPS, 길이, `gif | animated-webp | gif+animated-webp`
 - `placement_scale: chapter | full-width`
 - `applied_rule_ids`, frozen rule packet digest, reference profile digest
