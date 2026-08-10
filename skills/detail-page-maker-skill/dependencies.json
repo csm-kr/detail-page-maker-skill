@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 3,
+  "installScope": "project-local",
+  "defaultTargetSkillDirectory": ".agents/skills",
+  "vendoredSkillDirectory": ".agents/skills",
+  "distribution": {
+    "transport": "git",
+    "repository": "https://github.com/csm-kr/detail-page-maker-skill.git",
+    "bundledDependenciesRequired": true
+  },
+  "runtimes": {
+    "node": ">=22.15.0",
+    "hyperframes": "project-local-npx-required-for-motion",
+    "ffmpeg": "required-for-motion",
+    "browser-harness": "required-for-browser-qa"
+  },
+  "skills": [
+    {
+      "name": "browser-harness",
+      "source": "vendored-local",
+      "group": "browser"
+    },
+    {
+      "name": "coupang-extractor",
+      "source": "vendored-local",
+      "group": "market-evidence"
+    },
+    {
+      "name": "design-taste-frontend",
+      "source": "vendored-local",
+      "group": "design"
+    },
+    {
+      "name": "dmk-extractor",
+      "source": "vendored-local",
+      "group": "supplier-evidence"
+    },
+    {
+      "name": "god-tibo-gpt-image2-skill",
+      "source": "vendored-local",
+      "group": "image"
+    },
+    {
+      "name": "hyperframes",
+      "source": "vendored-local",
+      "group": "motion"
+    },
+    {
+      "name": "hyperframes-animation",
+      "source": "vendored-local",
+      "group": "motion"
+    },
+    {
+      "name": "hyperframes-cli",
+      "source": "vendored-local",
+      "group": "motion"
+    },
+    {
+      "name": "hyperframes-core",
+      "source": "vendored-local",
+      "group": "motion"
+    },
+    {
+      "name": "hyperframes-creative",
+      "source": "vendored-local",
+      "group": "motion"
+    },
+    {
+      "name": "hyperframes-keyframes",
+      "source": "vendored-local",
+      "group": "motion"
+    },
+    {
+      "name": "hyperframes-registry",
+      "source": "vendored-local",
+      "group": "motion"
+    },
+    {
+      "name": "media-use",
+      "source": "vendored-local",
+      "group": "motion"
+    },
+    {
+      "name": "motion-graphics",
+      "source": "vendored-local",
+      "group": "motion-workflow"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "멀티에이전트 상세페이지 Maker"
+  short_description: "근거·고정 판매 흐름·다중 모션·Wing까지"
+  default_prompt: "Use $detail-page-maker-skill to build an evidence-locked 390px commercial detail page with the required pain-to-solution flow, parallel image and motion workers, editable Studio output, and versioned Coupang Wing CDN export."

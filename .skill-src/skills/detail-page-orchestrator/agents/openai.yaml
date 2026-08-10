@@ -1,4 +1,0 @@
-interface:
-  display_name: "쿠팡 Flow 상세페이지 Maker"
-  short_description: "지정 쿠팡 흐름으로 780px HTML·이미지·GIF 제작"
-  default_prompt: "Use $detail-page-maker-skill with a supplier URL, a designated Coupang URL, and optional product photos to create a 780px sales detail-page HTML with about 30 still images, about 10 GIFs, Studio editing, and Wing export."

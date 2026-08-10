@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{PRODUCT_NAME}} Studio v1</title>
+    <link rel="stylesheet" href="studio-v1.css" />
+  </head>
+  <body>
+    <div id="nestedStudioGuard" class="nested-studio-guard" hidden role="alert">
+      <strong>중첩 Studio에서는 편집할 수 없습니다.</strong>
+      <span>현재 창의 바깥 Studio로 돌아가 편집해 주세요.</span>
+    </div>
+    <div class="app">
+      <aside>
+        <div class="brand">
+          <div class="brand-mark">DP</div>
+          <div>
+            <strong>{{PRODUCT_NAME}}</strong>
+            <span>수정 가능한 커머셜 HTML · Studio v1</span>
+          </div>
+        </div>
+
+        <nav class="workflow-nav" aria-label="Studio 작업 단계">
+          <button type="button" data-studio-view="edit" class="active">
+            <span>01</span>상세 편집
+          </button>
+          <button type="button" data-studio-view="approval">
+            <span>02</span>에셋 승인
+          </button>
+          <button type="button" data-studio-view="workflow">
+            <span>03</span>워크플로
+          </button>
+          <button type="button" data-studio-view="output">
+            <span>04</span>최종 출력
+          </button>
+        </nav>
+
+        <div data-side-panel="edit">
+          <section class="group">
+            <div class="group-heading">
+              <h2>편집 도구</h2>
+              <span id="editingState" class="editing-state" data-state="idle">보기 모드</span>
+            </div>
+            <div class="button-grid">
+              <button id="toggleEdit" type="button" class="primary">편집 시작</button>
+              <button id="undo" type="button" disabled>실행 취소</button>
+              <button id="save" type="button">로컬 저장</button>
+              <button id="reset" type="button">초기화</button>
+              <button id="replay" type="button">GIF 다시 재생</button>
+            </div>
+            <div class="mode-switch" role="group" aria-label="편집 도구">
+              <button type="button" data-editor-mode="layout" class="active" aria-pressed="true">
+                <span>V</span> 요소 배치
+              </button>
+              <button type="button" data-editor-mode="text" aria-pressed="false">
+                <span>T</span> 텍스트 변환
+              </button>
+            </div>
+            <p class="hint">요소 배치는 선택·이동·크기 조절만, 텍스트 변환은 글자 편집·정렬만 실행합니다. 좌표·화살표로 정밀하게 옮길 수 있습니다. <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>를 누른 채 클릭하면 여러 요소를 선택합니다.</p>
+          </section>
+
+          <section class="group">
+            <h2>섹션 순서</h2>
+            <div class="section-row">
+              <select id="sectionSelect" aria-label="순서를 바꿀 섹션"></select>
+              <button id="toggleSection" type="button" title="섹션 표시 전환">보기</button>
+            </div>
+            <div class="button-grid section-actions">
+              <button id="moveUp" type="button">위로</button>
+              <button id="moveDown" type="button">아래로</button>
+            </div>
+          </section>
+
+          <section class="group section-crop">
+            <div class="group-heading">
+              <h2>선택 섹션 아래 자르기</h2>
+              <span id="sectionCropMode" class="viewport-badge">360 모바일</span>
+            </div>
+            <p class="hint crop-hint">선택한 섹션의 긴 하단을 실제 결과에서도 숨깁니다. 모바일·데스크톱 높이는 따로 적용되며, 상단 ‘로컬 저장’으로 보관됩니다.</p>
+            <div class="height-input crop-input">
+              <input id="sectionCropHeight" type="number" min="180" max="100000" step="20" value="900" aria-label="선택 섹션 자르기 높이" />
+              <span>px</span>
+            </div>
+            <div class="crop-buttons">
+              <button id="sectionCropMinus" type="button">−100</button>
+              <button id="sectionCropPlus" type="button">+100</button>
+              <button id="sectionCropApply" type="button" class="primary">이 높이로 자르기</button>
+              <button id="sectionCropClear" type="button">자동 높이로 복원</button>
+            </div>
+            <p id="sectionCropMeasure" class="height-measure">선택한 섹션 높이를 계산하는 중입니다.</p>
+          </section>
+
+          <section class="group">
+            <h2>선택한 요소</h2>
+            <div id="selectedLabel" class="hint">수정 모드에서 이미지·GIF·요소를 선택해 주세요.</div>
+            <div id="selectionDepth" class="selection-depth" aria-live="polite">
+              <span>선택 0</span>
+              <span>레이어 -</span>
+              <span>깊이 -</span>
+            </div>
+            <div class="control-pair">
+              <div>
+                <label for="elementFont">글꼴</label>
+                <select id="elementFont" disabled>
+                  <option value="">원래 글꼴</option>
+                  <option value='"Noto Sans KR", "Malgun Gothic", sans-serif'>Noto Sans KR</option>
+                  <option value='"Gmarket Sans", "GmarketSansMedium", sans-serif'>Gmarket Sans</option>
+                  <option value='"S-Core Dream", "SCoreDream", sans-serif'>S-Core Dream</option>
+                  <option value='"Wanted Sans", "WantedSans", sans-serif'>Wanted Sans</option>
+                  <option value='"Black Han Sans", "Arial Black", sans-serif'>Black Han Sans</option>
+                  <option value='"Jalnan", "JalnanGothic", sans-serif'>Jalnan</option>
+                </select>
+              </div>
+              <div>
+                <label for="elementColor">글자색</label>
+                <input id="elementColor" type="color" value="#111827" disabled />
+              </div>
+            </div>
+            <div class="text-align-grid" role="group" aria-label="텍스트 정렬">
+              <button type="button" data-text-align="left" aria-label="왼쪽 정렬" title="왼쪽 정렬 · Ctrl/Cmd+Shift+L" disabled><span aria-hidden="true">⬅️</span></button>
+              <button type="button" data-text-align="center" aria-label="가운데 정렬" title="가운데 정렬 · Ctrl/Cmd+Shift+E" disabled><span aria-hidden="true">↔️</span></button>
+              <button type="button" data-text-align="right" aria-label="오른쪽 정렬" title="오른쪽 정렬 · Ctrl/Cmd+Shift+R" disabled><span aria-hidden="true">➡️</span></button>
+              <button type="button" data-text-align="justify" aria-label="양쪽 정렬" title="양쪽 정렬 · Ctrl/Cmd+Shift+J" disabled><span aria-hidden="true">☰</span></button>
+            </div>
+            <div class="position-grid">
+              <label for="elementX">X <input id="elementX" type="number" step="1" value="0" disabled /></label>
+              <label for="elementY">Y <input id="elementY" type="number" step="1" value="0" disabled /></label>
+              <button id="applyPosition" type="button" disabled>위치 적용</button>
+            </div>
+            <div class="nudge-grid" aria-label="선택 요소 미세 이동">
+              <button type="button" data-nudge-x="0" data-nudge-y="-1" disabled>위</button>
+              <button type="button" data-nudge-x="-1" data-nudge-y="0" disabled>왼쪽</button>
+              <button type="button" data-nudge-x="1" data-nudge-y="0" disabled>오른쪽</button>
+              <button type="button" data-nudge-x="0" data-nudge-y="1" disabled>아래</button>
+            </div>
+            <div class="destructive-grid">
+              <button id="clearText" type="button" disabled>텍스트 비우기</button>
+              <button id="deleteObject" type="button" class="danger" disabled>선택 요소 삭제</button>
+            </div>
+            <details class="shortcut-help">
+              <summary>단축키</summary>
+              <p><kbd>V</kbd> 요소 배치 · <kbd>T</kbd> 텍스트 변환 · <kbd>Ctrl/Cmd</kbd>+클릭 다중 선택 · <kbd>방향키</kbd> 1px · <kbd>Shift</kbd>+방향키 10px · <kbd>Delete</kbd> 확인 후 삭제 · <kbd>Esc</kbd> 편집 종료 · <kbd>Ctrl/Cmd</kbd>+<kbd>Z</kbd> 실행 취소</p>
+            </details>
+            <div class="subgroup">
+              <h3>이미지 교체</h3>
+            <label for="imageSrc">승인된 이미지 경로</label>
+            <input id="imageSrc" type="text" placeholder="/.detail-page/generation/approved/..." />
+            <label for="imageAlt">대체 텍스트</label>
+            <input id="imageAlt" type="text" placeholder="구매자에게 필요한 이미지 설명" />
+            <label for="imageFile">로컬 이미지 미리보기</label>
+            <input id="imageFile" type="file" accept="image/*" />
+            <button id="applyImage" type="button" class="wide">선택 이미지에 적용</button>
+            </div>
+          </section>
+
+          <section class="group">
+            <h2>테마</h2>
+            <label for="accent">강조색</label>
+            <input id="accent" type="color" value="#176bff" />
+          </section>
+
+          <section class="group">
+            <h2>미리보기 창 높이</h2>
+            <p class="hint preview-height-hint">편집 화면의 창만 조절하며 결과의 아래를 자르지 않습니다. 실제 자르기는 위의 ‘선택 섹션 아래 자르기’를 사용하세요.</p>
+            <label class="height-auto" for="autoHeight">
+              <input id="autoHeight" type="checkbox" checked />
+              내용에 자동으로 딱 맞춤
+            </label>
+            <div class="height-input">
+              <input id="pageHeight" type="number" min="360" max="100000" step="20" value="1200" aria-label="미리보기 높이" />
+              <span>px</span>
+            </div>
+            <div class="height-buttons">
+              <button id="heightMinus" type="button">−100</button>
+              <button id="heightFit" type="button" class="primary">딱 맞춤</button>
+              <button id="heightPlus" type="button">+100</button>
+            </div>
+            <p id="heightMeasure" class="height-measure">실제 내용 높이를 계산하는 중입니다.</p>
+          </section>
+        </div>
+
+        <div data-side-panel="approval" hidden>
+          <section class="group approval-guide">
+            <h2>승인 원칙</h2>
+            <strong>원본과 후보를 보고 한 장씩 결정합니다.</strong>
+            <p>신규 이미지와 GIF는 pending에서 시작합니다. 승인 전에는 최종 출력에 사용할 수 없습니다.</p>
+            <div class="legacy-ledger-badge" role="status">
+              파일 ledger 승인 · workflow 승인 대체 불가
+              <small>G2U · G3U · G4U · G5U는 exact artifact workflow 승인이 별도로 필요합니다.</small>
+            </div>
+          </section>
+          <section class="group">
+            <h2>보기</h2>
+            <div class="filter-grid" role="group" aria-label="에셋 상태 필터">
+              <button type="button" data-asset-filter="pending" class="active">승인 대기</button>
+              <button type="button" data-asset-filter="approved">승인</button>
+              <button type="button" data-asset-filter="rejected">반려</button>
+            </div>
+          </section>
+          <section class="group asset-summary">
+            <h2>현재 상태</h2>
+            <dl>
+              <div><dt>대기</dt><dd id="pendingAssetCount">0</dd></div>
+              <div><dt>승인</dt><dd id="approvedAssetCount">0</dd></div>
+              <div><dt>반려</dt><dd id="rejectedAssetCount">0</dd></div>
+            </dl>
+          </section>
+        </div>
+
+        <div data-side-panel="workflow" hidden>
+          <section class="group workflow-overview">
+            <div class="group-heading">
+              <h2>Persistent workflow</h2>
+              <span id="workflowStageCount" class="viewport-badge">30+ 단계</span>
+            </div>
+            <strong id="workflowCurrentStage">현재 단계를 불러오는 중입니다.</strong>
+            <p class="hint">상태를 색만으로 구분하지 않습니다. 각 단계 카드에 상태 이름을 함께 표시합니다.</p>
+            <dl class="workflow-side-metrics" aria-label="워크플로 상태 요약">
+              <div><dt>실행 가능</dt><dd id="workflowReadyCount">0</dd></div>
+              <div><dt>차단</dt><dd id="workflowBlockedCount">0</dd></div>
+              <div><dt>Stale</dt><dd id="workflowStaleCount">0</dd></div>
+            </dl>
+            <div class="button-grid workflow-actions">
+              <button id="workflowAdvance" type="button" class="primary">다음 단계 진행</button>
+              <button id="workflowResume" type="button">중단 지점 재개</button>
+            </div>
+          </section>
+
+          <section id="workflowChallenge" class="group workflow-challenge" hidden aria-live="polite">
+            <h2>Exact approval challenge</h2>
+            <p>아래 challenge의 ID·digest·nonce를 확인한 뒤 정확한 대상에만 결정합니다.</p>
+            <dl>
+              <div><dt>Challenge</dt><dd><code id="workflowChallengeId"></code></dd></div>
+              <div><dt>Stage</dt><dd><code id="workflowChallengeStage"></code></dd></div>
+              <div><dt>Artifact-set digest</dt><dd><code id="workflowChallengeDigest"></code></dd></div>
+              <div><dt>Nonce</dt><dd><code id="workflowChallengeNonce"></code></dd></div>
+            </dl>
+            <label class="workflow-proof-check" for="workflowProofConfirmed">
+              <input id="workflowProofConfirmed" type="checkbox" />
+              위 challenge ID, exact digest와 nonce를 직접 확인했습니다.
+            </label>
+            <label for="workflowRejectReason">반려 사유</label>
+            <textarea id="workflowRejectReason" rows="3" required placeholder="반려할 때 반드시 구체적인 사유를 입력하세요."></textarea>
+            <div class="button-grid workflow-decision-actions">
+              <button id="workflowApprove" type="button" class="primary" disabled>Exact 대상 승인</button>
+              <button id="workflowReject" type="button" class="danger" disabled>사유와 함께 반려</button>
+            </div>
+          </section>
+
+          <section class="group">
+            <h2>게시 gate</h2>
+            <div id="workflowG5Gate" class="gate-card waiting" aria-live="polite">
+              G5U 승인과 artifact freshness를 확인하는 중입니다.
+            </div>
+            <div class="legacy-ledger-badge" role="note">
+              Asset ledger는 파일 이동 기록입니다.
+              <small>workflowApproval.substitutesStageApproval = false</small>
+            </div>
+          </section>
+        </div>
+
+        <div data-side-panel="output" hidden>
+          <section class="group">
+            <h2>최종 출력 게이트</h2>
+            <div id="outputGate" class="gate-card waiting">
+              에셋 승인 상태를 확인하는 중입니다.
+            </div>
+            <button id="exportHtml" type="button" class="wide primary" disabled>에셋 포함 단일 HTML 다운로드</button>
+            <a class="link-button wide" href="/output/detail-page.html" target="_blank" rel="noreferrer">상세페이지만 새 창으로</a>
+            <p class="hint">pending 필수 에셋이 0개일 때만 게시용 단일 HTML을 만들 수 있습니다.</p>
+          </section>
+          <section class="group wing-export">
+            <h2>쿠팡 Wing 포맷</h2>
+            <div id="wingExportGate" class="gate-card waiting">
+              G5 게시 승인과 상용 QA를 확인하는 중입니다.
+            </div>
+            <div id="wingConnectionStatus" class="gate-card waiting" aria-live="polite">
+              프로젝트의 Cloudflare Pages 연결 상태를 확인하는 중입니다.
+            </div>
+            <button id="exportCoupangWing" type="button" class="wide primary" disabled>
+              쿠팡 Wing 포맷으로 내보내기
+            </button>
+            <p class="hint">
+              현재 편집 상태를 780px 완성형 정적·애니메이션 WebP로 평면화하고,
+              프로젝트의 <code>.detail-page/cloudflare-pages.json</code>에서 새
+              immutable namespace를 만든 뒤 Cloudflare 업로드와 원격 검증까지
+              한 번에 완료합니다. 주소와 인증 토큰은 화면에서 직접 입력하지 않습니다.
+              파일 ledger의 승인은 workflow 게시 승인을 대신하지 않습니다.
+            </p>
+            <div id="wingExportResult" class="wing-export-result" aria-live="polite"></div>
+          </section>
+        </div>
+
+        <div id="status" class="status">Studio v1을 준비하는 중입니다.</div>
+      </aside>
+
+      <main class="workspace" data-workspace="edit">
+        <div class="canvas-toolbar" role="group" aria-label="미리보기 너비">
+          <button type="button" data-width="390" class="primary">390</button>
+        </div>
+        <div class="canvas-shell">
+          <iframe id="preview" src="/authoring.html" sandbox="allow-scripts" title="{{PRODUCT_NAME}} 상세페이지 미리보기"></iframe>
+        </div>
+      </main>
+
+      <main class="review-workspace" data-workspace="approval" hidden>
+        <header class="workspace-header">
+          <div>
+            <p>ASSET APPROVAL</p>
+            <h1>승인 대기 이미지·GIF</h1>
+            <span>제품 SSOT와 구조, 문자, 방향, 주장 연결을 확인한 뒤 결정합니다.</span>
+          </div>
+          <button id="refreshAssets" type="button">새로고침</button>
+        </header>
+        <div id="assetReviewGrid" class="asset-review-grid" aria-live="polite"></div>
+      </main>
+
+      <main class="workflow-workspace" data-workspace="workflow" hidden>
+        <header class="workspace-header">
+          <div>
+            <p>WORKFLOW CONTROL</p>
+            <h1>산출물과 승인을 한 흐름으로 확인합니다.</h1>
+            <span>32개 stage의 persistent 상태, 독립 validator, exact approval, stale 여부를 표시합니다.</span>
+          </div>
+          <button id="workflowRefresh" type="button">상태 새로고침</button>
+        </header>
+        <section class="workflow-dashboard" aria-live="polite">
+          <div class="workflow-summary-grid">
+            <article>
+              <span>Artifact</span>
+              <strong id="workflowArtifactCount">0</strong>
+              <p>workflow에 commit된 전체 artifact</p>
+            </article>
+            <article>
+              <span>Validator</span>
+              <strong id="workflowValidatorSummary">0 / 0</strong>
+              <p>QA stage 완료 / 전체 QA stage</p>
+            </article>
+            <article>
+              <span>Approval</span>
+              <strong id="workflowApprovalSummary">0 / 0</strong>
+              <p>사용자 승인 완료 / 전체 approval stage</p>
+            </article>
+            <article>
+              <span>G5 export</span>
+              <strong id="workflowExportSummary">LOCKED</strong>
+              <p>G5U approved + fresh + QA 97 필요</p>
+            </article>
+          </div>
+          <div id="workflowMessage" class="workflow-message" role="status">
+            persistent workflow 상태를 불러오는 중입니다.
+          </div>
+          <div id="workflowStageList" class="workflow-stage-grid" aria-label="전체 workflow 단계 상태"></div>
+        </section>
+      </main>
+
+      <main class="output-workspace" data-workspace="output" hidden>
+        <div class="output-card">
+          <p>FINAL OUTPUT</p>
+          <h1>승인된 에셋만 조립합니다.</h1>
+          <span>승인 대기 파일이 남아 있으면 내보내기가 잠깁니다. 반려본은 새 버전으로 다시 생성해 pending에 등록하세요.</span>
+          <div id="outputSummary" class="output-summary"></div>
+        </div>
+      </main>
+    </div>
+    <script src="studio-v1.js"></script>
+  </body>
+</html>

@@ -1,31 +1,21 @@
-# 경로는 모두 루트 기준(앞의 /)이다. 슬래시를 빼면 스킬 안의 같은 이름 디렉터리까지
-# 걸린다 — 번들된 node_modules 와 scripts/runtime/ 이 그렇게 빠졌던 적이 있다.
-
-# 생성물 — detail-page-init 이 다시 만든다
-/.claude/skills/
-/.agents/skills/
-/motion/node_modules/
-/node_modules/
-/runtime/
-
-# 기계마다 다른 상태. 다른 기계에서는 init 인터뷰를 다시 한다
-/work/env.lock.json
-/work/env.answers.json
-/work/active.json
-/work/gates.history.json
-
-# 회차 산출물과 입력. 상품마다 다르다 — 스킬이 아니다
+/.agents/
+/.artifacts/
+/.scratch/
+/.workspace/
+/.wrangler/
+/deprecated/
+/inputs/
 /projects/
-/data/
-
-# 2회차 HyperFrames 프로젝트 (27MB). 컴포지션은 회차 프로젝트 안으로 들어간다
-/motion/gifs/
-
-# 되돌림용. 사용자가 지운다
-/.trash/
-
-# 파이썬 바이트코드. 컴파일 시점의 절대 경로가 박혀 있어 저장소에 두지 않는다
-__pycache__/
+/prototypes/
+/qa-browser-*-temp/
+/qa-page-*.png
+/videos/
+/skills-lock.json
+/tests/*.partial-*/
+# 생성·검수 원본은 프로젝트 외부 보관소에 둔다. Git에는 증류된 Markdown과
+# 회귀 테스트만 남긴다.
+**/.render-logs/
+**/.thumbnails/
+**/qa/captures/
+**/__pycache__/
 *.pyc
-
-/*.log
