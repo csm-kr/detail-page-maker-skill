@@ -53,6 +53,7 @@ export const SALES_ASSET_METADATA_FIELDS = Object.freeze([
   "text_safe_area",
   "before_after_pair_id",
   "consistency_group",
+  "locator_guide",
 ]);
 
 export const RECOMMENDED_32_SHOT_ALLOCATION = Object.freeze({
@@ -88,6 +89,10 @@ function isObject(value) {
 
 function isText(value) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function isSha256(value) {
+  return typeof value === "string" && /^[a-f0-9]{64}$/u.test(value);
 }
 
 function isUnitCoordinate(value) {
@@ -176,6 +181,48 @@ function validateCalloutLocation(location, path, errors) {
   }
 }
 
+function validatePrecisionGuide(guide, path, errors, minimumMarkerCount) {
+  const coordinates = asArray(guide?.coordinates);
+  const validCoordinates = coordinates.every(
+    (point) =>
+      isText(point?.anchor_id) &&
+      isText(point?.semantic_role) &&
+      isUnitCoordinate(point?.x) &&
+      isUnitCoordinate(point?.y),
+  );
+  if (
+    !isObject(guide) ||
+    guide?.generator !== "chatgpt-image-2-via-god-tibo" ||
+    guide?.edit_mode !== "invariant" ||
+    guide?.marker_hex !== "#FF00FF" ||
+    guide?.marker_only_edit !== true ||
+    guide?.geometry_locked !== true ||
+    guide?.same_pixel_dimensions !== true ||
+    !isText(guide?.source_asset_id) ||
+    !isText(guide?.guide_asset_id) ||
+    guide.source_asset_id === guide.guide_asset_id ||
+    !isSha256(guide?.source_sha256) ||
+    !isSha256(guide?.guide_sha256) ||
+    !Number.isInteger(guide?.expected_marker_count) ||
+    guide.expected_marker_count < minimumMarkerCount ||
+    coordinates.length !== guide.expected_marker_count ||
+    !validCoordinates ||
+    !isText(guide?.extraction_receipt_id) ||
+    !isSha256(guide?.coordinates_sha256) ||
+    guide?.clean_source_used_for_render !== true ||
+    guide?.guide_asset_used_for_render !== false ||
+    guide?.guide_publication_forbidden !== true
+  ) {
+    add(
+      errors,
+      "GOD_TIBO_LOCATOR_GUIDE_REQUIRED",
+      path,
+      "정밀 치수선·콜아웃·방향 화살표는 God Tibo invariant 가이드의 고대비 점을 추출한 실제 좌표를 사용하고, 렌더에는 점이 없는 원본만 사용해야 합니다.",
+      { minimum_marker_count: minimumMarkerCount },
+    );
+  }
+}
+
 export function validateSalesMotionBrief(brief, path = "motion") {
   const errors = [];
   const semantic = brief?.semantic_contract ?? brief;
@@ -246,6 +293,12 @@ export function validateSalesMotionBrief(brief, path = "motion") {
         "치수 모션은 검증된 실제 수치와 외곽 SVG 치수선·양방향 화살표·제품 비율 고정이 필요합니다.",
       );
     }
+    validatePrecisionGuide(
+      semantic?.locator_guide,
+      `${path}.semantic_contract.locator_guide`,
+      errors,
+      2,
+    );
   }
 
   if (semantic.template_id === "T3_FEATURE_HOTSPOT") {
@@ -265,6 +318,17 @@ export function validateSalesMotionBrief(brief, path = "motion") {
         errors,
       ),
     );
+    const preciseLocationCount = locations.filter(
+      (location) => location?.route === "precise_anchor",
+    ).length;
+    if (preciseLocationCount > 0) {
+      validatePrecisionGuide(
+        semantic?.locator_guide,
+        `${path}.semantic_contract.locator_guide`,
+        errors,
+        preciseLocationCount,
+      );
+    }
     if (
       locations.some(
         (location) =>
@@ -337,6 +401,12 @@ export function validateSalesMotionBrief(brief, path = "motion") {
         "사용법 GIF는 동사형 문구와 방향·완료 표시가 있는 실제 단계 1~3개로 제한합니다.",
       );
     }
+    validatePrecisionGuide(
+      semantic?.locator_guide,
+      `${path}.semantic_contract.locator_guide`,
+      errors,
+      2,
+    );
   }
 
   if (

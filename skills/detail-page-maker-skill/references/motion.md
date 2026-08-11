@@ -26,7 +26,8 @@ WorkOrder를 발급하지 않는다.
 2. `fixed-product-graphics | aligned-state-pair | verified-layered-assets` 중
    증명에 필요한 최소 정보 전달 방식을 고른다.
 3. 주장과 직접 연결된 주 FX를 하나 고르고, 장식 FX는 보조로만 둔다.
-4. 승인 제품 이미지와 실제 좌표를 입력으로 사용한다.
+4. 승인 제품 이미지와 실제 좌표를 입력으로 사용한다. 정밀 위치 overlay는 God Tibo
+   내부 가이드의 marker 좌표를 추출하고 깨끗한 원본 위에서 다시 확인한다.
 5. HyperFrames 원본을 `.detail-page/generation/hyperframes/projects/`에 만든다.
 6. `check --strict --frame-check`를 통과한다.
 7. 첫·중간·마지막 프레임과 반복 경계를 검사한다.
@@ -61,6 +62,25 @@ session은 달라야 하며 실패한 motion과 실제 descendant만 다시 실�
 
 상세 템플릿·샷 계약·신뢰도 fallback·변환 명령은
 [`hyperframes-sales-motion.md`](hyperframes-sales-motion.md)를 따른다.
+
+## 정밀 위치 overlay
+
+제품 외곽선, 치수선, 기능 위치, 구멍, 접합점, 손으로 조작하는 방향은 CSS 비율이나
+눈대중 좌표로 잡지 않는다. 승인된 깨끗한 배경과 같은 픽셀 크기의 God Tibo
+`invariant` 가이드에 `#FF00FF` 점만 표시하고
+`scripts/motion/extract-locator-guides.mjs`로 exact 개수와 좌표를 추출한다.
+
+- 가로·세로 치수는 실제 제품 외곽의 축별 시작·끝점을 별도로 찍는다.
+- 벗기기·당기기·끼우기·걸기 화살표는 실제 물리 시작점에서 손·도구·결합부의
+  상호작용 끝점까지 이어진다.
+- 곡선 경로가 필요하면 실제 경로 위 중간점을 추가하되 점의 의미와 순서를
+  `semantic_role`로 고정한다.
+- HyperFrames SVG `viewBox`는 extraction receipt의 target canvas와 같아야 한다.
+- 선과 arrowhead는 추출 좌표를 직접 사용하고 path 길이는 `getTotalLength()`로
+  계산한다. 위치를 맞추기 위한 임의 margin·translate 보정은 금지한다.
+- first/mid/last의 깨끗한 원본 위 합성 화면에서 시작점·끝점·외곽 편차가 2px
+  이내인지 확인한다.
+- 가이드 이미지는 렌더 입력, poster, HTML, Wing, `output/media`에 들어가면 실패다.
 
 ## 주 패턴
 
@@ -103,6 +123,8 @@ session은 달라야 하며 실패한 motion과 실제 descendant만 다시 실�
 | MR-018 | 모든 GIF 첫 프레임은 제품 또는 문제 상황, 한 줄 핵심 메시지, 기능을 이해할 시각 근거를 함께 보여 주며 애니메이션은 이미 이해된 메시지를 강화해야 한다. | first-frame 단독 1초 이해 QA와 필수 요소 3개 | 2026-08-01 |
 | MR-019 | 좋은 loop는 첫·끝 픽셀 경계뿐 아니라 속도·방향·밝기·카메라 움직임의 지각적 연속성을 통과해야 하며 ping-pong·순환·고정 콜아웃·가림 초기화·연속 슬라이드 중 목적에 맞는 방식을 고른다. | pixel boundary와 perceptual continuity 모두 PASS | 2026-08-01 |
 | MR-020 | 모든 생성·모션 프레임은 canonical 제품 참조와 색·형태·부품·비율·구성의 불변 조건 네 개 이상을 유지하며 제품 구조가 중간에 바뀌는 생성형 모핑을 금지한다. | first/mid/last identity invariant PASS, morphing 0건 | 2026-08-01 |
+| MR-021 | 치수선·기능 콜아웃·방향 화살표는 승인 clean source의 God Tibo invariant 내부 가이드에 고대비 점만 표시하고 점 개수·좌표를 기계 추출한 뒤, 같은 크기의 clean source 위 SVG에 합성한다. 가이드는 공개 자산으로 쓰지 않는다. | source/guide 크기 일치, marker exact count, 좌표 receipt, clean-source first/mid/last 편차 2px 이하, public guide reference 0건 | 2026-08-11 |
+| MR-022 | 동작 화살표는 빈 배경이나 대략적 방향이 아니라 실제 물리 동작 시작점과 손·도구·결합부의 상호작용 끝점을 잇는다. 치수선은 실제 외곽의 축별 시작·끝점을 잇는다. | 각 점의 semantic role, origin/target 또는 axis endpoint 완결, arrowhead/measurement endpoint 편차 2px 이하 | 2026-08-11 |
 
 HeyGenFrame/HyperFrames 제작 run을 `exps/*.md`에 `frame-production`,
 `promotion: auto`로 넣으면 strict frame-check PASS, 시작·중간·끝 근거,
@@ -174,6 +196,8 @@ HeyGenFrame/HyperFrames 제작 run을 `exps/*.md`에 `frame-production`,
   다르며 정지 이미지보다 설명력이 크다는 독립 QA
 - 인접 pattern 차별성, decorative-overlay-only 0건, 정보 overlay 정확성,
   visible delta observation
+- God Tibo locator guide의 marker exact count·source/guide 동일 크기·좌표 receipt,
+  clean source 합성 편차 2px 이하, 공개 guide reference 0건
 - 일반 HTML offscreen poster·재진입 재시작·reduced-motion 검사
 - 일반 HTML과 Wing의 public DOM→manifest→실파일 closure, animation frame 2+,
   780px·반복·파일 hash 검사. Poster는 fallback일 뿐 전달 motion으로 세지 않는다.

@@ -39,9 +39,38 @@ cut과 실제 descendant만 같은 입력으로 재실행한다.
 
 선택 자산은 `image_id`, `shot_type`, `view_type`, `candidate_score`,
 `recommended_template`, `anchor_points`, `bbox_regions`, `dimension_safe_area`,
-`text_safe_area`, `before_after_pair_id`, `consistency_group`을 기록한다. 좌표는
+`text_safe_area`, `before_after_pair_id`, `consistency_group`, `locator_guide`를 기록한다. 좌표는
 0~1 정규화 값으로 저장한다. 상세 연결 규칙은
 [`hyperframes-sales-motion.md`](hyperframes-sales-motion.md)를 따른다.
+
+## 정밀 위치용 내부 가이드 자산
+
+치수선, 실제 부위 콜아웃, 사용 방향 화살표처럼 몇 픽셀의 위치 오차가 메시지를
+바꾸는 overlay는 HyperFrames에서 눈대중으로 배치하지 않는다.
+
+1. 승인된 깨끗한 motion 배경을 변경 없이 보존한다.
+2. 그 이미지를 Image 1로 둔 God Tibo `size_mode: invariant` 편집에서 작고 평평한
+   `#FF00FF` 원형 점만 실제 의미점에 추가한다.
+3. 점 외 텍스트·선·화살표·링·글로우·재구도·crop·제품 수정은 금지한다.
+4. 가이드와 깨끗한 원본은 서로 다른 asset ID·SHA-256을 가지며 픽셀 크기가
+   정확히 같아야 한다.
+5. `scripts/motion/extract-locator-guides.mjs`가 점 개수를 exact 검사하고 0~1 좌표와
+   780 canvas 좌표를 물질화한다.
+6. HyperFrames는 깨끗한 원본만 렌더하고 가이드는 좌표 evidence로만 소비한다.
+
+이 가이드 편집은 32개 상업 후보를 대신하거나 그 수에 포함되는 이미지 생성이
+아니다. G2의 `items: 32`, `workers: 32` 단일 provider batch와 대표 자산 선별이
+끝난 뒤, 위치 증명이 필요한 G3 motion만 한 보조 `locator-guide` batch로 묶는다.
+이 batch의 `items`는 필요한 가이드 수와 같고 `workers`도 그 수만큼, 최대 32로
+즉시 실행한다. 가이드는
+`.detail-page/generation/pending/locator-guides/<guide-id>/` 아래에 두고
+`output/media/`, HTML, Wing에는 복사하지 않는다.
+
+방향 화살표는 최소 두 점을 쓴다. 첫 점은 실제 물리 동작이 시작되는
+`physical-action-origin`, 둘째 점은 손·도구·결합부가 닿는
+`physical-interaction-target`이다. 치수는 실제 외곽의 축별 시작·끝점을 쓴다.
+가이드의 제품 geometry가 원본에서 2px보다 크게 어긋나거나 예상 점 개수가 다르면
+좌표를 손으로 보정하지 말고 가이드 편집을 다시 실행한다.
 
 ## 출력 비율 — 세로 긴 컷을 만들지 않는다
 

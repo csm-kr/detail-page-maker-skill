@@ -13,10 +13,11 @@ ChatGPT Image 2를 호출하는 God Tibo는 정적 자산 생성기다. 둘 사�
 4. 32개 후보를 God Tibo의 한 `items: 32`, `workers: 32` provider job으로 생성한다.
 5. 동일성·상업성·모션 적합도로 8~15개 대표 자산을 선택한다.
 6. 제품 bbox, anchor, feature bbox, text/dimension safe area, pair/group를 기록한다.
-7. HyperFrames T1~T10 템플릿에 자산과 metadata를 연결한다.
-8. strict/frame check 후 결정론적 무음 MP4를 렌더한다.
-9. FFmpeg로 GIF와 animated WebP를 파생한다.
-10. 첫 프레임, 1초 전달, 위치 정확성, 제품 동일성, 루프, 모바일 가독성을 QA한다.
+7. 정밀 위치 overlay만 God Tibo locator guide를 별도로 만들고 marker 좌표를 추출한다.
+8. HyperFrames T1~T10 템플릿에 깨끗한 자산과 metadata를 연결한다.
+9. strict/frame check 후 결정론적 무음 MP4를 렌더한다.
+10. FFmpeg로 GIF와 animated WebP를 파생한다.
+11. 첫 프레임, 1초 전달, 위치 정확성, 제품 동일성, 루프, 모바일 가독성을 QA한다.
 
 ## 32개 후보의 샷 계획
 
@@ -73,11 +74,79 @@ dimension_safe_area: {x: 0.08, y: 0.08, width: 0.84, height: 0.84}
 text_safe_area: {x: 0.08, y: 0.05, width: 0.84, height: 0.20}
 before_after_pair_id: null
 consistency_group: product-main-v1
+locator_guide: null
 ```
 
 좌표는 해상도 독립적인 0~1 정규화 값으로 기록한다. `candidate_score`는 제품
 동일성, 메시지 증명력, 제품 점유율, 상업성, 텍스트 안전영역, 템플릿 적합도를
 분리 평가한 뒤 합산한다. 32개를 모두 쓰지 않고 8~15개만 선택하는 것이 정상이다.
+
+## God Tibo 정밀 locator guide
+
+T2 치수, T3 precise anchor, T6 방향 화살표처럼 위치 정확성이 주장 자체인 경우에만
+locator guide를 만든다. 상업 후보 32장 batch를 다시 나누는 것이 아니라, 대표
+자산이 승인된 뒤 필요한 guide item만 한 보조 batch로 동시에 실행한다.
+
+### 1. 가이드 편집
+
+- Image 1은 HyperFrames가 실제 렌더할 깨끗한 원본이다.
+- `size_mode: invariant`, `gif: false`, `QUALITY_GATE:CLEAN_COMMERCIAL`을 쓴다.
+- 원본의 geometry·crop·camera·손·도구·빛·물체 위치를 모두 보존한다.
+- 실제 의미점에 16~18px의 작고 평평한 `#FF00FF` 원형 점만 추가한다.
+- 한 점마다 물리적 의미를 프롬프트에 적고 text·line·arrow·ring·glow·label을
+  모두 금지한다.
+- clean source를 덮어쓰지 않고 guide를
+  `.detail-page/generation/pending/locator-guides/<guide-id>/`에 별도 저장한다.
+
+방향 화살표는 최소 `physical-action-origin`과
+`physical-interaction-target` 두 점을 쓴다. 예를 들어 벗기기는 필름이 실제로
+분리되기 시작하는 힌지와 손가락이 필름을 집은 점이다. 치수는 실제 제품 외곽의
+가로·세로 축별 시작·끝점을 쓴다. 제품 중심이나 빈 배경을 편의상 찍지 않는다.
+
+### 2. 좌표 추출
+
+가이드 spec의 경로는 spec 파일 기준 상대 경로다.
+
+```json
+{
+  "schema_version": "1.0",
+  "canvas": {"width": 780, "height": 780},
+  "guides": [{
+    "id": "step-direction",
+    "source": "../approved/step-clean.png",
+    "path": "../pending/locator-guides/step/frame-000.png",
+    "expected": 2,
+    "group": "points",
+    "roles": ["physical-action-origin", "physical-interaction-target"]
+  }]
+}
+```
+
+```sh
+node scripts/motion/extract-locator-guides.mjs \
+  --spec "<project>/.detail-page/generation/locator-guides.json" \
+  --output "<project>/.detail-page/generation/locator-anchors.json"
+```
+
+실행기는 marker component 수가 `expected`와 다르면 중단하고 source/guide의 픽셀
+크기가 다르면 중단한다. 출력은 원본 좌표, 0~1 정규화 좌표, target canvas 좌표,
+두 자산 SHA-256과 marker semantic role을 가진다. 여러 제품 외곽은
+`group: boxes`, `box_count`, `points_per_box`로 묶고 곡선은 `group: curve`와
+실제 경로 순서의 점을 쓴다.
+
+### 3. HyperFrames 합성
+
+- SVG `viewBox`를 extraction output의 canvas와 일치시킨다.
+- clean source만 `<img>`로 렌더하고 guide는 DOM·CSS asset에 넣지 않는다.
+- SVG 시작·끝·중간점을 extraction output에서 직접 읽는다.
+- 화살표 머리는 target point에, 치수선 끝은 실제 외곽 endpoint에 둔다.
+- 임의 margin·translate로 위치를 보정하지 않는다. 불일치하면 guide를 다시 만든다.
+- first/mid/last snapshot에서 clean source 기준 편차 2px 이하를 확인한다.
+
+motion brief의 `locator_guide`에는 generator, invariant mode, source/guide ID와
+SHA-256, marker count/coordinates, extraction receipt, clean-source render와
+guide-publication 금지를 기록한다. Guide가 public HTML·Wing·`output/media`에
+참조되면 hard fail이다.
 
 ## T1~T10 템플릿
 
@@ -199,6 +268,8 @@ FFmpeg로 GIF와 animated WebP를 만든다. HyperFrames가 GIF를 직접 렌더
 - 1초 안에 고객 질문에 답하는가
 - 제품 형태·비율·색·부품이 모든 프레임에서 고정되는가
 - 치수·콜아웃·전후 비교가 실제 입력과 confidence route를 따르는가
+- 정밀 overlay가 God Tibo guide의 exact marker 좌표를 쓰고 clean source 위에서
+  2px 이내로 맞으며 guide 자체는 공개되지 않는가
 - 장식-only 팬·줌·스캔 반복이 없는가
 - 인접 GIF의 증명 문법이 두 축 이상 다른가
 - 텍스트와 그래픽이 제품을 가리지 않고 390/780px에서 읽히는가

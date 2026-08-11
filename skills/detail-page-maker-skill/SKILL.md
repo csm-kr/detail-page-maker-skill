@@ -196,6 +196,14 @@ provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼�
 - 제품 고정 이미지 위 정확한 SVG·마스크·콜아웃·데이터 카드 합성을 우선한다.
   정보가 늘지 않는 장식-only 움직임만 금지하며, 검증된 치수·부위·단계·구성을
   설명하는 overlay는 핵심 증명 방식으로 인정한다.
+- 치수선·기능 콜아웃·사용 방향 화살표처럼 실제 위치가 핵심인 overlay는 승인된
+  깨끗한 motion 배경을 Image 1로 둔 God Tibo `invariant` 내부 가이드 컷에
+  `#FF00FF` 점만 추가하고, `scripts/motion/extract-locator-guides.mjs`로 좌표를
+  추출한다. HyperFrames는 추출 좌표를 깨끗한 원본 위 SVG에만 사용하며 가이드
+  이미지는 렌더·HTML·Wing·공개 media에 넣지 않는다.
+- 방향 화살표는 장식적 빈 공간이 아니라 실제 동작 시작점과 손·도구·결합부의
+  상호작용 끝점을 잇는다. 치수선은 실제 제품 외곽의 축별 시작·끝점을 잇고,
+  source/guide의 픽셀 크기나 제품 geometry가 다르면 정밀 overlay를 만들지 않는다.
 - 콜아웃은 confidence 0.85 이상 anchor, 0.60~0.85 bbox, 0.60 미만 별도 detail
   card로 전환한다. 실제 치수나 전후 pair가 없으면 해당 모션을 생성하지 않는다.
 - HyperFrames 정본은 결정론적 무음 MP4다. GIF와 animated WebP는 FFmpeg로

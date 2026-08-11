@@ -10,6 +10,8 @@ import {
   validateSalesMotionPipeline,
 } from "../orchestration/sales-motion-pipeline-contract.mjs";
 
+const HASH = "a".repeat(64);
+
 function baseSemantic(overrides = {}) {
   return {
     template_id: "T1_HERO_REVEAL",
@@ -27,6 +29,33 @@ function baseSemantic(overrides = {}) {
       information_remains_primary: true,
     },
     ...overrides,
+  };
+}
+
+function locatorGuide(count, roles = []) {
+  return {
+    generator: "chatgpt-image-2-via-god-tibo",
+    edit_mode: "invariant",
+    marker_hex: "#FF00FF",
+    marker_only_edit: true,
+    geometry_locked: true,
+    same_pixel_dimensions: true,
+    source_asset_id: "clean-source-1",
+    guide_asset_id: "locator-guide-1",
+    source_sha256: HASH,
+    guide_sha256: "b".repeat(64),
+    expected_marker_count: count,
+    coordinates: Array.from({ length: count }, (_, index) => ({
+      anchor_id: `anchor-${index + 1}`,
+      semantic_role: roles[index] ?? `verified-point-${index + 1}`,
+      x: (index + 1) / (count + 1),
+      y: (index + 1) / (count + 1),
+    })),
+    extraction_receipt_id: "locator-extraction-1",
+    coordinates_sha256: "c".repeat(64),
+    clean_source_used_for_render: true,
+    guide_asset_used_for_render: false,
+    guide_publication_forbidden: true,
   };
 }
 
@@ -109,6 +138,7 @@ test("콜아웃 confidence는 anchor·bbox·detail card로 결정된다", () => 
         hold_seconds: 1,
         anchor: { x: 0.68, y: 0.42 },
       }],
+      locator_guide: locatorGuide(1, ["feature-center"]),
     }),
   });
   assert.equal(precise.ok, true);
@@ -148,6 +178,12 @@ test("고정 제품 위 정보 SVG는 허용하고 장식-only는 거부한다",
         outside_product_bounds: true,
         product_ratio_locked: true,
       },
+      locator_guide: locatorGuide(4, [
+        "width-start",
+        "height-start",
+        "width-end",
+        "height-end",
+      ]),
     }),
   });
   assert.equal(dimension.ok, true);
@@ -156,6 +192,42 @@ test("고정 제품 위 정보 SVG는 허용하고 장식-only는 거부한다",
     semantic_contract: baseSemantic({ decorative_overlay_only: true }),
   });
   assert.equal(decorative.ok, false);
+});
+
+test("정밀 오버레이는 God Tibo 가이드 좌표와 깨끗한 렌더 원본을 요구한다", () => {
+  const missingGuide = validateSalesMotionBrief({
+    semantic_contract: baseSemantic({
+      template_id: "T6_STEPS_FLOW",
+      steps: [{
+        verb: "필름을 벗긴다",
+        asset_id: "peel-source-1",
+        direction_cue: true,
+        completion_cue: true,
+      }],
+    }),
+  });
+  assert.ok(
+    missingGuide.errors.some(
+      (error) => error.code === "GOD_TIBO_LOCATOR_GUIDE_REQUIRED",
+    ),
+  );
+
+  const verifiedGuide = validateSalesMotionBrief({
+    semantic_contract: baseSemantic({
+      template_id: "T6_STEPS_FLOW",
+      steps: [{
+        verb: "필름을 벗긴다",
+        asset_id: "peel-source-1",
+        direction_cue: true,
+        completion_cue: true,
+      }],
+      locator_guide: locatorGuide(2, [
+        "physical-action-origin",
+        "physical-interaction-target",
+      ]),
+    }),
+  });
+  assert.equal(verifiedGuide.ok, true);
 });
 
 test("근거 없는 치수와 실제 pair 없는 before-after를 차단한다", () => {
