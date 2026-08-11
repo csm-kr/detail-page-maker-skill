@@ -188,8 +188,35 @@ https://github.com/csm-kr/detail-page-maker-skill 다음 스킬을 이 폴더에
 
 ## 제작 예시
 
-1. [해충-끈끈이-상세페이지-v4](examples/해충-끈끈이-상세페이지-v4.html)
-2. [coupang-wing-detail-780](examples/coupang-wing-detail-780.html)
+1. [해충-끈끈이-상세페이지-v5](examples/해충-끈끈이-상세페이지-v5.html)
+2. [해충-끈끈이-상세페이지-v4](examples/해충-끈끈이-상세페이지-v4.html)
+3. [coupang-wing-detail-780](examples/coupang-wing-detail-780.html)
+
+`v5`는 이미지 13장과 animated WebP 모션 9개를 HTML에 포함한 독립 실행형
+예제다. 파일을 직접 열어도 외부 미디어 서버 없이 완성 결과를 확인할 수 있다.
+
+## Studio 실행
+
+Node.js 22.15.0 이상이 필요하다. 설치된 프로젝트의 루트에서 기존 상세페이지
+프로젝트를 지정하면 Studio가 기본 브라우저로 열린다.
+
+```sh
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs start \
+  --project ".workspace/projects/<프로젝트 폴더>"
+```
+
+기본 주소는 `http://127.0.0.1:8896/studio.html`이다. 브라우저 자동 실행을
+끄려면 `--no-open`, 포트를 바꾸려면 `--port 8897`을 추가한다.
+
+```sh
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs start \
+  --project ".workspace/projects/<프로젝트 폴더>" \
+  --port 8897 \
+  --no-open
+```
+
+Studio의 `저장`은 선택한 프로젝트의 `output/detail-page.html`을 갱신하고
+직전 파일을 `.detail-page/backups/`에 보관한다.
 
 ## 업데이트
 
