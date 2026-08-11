@@ -15,6 +15,10 @@ import {
 } from "../orchestration/coupang-conversion-contract.mjs";
 
 const BACKUP_LIMIT = 20;
+const DEFAULT_STUDIO_EDIT_URL =
+  "http://127.0.0.1:8896/studio.html?view=edit";
+const STUDIO_LAUNCHER_ID = "detail-page-studio-launcher";
+const STUDIO_WINDOW_NAME = "detail-page-studio";
 const UNSAFE_PUBLIC_ATTRIBUTE =
   /\s+(?:(?:data-[^\s=/>]+)|(?:contenteditable|spellcheck)(?=\s|=|\/?>)|(?:on[a-z][^\s=/>]*))(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi;
 const PUBLIC_URL_ATTRIBUTE =
@@ -72,12 +76,87 @@ function projectPaths(projectRoot) {
 
 function forceContentHeight(html) {
   const style =
-    "<style>html,body,#detailPage{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}body{display:block!important;margin:0 auto!important;width:100%!important;max-width:780px!important}#detailPage{box-sizing:border-box!important;width:100%!important;max-width:780px!important;margin:0 auto!important}</style>";
+    "<style>html,body,#detailPage{height:auto!important;min-height:0!important;max-height:none!important}html{overflow-x:hidden!important;overflow-y:auto!important}body,#detailPage{overflow:visible!important}body{display:block!important;margin:0 auto!important;width:100%!important;max-width:780px!important}#detailPage{box-sizing:border-box!important;width:100%!important;max-width:780px!important;margin:0 auto!important}</style>";
   if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, `${style}</head>`);
   if (/<html\b[^>]*>/i.test(html)) {
     return html.replace(/<html\b[^>]*>/i, (match) => `${match}${style}`);
   }
   return `${style}${html}`;
+}
+
+function escapeHtmlAttribute(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+export function removeStudioLauncher(html) {
+  return String(html ?? "").replace(
+    /<a\b[^>]*(?:(?:id\s*=\s*(?:"detail-page-studio-launcher"|'detail-page-studio-launcher'|detail-page-studio-launcher))|(?:data-local-studio-launcher(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?))[^>]*>[\s\S]*?<\/a\s*>/gi,
+    "",
+  );
+}
+
+export function injectPersistentStudioLauncher(
+  html,
+  { href = DEFAULT_STUDIO_EDIT_URL } = {},
+) {
+  const source = removeStudioLauncher(html);
+  const launcher = `<a id="${STUDIO_LAUNCHER_ID}" href="${escapeHtmlAttribute(href)}" target="${STUDIO_WINDOW_NAME}" aria-label="현재 상세페이지를 Studio에서 편집하기" style="position:fixed;z-index:2147483647;right:18px;bottom:18px;display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border:1px solid rgba(255,255,255,.24);border-radius:999px;background:#111827;color:#fff;font:800 15px/1.2 system-ui,-apple-system,'Noto Sans KR','Malgun Gothic',sans-serif;text-decoration:none;box-shadow:0 12px 32px rgba(0,0,0,.28)">Studio에서 편집하기</a>`;
+  if (/<\/body>/i.test(source)) {
+    return source.replace(/<\/body>/i, `${launcher}</body>`);
+  }
+  return `${source}${launcher}`;
+}
+
+export function prepareOutputHtmlForStudio(html) {
+  let source = removeStudioLauncher(html);
+  if (!/<(?:main|div)\b[^>]*\bid\s*=\s*(?:"detailPage"|'detailPage'|detailPage)[^>]*>/i.test(source)) {
+    if (/<main\b[^>]*>/i.test(source)) {
+      source = source.replace(/<main\b([^>]*)>/i, '<main id="detailPage"$1>');
+    } else {
+      throw new Error("Studio에서 편집할 HTML에는 main 또는 #detailPage 루트가 필요합니다.");
+    }
+  }
+  if (!/<base\b[^>]*\bdata-studio-output-base\b[^>]*>/i.test(source)) {
+    const base = '<base href="/output/" data-studio-output-base="true" />';
+    if (/<head\b[^>]*>/i.test(source)) {
+      source = source.replace(/<head\b[^>]*>/i, (match) => `${match}\n    ${base}`);
+    } else {
+      source = `${base}${source}`;
+    }
+  }
+  if (!/<script\b[^>]*\bsrc\s*=\s*(?:"\/app\.js"|'\/app\.js'|\/app\.js)[^>]*><\/script\s*>/i.test(source)) {
+    const runtime = '<script src="/app.js" data-studio-authoring-runtime="true"></script>';
+    if (/<\/body>/i.test(source)) {
+      source = source.replace(/<\/body>/i, `${runtime}\n  </body>`);
+    } else {
+      source = `${source}${runtime}`;
+    }
+  }
+  return source;
+}
+
+export function shouldPromoteOutputToAuthoring({ authoringHtml, outputHtml }) {
+  const placeholderMarkers = [
+    "승인된 에셋으로 첫 화면을 조립합니다.",
+    "제품을 보여 줄 에셋을 먼저 완성해 주세요.",
+  ];
+  const authoringIsPlaceholder = placeholderMarkers.every((marker) =>
+    String(authoringHtml || "").includes(marker),
+  );
+  const outputIsPlaceholder = placeholderMarkers.some((marker) =>
+    String(outputHtml || "").includes(marker),
+  );
+  return (
+    authoringIsPlaceholder &&
+    !outputIsPlaceholder &&
+    /(?:<main\b|\bid\s*=\s*(?:"detailPage"|'detailPage'|detailPage))/i.test(
+      String(outputHtml || ""),
+    )
+  );
 }
 
 function decodePublicUrlEntities(value) {
@@ -748,6 +827,7 @@ export async function saveProjectOutput(
     exportManifest = null,
     validateBeforeCommit = null,
     immutableMediaRoot = null,
+    studioHref = DEFAULT_STUDIO_EDIT_URL,
   } = {},
 ) {
   if (typeof html !== "string" || Buffer.byteLength(html, "utf8") === 0) {
@@ -796,7 +876,12 @@ export async function saveProjectOutput(
       error.details = publicConversionQa;
       throw error;
     }
-    const nextOutput = Buffer.from(materialized.html, "utf8");
+    const nextOutput = Buffer.from(
+      injectPersistentStudioLauncher(materialized.html, {
+        href: studioHref,
+      }),
+      "utf8",
+    );
     await atomicWrite(paths.output, nextOutput);
     if (failureInjection === "after-output") {
       throw new Error("injected save failure after output");
@@ -895,6 +980,42 @@ export async function saveProjectOutput(
     ]);
     throw error;
   }
+}
+
+export async function ensureProjectOutputStudioLauncher(
+  projectRoot,
+  { href = DEFAULT_STUDIO_EDIT_URL } = {},
+) {
+  const paths = projectPaths(projectRoot);
+  const previousOutput = await readMaybe(paths.output);
+  if (previousOutput === null) {
+    throw new Error("Studio 버튼을 연결할 output/detail-page.html이 없습니다.");
+  }
+  const nextOutput = Buffer.from(
+    injectPersistentStudioLauncher(previousOutput.toString("utf8"), { href }),
+    "utf8",
+  );
+  if (previousOutput.equals(nextOutput)) {
+    return {
+      status: "unchanged",
+      output_path: "output/detail-page.html",
+      public_sha256: sha256Bytes(nextOutput),
+    };
+  }
+  const previousState = await readOutputState(paths);
+  await atomicWrite(paths.output, nextOutput);
+  await writeOutputState(paths, {
+    ...previousState,
+    schema_version: "1.0",
+    canonical_entry: "output/detail-page.html",
+    current_public_sha256: sha256Bytes(nextOutput),
+    updated_at: new Date().toISOString(),
+  });
+  return {
+    status: "updated",
+    output_path: "output/detail-page.html",
+    public_sha256: sha256Bytes(nextOutput),
+  };
 }
 
 export async function listProjectBackups(projectRoot) {

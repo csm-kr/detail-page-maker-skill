@@ -107,12 +107,12 @@ test("opaque authoring 메시지는 privileged 부모 DOM의 HTML sink로 들어
   assert.match(script, /event\.source\s*!==\s*preview\.contentWindow/);
   assert.doesNotMatch(
     script,
-    /(?:selectedLabel|sectionSelect|outputSummary)\.innerHTML\s*=/,
+    /(?:selectedLabel|minimapSections|outputSummary)\.innerHTML\s*=/,
   );
   assert.match(script, /selectedLabel\.replaceChildren/);
-  assert.match(script, /sectionSelect\.replaceChildren/);
+  assert.match(script, /minimapSections\.replaceChildren/);
   assert.match(script, /outputSummary\.replaceChildren/);
-  assert.match(script, /selected\.textContent\s*=\s*String/);
+  assert.match(script, /selected\.textContent\s*=\s*name/);
 });
 
 test("에셋 ledger에는 workflow G2U·G3U·G4U·G5U 승인을 대체할 수 없다는 배지가 있다", async () => {

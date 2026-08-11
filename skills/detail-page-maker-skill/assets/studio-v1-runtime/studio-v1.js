@@ -1,24 +1,16 @@
 const preview = document.querySelector("#preview");
+const canvasWorkspace = document.querySelector('.workspace[data-workspace="edit"]');
 const saveButton = document.querySelector("#save");
 const toggleEdit = document.querySelector("#toggleEdit");
 const statusNode = document.querySelector("#status");
-const srcInput = document.querySelector("#imageSrc");
-const altInput = document.querySelector("#imageAlt");
 const selectedLabel = document.querySelector("#selectedLabel");
 const selectionDepth = document.querySelector("#selectionDepth");
 const editingStateNode = document.querySelector("#editingState");
 const nestedStudioGuard = document.querySelector("#nestedStudioGuard");
-const sectionSelect = document.querySelector("#sectionSelect");
-const sectionCropHeight = document.querySelector("#sectionCropHeight");
-const sectionCropMode = document.querySelector("#sectionCropMode");
-const sectionCropMeasure = document.querySelector("#sectionCropMeasure");
-const sectionCropApply = document.querySelector("#sectionCropApply");
-const sectionCropClear = document.querySelector("#sectionCropClear");
-const sectionCropMinus = document.querySelector("#sectionCropMinus");
-const sectionCropPlus = document.querySelector("#sectionCropPlus");
-const autoHeight = document.querySelector("#autoHeight");
-const pageHeight = document.querySelector("#pageHeight");
-const heightMeasure = document.querySelector("#heightMeasure");
+const minimapTrack = document.querySelector("#minimapTrack");
+const minimapSections = document.querySelector("#minimapSections");
+const minimapViewport = document.querySelector("#minimapViewport");
+const minimapPercent = document.querySelector("#minimapPercent");
 const assetReviewGrid = document.querySelector("#assetReviewGrid");
 const exportButton = document.querySelector("#exportHtml");
 const outputGate = document.querySelector("#outputGate");
@@ -51,29 +43,31 @@ const workflowProofConfirmed = document.querySelector("#workflowProofConfirmed")
 const workflowRejectReason = document.querySelector("#workflowRejectReason");
 const workflowApproveButton = document.querySelector("#workflowApprove");
 const workflowRejectButton = document.querySelector("#workflowReject");
-const applyImageButton = document.querySelector("#applyImage");
-const imageFileInput = document.querySelector("#imageFile");
 const undoButton = document.querySelector("#undo");
 const elementFont = document.querySelector("#elementFont");
 const elementColor = document.querySelector("#elementColor");
-const elementX = document.querySelector("#elementX");
-const elementY = document.querySelector("#elementY");
-const applyPositionButton = document.querySelector("#applyPosition");
+const textSelectionHint = document.querySelector("#textSelectionHint");
 const clearTextButton = document.querySelector("#clearText");
 const deleteObjectButton = document.querySelector("#deleteObject");
-const nudgeButtons = [...document.querySelectorAll("[data-nudge-x]")];
 const modeButtons = [...document.querySelectorAll("[data-editor-mode]")];
 const textAlignButtons = [...document.querySelectorAll("[data-text-align]")];
+const textColorButtons = [...document.querySelectorAll("[data-text-color]")];
 const nestedStudio = window.self !== window.top;
+if (!nestedStudio) window.name = "detail-page-studio";
+const PREVIEW_HEIGHT_MIN = 360;
+const PREVIEW_HEIGHT_MAX = 2400;
 
 let editing = false;
 let editorMode = "layout";
-let selectedImageIndex = -1;
-let selectedImageCurrentSrc = "";
 let selectedObjectState = null;
+let textRangeSelected = false;
 let sections = [];
 let measuredHeight = 1200;
-let previewWidth = 390;
+let previewScroll = {
+  top: 0,
+  viewportHeight: 0,
+  pageHeight: 1200,
+};
 let activeAssetFilter = "pending";
 let assets = [];
 let gate = {
@@ -103,6 +97,14 @@ let workflowApprovalNotice = {
     "G5U_APPROVAL",
   ],
 };
+
+document.querySelector(".workflow-nav")?.remove();
+document
+  .querySelectorAll(
+    '[data-side-panel]:not([data-side-panel="edit"]),[data-workspace]:not([data-workspace="edit"])',
+  )
+  .forEach((node) => node.remove());
+
 let pendingSaveRequest = null;
 const SAVE_SERIALIZATION_TIMEOUT_MS = 10_000;
 
@@ -204,9 +206,14 @@ function renderEditingState() {
     ? editorMode === "layout"
       ? "배치 편집 중"
       : "텍스트 편집 중"
-    : "보기 모드";
-  toggleEdit.textContent = editing ? "편집 종료" : "편집 시작";
+    : "모드 없음";
+  toggleEdit.textContent = editing ? "편집 종료 (Esc)" : "편집 시작 (E)";
   toggleEdit.classList.toggle("primary", !editing);
+  modeButtons.forEach((button) => {
+    const active = editing && button.dataset.editorMode === editorMode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
 }
 
 function stopEditing({ syncPreview = true, announce = true } = {}) {
@@ -214,15 +221,13 @@ function stopEditing({ syncPreview = true, announce = true } = {}) {
   editing = false;
   if (syncPreview) post("DETAIL_SET_EDITING", { enabled: false });
   selectedObjectState = null;
-  selectedImageIndex = -1;
-  selectedImageCurrentSrc = "";
+  textRangeSelected = false;
   setElementControlsEnabled(false);
-  setImageControlsEnabled(false);
   selectionDepth.innerHTML =
     "<span>선택 0</span><span>레이어 -</span><span>깊이 -</span>";
-  selectedLabel.textContent = "편집 시작을 누른 뒤 요소를 선택해 주세요.";
+  selectedLabel.textContent = "E 또는 편집 시작을 누른 뒤 수정 모드를 선택해 주세요.";
   renderEditingState();
-  if (announce) setStatus("편집을 종료했습니다. 다시 시작하려면 V 또는 T를 누르세요.");
+  if (announce) setStatus("모드를 모두 해제했습니다. E를 눌러 편집을 시작하세요.");
 }
 
 function startEditing(mode = editorMode) {
@@ -236,13 +241,6 @@ function startEditing(mode = editorMode) {
   setEditorMode(mode);
   renderEditingState();
   return true;
-}
-
-function setImageControlsEnabled(enabled) {
-  srcInput.disabled = !enabled;
-  altInput.disabled = !enabled;
-  imageFileInput.disabled = !enabled;
-  applyImageButton.disabled = !enabled;
 }
 
 function colorToHex(value) {
@@ -259,19 +257,30 @@ function colorToHex(value) {
     .join("")}`;
 }
 
+function renderTextColorButtons() {
+  const current = elementColor.value.toLowerCase();
+  textColorButtons.forEach((button) => {
+    const active = button.dataset.textColor.toLowerCase() === current;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+}
+
 function setElementControlsEnabled(enabled, isText = false) {
   const layoutEnabled = enabled && editorMode === "layout";
   const textEnabled = enabled && isText && editorMode === "text";
-  elementX.disabled = !layoutEnabled;
-  elementY.disabled = !layoutEnabled;
-  applyPositionButton.disabled = !layoutEnabled;
-  elementFont.disabled = !textEnabled;
-  elementColor.disabled = !textEnabled;
+  const rangeEnabled = textEnabled && textRangeSelected;
+  elementFont.disabled = !rangeEnabled;
+  elementColor.disabled = !rangeEnabled;
+  textColorButtons.forEach((button) => {
+    button.disabled = !rangeEnabled;
+  });
+  textSelectionHint.dataset.ready = String(rangeEnabled);
+  textSelectionHint.textContent = rangeEnabled
+    ? "드래그한 글자에만 글꼴과 색상을 적용합니다."
+    : "텍스트 모드에서 바꿀 글자를 드래그해 선택하세요.";
   clearTextButton.disabled = !textEnabled;
   deleteObjectButton.disabled = !layoutEnabled;
-  nudgeButtons.forEach((button) => {
-    button.disabled = !layoutEnabled;
-  });
   textAlignButtons.forEach((button) => {
     button.disabled = !textEnabled;
   });
@@ -280,19 +289,14 @@ function setElementControlsEnabled(enabled, isText = false) {
 function setEditorMode(mode, announce = true, syncPreview = true) {
   if (!["layout", "text"].includes(mode)) return;
   editorMode = mode;
-  modeButtons.forEach((button) => {
-    const active = button.dataset.editorMode === mode;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", String(active));
-  });
   if (syncPreview) post("DETAIL_SET_MODE", { mode });
   renderEditingState();
   setElementControlsEnabled(Boolean(selectedObjectState), Boolean(selectedObjectState?.isText));
   if (announce) {
     setStatus(
       mode === "layout"
-        ? "요소 배치 · 드래그, 방향키, 좌표, 삭제만 사용할 수 있습니다."
-        : "텍스트 변환 · 문구 수정, 글꼴, 색상, 정렬만 사용할 수 있습니다.",
+        ? "요소 수정 · 드래그, 방향키, 삭제를 사용할 수 있습니다."
+        : "텍스트 수정 · 글자를 드래그해 글꼴과 색상을 바꿀 수 있습니다.",
     );
   }
 }
@@ -309,9 +313,7 @@ function renderSelectedObject(message) {
   const detail = document.createTextNode(
     ` · ${message.isText ? "문구 편집" : "드래그 이동"} · ${Math.round(
       Number(message.scale || 1) * 100,
-    )}% · (${Math.round(Number(message.x) || 0)}, ${Math.round(
-      Number(message.y) || 0,
-    )})`,
+    )}%`,
   );
   selectedLabel.replaceChildren(selected, detail);
   selectionDepth.replaceChildren(
@@ -325,13 +327,12 @@ function renderSelectedObject(message) {
       textContent: `깊이 ${Number(message.domDepth) || 0} · z ${message.zIndex || "auto"}`,
     }),
   );
-  elementX.value = String(Math.round(Number(message.x) || 0));
-  elementY.value = String(Math.round(Number(message.y) || 0));
   const fontOption = [...elementFont.options].find(
     (option) => option.value && message.fontFamily?.includes(option.textContent),
   );
   elementFont.value = fontOption?.value || "";
-  elementColor.value = colorToHex(message.color);
+  if (!textRangeSelected) elementColor.value = colorToHex(message.color);
+  renderTextColorButtons();
   textAlignButtons.forEach((button) => {
     button.classList.toggle(
       "active",
@@ -339,20 +340,6 @@ function renderSelectedObject(message) {
     );
   });
   setElementControlsEnabled(true, Boolean(message.isText));
-
-  if (message.isImage) {
-    selectedImageIndex = Number(message.imageIndex);
-    selectedImageCurrentSrc = message.src || "";
-    srcInput.value = message.src || "";
-    altInput.value = message.alt || "";
-    setImageControlsEnabled(true);
-  } else {
-    selectedImageIndex = -1;
-    selectedImageCurrentSrc = "";
-    srcInput.value = "";
-    altInput.value = "";
-    setImageControlsEnabled(false);
-  }
 }
 
 async function api(pathname, options = {}) {
@@ -372,78 +359,55 @@ async function api(pathname, options = {}) {
   return payload;
 }
 
-function applyPreviewHeight(value, manual = false) {
+function applyPreviewHeight(value) {
   const next = Math.max(
-    360,
-    Math.min(100000, Math.round(Number(value) || measuredHeight)),
+    PREVIEW_HEIGHT_MIN,
+    Math.min(PREVIEW_HEIGHT_MAX, Math.round(Number(value) || 900)),
   );
   preview.style.height = `${next}px`;
-  pageHeight.value = String(next);
-  if (manual) autoHeight.checked = false;
   return next;
 }
 
-function fitPreviewHeight() {
-  autoHeight.checked = true;
-  applyPreviewHeight(measuredHeight);
-  post("DETAIL_REQUEST_HEIGHT");
-  setStatus(`내용 높이 ${measuredHeight.toLocaleString("ko-KR")}px에 맞췄습니다.`);
-}
-
-function cropModeForWidth(width = previewWidth) {
-  return Number(width) <= 520 ? "mobile" : "desktop";
-}
-
-function refreshSectionCropControls() {
-  const section = sections.find((item) => item.id === sectionSelect.value);
-  const mode = cropModeForWidth();
-  const controls = [
-    sectionCropHeight,
-    sectionCropApply,
-    sectionCropClear,
-    sectionCropMinus,
-    sectionCropPlus,
-  ];
-  controls.forEach((control) => {
-    control.disabled = !section;
-  });
-  sectionCropMode.textContent =
-    mode === "mobile"
-      ? `${previewWidth}px 모바일`
-      : `${previewWidth}px 데스크톱`;
-  if (!section) {
-    sectionCropMeasure.textContent = "자를 섹션을 먼저 선택해 주세요.";
-    return;
-  }
-  const cropHeight = Number(section.cropHeights?.[mode]) || null;
-  const contentHeight = Math.max(
-    Number(section.contentHeight) || 0,
-    Number(section.renderedHeight) || 0,
+function availablePreviewHeight() {
+  const workspaceHeight =
+    preview.closest(".workspace")?.clientHeight || window.innerHeight;
+  return Math.max(
+    PREVIEW_HEIGHT_MIN,
+    Math.min(PREVIEW_HEIGHT_MAX, Math.floor(workspaceHeight)),
   );
-  if (document.activeElement !== sectionCropHeight) {
-    sectionCropHeight.value = String(cropHeight || contentHeight || 900);
-  }
-  sectionCropMeasure.textContent = cropHeight
-    ? `현재 ${cropHeight.toLocaleString("ko-KR")}px에서 하단 자름 · 전체 내용 ${contentHeight.toLocaleString("ko-KR")}px`
-    : `현재 자동 높이 · 전체 내용 ${contentHeight.toLocaleString("ko-KR")}px`;
 }
 
-function refreshSectionSelect(nextId) {
-  const current = nextId || sectionSelect.value;
-  sectionSelect.replaceChildren(
+function renderMinimap() {
+  const total = Math.max(
+    1,
+    Number(previewScroll.pageHeight) || 0,
+    measuredHeight,
+  );
+  minimapSections.replaceChildren(
     ...sections.map((section) => {
-      const option = document.createElement("option");
-      option.value = String(section.id || "");
-      option.textContent = `${Number(section.index) + 1}. ${
-        section.hidden ? "숨김 · " : ""
-      }${String(section.label || "")}`;
-      return option;
+      const marker = document.createElement("span");
+      const top = Math.max(0, Number(section.top) || 0);
+      const height = Math.max(1, Number(section.renderedHeight) || 1);
+      marker.style.top = `${Math.min(100, (top / total) * 100)}%`;
+      marker.style.height = `${Math.max(0.35, Math.min(100, (height / total) * 100))}%`;
+      marker.title = String(section.label || section.id || "섹션");
+      return marker;
     }),
   );
-  if (sections.some((section) => section.id === current)) {
-    sectionSelect.value = current;
-  }
-  refreshSectionCropControls();
+  const viewportHeight = Math.max(1, Number(previewScroll.viewportHeight) || 1);
+  const maxScroll = Math.max(1, total - viewportHeight);
+  const topRatio = Math.max(
+    0,
+    Math.min(1, (Number(previewScroll.top) || 0) / maxScroll),
+  );
+  const heightRatio = Math.max(0.025, Math.min(1, viewportHeight / total));
+  minimapViewport.style.top = `${topRatio * (1 - heightRatio) * 100}%`;
+  minimapViewport.style.height = `${heightRatio * 100}%`;
+  minimapPercent.value = `${Math.round(topRatio * 100)}%`;
+  minimapTrack.setAttribute(
+    "aria-label",
+    `현재 상세페이지 ${Math.round(topRatio * 100)}% 위치 · 클릭하여 이동`,
+  );
 }
 
 function setView(view) {
@@ -1023,8 +987,8 @@ toggleEdit.addEventListener("click", () => {
   if (startEditing(editorMode)) {
     setStatus(
       editorMode === "layout"
-        ? "요소 배치 · 클릭하거나 Ctrl/Cmd+클릭으로 묶음을 선택하세요."
-        : "텍스트 변환 · 클릭한 문구의 내용과 정렬을 바꾸세요.",
+        ? "요소 수정 · 클릭하거나 Ctrl/Cmd+클릭으로 묶음을 선택하세요."
+        : "텍스트 수정 · 바꿀 글자를 드래그해 선택하세요.",
     );
   }
 });
@@ -1037,104 +1001,27 @@ modeButtons.forEach((button) => {
 saveButton.addEventListener("click", requestAuthoringSave);
 undoButton.addEventListener("click", () => post("DETAIL_UNDO"));
 document.querySelector("#replay").addEventListener("click", () => post("DETAIL_REPLAY_GIFS"));
-document.querySelector("#reset").addEventListener("click", () => {
-  if (confirm("로컬에 저장한 수정 내용을 모두 초기화할까요?")) {
-    post("DETAIL_RESET");
+
+function applyTextRangeStyle() {
+  if (!selectedObjectState?.isText || !textRangeSelected) {
+    setStatus("먼저 미리보기에서 바꿀 글자를 드래그해 선택해 주세요.");
+    return;
   }
-});
-document.querySelector("#moveUp").addEventListener("click", () =>
-  post("DETAIL_MOVE_SECTION", {
-    id: sectionSelect.value,
-    direction: "up",
-  }),
-);
-document.querySelector("#moveDown").addEventListener("click", () =>
-  post("DETAIL_MOVE_SECTION", {
-    id: sectionSelect.value,
-    direction: "down",
-  }),
-);
-document.querySelector("#toggleSection").addEventListener("click", () => {
-  const section = sections.find((item) => item.id === sectionSelect.value);
-  if (section) {
-    post("DETAIL_TOGGLE_SECTION", {
-      id: section.id,
-      hidden: !section.hidden,
-    });
-  }
-});
-sectionSelect.addEventListener("change", refreshSectionCropControls);
-sectionCropMinus.addEventListener("click", () => {
-  sectionCropHeight.value = String(
-    Math.max(180, (Number(sectionCropHeight.value) || 900) - 100),
-  );
-});
-sectionCropPlus.addEventListener("click", () => {
-  sectionCropHeight.value = String(
-    Math.min(100000, (Number(sectionCropHeight.value) || 900) + 100),
-  );
-});
-sectionCropApply.addEventListener("click", () => {
-  const section = sections.find((item) => item.id === sectionSelect.value);
-  if (!section) return;
-  const height = Math.max(
-    180,
-    Math.min(100000, Math.round(Number(sectionCropHeight.value) || 900)),
-  );
-  sectionCropHeight.value = String(height);
-  post("DETAIL_SET_SECTION_CROP", {
-    id: section.id,
-    height,
-    mode: cropModeForWidth(),
+  post("DETAIL_SET_TEXT_RANGE_STYLE", {
+    fontFamily: elementFont.value,
+    color: elementColor.value,
   });
-  setStatus(
-    `${previewWidth}px ${cropModeForWidth() === "mobile" ? "모바일" : "데스크톱"}에서 ‘${section.label}’ 하단을 ${height.toLocaleString("ko-KR")}px로 잘랐습니다. 상단 ‘로컬 저장’으로 보관할 수 있습니다.`,
-  );
-});
-sectionCropClear.addEventListener("click", () => {
-  const section = sections.find((item) => item.id === sectionSelect.value);
-  if (!section) return;
-  post("DETAIL_SET_SECTION_CROP", {
-    id: section.id,
-    height: null,
-    mode: cropModeForWidth(),
-  });
-  setStatus(
-    `${previewWidth}px ${cropModeForWidth() === "mobile" ? "모바일" : "데스크톱"}에서 ‘${section.label}’을 자동 높이로 복원했습니다.`,
-  );
-});
-document.querySelector("#accent").addEventListener("input", (event) =>
-  post("DETAIL_SET_ACCENT", { value: event.target.value }),
-);
+}
+
 elementFont.addEventListener("change", () => {
-  if (!selectedObjectState) return;
-  post("DETAIL_SET_OBJECT_STYLE", {
-    fontFamily: elementFont.value,
-    color: elementColor.value,
-  });
+  applyTextRangeStyle();
 });
-elementColor.addEventListener("input", () => {
-  if (!selectedObjectState) return;
-  post("DETAIL_SET_OBJECT_STYLE", {
-    fontFamily: elementFont.value,
-    color: elementColor.value,
-  });
-});
-applyPositionButton.addEventListener("click", () => {
-  if (!selectedObjectState) return;
-  post("DETAIL_SET_OBJECT_POSITION", {
-    x: Number(elementX.value) || 0,
-    y: Number(elementY.value) || 0,
-  });
-});
-nudgeButtons.forEach((button) => {
-  button.addEventListener("click", (event) => {
-    if (!selectedObjectState) return;
-    const amount = event.shiftKey ? 10 : 1;
-    post("DETAIL_NUDGE_OBJECT", {
-      dx: Number(button.dataset.nudgeX) * amount,
-      dy: Number(button.dataset.nudgeY) * amount,
-    });
+elementColor.addEventListener("change", applyTextRangeStyle);
+textColorButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    elementColor.value = button.dataset.textColor;
+    renderTextColorButtons();
+    applyTextRangeStyle();
   });
 });
 clearTextButton.addEventListener("click", () => {
@@ -1165,72 +1052,30 @@ deleteObjectButton.addEventListener("click", () => {
   post("DETAIL_DELETE_OBJECT");
   setStatus("확인한 요소를 삭제했습니다. 실행 취소로 되돌릴 수 있습니다.");
 });
-autoHeight.addEventListener("change", () => {
-  if (autoHeight.checked) fitPreviewHeight();
-  else setStatus("수동 높이 조절 모드입니다.");
-});
-pageHeight.addEventListener("input", () => {
-  const next = applyPreviewHeight(pageHeight.value, true);
-  setStatus(`미리보기 높이를 ${next.toLocaleString("ko-KR")}px로 조절했습니다.`);
-});
-document.querySelector("#heightMinus").addEventListener("click", () => {
-  const next = applyPreviewHeight(
-    preview.getBoundingClientRect().height - 100,
-    true,
+minimapTrack.addEventListener("click", (event) => {
+  const rect = minimapTrack.getBoundingClientRect();
+  const ratio = Math.max(
+    0,
+    Math.min(1, (event.clientY - rect.top) / Math.max(1, rect.height)),
   );
-  setStatus(`미리보기 높이를 ${next.toLocaleString("ko-KR")}px로 줄였습니다.`);
+  post("DETAIL_SCROLL_TO_RATIO", { ratio });
 });
-document.querySelector("#heightPlus").addEventListener("click", () => {
-  const next = applyPreviewHeight(
-    preview.getBoundingClientRect().height + 100,
-    true,
-  );
-  setStatus(`미리보기 높이를 ${next.toLocaleString("ko-KR")}px로 늘렸습니다.`);
+
+canvasWorkspace.addEventListener(
+  "wheel",
+  (event) => {
+    if (event.target.closest(".page-minimap")) return;
+    event.preventDefault();
+    post("DETAIL_SCROLL_BY", { deltaY: event.deltaY });
+  },
+  { passive: false },
+);
+
+window.addEventListener("resize", () => {
+  applyPreviewHeight(availablePreviewHeight());
+  renderMinimap();
 });
-document.querySelector("#heightFit").addEventListener("click", fitPreviewHeight);
-imageFileInput.addEventListener("change", (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    srcInput.value = reader.result;
-  };
-  reader.readAsDataURL(file);
-});
-applyImageButton.addEventListener("click", async () => {
-  if (selectedImageIndex < 0) {
-    setStatus("먼저 수정 모드에서 이미지를 선택해 주세요.");
-    return;
-  }
-  const nextSource = srcInput.value.trim();
-  if (nextSource !== selectedImageCurrentSrc) {
-    await refreshAssets();
-    if (!isApprovedSource(nextSource)) {
-      setStatus("교체할 이미지를 먼저 에셋 승인 화면에서 승인해 주세요.");
-      return;
-    }
-  }
-  post("DETAIL_SET_IMAGE", {
-    index: selectedImageIndex,
-    src: nextSource,
-    alt: altInput.value.trim(),
-  });
-  selectedImageCurrentSrc = nextSource;
-  setStatus(`이미지 ${selectedImageIndex + 1}번을 미리보기에 적용했습니다.`);
-});
-document.querySelectorAll("[data-width]").forEach((button) => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll("[data-width]").forEach((item) => {
-      item.classList.toggle("primary", item === button);
-    });
-    previewWidth = Number(button.dataset.width);
-    preview.style.width = `${previewWidth}px`;
-    refreshSectionCropControls();
-    setStatus(`${button.dataset.width}px 너비와 높이를 다시 계산하는 중입니다.`);
-    requestAnimationFrame(() => post("DETAIL_REQUEST_HEIGHT"));
-  });
-});
-document.querySelector("#refreshAssets").addEventListener("click", refreshAssets);
+document.querySelector("#refreshAssets")?.addEventListener("click", refreshAssets);
 exportButton.addEventListener("click", async () => {
   try {
     await refreshGate();
@@ -1297,33 +1142,41 @@ wingExportButton.addEventListener("click", async () => {
 });
 
 document.addEventListener("keydown", (event) => {
-  const inControl = event.target.closest("input,select,textarea,[contenteditable]");
-  if (event.key === "Escape" && editing) {
+  const target = event.target instanceof Element ? event.target : null;
+  const inControl = Boolean(
+    target?.closest("input,select,textarea,[contenteditable]"),
+  );
+  const key = event.key.toLowerCase();
+  if ((event.ctrlKey || event.metaKey) && key === "s") {
+    event.preventDefault();
+    requestAuthoringSave();
+    return;
+  }
+  if ((event.ctrlKey || event.metaKey) && key === "z") {
+    event.preventDefault();
+    post("DETAIL_UNDO");
+    return;
+  }
+  if (event.key === "Escape") {
     event.preventDefault();
     stopEditing();
     return;
   }
   if (!inControl && !event.ctrlKey && !event.metaKey && !event.altKey) {
-    if (event.key.toLowerCase() === "v") {
+    if (key === "e") {
       event.preventDefault();
-      if (!editing) startEditing("layout");
-      else setEditorMode("layout");
+      if (!editing) startEditing(editorMode);
       return;
     }
-    if (event.key.toLowerCase() === "t") {
+    if (key === "v" || key === "t") {
       event.preventDefault();
-      if (!editing) startEditing("text");
-      else setEditorMode("text");
+      if (!editing) {
+        setStatus("E를 눌러 편집 모드에 먼저 들어가세요.");
+        return;
+      }
+      setEditorMode(key === "v" ? "layout" : "text");
       return;
     }
-  }
-  if (
-    (event.ctrlKey || event.metaKey) &&
-    event.key.toLowerCase() === "z" &&
-    !inControl
-  ) {
-    event.preventDefault();
-    post("DETAIL_UNDO");
   }
 });
 
@@ -1337,11 +1190,16 @@ window.addEventListener("message", (event) => {
   if (message.type === "DETAIL_READY") {
     if (Number(message.height) > 0) {
       measuredHeight = Math.ceil(Number(message.height));
-      heightMeasure.textContent = `실제 내용 높이 ${measuredHeight.toLocaleString("ko-KR")}px`;
-      if (autoHeight.checked) applyPreviewHeight(measuredHeight);
+      applyPreviewHeight(availablePreviewHeight());
     }
     sections = message.sections || [];
-    refreshSectionSelect();
+    previewScroll = {
+      top: Number(message.scrollTop) || previewScroll.top,
+      viewportHeight:
+        Number(message.viewportHeight) || previewScroll.viewportHeight,
+      pageHeight: Number(message.height) || measuredHeight,
+    };
+    renderMinimap();
     if (!editing) {
       setStatus(
         `${message.sectionCount}개 섹션 · 수정 문구 ${message.editableCount}개 · 이미지 ${message.imageCount}개 준비됨`,
@@ -1350,6 +1208,14 @@ window.addEventListener("message", (event) => {
   }
   if (message.type === "DETAIL_HISTORY_CHANGED") {
     undoButton.disabled = !message.canUndo;
+  }
+  if (message.type === "DETAIL_SCROLL_POSITION") {
+    previewScroll = {
+      top: Number(message.scrollTop) || 0,
+      viewportHeight: Number(message.viewportHeight) || 0,
+      pageHeight: Number(message.pageHeight) || measuredHeight,
+    };
+    renderMinimap();
   }
   if (message.type === "DETAIL_EXPORT_PROGRESS") {
     setStatus(`단일 HTML 에셋 포함 중 · ${message.completed}/${message.total}`);
@@ -1360,65 +1226,67 @@ window.addEventListener("message", (event) => {
   if (message.type === "DETAIL_EXPORT_ERROR") {
     setStatus(`다운로드 실패 · ${message.message || "다시 시도해 주세요."}`);
   }
-  if (message.type === "DETAIL_IMAGE_SELECTED") {
-    selectedImageIndex = message.index;
-    selectedImageCurrentSrc = message.src;
-    srcInput.value = message.src;
-    altInput.value = message.alt;
-    const selected = document.createElement("span");
-    selected.className = "selected";
-    selected.textContent = String(
-      message.assetId || `이미지 #${Number(message.index) + 1}`,
-    );
-    selectedLabel.replaceChildren(
-      selected,
-      document.createTextNode(" 선택됨"),
-    );
-    setImageControlsEnabled(true);
-  }
   if (message.type === "DETAIL_OBJECT_SELECTED") {
+    if (selectedObjectState?.objectId !== message.objectId) {
+      textRangeSelected = false;
+    }
     renderSelectedObject(message);
+  }
+  if (message.type === "DETAIL_TEXT_SELECTION_CHANGED") {
+    textRangeSelected = Boolean(message.hasSelection);
+    if (message.color) elementColor.value = colorToHex(message.color);
+    renderTextColorButtons();
+    setElementControlsEnabled(
+      Boolean(selectedObjectState),
+      Boolean(selectedObjectState?.isText),
+    );
+    if (textRangeSelected) {
+      setStatus(
+        `드래그한 ${Number(message.characterCount) || 0}글자만 수정할 수 있습니다.`,
+      );
+    }
   }
   if (message.type === "DETAIL_OBJECT_CHANGED") {
     renderSelectedObject({
       ...(selectedObjectState || {}),
       ...message,
-      isImage: selectedImageIndex >= 0,
-      imageIndex: selectedImageIndex,
-      src: srcInput.value,
-      alt: altInput.value,
     });
     setStatus(
       `${message.label || message.objectId || "요소"} · ${Math.round(
         Number(message.scale || 1) * 100,
-      )}% · 위치 (${Math.round(Number(message.x) || 0)}, ${Math.round(
-        Number(message.y) || 0,
-      )})`,
+      )}%`,
     );
   }
   if (message.type === "DETAIL_SELECTION_CLEARED") {
     selectedObjectState = null;
-    selectedImageIndex = -1;
-    selectedImageCurrentSrc = "";
+    textRangeSelected = false;
     selectedLabel.textContent =
       editorMode === "layout"
-        ? "요소 배치 모드에서 옮길 요소를 선택해 주세요."
-        : "텍스트 변환 모드에서 바꿀 문구를 선택해 주세요.";
+        ? "요소 수정 모드에서 옮길 요소를 선택해 주세요."
+        : "텍스트 수정 모드에서 바꿀 문구를 선택해 주세요.";
     setElementControlsEnabled(false);
-    setImageControlsEnabled(false);
     selectionDepth.innerHTML =
       "<span>선택 0</span><span>레이어 -</span><span>깊이 -</span>";
   }
   if (message.type === "DETAIL_EDITING_STOPPED") {
     stopEditing({ syncPreview: false });
   }
+  if (message.type === "DETAIL_EDITING_REQUESTED") {
+    if (!editing) startEditing(editorMode);
+  }
+  if (message.type === "DETAIL_EDITING_REQUIRED") {
+    setStatus("E를 눌러 편집 모드에 먼저 들어가세요.");
+  }
+  if (message.type === "DETAIL_SAVE_SHORTCUT") {
+    requestAuthoringSave();
+  }
   if (message.type === "DETAIL_MODE_CHANGED") {
     setEditorMode(message.mode, false, false);
   }
 });
 
-setImageControlsEnabled(false);
 setElementControlsEnabled(false);
+renderTextColorButtons();
 renderEditingState();
 if (nestedStudio) {
   nestedStudioGuard.hidden = false;
@@ -1426,6 +1294,4 @@ if (nestedStudio) {
   app.inert = true;
   app.setAttribute("aria-hidden", "true");
 }
-refreshGate();
-refreshWorkflow();
-refreshCloudflareConnection();
+setView("edit");

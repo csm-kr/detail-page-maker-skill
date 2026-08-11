@@ -21,7 +21,9 @@
   if (!page) return;
   if (window.self !== window.top) {
     document
-      .querySelectorAll("[data-studio-launcher]")
+      .querySelectorAll(
+        "[data-studio-launcher],[data-local-studio-launcher],#detail-page-studio-launcher",
+      )
       .forEach((launcher) => launcher.remove());
   }
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -35,6 +37,7 @@
   const objectTransforms = new WeakMap();
   let selectedObject = null;
   let selectedObjects = new Set();
+  let savedTextRange = null;
   let dragState = null;
   let historyStack = [];
   let historyTimer = 0;
@@ -44,8 +47,43 @@
   let pendingSerializationNonce = null;
   const SNAP_DISTANCE = 8;
 
+  function sectionIdCandidate(section, index) {
+    const raw =
+      section.id ||
+      [...section.classList].find((name) => name && name !== "section") ||
+      `section-${index + 1}`;
+    return String(raw)
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/[^a-z0-9가-힣_-]+/g, "-")
+      .replace(/^-+|-+$/g, "") || `section-${index + 1}`;
+  }
+
+  function ensureSectionIds() {
+    const used = new Set();
+    [...page.querySelectorAll(":scope > section")].forEach(
+      (section, index) => {
+        let candidate =
+          section.dataset.section || sectionIdCandidate(section, index);
+        const base = candidate;
+        let suffix = 2;
+        while (used.has(candidate)) {
+          candidate = `${base}-${suffix}`;
+          suffix += 1;
+        }
+        used.add(candidate);
+        section.dataset.section = candidate;
+      },
+    );
+  }
+
+  ensureSectionIds();
+
   function ensureEditIds() {
     sectionNodes().forEach((section) => {
+      [...section.querySelectorAll("img")].forEach((node) => {
+        node.dataset.editImage = "";
+      });
       [...section.querySelectorAll("[data-edit]")].forEach((node, index) => {
         if (!node.dataset.editId) {
           node.dataset.editId = `${section.dataset.section}:text-${index + 1}`;
@@ -74,6 +112,7 @@
       );
       [...section.querySelectorAll(AUTO_SELECTABLE_SELECTOR)].forEach(
         (node, index) => {
+          if (node.matches("[data-studio-inline-style]")) return;
           node.dataset.studioObject = "";
           if (
             node.matches(
@@ -170,6 +209,8 @@
   const interactionStyle = document.createElement("style");
   interactionStyle.dataset.studioInteraction = "";
   interactionStyle.textContent = `
+    html:root, html:root body { height: 100% !important; min-height: 0 !important; overflow: hidden !important; }
+    html:root #detailPage { height: 100% !important; min-height: 0 !important; max-height: 100% !important; overflow-x: hidden !important; overflow-y: auto !important; }
     .is-editing[data-editor-mode="layout"] [data-studio-object] { cursor: grab !important; }
     .is-editing[data-editor-mode="text"] [data-studio-object] { cursor: default !important; }
     .is-editing [data-studio-object].studio-object-selected {
@@ -399,7 +440,78 @@
     });
   }
 
+  function clearTextRange({ notify = true } = {}) {
+    savedTextRange = null;
+    if (notify) {
+      window.parent.postMessage(
+        {
+          type: "DETAIL_TEXT_SELECTION_CHANGED",
+          hasSelection: false,
+          characterCount: 0,
+        },
+        "*",
+      );
+    }
+  }
+
+  function rangeInsideSelectedText(range) {
+    return Boolean(
+      range &&
+        !range.collapsed &&
+        selectedObject?.matches(TEXT_SELECTOR) &&
+        selectedObject.contains(range.startContainer) &&
+        selectedObject.contains(range.endContainer),
+    );
+  }
+
+  function rangeColor(range) {
+    const start =
+      range.startContainer.nodeType === Node.ELEMENT_NODE
+        ? range.startContainer
+        : range.startContainer.parentElement;
+    return start instanceof Element ? getComputedStyle(start).color : "";
+  }
+
+  function notifyTextRange(range) {
+    window.parent.postMessage(
+      {
+        type: "DETAIL_TEXT_SELECTION_CHANGED",
+        hasSelection: true,
+        characterCount: range.toString().length,
+        color: rangeColor(range),
+      },
+      "*",
+    );
+  }
+
+  function applyTextRangeStyle(fontFamily, color) {
+    if (!rangeInsideSelectedText(savedTextRange)) {
+      clearTextRange();
+      return;
+    }
+    checkpointHistory();
+    const range = savedTextRange.cloneRange();
+    const wrapper = document.createElement("span");
+    wrapper.dataset.studioInlineStyle = "";
+    if (fontFamily) {
+      wrapper.style.setProperty("font-family", fontFamily, "important");
+    }
+    if (color) wrapper.style.setProperty("color", color, "important");
+    wrapper.append(range.extractContents());
+    range.insertNode(wrapper);
+    const selection = getSelection();
+    selection?.removeAllRanges();
+    const nextRange = document.createRange();
+    nextRange.selectNodeContents(wrapper);
+    selection?.addRange(nextRange);
+    savedTextRange = nextRange.cloneRange();
+    notifyTextRange(savedTextRange);
+    notifyObjectSelected(selectedObject);
+    scheduleNotifyReady();
+  }
+
   function selectObject(node, { additive = false, preserveGroup = false } = {}) {
+    const previousObject = selectedObject;
     if (additive) {
       if (selectedObjects.has(node)) {
         selectedObjects.delete(node);
@@ -417,6 +529,7 @@
       selectedObject = node;
     }
     syncSelectionClasses();
+    if (selectedObject !== previousObject) clearTextRange();
     if (selectedObject) {
       notifyObjectSelected(selectedObject);
     } else {
@@ -435,6 +548,7 @@
     );
     selectedObjects.clear();
     selectedObject = null;
+    clearTextRange();
     dragState = null;
     hideGuides();
     window.parent.postMessage({ type: "DETAIL_SELECTION_CLEARED" }, "*");
@@ -462,7 +576,7 @@
     }
     const pageRect = page.getBoundingClientRect();
     const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
+    const scrollY = page.scrollTop;
     guideLayer.style.height = `${Math.max(document.documentElement.scrollHeight, page.scrollHeight)}px`;
     setGuide("safe-left", pageRect.left + scrollX + pageRect.width * 0.08, active.has("safe-left"));
     setGuide("center-x", pageRect.left + scrollX + pageRect.width / 2, active.has("center-x"));
@@ -573,8 +687,10 @@
 
   function sectionPayload() {
     const mode = viewportMode();
+    const pageRect = page.getBoundingClientRect();
     return sectionNodes().map((section, index) => {
       const id = section.dataset.section;
+      const sectionRect = section.getBoundingClientRect();
       return {
         id,
         index,
@@ -585,7 +701,11 @@
           mobile: sectionCrops.mobile[id] || null,
           desktop: sectionCrops.desktop[id] || null,
         },
-        renderedHeight: Math.ceil(section.getBoundingClientRect().height),
+        top: Math.max(
+          0,
+          Math.round(sectionRect.top - pageRect.top + page.scrollTop),
+        ),
+        renderedHeight: Math.ceil(sectionRect.height),
         contentHeight: Math.ceil(section.scrollHeight),
         label:
           section
@@ -608,10 +728,35 @@
         sectionCount: sectionNodes().length,
         sections: sectionPayload(),
         height: pageHeight,
+        scrollTop: page.scrollTop,
+        viewportHeight: page.clientHeight,
       },
       "*",
     );
   }
+
+  let scrollFrame = 0;
+  function notifyScrollPosition() {
+    scrollFrame = 0;
+    window.parent.postMessage(
+      {
+        type: "DETAIL_SCROLL_POSITION",
+        scrollTop: page.scrollTop,
+        viewportHeight: page.clientHeight,
+        pageHeight: page.scrollHeight,
+      },
+      "*",
+    );
+  }
+
+  function scheduleScrollNotification() {
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(notifyScrollPosition);
+  }
+
+  page.addEventListener("scroll", scheduleScrollNotification, {
+    passive: true,
+  });
 
   let readyFrame = 0;
   let readyTimer = 0;
@@ -643,6 +788,7 @@
   function setEditorMode(mode) {
     if (!["layout", "text"].includes(mode)) return;
     editorMode = mode;
+    if (mode !== "text") clearTextRange();
     body.dataset.editorMode = mode;
     editableNodes().forEach((node) => {
       node.contentEditable =
@@ -775,6 +921,9 @@
 
   function serializedAuthoringHtml() {
     const clone = document.documentElement.cloneNode(true);
+    clone
+      .querySelectorAll("[data-studio-interaction]")
+      .forEach((node) => node.remove());
     clone
       .querySelectorAll("[contenteditable]")
       .forEach((node) => node.removeAttribute("contenteditable"));
@@ -964,6 +1113,23 @@
     }
   });
 
+  document.addEventListener("selectionchange", () => {
+    if (
+      !body.classList.contains("is-editing") ||
+      editorMode !== "text"
+    ) {
+      return;
+    }
+    const selection = getSelection();
+    const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
+    if (!rangeInsideSelectedText(range)) {
+      clearTextRange();
+      return;
+    }
+    savedTextRange = range.cloneRange();
+    notifyTextRange(savedTextRange);
+  });
+
   function confirmDeletion() {
     const count = selectedObjects.size;
     if (!count) return false;
@@ -1005,11 +1171,16 @@
   }
 
   document.addEventListener("keydown", (event) => {
-    if (!body.classList.contains("is-editing")) return;
     const typing =
       event.target instanceof Element &&
       Boolean(event.target.closest("input,textarea,select,[contenteditable='true']"));
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+    const key = event.key.toLowerCase();
+    if ((event.ctrlKey || event.metaKey) && key === "s") {
+      event.preventDefault();
+      window.parent.postMessage({ type: "DETAIL_SAVE_SHORTCUT" }, "*");
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && key === "z") {
       event.preventDefault();
       undo();
       return;
@@ -1020,6 +1191,24 @@
       window.parent.postMessage({ type: "DETAIL_EDITING_STOPPED" }, "*");
       return;
     }
+    if (!typing && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      if (key === "e") {
+        event.preventDefault();
+        if (!body.classList.contains("is-editing")) {
+          window.parent.postMessage({ type: "DETAIL_EDITING_REQUESTED" }, "*");
+        }
+        return;
+      }
+      if (
+        !body.classList.contains("is-editing") &&
+        (key === "v" || key === "t")
+      ) {
+        event.preventDefault();
+        window.parent.postMessage({ type: "DETAIL_EDITING_REQUIRED" }, "*");
+        return;
+      }
+    }
+    if (!body.classList.contains("is-editing")) return;
     if (
       editorMode === "text" &&
       selectedObject?.matches(TEXT_SELECTOR) &&
@@ -1045,12 +1234,12 @@
       }
     }
     if (!typing && !event.ctrlKey && !event.metaKey && !event.altKey) {
-      if (event.key.toLowerCase() === "v") {
+      if (key === "v") {
         event.preventDefault();
         setEditorMode("layout");
         return;
       }
-      if (event.key.toLowerCase() === "t") {
+      if (key === "t") {
         event.preventDefault();
         setEditorMode("text");
         return;
@@ -1092,14 +1281,26 @@
     if (message.type === "DETAIL_SET_MODE") {
       setEditorMode(String(message.mode || ""));
     }
+    if (message.type === "DETAIL_SCROLL_TO_RATIO") {
+      const ratio = clamp(Number(message.ratio) || 0, 0, 1);
+      page.scrollTo({
+        top: ratio * Math.max(0, page.scrollHeight - page.clientHeight),
+        behavior: "auto",
+      });
+      scheduleScrollNotification();
+    }
+    if (message.type === "DETAIL_SCROLL_BY") {
+      page.scrollBy({
+        top: clamp(Number(message.deltaY) || 0, -1200, 1200),
+        behavior: "auto",
+      });
+      scheduleScrollNotification();
+    }
     if (message.type === "DETAIL_SERIALIZE_REQUEST") {
       serializeForSave(message.nonce);
     }
     if (message.type === "DETAIL_SAVE_RESULT") {
       acceptSaveResult(message);
-    }
-    if (message.type === "DETAIL_RESET") {
-      location.reload();
     }
     if (
       message.type === "DETAIL_SET_ACCENT" &&
@@ -1159,23 +1360,12 @@
         (Number(message.y) || 0) - transform.y,
       );
     }
-    if (
-      message.type === "DETAIL_SET_OBJECT_STYLE" &&
-      selectedObject?.matches(TEXT_SELECTOR) &&
-      editorMode === "text"
-    ) {
+    if (message.type === "DETAIL_SET_TEXT_RANGE_STYLE" && editorMode === "text") {
       const fontFamily = String(message.fontFamily || "");
       const color = String(message.color || "");
       if (!FONT_STACKS.has(fontFamily)) return;
       if (color && !/^#[0-9a-f]{6}$/i.test(color)) return;
-      checkpointHistory();
-      applyObjectTransform(selectedObject, {
-        ...currentObjectTransform(selectedObject),
-        fontFamily,
-        color,
-      });
-      notifyObjectSelected(selectedObject);
-      scheduleNotifyReady();
+      applyTextRangeStyle(fontFamily, color);
     }
     if (
       message.type === "DETAIL_CLEAR_TEXT" &&

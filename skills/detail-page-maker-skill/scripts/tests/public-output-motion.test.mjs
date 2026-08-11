@@ -12,10 +12,13 @@ import path from "node:path";
 import test from "node:test";
 
 import {
+  injectPersistentStudioLauncher,
   markWingExportCompleted,
+  prepareOutputHtmlForStudio,
   readProjectOutputState,
   sanitizePublicHtml,
   saveProjectOutput,
+  shouldPromoteOutputToAuthoring,
   validatePublicMotionClosure,
 } from "../runtime/project-output-runtime.mjs";
 
@@ -35,6 +38,27 @@ test("sanitizer는 data-motion-src를 실제 공개 GIF src로 승격한다", ()
   assert.doesNotMatch(sanitized, /data-motion-src/);
   assert.match(sanitized, /IntersectionObserver/);
   assert.match(sanitized, /max-width:780px!important/);
+});
+
+test("output HTML은 상시 Studio 편집 버튼을 가지고 완성본을 저작본으로 승격할 수 있다", () => {
+  const finished =
+    '<!doctype html><html><head></head><body><main id="detailPage"><section class="hero"><h1>완성 상세</h1></section></main></body></html>';
+  const launched = injectPersistentStudioLauncher(finished);
+  assert.match(launched, /id="detail-page-studio-launcher"/);
+  assert.match(launched, /studio\.html\?view=edit/);
+  assert.match(launched, /target="detail-page-studio"/);
+  const authoring = prepareOutputHtmlForStudio(launched);
+  assert.match(authoring, /<base href="\/output\/"/);
+  assert.match(authoring, /<script src="\/app\.js"/);
+  assert.doesNotMatch(authoring, /detail-page-studio-launcher/);
+  assert.equal(
+    shouldPromoteOutputToAuthoring({
+      authoringHtml:
+        "승인된 에셋으로 첫 화면을 조립합니다. 제품을 보여 줄 에셋을 먼저 완성해 주세요.",
+      outputHtml: launched,
+    }),
+    true,
+  );
 });
 
 test("public output은 GIF bytes와 frame count를 manifest까지 닫는다", async () => {
@@ -90,6 +114,7 @@ test("public output은 GIF bytes와 frame count를 manifest까지 닫는다", as
     );
     assert.match(publicHtml, /src="media\/gifs\/demo\.gif"/);
     assert.doesNotMatch(publicHtml, /data-motion-src/);
+    assert.match(publicHtml, /id="detail-page-studio-launcher"/);
     assert.equal(
       saved.export_manifest.media[0].animation_frame_count,
       2,

@@ -93,7 +93,7 @@ test("새 프로젝트는 공용 Studio runtime을 복제하지 않고 편집 �
     assert.doesNotMatch(studio, /id="wingCdnBaseUrl"/);
     assert.match(studio, /id="exportCoupangWing"[^>]*disabled/);
     assert.match(studio, /쿠팡 Wing 포맷으로 내보내기/);
-    assert.match(studio, /좌표·화살표로 정밀하게 옮길 수 있습니다/);
+    assert.doesNotMatch(studio, /좌표·화살표로 정밀하게 옮길 수 있습니다/);
     assert.match(studio, /id="undo"[^>]*disabled/);
     assert.match(studio, /id="clearText"[^>]*disabled/);
     assert.match(studio, /data-editor-mode="layout"/);
@@ -102,11 +102,10 @@ test("새 프로젝트는 공용 Studio runtime을 복제하지 않고 편집 �
     assert.match(studio, /id="deleteObject"[^>]*disabled/);
     assert.match(studio, /id="editingState"/);
     assert.match(studio, /id="selectionDepth"/);
-    assert.match(studio, /id="sectionCropHeight"/);
-    assert.match(studio, /id="sectionCropApply"/);
-    assert.match(studio, /id="sectionCropClear"/);
-    assert.match(studio, /선택 섹션 아래 자르기/);
-    assert.match(studio, /결과의 아래를 자르지 않습니다/);
+    assert.doesNotMatch(studio, /id="sectionCropHeight"/);
+    assert.doesNotMatch(studio, /id="sectionCropApply"/);
+    assert.doesNotMatch(studio, /id="sectionCropClear"/);
+    assert.doesNotMatch(studio, /선택 섹션 아래 자르기/);
     assert.match(studio, /aria-label="왼쪽 정렬"/);
     assert.match(studio, /aria-label="가운데 정렬"/);
     assert.match(studio, /aria-label="오른쪽 정렬"/);
@@ -124,8 +123,7 @@ test("새 프로젝트는 공용 Studio runtime을 복제하지 않고 편집 �
     assert.match(studioScript, /\/api\/v1\/exports\/coupang-wing/);
     assert.match(studioScript, /\/api\/v1\/cloudflare-pages\/status/);
     assert.doesNotMatch(studioScript, /wingCdnStorageKey|localStorage/);
-    assert.match(studio, /data-width="390"/);
-    assert.doesNotMatch(studio, /data-width="(?:360|430|800)"/);
+    assert.doesNotMatch(studio, /data-width=/);
     assert.match(studio, /src="\/authoring\.html"/);
     assert.match(
       studio,
@@ -161,8 +159,9 @@ test("새 프로젝트는 공용 Studio runtime을 복제하지 않고 편집 �
       /if \(!gate\.coupangWingExportAllowed\)/,
     );
     assert.match(studioScript, /confirmedByUser:\s*true/);
-    assert.match(studioScript, /DETAIL_SET_SECTION_CROP/);
-    assert.match(studioScript, /cropModeForWidth/);
+    assert.match(studioScript, /DETAIL_SET_TEXT_RANGE_STYLE/);
+    assert.match(studioScript, /DETAIL_SCROLL_TO_RATIO/);
+    assert.match(studioScript, /DETAIL_SCROLL_BY/);
     assert.match(app, /DETAIL_READY/);
     assert.doesNotMatch(app, /DETAIL_EXPORT_HTML/);
     assert.match(app, /DETAIL_OBJECT_SELECTED/);
@@ -201,29 +200,29 @@ test("새 프로젝트는 공용 Studio runtime을 복제하지 않고 편집 �
   }
 });
 
-test("패키지 Studio v1에는 편집과 최종 출력 사이 승인 작업면이 있다", async () => {
-  const studio = await repositoryFile(
-    "skills/detail-page-maker-skill/assets/studio-v1-runtime/studio.html",
-  );
+test("패키지 Studio v1은 편집 캔버스만 남기고 이전 작업면을 런타임에서 제거한다", async () => {
+  const [studio, studioScript] = await Promise.all([
+    repositoryFile(
+      "skills/detail-page-maker-skill/assets/studio-v1-runtime/studio.html",
+    ),
+    repositoryFile(
+      "skills/detail-page-maker-skill/assets/studio-v1-runtime/studio-v1.js",
+    ),
+  ]);
   assert.match(studio, /data-studio-view="edit"/);
-  assert.match(studio, /data-studio-view="approval"/);
-  assert.match(studio, /data-studio-view="output"/);
-  assert.match(studio, /id="assetReviewGrid"/);
-  assert.match(studio, /승인 전에는 최종 출력에 사용할 수 없습니다/);
-  assert.match(studio, /id="wingConnectionStatus"/);
-  assert.doesNotMatch(studio, /id="wingCdnBaseUrl"/);
-  assert.match(studio, /id="exportCoupangWing"[^>]*disabled/);
-  assert.match(studio, /780px 완성형 정적·애니메이션 WebP/);
-    assert.match(studio, /좌표·화살표로 정밀하게 옮길 수 있습니다/);
-    assert.match(studio, /id="elementColor"/);
-    assert.match(studio, /id="applyPosition"/);
-    assert.match(studio, /data-text-align="center"/);
-    assert.match(studio, /선택 요소 삭제/);
-    assert.match(studio, /id="editingState"/);
-    assert.match(studio, /id="selectionDepth"/);
-    assert.match(studio, /id="sectionCropHeight"/);
-    assert.match(studio, /id="sectionCropApply"/);
-    assert.match(studio, /id="sectionCropClear"/);
+  assert.match(studio, /id="toggleEdit"/);
+  assert.match(studio, /id="save"/);
+  assert.match(studio, /id="undo"/);
+  assert.match(studio, /id="pageMinimap"/);
+  assert.match(studio, /id="elementColor"/);
+  assert.match(studio, /data-text-align="center"/);
+  assert.match(studio, /선택 요소 삭제/);
+  assert.doesNotMatch(studio, /id="applyPosition"|id="sectionCropHeight"/);
+  assert.match(studioScript, /querySelector\("\.workflow-nav"\)\?\.remove\(\)/);
+  assert.match(
+    studioScript,
+    /\[data-side-panel\]:not\(\[data-side-panel="edit"\]\),\[data-workspace\]:not\(\[data-workspace="edit"\]\)/,
+  );
 });
 
 test("Studio v1 요소 편집은 저장·복원 계약을 포함하고 iframe export 우회를 갖지 않는다", async () => {
@@ -237,7 +236,8 @@ test("Studio v1 요소 편집은 저장·복원 계약을 포함하고 iframe ex
   assert.match(app, /style\.setProperty\("color"/);
   assert.match(app, /DETAIL_NUDGE_OBJECT/);
   assert.match(app, /DETAIL_SET_OBJECT_POSITION/);
-  assert.match(app, /DETAIL_SET_OBJECT_STYLE/);
+  assert.doesNotMatch(app, /DETAIL_SET_OBJECT_STYLE/);
+  assert.match(app, /DETAIL_SET_TEXT_RANGE_STYLE/);
   assert.match(app, /DETAIL_CLEAR_TEXT/);
   assert.match(app, /DETAIL_SET_TEXT_ALIGN/);
   assert.match(app, /DETAIL_DELETE_OBJECT/);
