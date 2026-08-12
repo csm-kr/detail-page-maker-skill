@@ -12,8 +12,8 @@
       "source": "commercial-render skill",
       "sourceType": "generated-local",
       "skillPath": "skills/commercial-render/SKILL.md",
-      "computedHash": "aa407ae1a7dffaf81a2c07e04196756377327cd6f0a05ab0d3eb31c6d7720588",
-      "skillFileSha256": "dd5cde30ba00c3189a99319bfaf4681667f0e28253d74aceaeec4157e6b47fc1"
+      "computedHash": "90866033989f836a63bc85cbf3be6082482ef7eec4cc9641117defcc17619921",
+      "skillFileSha256": "90866033989f836a63bc85cbf3be6082482ef7eec4cc9641117defcc17619921"
     },
     "coupang-extractor": {
       "source": "project-vendored skill",
@@ -93,11 +93,11 @@
       "skillFileSha256": "19ca0bf6b757d91963e57b182c3bbf2304362752670bf47093035c75c760e820"
     },
     "make-consistent-gif": {
-      "source": "make-consistent-gif skill",
-      "sourceType": "generated-local",
-      "skillPath": "skills/make-consistent-gif/SKILL.md",
-      "computedHash": "74c45f6b506c44fabcf376859887be6f51a2403c0492288eabc4944da37777a9",
-      "skillFileSha256": "c798e39ed7c0db9907af595af09a87b753e511c637c3a3663f5f7b1057a3d9d2"
+      "source": "csm-kr/make-consistent-gif-skill",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/make-consistent-gif/SKILL.md",
+      "computedHash": "e56807905df25891e09bfe2cdf61d0d1389311d63de4a2e49f41aaf31585e197",
+      "skillFileSha256": "e56807905df25891e09bfe2cdf61d0d1389311d63de4a2e49f41aaf31585e197"
     },
     "media-use": {
       "source": "heygen-com/hyperframes",

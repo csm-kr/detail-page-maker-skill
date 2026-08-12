@@ -78,8 +78,8 @@ async function assertInstalledSkill(skillRoot) {
   });
   assert.equal(
     nested.filter((entry) => entry.isDirectory()).length,
-    14,
-    "원격 설치본에는 잠금된 내장 스킬 14개가 있어야 한다.",
+    16,
+    "원격 설치본에는 잠금된 내장 스킬 16개가 있어야 한다.",
   );
 
   const [sourceSkill, installedSkill] = await Promise.all([
@@ -115,9 +115,9 @@ async function assertInstalledSkill(skillRoot) {
   const dependencyClosure =
     await dependencyModule.inspectDependencyClosure(skillRoot);
   assert.equal(dependencyClosure.ok, true);
-  assert.equal(dependencyClosure.declaredCount, 14);
-  assert.equal(dependencyClosure.lockedCount, 14);
-  assert.equal(dependencyClosure.installedCount, 14);
+  assert.equal(dependencyClosure.declaredCount, 16);
+  assert.equal(dependencyClosure.lockedCount, 16);
+  assert.equal(dependencyClosure.installedCount, 16);
 
   const e2e = await runNode(
     path.join(skillRoot, "scripts", "e2e.mjs"),
@@ -178,7 +178,7 @@ try {
   await assertInstalledSkill(installedSkillRoot);
 
   console.log(
-    `PASS remote Git install/update · ${process.platform} · 1 top-level skill · 14 bundled skills`,
+    `PASS remote Git install/update · ${process.platform} · 1 top-level skill · 16 bundled skills`,
   );
 } finally {
   await rm(temporaryRoot, {

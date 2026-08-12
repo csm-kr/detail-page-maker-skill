@@ -32,6 +32,7 @@ const SKILL_ROOT = path.join(
 );
 const REQUIRED_SKILLS = [
   "browser-harness",
+  "commercial-render",
   "coupang-extractor",
   "design-taste-frontend",
   "dmk-extractor",
@@ -43,6 +44,7 @@ const REQUIRED_SKILLS = [
   "hyperframes-creative",
   "hyperframes-keyframes",
   "hyperframes-registry",
+  "make-consistent-gif",
   "media-use",
   "motion-graphics",
 ];
@@ -62,7 +64,7 @@ async function walkFiles(root, relative = "") {
   return files;
 }
 
-test("배포 계약은 Git에서 받는 단일 스킬과 내장 의존성 14개다", async () => {
+test("배포 계약은 Git에서 받는 단일 스킬과 내장 의존성 16개다", async () => {
   const [manifest, lock, skill, readme] = await Promise.all([
     readFile(path.join(SKILL_ROOT, "dependencies.json"), "utf8").then(JSON.parse),
     readFile(path.join(SKILL_ROOT, "skills-lock.json"), "utf8").then(JSON.parse),

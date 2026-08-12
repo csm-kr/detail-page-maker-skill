@@ -11,6 +11,7 @@ const SKILL_ROOT = path.resolve(
 
 const REQUIRED_WORKFLOW_SKILLS = [
   "browser-harness",
+  "commercial-render",
   "coupang-extractor",
   "design-taste-frontend",
   "dmk-extractor",
@@ -22,6 +23,7 @@ const REQUIRED_WORKFLOW_SKILLS = [
   "hyperframes-creative",
   "hyperframes-keyframes",
   "hyperframes-registry",
+  "make-consistent-gif",
   "media-use",
   "motion-graphics",
 ];

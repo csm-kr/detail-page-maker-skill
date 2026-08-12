@@ -21,6 +21,11 @@
       "group": "browser"
     },
     {
+      "name": "commercial-render",
+      "source": "vendored-local",
+      "group": "motion-workflow"
+    },
+    {
       "name": "coupang-extractor",
       "source": "vendored-local",
       "group": "market-evidence"
@@ -72,6 +77,11 @@
     },
     {
       "name": "hyperframes-registry",
+      "source": "vendored-local",
+      "group": "motion"
+    },
+    {
+      "name": "make-consistent-gif",
       "source": "vendored-local",
       "group": "motion"
     },
