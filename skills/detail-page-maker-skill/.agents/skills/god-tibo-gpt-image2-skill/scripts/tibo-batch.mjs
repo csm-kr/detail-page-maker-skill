@@ -20,6 +20,7 @@ import {
   padToSquare,
 } from "./media-tools.mjs";
 import { generatePrivateCodexImage } from "./private-codex-client.mjs";
+import { preflightImageJob, formatPreflight } from "./job-preflight.mjs";
 
 
 const DETAIL_INSTRUCTIONS = {
@@ -757,6 +758,16 @@ export async function runJob(
   } = {},
 ) {
   const job = validateJob(source);
+  const preflight = preflightImageJob(job, source, baseDirectory);
+  if (!preflight.ok) {
+    const error = new Error(formatPreflight(preflight));
+    error.code = "IMAGE_JOB_PREFLIGHT_FAILED";
+    error.failures = preflight.failures;
+    throw error;
+  }
+  if (preflight.notes.length > 0) {
+    console.error(formatPreflight(preflight));
+  }
   const outputDirectory = resolve(baseDirectory, job.output_dir);
   const comfyuiRoot = job.comfyui_root
     ? resolve(baseDirectory, job.comfyui_root)
