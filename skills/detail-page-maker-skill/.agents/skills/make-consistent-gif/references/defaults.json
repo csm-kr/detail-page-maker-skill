@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "status": "accepted-v3-bounded-parallel",
+  "scope": "Eight-frame game animation clips generated as one 8-by-4 parallel pool. Review the same 32 candidates at most twice, always choose the best complete available path, and never regenerate automatically.",
+  "reference_policy": {
+    "independent_candidates": "R1",
+    "image_1": "original-canonical-reference",
+    "evidence": "experiments/E3-reference-count/experiment.json"
+  },
+  "prompt_policy": {
+    "default": "full-spatial-secondary",
+    "required_layers": [
+      "canonical character and camera lock",
+      "absolute current pose",
+      "delta from previous pose",
+      "previous and next pose targets",
+      "persistent wrist and foot positions plus travel direction",
+      "explicit acting side and screen/depth direction for throw and kick",
+      "anatomical and screen-relative sides plus contact state",
+      "whole-body secondary response",
+      "flat selected-chroma and safe-margin constraints"
+    ],
+    "evidence": "experiments/E2-prompt-ablation/experiment.json"
+  },
+  "size_policy": {
+    "same_as_reference": "invariant",
+    "explicit_target_size": "controllable",
+    "note": "Invariant preserves target canvas/crop size, not RGB pixels.",
+    "evidence": "experiments/E4-size-mode/experiment.json"
+  },
+  "mask_policy": {
+    "default": "qa-change-map",
+    "generation_reference": "opt-in-experiment-only",
+    "hard_postprocess": "disabled",
+    "evidence": "experiments/E5-mask-roles/experiment.json"
+  },
+  "chroma": {
+    "mode": "adaptive",
+    "provisional_key": "#ff00ff",
+    "candidates": [
+      {"name": "magenta", "color": "#ff00ff"},
+      {"name": "chroma-green", "color": "#00ff00"},
+      {"name": "cyan", "color": "#00ffff"},
+      {"name": "blue", "color": "#0000ff"},
+      {"name": "red", "color": "#ff0000"},
+      {"name": "orange", "color": "#ff8000"},
+      {"name": "violet", "color": "#8000ff"},
+      {"name": "spring-green", "color": "#00ff80"}
+    ],
+    "selection_metric": "maximin-quantized-rgb-distance",
+    "minimum_separation": 125,
+    "generation_target": "flat-solid",
+    "acceptance_metric": "rgb-euclidean-distance",
+    "transparent_threshold": 50,
+    "minimum_border_key_fraction": 0.9,
+    "opaque_threshold": 110,
+    "alpha_floor": 40,
+    "connected_only": true,
+    "despill": true,
+    "edge_spill_cleanup": true,
+    "edge_spill_radius": 5,
+    "source_normalization_provenance_required": true,
+    "evidence": "2026-08-11 user-approved adaptive chroma workflow"
+  },
+  "qa_weights": {
+    "motion": 0.3,
+    "identity": 0.25,
+    "edge": 0.05,
+    "continuity": 0.2,
+    "pivot": 0.1,
+    "loop": 0.1
+  },
+  "strategy": {
+    "status": "accepted-bounded-parallel",
+    "motion_defaults": {
+      "jump": {
+        "resolved_strategy": "parallel-candidates",
+        "candidates_per_frame": 4,
+        "evidence": "experiments/E6-strategy-comparison/experiment.json"
+      },
+      "idle": {
+        "resolved_strategy": "parallel-candidates",
+        "candidates_per_frame": 4,
+        "evidence": "experiments/E7-idle/experiment.json"
+      },
+      "walk-in-place": {
+        "resolved_strategy": "parallel-candidates",
+        "candidates_per_frame": 4,
+        "evidence": "2026-08-11 user-selected bounded 32-candidate workflow"
+      },
+      "run-in-place": {
+        "resolved_strategy": "parallel-candidates",
+        "candidates_per_frame": 4,
+        "evidence": "2026-08-11 user-selected bounded 32-candidate workflow"
+      },
+      "throw": {
+        "resolved_strategy": "parallel-candidates",
+        "candidates_per_frame": 4,
+        "preferred_loop": "one-shot",
+        "evidence": "2026-08-11 user-selected bounded 32-candidate workflow"
+      },
+      "kick": {
+        "resolved_strategy": "parallel-candidates",
+        "candidates_per_frame": 4,
+        "preferred_loop": "one-shot",
+        "evidence": "2026-08-11 user-selected bounded 32-candidate workflow"
+      },
+      "turn": {
+        "resolved_strategy": "parallel-candidates",
+        "candidates_per_frame": 4,
+        "evidence": "2026-08-11 user-selected bounded 32-candidate workflow"
+      }
+    },
+    "generation_batches": 1,
+    "workers": 32,
+    "review_policy": {
+      "max_passes": 2,
+      "candidate_pool": "same-generation-batch",
+      "automatic_regeneration": false,
+      "must_select_best_available": true,
+      "ranking": "fewest hard-failed frames, then highest complete-path score"
+    },
+    "chain_policy": "Explicit opt-in only; never an automatic fallback.",
+    "unbenchmarked_motion_policy": "Use the same bounded 8-by-4 parallel workflow and record warnings on the selected path.",
+    "visual_review_required": true
+  }
+}

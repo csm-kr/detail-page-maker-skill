@@ -1,0 +1,4 @@
+interface:
+  display_name: "Make Consistent GIF"
+  short_description: "Build consistent game-ready GIF animation assets"
+  default_prompt: "Use $make-consistent-gif to turn this character reference and motion description into a validated game-ready animation asset bundle."
