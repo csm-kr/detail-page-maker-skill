@@ -17,6 +17,24 @@ gh auth login
 gh auth setup-git
 ```
 
+Windows는 설치 명령 전에 두 가지를 먼저 처리한다. 둘 다 설치가 조용히 깨지는
+원인이라 나중에 알아내기 어렵다.
+
+첫째, Git 장경로를 켠다. Windows 레지스트리의 `LongPathsEnabled`가 1이어도 Git은
+자체 설정을 따로 보기 때문에 이 명령을 실행하지 않으면 켜지지 않는다. 꺼진
+상태에서는 파일 생성이 `Filename too long`으로 실패하는데, 전체가 중단되지 않고
+일부 파일만 빠진 채 끝나므로 나중에 실행 단계에서야 문제가 드러난다.
+
+```sh
+git config --global core.longpaths true
+```
+
+둘째, 프로젝트 폴더 경로를 짧게 둔다. 스킬 파일 경로는 프로젝트 폴더 뒤로 최대
+151자가 더 붙는다(`.claude/skills/detail-page-maker-skill/` 또는
+`.agents/skills/detail-page-maker-skill/` 38자 + 내부 최장 111자). Windows 기본
+경로 한계가 260자라서 프로젝트 폴더 경로가 108자를 넘으면 장경로를 켜도 안전하지
+않다. OneDrive 동기화 폴더처럼 경로가 긴 위치는 피한다.
+
 ```sh
 npx skills add https://github.com/csm-kr/detail-page-maker-skill --skill detail-page-maker-skill --agent codex --yes --copy
 ```
@@ -234,6 +252,15 @@ Node.js 22.15.0 이상과 GitHub CLI가 필요하다. GIF 제작에는 `ffmpeg`�
 실제 브라우저 수집·검수에는 `browser-harness` 실행 파일이 필요하다. 이들은
 별도 스킬이 아니라 세 운영체제에서 사용하는 실행 프로그램이다.
 
+`doctor`는 진단 전용이라 런타임을 대신 내려받지 않는다. HyperFrames 검사에
+`npx --no-install`을 쓰므로 새 컴퓨터에서 처음 실행하면 npx 캐시가 비어 있어
+`hyperframes`만 실패로 보고된다. 설치가 잘못된 것이 아니라 런타임이 아직 준비되지
+않은 상태다. 아래를 한 번 실행해 캐시를 채운 뒤 다시 검사한다.
+
+```sh
+npx --yes hyperframes --version
+```
+
 ```sh
 node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs doctor
 node .agents/skills/detail-page-maker-skill/scripts/e2e.mjs
@@ -246,6 +273,17 @@ node .agents/skills/detail-page-maker-skill/scripts/e2e.mjs
 
 GitHub Actions는 사용하지 않는다. Windows 환경 담당자가 필요할 때 저장소
 루트에서 아래 검증을 직접 실행한다.
+
+이 검증은 설치본이 아니라 저장소 자체를 받아야 하므로 `git clone`이 필요하다.
+장경로가 꺼져 있으면 745개 파일 중 일부만 체크아웃된 채로 clone이 끝나고 테스트가
+엉뚱하게 실패하므로, 위 설치 절의 `core.longpaths` 설정을 먼저 확인한다. 저장소는
+현재 트리가 40MB인데 히스토리까지 받으면 1.4GB이므로 검증 목적이면 `--depth 1`로
+받는다.
+
+```powershell
+git config --global core.longpaths true
+git clone --depth 1 https://github.com/csm-kr/detail-page-maker-skill
+```
 
 ```powershell
 node tests/run-suite.mjs portable-skill
