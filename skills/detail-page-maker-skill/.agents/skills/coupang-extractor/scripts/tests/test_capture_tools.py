@@ -5,6 +5,8 @@ import base64
 import hashlib
 import json
 import re
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -94,6 +96,123 @@ def fragments() -> dict:
             "diagnostics": {"stop_reason": "NO_NEXT_PAGE"},
         },
     }
+
+
+def _review_item(
+    position: int,
+    *,
+    group: str,
+    rating: int,
+    text: str,
+    reviewed_at: str,
+    rating_filter: int | None = None,
+) -> dict:
+    item = {
+        "position": position,
+        "sample_group": group,
+        "rating": rating,
+        "review_text": text,
+        "option_name": None,
+        "reviewed_at": reviewed_at,
+        "helpful_count": 0,
+        "source_page": 1,
+        "content_key": review_dedupe_key(rating, text, None, reviewed_at),
+        "dedupe_occurrence": 1,
+        "dedupe_key": review_dedupe_key(rating, text, None, reviewed_at, 1),
+        "media_count": 0,
+    }
+    if rating_filter is not None:
+        item["rating_filter"] = rating_filter
+    return item
+
+
+def low_supply_fragments(
+    *,
+    latest_count: int = 30,
+    supplement_low: int = 6,
+    supplement_high: int = 3,
+    latest_exhausted: bool = True,
+    supplement_exhausted: bool = True,
+    latest_stop_reason: str = "NO_NEXT_PAGE",
+    supplement_stop_reason: str = "NO_NEXT_PAGE",
+) -> dict:
+    """후기 공급이 목표보다 적어 소진으로 끝난 상품의 수집 조각."""
+    parts = fragments()
+    reviews: list[dict] = []
+    for position in range(1, latest_count + 1):
+        reviews.append(
+            _review_item(
+                position,
+                group="latest_baseline",
+                rating=(position % 5) + 1,
+                text=f"low-supply-latest-{position}",
+                reviewed_at="2026.07.21",
+            )
+        )
+    for index in range(supplement_low):
+        rating = 1 if index % 2 == 0 else 2
+        reviews.append(
+            _review_item(
+                len(reviews) + 1,
+                group="rating_stratified_supplement",
+                rating=rating,
+                text=f"low-supply-low-{index}",
+                reviewed_at="2026.06.01",
+                rating_filter=rating,
+            )
+        )
+    for index in range(supplement_high):
+        rating = 4 if index % 2 == 0 else 5
+        reviews.append(
+            _review_item(
+                len(reviews) + 1,
+                group="rating_stratified_supplement",
+                rating=rating,
+                text=f"low-supply-high-{index}",
+                reviewed_at="2026.06.01",
+                rating_filter=rating,
+            )
+        )
+    supplement_count = supplement_low + supplement_high
+    parts["reviews"]["items"] = reviews
+    parts["reviews"]["scope"] = {
+        "requested_max_pages": 36,
+        "requested_latest_max_pages": 12,
+        "requested_supplement_max_pages": 24,
+        "requested_max_reviews": 200,
+        "requested_latest_reviews": 100,
+        "requested_supplement_reviews": 100,
+        "pages_observed": 6,
+        "reviews_observed": len(reviews),
+        "latest_reviews_observed": latest_count,
+        "supplement_reviews_observed": supplement_count,
+        "complete_all_reviews": False,
+        "sampling_strategy": "latest_minimum_plus_rating_stratified_supplement",
+        "target_low_high_ratio": "2:1",
+        "target_low_count": 67,
+        "target_high_count": 33,
+        "observed_low_count": supplement_low,
+        "observed_high_count": supplement_high,
+        "observed_neutral_count": 0,
+        "observed_low_high_ratio": (supplement_low / supplement_high) if supplement_high else None,
+    }
+    parts["reviews"]["diagnostics"] = {
+        "latest_observation": {
+            "sort_status": "LATEST_SORT_CONFIRMED",
+            "supply_exhausted": latest_exhausted,
+            "stop_reason": latest_stop_reason,
+        },
+        "rating_filter_observations": [
+            {"rating": rating, "supply_exhausted": True, "stop_reason": supplement_stop_reason}
+            for rating in (1, 2, 4, 5)
+        ],
+        "supplement_supply_exhausted": supplement_exhausted,
+        "latest_minimum_met": True,
+        "supplement_contract_met": True,
+        "sampling_contract_met": True,
+        "stop_reason": "REVIEW_SUPPLY_EXHAUSTED",
+    }
+    return parts
 
 
 class ProductIdentityTests(unittest.TestCase):
@@ -272,6 +391,61 @@ class PrivacyAndValidationTests(unittest.TestCase):
         errors = validate_capture(invalid)
         self.assertTrue(any("latest_minimum_met" in error for error in errors))
 
+    def test_supply_exhaustion_satisfies_contract_for_low_review_product(self) -> None:
+        parts = low_supply_fragments()
+        capture = assemble_capture(parts, requested_url=URL, final_url=URL, method="bookmarklet")
+        self.assertEqual(validate_capture(capture), [])
+        self.assertEqual(capture["status"], "READY")
+
+    def test_supply_exhaustion_without_supplement_reviews(self) -> None:
+        parts = low_supply_fragments(latest_count=18, supplement_low=0, supplement_high=0)
+        capture = assemble_capture(parts, requested_url=URL, final_url=URL, method="bookmarklet")
+        self.assertEqual(validate_capture(capture), [])
+
+    def test_exhaustion_claim_rejected_when_target_was_actually_met(self) -> None:
+        parts = low_supply_fragments(latest_count=100)
+        capture = assemble_capture(parts, requested_url=URL, final_url=URL, method="bookmarklet")
+        errors = validate_capture(capture)
+        self.assertTrue(any("supply_exhausted" in error for error in errors))
+
+    def test_exhaustion_claim_rejected_when_stop_reason_is_a_cap(self) -> None:
+        parts = low_supply_fragments(latest_stop_reason="MAX_LATEST_PAGES")
+        capture = assemble_capture(parts, requested_url=URL, final_url=URL, method="bookmarklet")
+        errors = validate_capture(capture)
+        self.assertTrue(any("supply_exhausted" in error for error in errors))
+
+    def test_page_cap_shortage_still_breaks_the_contract(self) -> None:
+        parts = low_supply_fragments(latest_exhausted=False, latest_stop_reason="MAX_LATEST_PAGES")
+        capture = assemble_capture(parts, requested_url=URL, final_url=URL, method="bookmarklet")
+        errors = validate_capture(capture)
+        self.assertTrue(any("latest_minimum_met" in error for error in errors))
+
+    def test_supplement_exhaustion_claim_needs_an_exhausted_bucket(self) -> None:
+        parts = low_supply_fragments(supplement_stop_reason="MAX_SUPPLEMENT_PAGES")
+        for observation in parts["reviews"]["diagnostics"]["rating_filter_observations"]:
+            observation["supply_exhausted"] = False
+        capture = assemble_capture(parts, requested_url=URL, final_url=URL, method="bookmarklet")
+        errors = validate_capture(capture)
+        self.assertTrue(any("supplement_supply_exhausted" in error for error in errors))
+
+    def test_neutral_reviews_still_break_the_supplement_contract(self) -> None:
+        parts = low_supply_fragments()
+        neutral = _review_item(
+            len(parts["reviews"]["items"]) + 1,
+            group="rating_stratified_supplement",
+            rating=3,
+            text="low-supply-neutral",
+            reviewed_at="2026.06.01",
+            rating_filter=3,
+        )
+        parts["reviews"]["items"].append(neutral)
+        parts["reviews"]["scope"]["reviews_observed"] += 1
+        parts["reviews"]["scope"]["supplement_reviews_observed"] += 1
+        parts["reviews"]["scope"]["observed_neutral_count"] = 1
+        capture = assemble_capture(parts, requested_url=URL, final_url=URL, method="bookmarklet")
+        errors = validate_capture(capture)
+        self.assertTrue(any("supplement_contract_met" in error for error in errors))
+
     def test_file_hash_verification(self) -> None:
         capture = assemble_capture(fragments(), requested_url=URL, final_url=URL, method="bookmarklet")
         with tempfile.TemporaryDirectory() as tmp:
@@ -327,6 +501,19 @@ class ScriptTests(unittest.TestCase):
             for value in re.findall(r"base64\.b64decode\('([^']+)'\)", program)
         )
         self.assertIn('"latestReviews":100', decoded)
+
+    def test_review_collector_sampling_rules(self) -> None:
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node 런타임이 없습니다.")
+        completed = subprocess.run(
+            [node, str(Path(__file__).with_name("review_sampling_cases.mjs"))],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
 
     def test_writes_dmk_style_tests_bundle_views(self) -> None:
         capture = assemble_capture(fragments(), requested_url=URL, final_url=URL, method="bookmarklet")

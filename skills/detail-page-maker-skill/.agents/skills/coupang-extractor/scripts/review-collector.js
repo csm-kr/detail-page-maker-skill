@@ -212,6 +212,50 @@
     return null;
   }
 
+  const EXHAUSTION_STOP_REASONS = new Set([
+    "NO_NEXT_PAGE",
+    "STABLE_NO_NEW_REVIEWS",
+    "REVIEW_CARD_NOT_FOUND",
+    "RATING_OPTION_NOT_FOUND",
+  ]);
+
+  function supplyExhausted(stopReason) {
+    return EXHAUSTION_STOP_REASONS.has(stopReason);
+  }
+
+  function groupSupplySettled(group, observations, groupCollected, groupTarget) {
+    if (groupCollected >= groupTarget) return true;
+    const groupObservations = observations.filter((observation) => observation.group === group);
+    if (!groupObservations.length) return false;
+    return groupObservations.every((observation) => observation.supply_exhausted === true);
+  }
+
+  function evaluateSampling(state) {
+    const lowTarget = Math.ceil((state.supplementReviews * 2) / 3);
+    const highTarget = state.supplementReviews - lowTarget;
+    const latestMinimumMet =
+      state.latestReady === true &&
+      state.latestCollected > 0 &&
+      (state.latestCollected >= state.latestReviews || state.latestSupplyExhausted === true);
+    const supplementSupplyExhausted =
+      state.supplementPagesRemaining > 0 &&
+      state.supplementCollected < state.supplementReviews &&
+      groupSupplySettled("low", state.filterObservations, state.lowCount, lowTarget) &&
+      groupSupplySettled("high", state.filterObservations, state.highCount, highTarget);
+    const supplementContractMet =
+      state.neutralCount === 0 &&
+      ((state.supplementCollected === state.supplementReviews &&
+        state.lowCount === lowTarget &&
+        state.highCount === highTarget) ||
+        supplementSupplyExhausted);
+    return {
+      latestMinimumMet,
+      supplementSupplyExhausted,
+      supplementContractMet,
+      samplingContractMet: latestMinimumMet && supplementContractMet,
+    };
+  }
+
   function buildRatingPlan(maxReviews) {
     const lowTarget = Math.ceil((maxReviews * 2) / 3);
     const highTarget = maxReviews - lowTarget;
@@ -494,7 +538,7 @@
         if (!changed) {
           sameTransitions += 1;
           if (sameTransitions >= 2) {
-            latestObservation.stop_reason = "STABLE_NO_NEW_REVIEWS";
+            latestObservation.stop_reason = "REVIEW_PAGE_TIMEOUT";
             break;
           }
         } else {
@@ -505,6 +549,7 @@
     } else if (!latestObservation.stop_reason) {
       latestObservation.stop_reason = allRatings.ok ? latestSort.code : allRatings.code;
     }
+    latestObservation.supply_exhausted = supplyExhausted(latestObservation.stop_reason);
 
     for (const bucket of ratingPlan) {
       const observation = {
@@ -630,7 +675,7 @@
         if (!changed) {
           sameTransitions += 1;
           if (sameTransitions >= 2) {
-            observation.stop_reason = "STABLE_NO_NEW_REVIEWS";
+            observation.stop_reason = "REVIEW_PAGE_TIMEOUT";
             break;
           }
         } else {
@@ -640,26 +685,38 @@
       }
       if (status === "ACCESS_BLOCKED" || status === "LOGIN_REQUIRED") break;
     }
+    for (const observation of filterObservations) {
+      observation.supply_exhausted = supplyExhausted(observation.stop_reason);
+    }
 
     const lowCount = supplementRatingCounts[1] + supplementRatingCounts[2];
     const highCount = supplementRatingCounts[4] + supplementRatingCounts[5];
     const neutralCount = supplementRatingCounts[3];
     const ratio = highCount > 0 ? lowCount / highCount : null;
-    const latestMinimumMet =
-      allRatings.ok && latestSort.ok && latestObservation.collected >= latestReviews;
-    const supplementContractMet =
-      items.length - latestObservation.collected === supplementReviews &&
-      lowCount === Math.ceil((supplementReviews * 2) / 3) &&
-      highCount === supplementReviews - Math.ceil((supplementReviews * 2) / 3) &&
-      neutralCount === 0;
-    const samplingContractMet = latestMinimumMet && supplementContractMet;
+    const { latestMinimumMet, supplementSupplyExhausted, supplementContractMet, samplingContractMet } =
+      evaluateSampling({
+        latestReady: allRatings.ok && latestSort.ok,
+        latestCollected: latestObservation.collected,
+        latestReviews,
+        latestSupplyExhausted: latestObservation.supply_exhausted,
+        supplementCollected: items.length - latestObservation.collected,
+        supplementReviews,
+        lowCount,
+        highCount,
+        neutralCount,
+        supplementPagesRemaining,
+        filterObservations,
+      });
     if (status !== "ACCESS_BLOCKED" && status !== "LOGIN_REQUIRED") {
       if (!items.length) {
         status = "REVIEW_CARD_NOT_FOUND";
         stopReason = "RATING_FILTER_INCOMPLETE";
       } else if (samplingContractMet) {
         status = "READY";
-        stopReason = "LATEST_AND_SUPPLEMENT_TARGETS_REACHED";
+        stopReason =
+          latestObservation.supply_exhausted || supplementSupplyExhausted
+            ? "REVIEW_SUPPLY_EXHAUSTED"
+            : "LATEST_AND_SUPPLEMENT_TARGETS_REACHED";
       } else if (!latestMinimumMet) {
         status = "PARTIAL";
         stopReason = latestObservation.stop_reason || "LATEST_REVIEW_SHORTAGE";
@@ -708,6 +765,7 @@
         rating_filter_observations: filterObservations,
         rating_mismatch_count: ratingMismatchCount,
         latest_minimum_met: latestMinimumMet,
+        supplement_supply_exhausted: supplementSupplyExhausted,
         supplement_contract_met: supplementContractMet,
         sampling_contract_met: samplingContractMet,
         stop_reason: stopReason,
@@ -715,5 +773,8 @@
     });
   }
 
-  global.CoupangExtractorReviews = { collect };
+  global.CoupangExtractorReviews = {
+    collect,
+    __internals: { supplyExhausted, groupSupplySettled, evaluateSampling },
+  };
 })(globalThis);

@@ -16,7 +16,10 @@
 - 후기 1단계는 `모든 별점`과 `최신순` 선택 상태를 확인한 뒤 공개 후기 최소 100개를 DOM 순서대로 저장하는 `latest_baseline`이다.
 - 후기 2단계는 최신 표본과 중복을 제외한 `rating_stratified_supplement`다. 기본 100개 목표는 1·2점 합계 67개와 4·5점 합계 33개다. 한 별점이 부족하면 같은 그룹의 다른 별점으로 부족분을 재배분한다.
 - 작성자 정보 없이 내용·옵션·날짜가 같은 카드가 여러 개면 occurrence를 부여해 최신 카드 수를 보존한다. 보강 표본 중복 제거는 content-key별 최신 occurrence 수를 차감하는 multiset 방식이다.
-- 공개 수량·정렬·필터·페이지 상한 때문에 최신 100개가 부족하면 `latest_minimum_met:false`, 보강 표본이 부족하면 `supplement_contract_met:false`로 표시한다. `sampling_contract_met`는 두 계약을 모두 만족할 때만 true다.
+- 정렬·필터를 확인하지 못했거나 페이지 상한에 걸려 최신 100개가 부족하면 `latest_minimum_met:false`, 보강 표본이 부족하면 `supplement_contract_met:false`로 표시한다. `sampling_contract_met`는 두 계약을 모두 만족할 때만 true다.
+- 공개 후기 자체가 목표보다 적어 더 가져올 것이 없으면(`NO_NEXT_PAGE`, `STABLE_NO_NEW_REVIEWS`, `REVIEW_CARD_NOT_FOUND`, `RATING_OPTION_NOT_FOUND`) 공급 소진으로 보고 `supply_exhausted:true`를 남긴 뒤 계약을 충족으로 판정한다. 상한 도달(`MAX_LATEST_PAGES`, `MAX_SUPPLEMENT_PAGES`)과 전환 실패(`REVIEW_PAGE_TIMEOUT`)는 소진이 아니라 `PARTIAL`이다.
+- 저평점이 소진돼 2:1이 깨져도 이미 수집한 고평점을 버리지 않는다. 실제 비율은 `observed_low_high_ratio`에 남긴다.
+- 소진 여부는 브라우저에서만 관측되므로 validator는 재계산하지 않고 정합성만 검사한다. 소진을 주장하려면 실제 수집량이 목표 미만이어야 하고 종료 이유가 소진 계열이어야 한다.
 - 후기의 `complete_all_reviews`는 항상 `false`다.
 - 일부 항목 timeout, selector fallback, 상한 종료, 다운로드 실패는 `PARTIAL`이다.
 
