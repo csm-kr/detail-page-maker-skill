@@ -33,8 +33,8 @@
       "source": "project-vendored skill",
       "sourceType": "vendored-project",
       "skillPath": "skills/dmk-extractor/SKILL.md",
-      "computedHash": "94bbf3adc0086adb4d15ee55475b1e0488eb141e1ff56f9be0579c191a3bf36d",
-      "skillFileSha256": "94bbf3adc0086adb4d15ee55475b1e0488eb141e1ff56f9be0579c191a3bf36d"
+      "computedHash": "fe6524c699aae2180f4467754fb5c2e5bd0da9ae89cc907d3dfc3925cd7d7e95",
+      "skillFileSha256": "fe6524c699aae2180f4467754fb5c2e5bd0da9ae89cc907d3dfc3925cd7d7e95"
     },
     "god-tibo-gpt-image2-skill": {
       "source": "csm-kr/god-tibo-gpt-image2-skill",

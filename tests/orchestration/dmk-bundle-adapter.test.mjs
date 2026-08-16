@@ -26,7 +26,7 @@ const FIXTURE_ROOT = path.resolve(
   "../fixtures/orchestration/dmk-minimal",
 );
 const MANIFEST_SHA256 =
-  "97669f6431b51dd2f7239056277684fca0d447e8710bcb2981bb27d16d08c59d";
+  "ba39610eb60017b566765f4236b1b67f035b5998ca12b822d3382f145ead5d7d";
 const SUPPLIER_URL = "https://domeggook.com/56328525?from=popular100";
 const INPUT_DIGEST = "8".repeat(64);
 const CLI_PATH = path.resolve(
