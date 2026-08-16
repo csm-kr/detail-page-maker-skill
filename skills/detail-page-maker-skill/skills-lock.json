@@ -19,8 +19,8 @@
       "source": "project-vendored skill",
       "sourceType": "vendored-project",
       "skillPath": "skills/coupang-extractor/SKILL.md",
-      "computedHash": "1d8317cb1b9d46c650e2dfaedcd0b0f1449cff1c355f97ea7df5451b12c87027",
-      "skillFileSha256": "1d8317cb1b9d46c650e2dfaedcd0b0f1449cff1c355f97ea7df5451b12c87027"
+      "computedHash": "87758b2a19febfaee0b4069a90c6a8b5104c0722b9b8d5e451920c4dc4955542",
+      "skillFileSha256": "87758b2a19febfaee0b4069a90c6a8b5104c0722b9b8d5e451920c4dc4955542"
     },
     "design-taste-frontend": {
       "source": "Leonxlnx/taste-skill",

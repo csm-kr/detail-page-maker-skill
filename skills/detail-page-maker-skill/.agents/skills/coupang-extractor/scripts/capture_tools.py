@@ -30,6 +30,12 @@ SECTION_STATUSES = {
     "REVIEW_TAB_NOT_FOUND",
     "REVIEW_CARD_NOT_FOUND",
 }
+REVIEW_EXHAUSTION_STOP_REASONS = {
+    "NO_NEXT_PAGE",
+    "STABLE_NO_NEW_REVIEWS",
+    "REVIEW_CARD_NOT_FOUND",
+    "RATING_OPTION_NOT_FOUND",
+}
 FORBIDDEN_REVIEW_KEYS = {
     "reviewer",
     "reviewer_name",
@@ -589,10 +595,27 @@ def validate_capture(
                         isinstance(latest_observation, Mapping)
                         and latest_observation.get("sort_status") == "LATEST_SORT_CONFIRMED"
                     )
+                    latest_exhausted = (
+                        isinstance(latest_observation, Mapping)
+                        and latest_observation.get("supply_exhausted") is True
+                    )
+                    if latest_exhausted:
+                        # 소진 여부는 브라우저에서만 관측되므로 재계산 대신 구조 정합성만 검사한다.
+                        if isinstance(requested_latest, int) and latest_count >= requested_latest:
+                            errors.append(
+                                "$.reviews.diagnostics.latest_observation.supply_exhausted: 목표를 채웠으면 소진일 수 없습니다."
+                            )
+                            latest_exhausted = False
+                        if latest_observation.get("stop_reason") not in REVIEW_EXHAUSTION_STOP_REASONS:
+                            errors.append(
+                                "$.reviews.diagnostics.latest_observation.supply_exhausted: 소진 stop_reason이 아닙니다."
+                            )
+                            latest_exhausted = False
                     actual_latest_met = (
                         isinstance(requested_latest, int)
-                        and latest_count >= requested_latest
                         and latest_sort_confirmed
+                        and latest_count > 0
+                        and (latest_count >= requested_latest or latest_exhausted)
                     )
                     if diagnostics.get("latest_minimum_met") is not actual_latest_met:
                         errors.append("$.reviews.diagnostics.latest_minimum_met: 최신 표본 수·정렬 확인과 다릅니다.")
@@ -605,14 +628,36 @@ def validate_capture(
                             errors.append("$.reviews.scope.target_low_count: 보강 저평점 목표와 다릅니다.")
                         if scope.get("target_high_count") != high_target:
                             errors.append("$.reviews.scope.target_high_count: 보강 고평점 목표와 다릅니다.")
-                    actual_supplement_met = (
-                        isinstance(requested_supplement, int)
-                        and supplement_count == requested_supplement
-                        and neutral_count == 0
+                    bucket_observations = diagnostics.get("rating_filter_observations")
+                    bucket_exhausted = isinstance(bucket_observations, list) and any(
+                        isinstance(observation, Mapping)
+                        and observation.get("supply_exhausted") is True
+                        and observation.get("stop_reason") in REVIEW_EXHAUSTION_STOP_REASONS
+                        for observation in bucket_observations
+                    )
+                    supplement_exhausted = diagnostics.get("supplement_supply_exhausted") is True
+                    if supplement_exhausted:
+                        if isinstance(requested_supplement, int) and supplement_count >= requested_supplement:
+                            errors.append(
+                                "$.reviews.diagnostics.supplement_supply_exhausted: 목표를 채웠으면 소진일 수 없습니다."
+                            )
+                            supplement_exhausted = False
+                        if not bucket_exhausted:
+                            errors.append(
+                                "$.reviews.diagnostics.supplement_supply_exhausted: 소진된 별점 버킷 기록이 없습니다."
+                            )
+                            supplement_exhausted = False
+                    exact_supplement = (
+                        supplement_count == requested_supplement
                         and low_target is not None
                         and high_target is not None
                         and low_count == low_target
                         and high_count == high_target
+                    )
+                    actual_supplement_met = (
+                        isinstance(requested_supplement, int)
+                        and neutral_count == 0
+                        and (exact_supplement or supplement_exhausted)
                     )
                     if diagnostics.get("supplement_contract_met") is not actual_supplement_met:
                         errors.append("$.reviews.diagnostics.supplement_contract_met: 실제 2:1 보강 표본과 다릅니다.")

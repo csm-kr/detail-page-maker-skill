@@ -15,7 +15,7 @@
 | `LAZY_LOAD_INCOMPLETE` | 상세 스크롤 단계·시간 상한 도달 | 수집분 보존, `PARTIAL` |
 | `REVIEW_TAB_NOT_FOUND` | 공개 상품평 탭 없음 | `PARTIAL`, 추정 API 사용 금지 |
 | `REVIEW_CARD_NOT_FOUND` | 탭은 열렸으나 확인된 후기 카드 없음 | `PARTIAL` |
-| `REVIEW_PAGE_TIMEOUT` | 다음 페이지 변화 timeout | 수집분 보존, `PARTIAL` |
+| `REVIEW_PAGE_TIMEOUT` | 다음 페이지 버튼을 눌렀으나 2회 연속 화면이 바뀌지 않음 | 수집분 보존, `PARTIAL`. 공급 소진으로 보지 않는다 |
 | `RATING_FILTER_NOT_FOUND` | 별점 combobox가 없음 | 저평점 표본을 꾸미지 않고 `PARTIAL` |
 | `RATING_OPTION_NOT_FOUND` | 1·2·4·5점 옵션 중 하나가 없음 | 해당 bucket 부족분 기록 |
 | `RATING_FILTER_TIMEOUT` | 별점 선택 후 카드가 바뀌지 않음 | 해당 bucket 중단, 다음 bucket 진행 |
@@ -23,8 +23,9 @@
 | `LATEST_SORT_NOT_FOUND` / `LATEST_SORT_TIMEOUT` | 최신순 컨트롤을 찾거나 선택 상태를 확인하지 못함 | 최신 표본으로 꾸미지 않고 `latest_minimum_met:false` |
 | `LATEST_REVIEW_SHORTAGE` / `MAX_LATEST_PAGES` | 최신 100개 최소 표본을 못 채움 | 실제 최신 수량과 종료 이유 보고 |
 | `MAX_SUPPLEMENT_PAGES` | 2:1 보강 단계 페이지 상한 도달 | 보강 수량·부족분 보고 |
-| `STABLE_NO_NEW_REVIEWS` | 같은 후기 집합 2회 | 정상 유한 종료, 관측 범위 보고 |
-| `NO_NEXT_PAGE` | 다음 페이지가 없음 | 정상 유한 종료, 전체 보장 금지 |
+| `STABLE_NO_NEW_REVIEWS` | 이미 관측한 후기 집합이 다시 나옴 | 정상 유한 종료, 공급 소진으로 인정 |
+| `NO_NEXT_PAGE` | 다음 페이지가 없음 | 정상 유한 종료, 공급 소진으로 인정, 전체 보장 금지 |
+| `REVIEW_SUPPLY_EXHAUSTED` | 공개 후기가 목표보다 적어 있는 만큼 다 수집하고 끝남 | `READY`, `supply_exhausted:true`와 실제 수량 보고 |
 | `MAX_PAGES` / `MAX_REVIEWS` | 사용자 상한 도달 | `PARTIAL`, 요청 범위 보고 |
 | `DOWNLOAD_FAILED` | CDN 1회 요청 실패 | 실패 asset 기록, 전체 `PARTIAL` |
 | `VALIDATION_FAILED` | 구조·개인정보·해시 불변식 실패 | READY 금지 |
