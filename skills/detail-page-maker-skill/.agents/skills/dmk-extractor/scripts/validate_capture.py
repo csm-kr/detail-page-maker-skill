@@ -55,50 +55,32 @@ def find_forbidden_keys(value: Any, prefix: str = "") -> list[str]:
     return found
 
 
-def validate_numbered_gif_frames(root: Path, page: dict[str, Any]) -> list[str]:
+def validate_detail_assets(root: Path, page: dict[str, Any]) -> list[str]:
+    """상세 원본이 DOM 순서대로 빠짐없이 보존됐는지 확인한다."""
     errors: list[str] = []
-    animations: list[tuple[str, dict[str, Any], str]] = []
-    thumbnail = page.get("thumbnail_source") or {}
-    if thumbnail.get("animated_gif") or thumbnail.get("animation"):
-        errors.append("대표 썸네일에 GIF 프레임 분리가 적용되어 있습니다.")
-    if thumbnail.get("gif_frame_split_applied") not in {None, False}:
-        errors.append("대표 썸네일 GIF 분리 플래그는 false여야 합니다.")
-    for asset in (page.get("detail_content_capture") or {}).get("assets") or []:
-        if isinstance(asset, dict) and asset.get("animated_gif"):
-            animations.append((f"detail-{asset.get('order')}", asset.get("animation") or {}, r"frame-\d{4}\.png"))
-            gif_path = root / str(asset.get("path") or "")
-            if not gif_path.is_file() or gif_path.read_bytes()[:6] not in {b"GIF87a", b"GIF89a"}:
-                errors.append(f"GIF 원본 누락 또는 시그니처 불일치: {asset.get('path')}")
-    total_frames = 0
-    for label, animation, filename_pattern in animations:
-        frames = animation.get("frames")
-        frame_count = int(animation.get("frame_count") or 0)
-        if not isinstance(frames, list) or frame_count != len(frames) or frame_count < 1:
-            errors.append(f"GIF 프레임 수 불일치: {label}")
+    assets = (page.get("detail_content_capture") or {}).get("assets") or []
+    if not assets:
+        errors.append("상세 원본 목록이 비어 있습니다.")
+        return errors
+    for expected, asset in enumerate(assets, 1):
+        if not isinstance(asset, dict):
+            errors.append(f"상세 원본 항목이 객체가 아닙니다: #{expected}")
             continue
-        total_frames += frame_count
-        for expected, frame in enumerate(frames, 1):
-            if not isinstance(frame, dict) or int(frame.get("frame_number") or 0) != expected:
-                errors.append(f"GIF 프레임 번호 불일치: {label} #{expected}")
-                continue
-            relative = str(frame.get("path") or "")
-            if not re.fullmatch(filename_pattern, Path(relative).name):
-                errors.append(f"GIF 프레임 파일명 불일치: {relative}")
-            frame_path = root / relative
-            if not frame_path.is_file():
-                errors.append(f"GIF 프레임 누락: {relative}")
-            else:
-                try:
-                    width, height = image_size(frame_path)
-                    if width != int(frame.get("width_px") or 0) or height != int(frame.get("height_px") or 0):
-                        errors.append(f"GIF 프레임 크기 불일치: {relative}")
-                except Exception as exc:
-                    errors.append(f"GIF 프레임 이미지 검증 실패: {relative}: {exc}")
-    summary = page.get("animation_summary") or {}
-    if animations and summary.get("target_scope") != "expanded_seller_product_detail_only":
-        errors.append("GIF 분리 대상 범위가 판매자 상세설명 내부로 잠기지 않았습니다.")
-    if animations and (int(summary.get("animated_gif_count") or 0) != len(animations) or int(summary.get("numbered_frame_count") or 0) != total_frames):
-        errors.append("GIF 애니메이션 요약과 번호 프레임 수가 일치하지 않습니다.")
+        if int(asset.get("order") or 0) != expected:
+            errors.append(f"상세 원본 조립 순서가 어긋납니다: #{expected}")
+        relative = str(asset.get("path") or "")
+        path = root / relative
+        if not relative.startswith("detail/assets/") or not path.is_file():
+            errors.append(f"상세 원본 누락: {relative}")
+            continue
+        try:
+            width, height = image_size(path)
+            if width != int(asset.get("natural_width_px") or 0) or height != int(asset.get("natural_height_px") or 0):
+                errors.append(f"상세 원본 자연 크기 불일치: {relative}")
+        except Exception as exc:
+            errors.append(f"상세 원본 이미지 검증 실패: {relative}: {exc}")
+        if not str(asset.get("source_url") or "").startswith("http"):
+            errors.append(f"상세 원본 URL 기록이 없습니다: {relative}")
     return errors
 
 
@@ -139,20 +121,13 @@ def validate_capture(root: Path) -> list[str]:
         errors.append("최종 URL이 domeggook.com 상품 페이지가 아닙니다.")
     if page.get("page_type") != "product_detail" or page.get("opened_detail_page") is not True:
         errors.append("실제 상품 상세 판정이 없습니다.")
-    if page.get("detail_expand", {}).get("expanded") is not True:
-        errors.append("상세설명 확장 검증이 없습니다.")
-    if page.get("lazy_load_scroll_completed") is not True:
-        errors.append("지연 로딩 완료 검증이 없습니다.")
-    page_gif_summary = page.get("animation_summary") or {}
-    manifest_gif_summary = manifest.get("gif_summary") or {}
-    if page_gif_summary and page_gif_summary.get("target_scope") != "expanded_seller_product_detail_only":
-        errors.append("page의 GIF 대상 범위가 판매자 상세설명 내부가 아닙니다.")
-    if manifest_gif_summary and manifest_gif_summary.get("target_scope") != "expanded_seller_product_detail_only":
-        errors.append("manifest의 GIF 대상 범위가 판매자 상세설명 내부가 아닙니다.")
-    if int(page_gif_summary.get("animated_gif_count") or 0) != int(manifest_gif_summary.get("animated_gif_count") or 0):
-        errors.append("page와 manifest의 GIF 원본 수가 일치하지 않습니다.")
-    if int(page_gif_summary.get("numbered_frame_count") or 0) != int(manifest_gif_summary.get("numbered_frame_count") or 0):
-        errors.append("page와 manifest의 GIF 번호 프레임 수가 일치하지 않습니다.")
+    if manifest.get("capture_mode") != "direct_http_fetch" or page.get("capture_mode") != "direct_http_fetch":
+        errors.append("수집 방식이 direct_http_fetch로 기록되지 않았습니다.")
+    if page.get("detail_source") != "contentsBuffer":
+        errors.append("판매자 상세설명 출처가 contentsBuffer로 기록되지 않았습니다.")
+    if str(manifest.get("canonical_supplier_url") or "") != str(manifest.get("requested_url") or ""):
+        errors.append("manifest의 canonical 공급처 URL이 요청 URL과 다릅니다.")
+    errors.extend(validate_detail_assets(root, page))
 
     rows = reviews.get("reviews")
     if not isinstance(rows, list):
@@ -170,7 +145,6 @@ def validate_capture(root: Path) -> list[str]:
     forbidden = find_forbidden_keys(rows)
     if forbidden:
         errors.append("금지된 후기 식별 필드가 있습니다: " + ", ".join(forbidden[:10]))
-    errors.extend(validate_numbered_gif_frames(root, page))
 
     artifacts = manifest.get("artifacts")
     if not isinstance(artifacts, list) or not artifacts:
@@ -198,9 +172,13 @@ def validate_capture(root: Path) -> list[str]:
             errors.append(f"artifact SHA-256 불일치: {relative}")
         if int(artifact.get("size_bytes") or -1) != path.stat().st_size:
             errors.append(f"artifact 크기 불일치: {relative}")
-    recording = root / str(page.get("browser_harness_recording_dir") or "")
-    if not recording.is_dir():
-        errors.append("Browser Harness 녹화 디렉터리가 없습니다.")
+    evidence = root / str(page.get("http_evidence_dir") or "")
+    if not evidence.is_dir():
+        errors.append("HTTP 증거 디렉터리가 없습니다.")
+    else:
+        for name in ("page.html", "requests.jsonl"):
+            if not (evidence / name).is_file():
+                errors.append(f"HTTP 증거 파일 누락: {name}")
     return errors
 
 

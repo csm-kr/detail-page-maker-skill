@@ -57,7 +57,7 @@ node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs agent-capaci
 - Git, GitHub CLI 및 npm/npx: 비공개 Git 원본의 설치·업데이트에 필수
 - HyperFrames: motion 단계에서 `npx hyperframes`로 프로젝트 로컬 준비
 - ffmpeg: GIF·motion 제작에 필수
-- browser-harness 실행 파일: 공급처·쿠팡·Behance 수집과 브라우저 QA에 필수
+- browser-harness 실행 파일: 쿠팡·Behance 수집과 브라우저 QA에 필수. 도매꾹 공급처 수집은 HTTP 직접 방식이라 필요 없다.
 
 런타임 프로그램과 로그인 상태를 전역으로 변경하지 않는다. HyperFrames는 해당
 motion 프로젝트의 로컬 `node_modules`에만 준비한다. 그 밖의 런타임이 누락되면

@@ -1,4 +1,4 @@
 interface:
   display_name: "도매꾹 통합 추출기"
-  short_description: "도매꾹 썸네일·상세·원본 GIF 프레임·후기를 근거와 함께 추출"
-  default_prompt: "$dmk-extractor를 사용해 이 도매꾹 상품의 썸네일, 상세페이지, 원본 GIF 번호 프레임, 후기를 새 portable bundle로 추출하고 검증해줘."
+  short_description: "도매꾹 썸네일·상세 원본·후기를 HTTP로 근거와 함께 추출"
+  default_prompt: "$dmk-extractor를 사용해 이 도매꾹 상품의 썸네일, 상세페이지 원본, 후기를 새 portable bundle로 추출하고 검증해줘."

@@ -20,10 +20,10 @@ const EXPECTED_OUTPUT_TYPES = Object.freeze([
   "evidence.supplier_snapshot",
   "receipt.importer",
 ]);
-const SUPPORTED_SCHEMA_VERSIONS = new Set(["1.0"]);
+const SUPPORTED_SCHEMA_VERSIONS = new Set(["1.1"]);
 const REQUIRED_ARTIFACT_KINDS = new Set([
   "assembled_seller_detail_page",
-  "browser_harness_recording",
+  "http_fetch_evidence",
   "product_thumbnail",
   "sanitized_public_reviews",
   "structured_product_page",
@@ -407,7 +407,7 @@ export async function importDmkBundle({
   if (
     manifest.artifact_type !== "dmk_extractor_snapshot" ||
     !SUPPORTED_SCHEMA_VERSIONS.has(String(manifest.schema_version)) ||
-    manifest.browser_mode !== "isolated_headless_browser_harness" ||
+    manifest.capture_mode !== "direct_http_fetch" ||
     !Array.isArray(manifest.artifacts) ||
     manifest.artifacts.length === 0
   ) {
@@ -417,7 +417,7 @@ export async function importDmkBundle({
       {
         artifact_type: manifest.artifact_type,
         schema_version: manifest.schema_version,
-        browser_mode: manifest.browser_mode,
+        capture_mode: manifest.capture_mode,
       },
     );
   }

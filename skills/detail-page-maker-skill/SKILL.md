@@ -82,7 +82,7 @@ node scripts/detail-page.mjs performance-profile --trace "<trace.json>"
 전에 해당 폴더의 `SKILL.md` 원문을 끝까지 읽고 그 절차를 WorkOrder 안에서
 실행한다. 별도 sibling·전역 스킬을 정상 경로로 사용하지 않는다.
 
-- 공급처 근거: `dmk-extractor`와 `browser-harness`
+- 공급처 근거: `dmk-extractor` (HTTP 직접 수집, 브라우저 불필요)
 - 쿠팡 경쟁상품·상세·후기 근거: `coupang-extractor`와 `browser-harness`
 - 기획·HTML: `design-taste-frontend`
 - 이미지: `god-tibo-gpt-image2-skill`

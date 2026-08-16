@@ -4,12 +4,8 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import os
 import re
-import shutil
-import subprocess
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -17,6 +13,7 @@ from pathlib import Path
 from typing import Any, NamedTuple
 from urllib.parse import parse_qs, urlsplit, urlunsplit
 
+from fetch_dmk import DmkFetchError, fetch_product
 from validate_capture import image_size, sha256_file, validate_capture
 
 
@@ -135,19 +132,17 @@ def artifact_kind(relative: str) -> str:
     if relative == "detail/detail-page.png":
         return "assembled_seller_detail_page"
     if relative.startswith("detail/assets/"):
-        return "seller_detail_animated_gif" if relative.casefold().endswith(".gif") else "seller_detail_source_asset"
-    if relative.startswith("detail/gif-frames/"):
-        return "numbered_seller_detail_gif_frame"
+        return "seller_detail_source_asset"
     if relative == "reviews/reviews.json":
         return "sanitized_public_reviews"
-    if relative.startswith("evidence/browser-harness/recordings/"):
-        return "browser_harness_recording"
+    if relative.startswith("evidence/http/"):
+        return "http_fetch_evidence"
     return "supporting_evidence"
 
 
 def build_manifest(staging: Path, parsed: ParsedProductUrl, result: dict[str, Any]) -> dict[str, Any]:
     artifacts = []
-    excluded = {".capture-config.json", ".capture-result.json", "manifest.json", "capture-failure.json"}
+    excluded = {"manifest.json", "capture-failure.json"}
     for path in sorted(staging.rglob("*")):
         if not path.is_file():
             continue
@@ -155,45 +150,25 @@ def build_manifest(staging: Path, parsed: ParsedProductUrl, result: dict[str, An
         if relative in excluded or path.name.endswith(".tmp"):
             continue
         artifact: dict[str, Any] = {"path": relative, "kind": artifact_kind(relative), "size_bytes": path.stat().st_size, "sha256": sha256_file(path)}
-        if path.suffix.casefold() in {".png", ".gif"}:
+        if path.suffix.casefold() in {".png", ".jpg", ".jpeg", ".gif", ".webp"}:
             width, height = image_size(path)
             artifact.update({"width_px": width, "height_px": height})
-            if path.suffix.casefold() == ".gif":
-                from PIL import Image
-
-                with Image.open(path) as image:
-                    artifact["frame_count"] = int(getattr(image, "n_frames", 1))
         artifacts.append(artifact)
-    return {"schema_version": "1.0", "artifact_type": "dmk_extractor_snapshot", "product_id": parsed.product_id,
+    return {"schema_version": "1.1", "artifact_type": "dmk_extractor_snapshot", "product_id": parsed.product_id,
+        "canonical_supplier_url": parsed.normalized_url,
         "requested_url": parsed.normalized_url, "final_url": result["final_url"], "captured_at": result["captured_at"],
-        "browser_mode": "isolated_headless_browser_harness", "gif_summary": {"target_scope": "expanded_seller_product_detail_only",
-            "animated_gif_count": int(result.get("animated_gif_count") or 0),
-            "numbered_frame_count": int(result.get("numbered_gif_frame_count") or 0)},
+        "capture_mode": "direct_http_fetch",
         "review_summary": {"visible_review_count": result["visible_review_count"],
             "captured_review_count": result["captured_review_count"], "complete": result["review_complete"]}, "artifacts": artifacts}
 
 
-def run_browser_capture(skill_root: Path, parsed: ParsedProductUrl, staging: Path, review_limit: int) -> tuple[dict[str, Any], int]:
-    runner = skill_root / "scripts" / "run_headless_browser_harness.py"
-    payload = skill_root / "scripts" / "browser_capture.py"
-    if not runner.is_file() or not payload.is_file():
-        raise FileNotFoundError("headless Browser Harness 실행 파일이 누락되었습니다.")
-    config_path = staging / ".capture-config.json"
-    result_path = staging / ".capture-result.json"
-    write_json(config_path, {"product_url": parsed.normalized_url, "product_id": parsed.product_id, "output_root": str(staging),
-        "result_path": str(result_path), "review_limit": review_limit, "skill_scripts_dir": str(skill_root / "scripts")})
-    environment = os.environ.copy()
-    environment["DMK_CAPTURE_CONFIG"] = str(config_path)
-    environment["BH_AGENT_WORKSPACE"] = str(staging / "evidence" / "browser-harness")
-    environment["PYTHONUTF8"] = "1"
-    environment["PYTHONIOENCODING"] = "utf-8"
-    completed = subprocess.run([sys.executable, str(runner)], input=payload.read_bytes(), env=environment, check=False)
-    if not result_path.is_file():
-        raise RuntimeError(f"Browser Harness 결과 파일이 없습니다: exit={completed.returncode}")
-    result = load_json(result_path)
-    if result.get("status") != "SUCCESS":
-        raise RuntimeError(str(result.get("reason") or f"Browser Harness 캡처 실패: exit={completed.returncode}"))
-    return result, int(completed.returncode)
+def run_http_capture(parsed: ParsedProductUrl, staging: Path, review_limit: int) -> dict[str, Any]:
+    return fetch_product(
+        product_url=parsed.normalized_url,
+        product_id=parsed.product_id,
+        output_root=staging,
+        review_limit=review_limit,
+    )
 
 
 def promote(staging: Path, output: Path) -> None:
@@ -227,11 +202,8 @@ def main(argv: list[str] | None = None) -> int:
     if staging.exists():
         raise SystemExit(f"임시 출력 경로가 이미 존재합니다: {staging}")
     staging.mkdir(parents=True)
-    skill_root = Path(__file__).resolve().parents[1]
     try:
-        result, browser_exit = run_browser_capture(skill_root, parsed, staging, args.review_limit)
-        (staging / ".capture-config.json").unlink(missing_ok=True)
-        (staging / ".capture-result.json").unlink(missing_ok=True)
+        result = run_http_capture(parsed, staging, args.review_limit)
         manifest = build_manifest(staging, parsed, result)
         write_json(staging / "manifest.json", manifest)
         errors = validate_capture(staging)
@@ -243,16 +215,17 @@ def main(argv: list[str] | None = None) -> int:
             "final_url": result["final_url"], "output_root": str(output), "thumbnail": str(output / "thumbnail" / "thumbnail.png"),
             "detail_page": str(output / "detail" / "detail-page.png"), "reviews": str(output / "reviews" / "reviews.json"),
             "visible_review_count": result["visible_review_count"], "captured_review_count": result["captured_review_count"],
-            "manifest": str(manifest_path), "manifest_sha256": sha256_file(manifest_path), "recording_dir": result["recording_dir"],
-            "animated_gif_count": int(result.get("animated_gif_count") or 0),
-            "numbered_gif_frame_count": int(result.get("numbered_gif_frame_count") or 0),
-            "browser_process_exit": browser_exit}
+            "manifest": str(manifest_path), "manifest_sha256": sha256_file(manifest_path),
+            "http_evidence_dir": result["http_evidence_dir"],
+            "detail_asset_count": int(result.get("detail_asset_count") or 0),
+            "request_count": int(result.get("request_count") or 0)}
         print(json.dumps(response, ensure_ascii=False, indent=2))
         return 0
     except Exception as exc:
-        write_json(staging / "capture-failure.json", {"schema_version": "1.0", "status": "FAILURE", "product_id": parsed.product_id,
-            "requested_url": parsed.normalized_url, "failed_at": utc_now(), "reason": str(exc),
-            "resume_condition": "공개 상품 상세 접근, Browser Harness, 출력 경로를 확인한 뒤 새 출력 디렉터리로 재시도"})
+        write_json(staging / "capture-failure.json", {"schema_version": "1.1", "status": "FAILURE", "product_id": parsed.product_id,
+            "requested_url": parsed.normalized_url, "failed_at": utc_now(),
+            "code": exc.code if isinstance(exc, DmkFetchError) else "CAPTURE_VALIDATION_FAILED", "reason": str(exc),
+            "resume_condition": "공개 상품 상세 접근과 출력 경로를 확인한 뒤 새 출력 디렉터리로 재시도"})
         print(f"도매꾹 추출 실패: {exc}\n실패 기록: {staging}", file=sys.stderr)
         return 1
 
