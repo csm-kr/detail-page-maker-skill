@@ -15,6 +15,11 @@ import {
   listProjects,
   validateProjectIsolation,
 } from "./lib/project-manager.mjs";
+import { resolveWorkspaceRoot } from "./lib/output-location.mjs";
+import {
+  intakeWorkspaceInputs,
+  listWorkspaceIntakeCandidates,
+} from "./lib/workspace-intake.mjs";
 import {
   buildLearningStatus,
   renderLearningStatus,
@@ -194,6 +199,8 @@ Commands:
   doctor
   agent-capacity [--worker-capacity <N|auto>] [--worker-sessions <ID[,ID]>]
                  [--workspace <workspace-folder>]
+  intake --project <project-folder> [--file <name[,name]>] [--dry-run] [--json]
+  intake-status [--workspace <workspace-folder>]
   performance-profile [--trace <JSON-file|JSON>]
   workflow-status --project <project-folder> --project-id <ID> --input-digest <SHA-256>
   workflow-advance --project <project-folder> --project-id <ID> --input-digest <SHA-256>
@@ -430,6 +437,36 @@ async function doctor() {
   };
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exitCode = 1;
+}
+
+function printIntakeReport(report) {
+  const moved =
+    report.moved_photos.length +
+    report.extracted_photos.length +
+    report.moved_archives.length;
+  console.log(
+    `Workspace intake: photos=${report.moved_photos.length} extracted=${report.extracted_photos.length} archives=${report.moved_archives.length} duplicates=${report.duplicates_preserved.length}${report.dry_run ? " (dry-run)" : ""}`,
+  );
+  for (const item of [
+    ...report.moved_photos,
+    ...report.extracted_photos,
+    ...report.moved_archives,
+  ]) {
+    console.log(`  ${item.file} -> ${item.to}`);
+  }
+  for (const item of report.duplicates_preserved) {
+    console.log(
+      `  ${item.file} = ${item.existing} (중복${item.to ? `, ${item.to}에 보존` : ""})`,
+    );
+  }
+  for (const item of report.failures) {
+    console.log(`  ! ${item.file}: ${item.error}`);
+  }
+  if (moved > 0 && report.workspace_root_remaining.length > 0) {
+    console.log(
+      `  워크스페이스 루트 잔여: ${report.workspace_root_remaining.join(", ")}`,
+    );
+  }
 }
 
 function commandWorkspaceRoot(args) {
@@ -900,8 +937,12 @@ async function main() {
       name: args.name,
       supplierUrl: args["supplier-url"],
       root: args.root || defaultProjectsRoot(),
+      intake: args["no-intake"] !== true,
     });
     console.log(`Project created: ${created.projectRoot}`);
+    if (created.intake) {
+      printIntakeReport(created.intake);
+    }
     const experienceSync = await reconcileTrustedExperiences(created.projectRoot);
     console.log(
       `Experience sync: promoted=${experienceSync.promoted} reused=${experienceSync.reused} quarantined=${experienceSync.quarantined}`,
@@ -914,6 +955,46 @@ async function main() {
       });
       console.log(`Detail Page Studio v1: ${started.url}`);
     }
+    return;
+  }
+  if (command === "intake") {
+    if (!args.project) {
+      throw new Error(
+        "intake 명령에는 --project 경로가 필요합니다. (--file <이름[,이름]>, --dry-run 지원)",
+      );
+    }
+    const only = args.file
+      ? String(args.file)
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+      : null;
+    const report = await intakeWorkspaceInputs({
+      projectRoot: path.resolve(args.project),
+      workspaceRoot: args.workspace ? path.resolve(args.workspace) : undefined,
+      skillRoot: CURRENT_SKILL_ROOT,
+      dryRun: args["dry-run"] === true,
+      only,
+    });
+    if (args.json === true) {
+      console.log(JSON.stringify(report, null, 2));
+    } else {
+      printIntakeReport(report);
+    }
+    if (report.failures.length > 0) process.exitCode = 1;
+    return;
+  }
+  if (command === "intake-status") {
+    const workspace = args.workspace
+      ? path.resolve(args.workspace)
+      : resolveWorkspaceRoot({ skillRoot: CURRENT_SKILL_ROOT });
+    const candidates = await listWorkspaceIntakeCandidates({
+      workspaceRoot: workspace,
+    });
+    console.log(
+      JSON.stringify({ workspace_root: workspace, candidates }, null, 2),
+    );
+    if (candidates.length > 0) process.exitCode = 1;
     return;
   }
   if (command === "adopt") {

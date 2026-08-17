@@ -74,6 +74,28 @@ node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs new --name "
 사용자가 직접 넣는 파일은 생성된 프로젝트의 `input/product/`뿐이다. 실제 제품
 사진이 없고 같은 SKU의 공급처 이미지가 확인되면 최초 한 번 알린 뒤 진행한다.
 
+## 입력 intake
+
+워크스페이스 루트에 떨어뜨린 사진과 사진 압축본은 프로젝트 입력이다. 루트에 남기지
+않는다. `new`는 이 흡수를 자동으로 수행하며 `--no-intake`로만 끈다.
+
+```sh
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs intake-status
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs intake --project "<프로젝트 폴더>" --dry-run
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs intake --project "<프로젝트 폴더>" --file "사진.zip"
+```
+
+| 입력 | 결과 |
+| --- | --- |
+| 이미지 파일 | `input/product/`로 이동 |
+| `.zip` | 이미지 멤버를 `input/product/`로 풀고 원본은 `input/source/`로 이동 |
+| 이미 있는 SHA-256 | 다시 풀지 않고 원본만 `input/source/`에 보존 |
+| 이미지 멤버가 없는 압축본 | 옮기지 않고 루트에 남긴 뒤 실패로 보고 |
+
+`intake-status`는 루트에 남은 후보가 있으면 exit code 1을 반환하므로 CI 검사에 쓸 수 있다.
+루트 최상위 파일만 대상이며 `projects/`, `.agents/`, `.claude/`, 점으로 시작하는 파일,
+`skills-lock.json` 같은 워크스페이스 설정 파일은 건드리지 않는다. **삭제는 하지 않는다.**
+
 ## 경험 자동 승격
 
 프로젝트에 평면 `<project>/.detail-page/exps/` drop을 초기화하고 필요할 때 명시적으로 검사할 수 있다.

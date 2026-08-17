@@ -265,10 +265,23 @@ provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼�
   복제하지 않는다. 새 프로젝트는 `input/product`, `output/detail-page.html`,
   최소 `.detail-page` 상태만 만들고 planning·generation·QA·backup·Wing 폴더는
   실제 첫 write 때 생성한다.
+- **입력 intake 규약.** 사용자가 워크스페이스 루트에 둔 제품 사진과 사진 압축본은
+  프로젝트 입력이므로 루트에 남기지 않는다.
+  - `new`는 루트 최상위의 이미지·`.zip`을 새 프로젝트로 흡수한다. `--no-intake`로만 끈다.
+  - 기존 프로젝트로 옮길 때는 `intake --project <폴더> [--file <이름[,이름]>]`를 쓴다.
+    남은 후보는 `intake-status`로 확인한다.
+  - 이미지는 `input/product/`, 압축본은 이미지 멤버를 풀고 원본을 `input/source/`에 둔다.
+  - 같은 SHA-256이 이미 `input/product/`에 있으면 다시 풀지 않는다.
+  - **삭제하지 않고 이동만 한다.** 중복 원본도 `input/source/`에 보존한다.
+  - 읽어내지 못한 압축본은 조용히 옮기지 않고 루트에 남긴 뒤 실패로 보고한다.
+  - `projects/`, `.agents/`, `.claude/`, 점으로 시작하는 파일은 intake 대상이 아니다.
+  - 기계 정본은 `scripts/lib/workspace-intake.mjs`, 회귀 검사는
+    `scripts/tests/workspace-intake.test.mjs`다.
 - **산출물 폴더 규약.** 이 스킬이 만드는 모든 파일은 프로젝트 폴더 하나에만 쌓인다.
   - 산출물 루트는 `<workspace>/projects/<프로젝트 폴더>/` 하나다.
   - 워크스페이스 루트에는 `projects/` 말고 어떤 폴더도 만들지 않는다. 특히 `exps/`와
     `.workspace/`를 만들지 않는다.
+  - 워크스페이스 루트에 제품 사진·압축본을 방치하지 않는다. 위 intake 규약으로 흡수한다.
   - 스킬 설치 폴더(`.agents/skills/…`, `.claude/skills/…`)와 Git 저장소 안에는 산출물을
     쓰지 않는다. 스킬 폴더는 읽기 전용 입력이다.
   - 경험 drop은 `<project>/.detail-page/exps/`, 학습 receipt·격리·승격·run 기록은

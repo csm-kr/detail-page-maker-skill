@@ -499,7 +499,8 @@ evidence·generation·workflow·planning·backups·research·QA·export job은 �
 ```text
 <project>/
 ├─ input/
-│  └─ product/                사용자 실제 제품 사진(선택)
+│  ├─ product/                사용자 실제 제품 사진(선택)
+│  └─ source/                 intake가 옮겨 온 원본 압축본·중복 원본
 ├─ output/
 │  ├─ detail-page.html        현재 고객 진입점
 │  ├─ media/{images,gifs}/

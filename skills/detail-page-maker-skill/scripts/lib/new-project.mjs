@@ -8,6 +8,7 @@ import {
   saveProjectOutput,
 } from "../runtime/project-output-runtime.mjs";
 import { resolveProjectsRoot } from "./output-location.mjs";
+import { intakeWorkspaceInputs } from "./workspace-intake.mjs";
 
 function safeSlug(value) {
   const slug = String(value)
@@ -101,6 +102,7 @@ export async function createProject({
   name,
   supplierUrl,
   root = defaultProjectsRoot(),
+  intake = true,
 }) {
   const productId = extractProductId(supplierUrl);
   const folderName = safeSlug(
@@ -191,9 +193,19 @@ export async function createProject({
 `,
     "utf8",
   );
+  // 워크스페이스 루트에 놓인 제품 사진·사진 압축본은 프로젝트 입력이므로 여기서 흡수한다.
+  const intakeReport =
+    intake === false
+      ? null
+      : await intakeWorkspaceInputs({
+          projectRoot,
+          projectsRoot: path.resolve(root),
+          skillRoot: skillRoot(),
+        });
   return {
     projectRoot,
     state,
+    intake: intakeReport,
   };
 }
 

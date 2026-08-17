@@ -18,6 +18,9 @@ template, 프로젝트 관행은 적용하지 않는다.
   visual ambition anchor를 모든 section·image job·GIF brief에 바인딩한다.
   기준 원본은 스킬 안에 한 번만 두고 상품 프로젝트에 복제하지 않는다.
 - 사용자는 실제 제품 사진이 있으면 `input/product/`에만 넣는다.
+- 사용자가 워크스페이스 루트에 사진이나 사진 압축본을 두면 루트에 남기지 않는다.
+  `new`와 `intake`가 이미지를 `input/product/`로, 압축본 원본을 `input/source/`로 옮긴다.
+  같은 SHA-256은 다시 풀지 않으며 삭제 없이 이동만 한다.
 - 실제 제품 사진은 선택 사항이다. 없으면 최초 한 번만 안내하고 작업을 계속한다.
 - 실제 사진의 materialized member가 `input/product/` 아래에서 bytes/hash 검증을
   통과하면 plan-once fast path를 기본 적용한다. G1 ProductionPlan 승인만 사람이
@@ -162,7 +165,8 @@ Hero subtree의 GIF·video·animation·runtime 대상 0건, 핵심 benefit claim
 ```text
 <project>/
 ├─ input/
-│  └─ product/
+│  ├─ product/               제품 사진 (SSOT 후보)
+│  └─ source/                사용자가 준 원본 압축본·중복 원본 보관
 ├─ output/
 │  ├─ detail-page.html
 │  ├─ media/
