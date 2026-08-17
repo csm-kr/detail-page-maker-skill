@@ -180,7 +180,7 @@ def promote(staging: Path, output: Path) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="도매꾹 상품 썸네일·판매자 상세페이지·공개 구매후기를 headless Browser Harness로 추출합니다.")
+    parser = argparse.ArgumentParser(description="도매꾹 상품 썸네일·판매자 상세페이지·공개 구매후기를 HTTP 직접 요청으로 추출합니다.")
     parser.add_argument("--url", required=True, help="도매꾹 실제 상품 상세 URL")
     parser.add_argument("--project-root", type=Path, help="commerce-project/projects/<project-id> 경로")
     parser.add_argument("--output", type=Path, help="비어 있거나 존재하지 않는 출력 디렉터리")
