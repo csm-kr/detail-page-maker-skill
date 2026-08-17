@@ -12,7 +12,9 @@ persistent Orchestrator가 강제한다.
 ## 실행
 
 1. 항상 [`references/content-contract.md`](references/content-contract.md)와
-   [`references/workflow.md`](references/workflow.md)를 읽는다.
+   [`references/workflow.md`](references/workflow.md)를 읽는다. 제작 run이면
+   [`references/build-flow.md`](references/build-flow.md)도 함께 읽고 그 실행
+   순서와 판단 방식을 따른다.
 2. 두 문서와 충돌하는 레거시 문서·프로젝트 관행은 적용하지 않는다.
 3. 아래 표에서 현재 작업에 필요한 reference만 추가로 읽는다.
 4. 이 스킬 폴더의 `.agents/skills/`에서 내장 의존 스킬을 찾는다.
@@ -60,6 +62,7 @@ node scripts/detail-page.mjs performance-profile --trace "<trace.json>"
 | 작업 | 읽을 문서 |
 | --- | --- |
 | 고정 판매 흐름·입출력·공개 형식 | [`content-contract.md`](references/content-contract.md) |
+| 완주 run 실행 순서·실패 대응·검수 방식·작업 로그 | [`build-flow.md`](references/build-flow.md) |
 | 공급처 근거·실제품·권리·SSOT | [`evidence.md`](references/evidence.md) |
 | 시장 조사·상업 기획·카피 | [`commercial.md`](references/commercial.md) |
 | ImageGen·pending·에셋 승인 | [`assets.md`](references/assets.md) |
@@ -117,6 +120,14 @@ provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼�
 
 ## 하드 계약
 
+- 제작 run은 [`references/build-flow.md`](references/build-flow.md)의 실행 순서와
+  판단 방식을 따른다. 이 문서는 플로우만 규정한다. 상품별 값(공급처·기준작 URL,
+  사양, 카피, 좌표, 팔레트)은 담겨 있지 않으며 매 run의 근거에서 새로 확정한다.
+  이전 run의 값을 다음 run으로 옮기지 않는다.
+- run마다 `.detail-page/planning/BUILD-LOG.md`를 사후 기록으로 남긴다. 실제 실행한
+  명령, 실제 받은 출력, 실패 코드, 재시도 결과, 그때의 판단 근거를 순서대로 적고
+  실패를 지우고 성공만 적지 않는다. `하지 않은 것과 그 이유`와 `남은 리스크` 두
+  절을 반드시 포함한다.
 - 공급처 URL과 같은 SKU의 공급처 원문·이미지·locator·권리로 G0 제품 SSOT를
   잠근다. 실제 제품 사진은 선택 사항이며 없으면 최초 한 번만 알리고 계속한다.
 - `input/product/`의 원본 사진 materialized bytes/hash가 검증되면
