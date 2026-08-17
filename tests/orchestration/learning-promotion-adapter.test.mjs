@@ -83,11 +83,11 @@ async function createFixture() {
     path.join(os.tmpdir(), "learning-promotion-"),
   );
   const skillRoot = path.join(root, "skill");
-  const workspaceRoot = path.join(root, "workspace");
+  const projectRoot = path.join(root, "projects", "fixture-project");
   const referencesRoot = path.join(skillRoot, "references");
   await Promise.all([
     mkdir(referencesRoot, { recursive: true }),
-    mkdir(workspaceRoot, { recursive: true }),
+    mkdir(projectRoot, { recursive: true }),
   ]);
   await Promise.all([
     writeFile(
@@ -114,7 +114,7 @@ async function createFixture() {
   return {
     root,
     skillRoot,
-    workspaceRoot,
+    projectRoot,
     commercialPath: path.join(
       referencesRoot,
       "commercial.md",
@@ -286,7 +286,7 @@ async function challengeFixture(
     promotionPlan: artifacts.promotionPlan,
     reviewReceipt: artifacts.reviewReceipt,
     skillRoot: fixture.skillRoot,
-    workspaceRoot: fixture.workspaceRoot,
+    projectRoot: fixture.projectRoot,
   });
   const regression = regressionEvidence(
     artifacts.promotionPlan,
@@ -302,7 +302,7 @@ async function challengeFixture(
     regressionEvidence: regression,
     sanitizationContext: context,
     skillRoot: fixture.skillRoot,
-    workspaceRoot: fixture.workspaceRoot,
+    projectRoot: fixture.projectRoot,
     frozenActiveReferenceSha256:
       snapshot.active_reference_sha256,
     learningStatusBeforeSha256:
@@ -354,7 +354,7 @@ test("exact plan·before hash·nonce challenge는 사용자 승인 전 active re
     );
     assert.deepEqual(
       await listLearningPromotionRevisions({
-        workspaceRoot: fixture.workspaceRoot,
+        projectRoot: fixture.projectRoot,
       }),
       [],
     );
@@ -368,7 +368,7 @@ test("exact plan·before hash·nonce challenge는 사용자 승인 전 active re
         regressionEvidence: prepared.regression,
         sanitizationContext: prepared.context,
         skillRoot: fixture.skillRoot,
-        workspaceRoot: fixture.workspaceRoot,
+        projectRoot: fixture.projectRoot,
       }),
       expectCode("USER_APPROVAL_REQUIRED"),
     );
@@ -400,7 +400,7 @@ test("사용자 승인 뒤 CR 새 row를 atomic revision으로 commit하고 befo
       regressionEvidence: prepared.regression,
       sanitizationContext: prepared.context,
       skillRoot: fixture.skillRoot,
-      workspaceRoot: fixture.workspaceRoot,
+      projectRoot: fixture.projectRoot,
     });
 
     assert.equal(result.status, "committed");
@@ -470,7 +470,7 @@ test("사용자 승인 뒤 CR 새 row를 atomic revision으로 commit하고 befo
     );
     assert.deepEqual(
       await listLearningPromotionRevisions({
-        workspaceRoot: fixture.workspaceRoot,
+        projectRoot: fixture.projectRoot,
       }),
       [receipt.promotion_revision_id],
     );
@@ -522,7 +522,7 @@ test("TR update와 MR insert를 route의 정본 표에만 적용한다", async (
         regressionEvidence: prepared.regression,
         sanitizationContext: prepared.context,
         skillRoot: fixture.skillRoot,
-        workspaceRoot: fixture.workspaceRoot,
+        projectRoot: fixture.projectRoot,
       });
       assert.equal(
         result.promotion_receipt.rule_action,
@@ -582,7 +582,7 @@ test("TR update와 MR insert를 route의 정본 표에만 적용한다", async (
         regressionEvidence: prepared.regression,
         sanitizationContext: prepared.context,
         skillRoot: fixture.skillRoot,
-        workspaceRoot: fixture.workspaceRoot,
+        projectRoot: fixture.projectRoot,
       });
       assert.equal(
         result.promotion_receipt.target_reference,
@@ -637,7 +637,7 @@ test("approver가 producer/reviewer와 같거나 proof가 변조되면 active re
           regressionEvidence: prepared.regression,
           sanitizationContext: prepared.context,
           skillRoot: fixture.skillRoot,
-          workspaceRoot: fixture.workspaceRoot,
+          projectRoot: fixture.projectRoot,
         }),
         expectCode("APPROVER_SEPARATION_REQUIRED"),
       );
@@ -661,7 +661,7 @@ test("approver가 producer/reviewer와 같거나 proof가 변조되면 active re
           regressionEvidence: prepared.regression,
           sanitizationContext: prepared.context,
           skillRoot: fixture.skillRoot,
-          workspaceRoot: fixture.workspaceRoot,
+          projectRoot: fixture.projectRoot,
         }),
         expectCode("APPROVER_SEPARATION_REQUIRED"),
       );
@@ -679,7 +679,7 @@ test("approver가 producer/reviewer와 같거나 proof가 변조되면 active re
           regressionEvidence: prepared.regression,
           sanitizationContext: prepared.context,
           skillRoot: fixture.skillRoot,
-          workspaceRoot: fixture.workspaceRoot,
+          projectRoot: fixture.projectRoot,
         }),
         expectCode(
           "USER_APPROVAL_PROOF_HASH_MISMATCH",
@@ -724,7 +724,7 @@ test("active reference drift, learning-status drift, reused nonce를 각각 차�
           regressionEvidence: prepared.regression,
           sanitizationContext: prepared.context,
           skillRoot: fixture.skillRoot,
-          workspaceRoot: fixture.workspaceRoot,
+          projectRoot: fixture.projectRoot,
         }),
         expectCode("ACTIVE_REFERENCE_DRIFT"),
       );
@@ -745,7 +745,7 @@ test("active reference drift, learning-status drift, reused nonce를 각각 차�
         artifacts,
       );
       const reviewed = path.join(
-        fixture.workspaceRoot,
+        fixture.projectRoot,
         ".workspace",
         "learning",
         "behance",
@@ -770,7 +770,7 @@ test("active reference drift, learning-status drift, reused nonce를 각각 차�
           regressionEvidence: prepared.regression,
           sanitizationContext: prepared.context,
           skillRoot: fixture.skillRoot,
-          workspaceRoot: fixture.workspaceRoot,
+          projectRoot: fixture.projectRoot,
         }),
         expectCode("LEARNING_STATUS_DRIFT"),
       );
@@ -800,7 +800,7 @@ test("active reference drift, learning-status drift, reused nonce를 각각 차�
         regressionEvidence: prepared.regression,
         sanitizationContext: prepared.context,
         skillRoot: fixture.skillRoot,
-        workspaceRoot: fixture.workspaceRoot,
+        projectRoot: fixture.projectRoot,
       };
       await commitLearningPromotion(input);
       await assert.rejects(
@@ -856,7 +856,7 @@ test("상품명·URL·경로·고유 카피를 challenge와 commit 직전에 재
             promotionPlan: artifacts.promotionPlan,
             reviewReceipt: artifacts.reviewReceipt,
             skillRoot: fixture.skillRoot,
-            workspaceRoot: fixture.workspaceRoot,
+            projectRoot: fixture.projectRoot,
           });
         const regression = regressionEvidence(
           artifacts.promotionPlan,
@@ -873,7 +873,7 @@ test("상품명·URL·경로·고유 카피를 challenge와 commit 직전에 재
             regressionEvidence: regression,
             sanitizationContext: context,
             skillRoot: fixture.skillRoot,
-            workspaceRoot: fixture.workspaceRoot,
+            projectRoot: fixture.projectRoot,
             frozenActiveReferenceSha256:
               snapshot.active_reference_sha256,
             learningStatusBeforeSha256:
@@ -906,7 +906,7 @@ test("잘못된 target과 active table의 duplicate ID를 fail-closed 차단한�
           promotionPlan: invalid,
           reviewReceipt: artifacts.reviewReceipt,
           skillRoot: fixture.skillRoot,
-          workspaceRoot: fixture.workspaceRoot,
+          projectRoot: fixture.projectRoot,
         }),
         expectCode("WRONG_PROMOTION_TARGET"),
       );
@@ -935,7 +935,7 @@ test("잘못된 target과 active table의 duplicate ID를 fail-closed 차단한�
           promotionPlan: artifacts.promotionPlan,
           reviewReceipt: artifacts.reviewReceipt,
           skillRoot: fixture.skillRoot,
-          workspaceRoot: fixture.workspaceRoot,
+          projectRoot: fixture.projectRoot,
         }),
         expectCode("DUPLICATE_RULE_ID"),
       );
@@ -964,10 +964,10 @@ test("별도 deletion_allowed receipt 뒤에도 raw 삭제 없이 archive plan�
       regressionEvidence: prepared.regression,
       sanitizationContext: prepared.context,
       skillRoot: fixture.skillRoot,
-      workspaceRoot: fixture.workspaceRoot,
+      projectRoot: fixture.projectRoot,
     });
     const rawSource = path.join(
-      fixture.workspaceRoot,
+      fixture.projectRoot,
       ".workspace",
       "learning",
       "raw-source.txt",

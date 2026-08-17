@@ -1,15 +1,13 @@
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   sanitizePublicHtml,
   saveProjectOutput,
 } from "../runtime/project-output-runtime.mjs";
-
-const WORKSPACE_CONFIG_RELATIVE_PATH = path.join("config", "workspace.json");
+import { resolveProjectsRoot } from "./output-location.mjs";
 
 function safeSlug(value) {
   const slug = String(value)
@@ -38,25 +36,6 @@ function skillRoot() {
 
 function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
-}
-
-function workspaceConfig(startDirectory = process.cwd()) {
-  let current = path.resolve(startDirectory);
-  while (true) {
-    const configPath = path.join(current, WORKSPACE_CONFIG_RELATIVE_PATH);
-    if (existsSync(configPath)) {
-      const config = JSON.parse(readFileSync(configPath, "utf8"));
-      if (config.schemaVersion !== 1 || !config.projectsRoot) {
-        throw new Error(
-          `${WORKSPACE_CONFIG_RELATIVE_PATH}에는 schemaVersion 1과 projectsRoot가 필요합니다.`,
-        );
-      }
-      return { workspaceRoot: current, configPath, config };
-    }
-    const parent = path.dirname(current);
-    if (parent === current) return null;
-    current = parent;
-  }
 }
 
 function workspaceState() {
@@ -108,22 +87,14 @@ function createInitialProject({
 }
 
 export function defaultProjectsRoot({
-  startDirectory = process.cwd(),
+  skillRoot: skillRootOverride,
   environment = process.env,
 } = {}) {
-  if (environment.DETAIL_PAGE_PROJECTS_ROOT) {
-    return path.resolve(environment.DETAIL_PAGE_PROJECTS_ROOT);
-  }
-  const discovered = workspaceConfig(startDirectory);
-  if (discovered) {
-    return path.resolve(discovered.workspaceRoot, discovered.config.projectsRoot);
-  }
-  return path.join(
-    os.homedir(),
-    "Documents",
-    "DetailPageStudio",
-    "projects",
-  );
+  // 산출물 폴더 규약: 프로젝트 루트는 설치 위치에서 결정하며 워크스페이스 밖으로 나가지 않는다.
+  return resolveProjectsRoot({
+    skillRoot: skillRootOverride ?? skillRoot(),
+    environment,
+  });
 }
 
 export async function createProject({

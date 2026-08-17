@@ -33,7 +33,7 @@ Behance 조사에서 작품 고유 색·서체·카피·레이아웃은 가져�
 
 새 공용 상업 규칙은 이 표에만 추가·수정한다. 조사 원문과 후보는 active rule에서
 분리하고 프로젝트 내부 research retention 정책에 따라 보존 또는 정리한다.
-Behance 조사 run을 `exps/*.md`에 `commercial-research`, `promotion: auto`로
+Behance 조사 run을 `<project>/.detail-page/exps/*.md`에 `commercial-research`, `promotion: auto`로
 넣으면 서로 다른 실제 프로젝트 3개 이상의 해시 근거와 독립 검토를 통과한
 반복 원리만 다음 실행에서 CR로 자동 반영한다.
 

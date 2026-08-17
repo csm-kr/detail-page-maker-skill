@@ -220,7 +220,7 @@ Node.js 22.15.0 이상이 필요하다. 설치된 프로젝트의 루트에서 �
 
 ```sh
 node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs start \
-  --project ".workspace/projects/<프로젝트 폴더>"
+  --project "projects/<프로젝트 폴더>"
 ```
 
 기본 주소는 `http://127.0.0.1:8896/studio.html`이다. 브라우저 자동 실행을
@@ -228,7 +228,7 @@ node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs start \
 
 ```sh
 node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs start \
-  --project ".workspace/projects/<프로젝트 폴더>" \
+  --project "projects/<프로젝트 폴더>" \
   --port 8897 \
   --no-open
 ```
@@ -300,7 +300,14 @@ node tests/remote-git-install.mjs
 - 편집·복구 내부 상태: `<project>/.detail-page/`
 - 최종 고객 HTML: `<project>/output/detail-page.html`
 - 이미지·GIF: `<project>/output/media/`
-- 새 프로젝트 기본 루트: `.workspace/projects/`
+- 경험 drop: `<project>/.detail-page/exps/`
+- 학습 receipt·격리·승격: `<project>/.detail-page/learning/`
+- 새 프로젝트 기본 루트: `<workspace>/projects/`
+
+산출물 폴더 규약상 이 스킬은 프로젝트 폴더 밖에 아무것도 만들지 않는다.
+워크스페이스 루트에 `exps/`·`.workspace/`를 만들지 않고, 설치된 스킬 폴더와 Git
+저장소에도 산출물을 쓰지 않는다. 워크스페이스는 스킬 설치 위치로 결정하므로 어느
+폴더에서 몇 번을 실행해도 같은 경로에 산출된다.
 
 공급처 원본, 생성 이미지, GIF, 영상, QA 캡처와 프로젝트 실행 상태는 Git 배포물에
 포함하지 않는다. Git에는 단일 스킬, 증류된 규칙, 회귀 테스트만 둔다.

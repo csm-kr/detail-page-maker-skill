@@ -36,7 +36,7 @@ async function listFiles(rootPath) {
   return files;
 }
 
-test("workspace 설정은 저장소 로컬 projects 루트를 선택한다", async () => {
+test("projects 루트는 설치 위치에서 결정되고 cwd에 좌우되지 않는다", async () => {
   const workspace = await mkdtemp(
     path.join(os.tmpdir(), "detail-page-workspace-"),
   );
@@ -54,7 +54,7 @@ test("workspace 설정은 저장소 로컬 projects 루트를 선택한다", asy
     );
     await mkdir(nested, { recursive: true });
     assert.equal(
-      defaultProjectsRoot({ startDirectory: nested, environment: {} }),
+      defaultProjectsRoot({ skillRoot: nested, environment: {} }),
       path.join(workspace, "projects"),
     );
   } finally {

@@ -3,6 +3,8 @@
 import { access, readdir, readFile, stat } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+
+import { resolveOutputLocations } from "../lib/output-location.mjs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const DEFAULT_SKILL_ROOT = path.resolve(
@@ -19,107 +21,30 @@ async function exists(target) {
   }
 }
 
-export function findWorkspaceRoot(startDirectory = process.cwd()) {
-  let current = path.resolve(startDirectory);
-  while (true) {
-    const configPath = path.join(
-      current,
-      "config",
-      "workspace.json",
-    );
-    if (existsSync(configPath)) return current;
-    if (
-      path.basename(current) === ".workspace" ||
-      path.basename(current) === "workspace"
-    ) {
-      return path.dirname(current);
-    }
-    const parent = path.dirname(current);
-    if (parent === current) return path.resolve(startDirectory);
-    current = parent;
-  }
-}
 
-function configuredProjectsRoot(workspace) {
-  const configPath = path.join(
-    workspace,
-    "config",
-    "workspace.json",
-  );
-  if (existsSync(configPath)) {
-    try {
-      const config = JSON.parse(readFileSync(configPath, "utf8"));
-      if (
-        config.schemaVersion === 1 &&
-        typeof config.projectsRoot === "string" &&
-        config.projectsRoot.trim()
-      ) {
-        return path.resolve(workspace, config.projectsRoot);
-      }
-    } catch {
-      // learning-status reports the canonical fallback without mutating config.
-    }
-  }
-  return path.join(workspace, "projects");
-}
 
 export function resolveLearningPaths({
-  workspaceRoot = findWorkspaceRoot(),
+  projectRoot,
   skillRoot = DEFAULT_SKILL_ROOT,
 } = {}) {
-  const workspace = path.resolve(workspaceRoot);
+  // 산출물 폴더 규약: 학습 산출물은 프로젝트 `.detail-page/learning/` 아래에만 쌓인다.
+  if (!String(projectRoot || "").trim()) {
+    throw new Error("projectRoot가 필요합니다.");
+  }
+  const locations = resolveOutputLocations({ projectRoot });
   const skill = path.resolve(skillRoot);
+  const learning = locations.learning;
   return {
-    behanceInbox: path.join(
-      workspace,
-      ".workspace",
-      "learning",
-      "behance",
-      "inbox.md",
-    ),
-    behanceReviewed: path.join(
-      workspace,
-      ".workspace",
-      "learning",
-      "behance",
-      "reviewed.md",
-    ),
-    gifInbox: path.join(
-      workspace,
-      ".workspace",
-      "learning",
-      "gif",
-      "inbox.md",
-    ),
-    gifReviewed: path.join(
-      workspace,
-      ".workspace",
-      "learning",
-      "gif",
-      "reviewed.md",
-    ),
-    candidateReport: path.join(
-      workspace,
-      ".workspace",
-      "learning",
-      "candidates.md",
-    ),
-    experienceRoot: path.join(workspace, "exps"),
-    experiencePromotions: path.join(
-      workspace,
-      ".workspace",
-      "learning",
-      "exps",
-      "promotions",
-    ),
-    experienceQuarantine: path.join(
-      workspace,
-      ".workspace",
-      "learning",
-      "exps",
-      "quarantine",
-    ),
-    projectsRoot: configuredProjectsRoot(workspace),
+    behanceInbox: path.join(learning, "behance", "inbox.md"),
+    behanceReviewed: path.join(learning, "behance", "reviewed.md"),
+    gifInbox: path.join(learning, "gif", "inbox.md"),
+    gifReviewed: path.join(learning, "gif", "reviewed.md"),
+    candidateReport: path.join(learning, "candidates.md"),
+    experienceRoot: locations.experienceDrop,
+    experiencePromotions: locations.learningPromotions,
+    experienceQuarantine: locations.learningQuarantine,
+    runReceipts: locations.learningRuns,
+    projectRoot: path.resolve(projectRoot),
     learningRegistry: path.join(skill, "references", "learning.md"),
     commercialReference: path.join(skill, "references", "commercial.md"),
     tasteReference: path.join(skill, "references", "taste.md"),
@@ -175,24 +100,6 @@ async function recordingStatus(inboxPath) {
     : { path: null, exists: false, updatedAt: null };
 }
 
-async function countProjectFeedback(projectsRoot) {
-  if (!(await exists(projectsRoot))) return 0;
-  let count = 0;
-  for (const project of await readdir(projectsRoot, { withFileTypes: true })) {
-    if (!project.isDirectory() || project.name.startsWith(".")) continue;
-    count += await countMatches(
-      path.join(
-        projectsRoot,
-        project.name,
-        ".detail-page",
-        "planning",
-        "LEARNINGS.md",
-      ),
-      /^#{2,3}\s+LEARN-/gm,
-    );
-  }
-  return count;
-}
 
 async function countDirectoryFiles(directory, predicate) {
   if (!(await exists(directory))) return 0;
@@ -216,9 +123,7 @@ export async function buildLearningStatus(options = {}) {
   files.behanceRecording = await recordingStatus(paths.behanceInbox);
   files.gifRecording = await recordingStatus(paths.gifInbox);
   return {
-    workspaceRoot: path.resolve(
-      options.workspaceRoot || findWorkspaceRoot(),
-    ),
+    projectRoot: paths.projectRoot,
     files,
     counts: {
       reviewedBehanceLearnings: await countMatches(
@@ -229,7 +134,10 @@ export async function buildLearningStatus(options = {}) {
         paths.gifReviewed,
         /^#{2,3}\s+LEARN-/gm,
       ),
-      projectFeedbackLearnings: await countProjectFeedback(paths.projectsRoot),
+      projectFeedbackLearnings: await countMatches(
+        path.join(paths.projectRoot, ".detail-page", "planning", "LEARNINGS.md"),
+        /^#{2,3}\s+LEARN-/gm,
+      ),
       experienceMarkdownFiles: await countDirectoryFiles(
         paths.experienceRoot,
         (name) =>
@@ -323,8 +231,8 @@ export function renderLearningStatus(report) {
     `   ${files.gifRecording.path || "inbox.md에 기록 없음"}`,
     `   ${statusLabel(files.gifRecording)}`,
     "5. 실제 제작 피드백 원문",
-    `   ${files.projectsRoot.path}${path.sep}*${path.sep}.detail-page${path.sep}planning${path.sep}LEARNINGS.md`,
-    `   ${statusLabel(files.projectsRoot)} · ${report.counts.projectFeedbackLearnings}건`,
+    `   ${path.join(report.projectRoot, ".detail-page", "planning", "LEARNINGS.md")}`,
+    `   ${statusLabel(files.projectRoot)} · ${report.counts.projectFeedbackLearnings}건`,
     "6. 증류 후보 보고서",
     `   ${files.candidateReport.path}`,
     `   ${statusLabel(files.candidateReport)} · ${report.counts.distilledCandidates}건`,

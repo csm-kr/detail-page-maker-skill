@@ -76,15 +76,15 @@ node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs new --name "
 
 ## 경험 자동 승격
 
-workspace에 평면 `exps/` drop을 초기화하고 필요할 때 명시적으로 검사할 수 있다.
+프로젝트에 평면 `<project>/.detail-page/exps/` drop을 초기화하고 필요할 때 명시적으로 검사할 수 있다.
 
 ```sh
-node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs experience-init
-node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs experience-sync
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs experience-init --project "<프로젝트 폴더>"
+node .agents/skills/detail-page-maker-skill/scripts/detail-page.mjs experience-sync --project "<프로젝트 폴더>"
 ```
 
 완성 run, Behance 조사, frame 제작 경험은 조사/run별 `.md`로 나누되 source별
-하위 폴더를 만들지 않는다. 형식은 `exps/README.md`를 따른다. 검증을 통과한
+하위 폴더를 만들지 않는다. 형식은 `<project>/.detail-page/exps/README.md`를 따른다. 검증을 통과한
 블록은 다음 mutating entrypoint에서 자동 승격되며 실패 블록은 격리된다.
 
 멀티 agent host가 session을 외부에서 공급할 때는 CLI의 반복

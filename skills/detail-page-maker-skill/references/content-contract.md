@@ -173,6 +173,9 @@ Hero subtree의 GIF·video·animation·runtime 대상 0건, 핵심 benefit claim
    └─ authoring/               숨은 최신 editable revision
 ```
 
+산출물 폴더 규약: 이 트리 밖에는 아무것도 만들지 않는다. 워크스페이스 루트에
+`exps/`나 `.workspace/`를 만들지 않고, 스킬 설치 폴더에도 산출물을 쓰지 않는다.
+
 새 프로젝트가 처음 만드는 것은 위 최소 경로뿐이다. `planning`, `evidence`,
 `generation`, `workflow`, `backups`, `research`, `qa`, Wing과 media는 해당
 단계의 첫 실제 write에서만 만든다. Studio runtime은 스킬에서 직접 제공하며

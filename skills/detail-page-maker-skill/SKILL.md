@@ -24,7 +24,7 @@ persistent Orchestrator가 강제한다.
    ProductionPlan의 모든 section·image job·GIF brief에 바인딩한다.
 7. `reference-profile`로 기존 `output/detail-page.html`과 사용자가 준 기준
    HTML을 hash/profile로 등록하고 adoption matrix를 작성한다.
-8. mutating 진입점은 `<workspace>/exps/*.md`를 먼저 reconcile하고, 머신
+8. mutating 진입점은 대상 프로젝트의 `.detail-page/exps/*.md`를 먼저 reconcile하고, 머신
    CPU/RAM 권장치·호스트 agent slot·실제 session 수의 최솟값으로 worker capacity를
    정한다. 호스트 session ID를 추측하거나 생성하지 않는다.
 9. `workflow-status`로 sealed state와 다음 gate를 확인한다.
@@ -249,13 +249,13 @@ provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼�
   주입하며 원본 bytes와 Wing에는 반영하지 않는다.
 - 현재 run은 승인된 KnowledgeSnapshot과 현재 상품 연구를 사용한다. 공용 규칙은
   독립 검증과 사용자 승인 뒤에만 다음 run의 active reference로 승격한다.
-  예외적으로 사용자가 이 workspace의 `exps/`를 trusted drop으로 선택한 경우,
-  `exps/*.md` 배치는 해당 문서의 안전한 규칙에 대한 standing approval이다.
+  예외적으로 사용자가 프로젝트의 `.detail-page/exps/`를 trusted drop으로 선택한 경우,
+  `<project>/.detail-page/exps/*.md` 배치는 해당 문서의 안전한 규칙에 대한 standing approval이다.
   그래도 완료 품질·evidence bytes/hash·독립 session·일반화 검사를 통과하지 못한
   항목은 자동 승격하지 않고 quarantine한다.
 - 같은 제작 run의 자체 점수는 그 run을 성공 경험으로 승격할 독립 근거가 아니다.
   Public-output QA와 기준 비교 또는 사용자 승인이 추가로 필요하다.
-- Behance 경험과 HeyGenFrame 경험은 같은 `exps/` flat folder에 별도 Markdown으로
+- Behance 경험과 HeyGenFrame 경험은 같은 `<project>/.detail-page/exps/` flat folder에 별도 Markdown으로
   둔다. Behance 반복 상업 원리는 CR, HeyGenFrame motion/frame은 MR, Studio
   편집 UX는 TR로 분리한다.
 - 프로젝트 최상위 폴더는 `.detail-page`, `input`, `output`과 승인 migration용
@@ -265,6 +265,18 @@ provider worker는 이미지 API 동시 요청이며 Codex sub-agent 수와 혼�
   복제하지 않는다. 새 프로젝트는 `input/product`, `output/detail-page.html`,
   최소 `.detail-page` 상태만 만들고 planning·generation·QA·backup·Wing 폴더는
   실제 첫 write 때 생성한다.
+- **산출물 폴더 규약.** 이 스킬이 만드는 모든 파일은 프로젝트 폴더 하나에만 쌓인다.
+  - 산출물 루트는 `<workspace>/projects/<프로젝트 폴더>/` 하나다.
+  - 워크스페이스 루트에는 `projects/` 말고 어떤 폴더도 만들지 않는다. 특히 `exps/`와
+    `.workspace/`를 만들지 않는다.
+  - 스킬 설치 폴더(`.agents/skills/…`, `.claude/skills/…`)와 Git 저장소 안에는 산출물을
+    쓰지 않는다. 스킬 폴더는 읽기 전용 입력이다.
+  - 경험 drop은 `<project>/.detail-page/exps/`, 학습 receipt·격리·승격·run 기록은
+    `<project>/.detail-page/learning/` 아래에 둔다.
+  - 워크스페이스는 스킬 설치 위치에서 결정한다. cwd를 위로 훑지 않고 홈 디렉터리로
+    fallback하지 않으므로, 어느 폴더에서 몇 번을 실행해도 같은 경로에 산출된다.
+  - 규약 판정의 기계 정본은 `scripts/lib/output-location.mjs`이고 회귀 검사는
+    `scripts/tests/output-location-contract.test.mjs`다.
 
 ## 완료
 

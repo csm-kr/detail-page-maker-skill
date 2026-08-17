@@ -41,7 +41,7 @@
 
 ## 업데이트 규칙
 
-완성 결과와 HeyGenFrame Studio 편집 경험을 `exps/*.md`에
+완성 결과와 HeyGenFrame Studio 편집 경험을 `<project>/.detail-page/exps/*.md`에
 `promotion: auto`로 넣은 경우에는 trusted drop의 evidence·품질·독립 검토 gate를
 통과한 TR만 이 표에 자동 반영한다. 일반 프로젝트 후보는 아래 수동 규칙을 따른다.
 

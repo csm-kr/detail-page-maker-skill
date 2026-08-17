@@ -63,13 +63,13 @@ const TABLE_SEPARATOR =
   /^\|\s*:?-{3,}:?\s*\|\s*:?-{3,}:?\s*\|\s*:?-{3,}:?\s*\|\s*:?-{3,}:?\s*\|\s*$/;
 const README = `# Trusted experience drop
 
-\`exps/\`는 완성 결과에서 추출한 공용 경험을 넣는 신뢰 경계다. 이 폴더의 일반
+\`.detail-page/exps/\`는 이 프로젝트에서 추출한 경험을 넣는 신뢰 경계다. 이 폴더의 일반
 \`.md\` 파일은 다음 skill 실행의 \`experience-sync\`, \`new\`, \`start\`,
 \`workflow-advance\`, \`workflow-resume\` 진입 때 자동 검사·승격된다.
 
 파일을 이 폴더에 두는 행위는 그 파일 안의 안전한 공용 규칙에 대한 사전 승인을
 뜻한다. 그러나 증거 hash, 독립 session, 품질 조건, 일반화 검사를 통과하지 못하면
-active reference를 바꾸지 않고 \`.workspace/learning/exps/quarantine/\`에 기록한다.
+active reference를 바꾸지 않고 \`.detail-page/learning/exps/quarantine/\`에 기록한다.
 
 폴더는 더 나누지 않는다. 한 조사 묶음이나 한 완성 run마다 Markdown 하나를 만들고,
 그 안에 여러 \`EXP-*\` 블록을 둘 수 있다.
@@ -195,7 +195,7 @@ function parseFields(block) {
   );
 }
 
-export function parseExperienceDocument(markdown, sourceFile = "exps/<file>.md") {
+export function parseExperienceDocument(markdown, sourceFile = ".detail-page/exps/<file>.md") {
   const headings = [
     ...String(markdown).matchAll(
       /^#{2,3}\s+(EXP-[A-Za-z0-9_-]+)\s*$/gm,
@@ -311,7 +311,7 @@ function isWithin(root, target) {
   );
 }
 
-async function verifiedEvidence(workspaceRoot, experience) {
+async function verifiedEvidence(projectRoot, experience) {
   const locators = splitValues(experience.evidence_paths);
   const hashes = splitValues(experience.evidence_sha256).map((item) =>
     item.toLowerCase(),
@@ -338,15 +338,15 @@ async function verifiedEvidence(workspaceRoot, experience) {
     if (path.isAbsolute(locator)) {
       fail(
         "UNSAFE_EXPERIENCE_EVIDENCE",
-        "evidence 경로는 workspace 상대 경로여야 합니다.",
+        "evidence 경로는 프로젝트 상대 경로여야 합니다.",
         { locator },
       );
     }
-    const target = path.resolve(workspaceRoot, locator);
-    if (!isWithin(workspaceRoot, target)) {
+    const target = path.resolve(projectRoot, locator);
+    if (!isWithin(projectRoot, target)) {
       fail(
         "UNSAFE_EXPERIENCE_EVIDENCE",
-        "evidence 경로가 workspace를 벗어났습니다.",
+        "evidence 경로가 프로젝트를 벗어났습니다.",
         { locator },
       );
     }
@@ -661,15 +661,15 @@ async function exists(target) {
 }
 
 async function writeQuarantine(
-  workspaceRoot,
+  projectRoot,
   sourceFile,
   sourceSha256,
   experience,
   error,
 ) {
   const quarantineRoot = path.join(
-    workspaceRoot,
-    ".workspace",
+    projectRoot,
+    ".detail-page",
     "learning",
     "exps",
     "quarantine",
@@ -702,7 +702,7 @@ async function writeQuarantine(
 }
 
 async function promoteExperience({
-  workspaceRoot,
+  projectRoot,
   skillRoot,
   sourceFile,
   sourceSha256,
@@ -738,7 +738,7 @@ async function promoteExperience({
     sensitiveTerms,
   );
   const evidence = await verifiedEvidence(
-    workspaceRoot,
+    projectRoot,
     experience,
   );
   const quality = assertExperienceQuality(
@@ -762,8 +762,8 @@ async function promoteExperience({
     }),
   );
   const promotionRoot = path.join(
-    workspaceRoot,
-    ".workspace",
+    projectRoot,
+    ".detail-page",
     "learning",
     "exps",
     "promotions",
@@ -848,7 +848,7 @@ async function promoteExperience({
   let committed = false;
   try {
     const statusBefore = await buildLearningStatus({
-      workspaceRoot,
+      projectRoot,
       skillRoot,
     });
     if (applied.changed) {
@@ -863,7 +863,7 @@ async function promoteExperience({
       referenceChanged = true;
     }
     const statusAfter = await buildLearningStatus({
-      workspaceRoot,
+      projectRoot,
       skillRoot,
     });
     const countKey = TARGETS[route.targetReference].countKey;
@@ -955,23 +955,23 @@ async function promoteExperience({
 }
 
 export async function ensureExperienceDrop({
-  workspaceRoot = process.cwd(),
+  projectRoot,
 } = {}) {
-  const workspace = path.resolve(workspaceRoot);
-  const expsRoot = path.join(workspace, "exps");
+  const project = path.resolve(projectRoot);
+  const expsRoot = path.join(project, ".detail-page", "exps");
   const readmePath = path.join(expsRoot, "README.md");
   await mkdir(expsRoot, { recursive: true });
   if (!(await exists(readmePath))) {
     await writeFile(readmePath, README, "utf8");
   }
-  return { workspace_root: workspace, exps_root: expsRoot, readme_path: readmePath };
+  return { project_root: project, exps_root: expsRoot, readme_path: readmePath };
 }
 
 export async function syncTrustedExperiences({
-  workspaceRoot = process.cwd(),
+  projectRoot,
   skillRoot = SKILL_ROOT,
 } = {}) {
-  const drop = await ensureExperienceDrop({ workspaceRoot });
+  const drop = await ensureExperienceDrop({ projectRoot });
   const entries = await readdir(drop.exps_root, {
     withFileTypes: true,
   });
@@ -997,8 +997,8 @@ export async function syncTrustedExperiences({
       );
       quarantined.push(
         await writeQuarantine(
-          drop.workspace_root,
-          `exps/${fileName}`,
+          drop.project_root,
+          `.detail-page/exps/${fileName}`,
           "unavailable",
           null,
           error,
@@ -1012,13 +1012,13 @@ export async function syncTrustedExperiences({
     try {
       experiences = parseExperienceDocument(
         bytes.toString("utf8"),
-        `exps/${fileName}`,
+        `.detail-page/exps/${fileName}`,
       );
     } catch (error) {
       quarantined.push(
         await writeQuarantine(
-          drop.workspace_root,
-          `exps/${fileName}`,
+          drop.project_root,
+          `.detail-page/exps/${fileName}`,
           sourceSha256,
           null,
           error,
@@ -1030,9 +1030,9 @@ export async function syncTrustedExperiences({
       try {
         results.push(
           await promoteExperience({
-            workspaceRoot: drop.workspace_root,
+            projectRoot: drop.project_root,
             skillRoot: path.resolve(skillRoot),
-            sourceFile: `exps/${fileName}`,
+            sourceFile: `.detail-page/exps/${fileName}`,
             sourceSha256,
             experience,
           }),
@@ -1040,8 +1040,8 @@ export async function syncTrustedExperiences({
       } catch (error) {
         quarantined.push(
           await writeQuarantine(
-            drop.workspace_root,
-            `exps/${fileName}`,
+            drop.project_root,
+            `.detail-page/exps/${fileName}`,
             sourceSha256,
             experience,
             error,
@@ -1052,7 +1052,7 @@ export async function syncTrustedExperiences({
   }
   return {
     schema_version: "1.0",
-    workspace_root: drop.workspace_root,
+    project_root: drop.project_root,
     exps_root: drop.exps_root,
     scanned_files: files.length,
     promoted: results.filter((item) => item.status === "PROMOTED").length,
@@ -1065,19 +1065,22 @@ export async function syncTrustedExperiences({
 
 async function main() {
   const args = process.argv.slice(2);
-  let workspaceRoot = process.cwd();
+  let projectRoot;
   let json = false;
   for (let index = 0; index < args.length; index += 1) {
     const token = args[index];
-    if (token === "--workspace") {
-      workspaceRoot = args[++index] || "";
+    if (token === "--project") {
+      projectRoot = args[++index] || "";
     } else if (token === "--json") {
       json = true;
     } else {
       throw new Error(`알 수 없는 인자입니다: ${token}`);
     }
   }
-  const report = await syncTrustedExperiences({ workspaceRoot });
+  if (!projectRoot) {
+    throw new Error("--project <프로젝트 폴더>가 필요합니다.");
+  }
+  const report = await syncTrustedExperiences({ projectRoot });
   if (json) {
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   } else {

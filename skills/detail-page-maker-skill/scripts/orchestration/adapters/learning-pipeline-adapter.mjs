@@ -184,7 +184,7 @@ function pathIsWithin(root, target) {
 
 function rootById(roots, rootId) {
   if (rootId === "skill") return roots.skillRoot;
-  if (rootId === "workspace") return roots.workspaceRoot;
+  if (rootId === "project") return roots.projectRoot;
   fail("UNKNOWN_ROOT_ID", "The maintenance locator root is not allowed.", {
     root_id: rootId,
   });
@@ -310,61 +310,12 @@ function sortFileRecords(records) {
 }
 
 async function projectLearningLocators(roots) {
-  const projectsRoot = resolveLearningPaths({
-    workspaceRoot: roots.workspaceRoot,
-    skillRoot: roots.skillRoot,
-  }).projectsRoot;
-  if (!(await exists(projectsRoot))) return [];
-  await assertNoSymlinkPath(
-    roots.workspaceRoot,
-    projectsRoot,
-  );
-  const result = [];
-  const projectsRelative = path
-    .relative(roots.workspaceRoot, projectsRoot)
-    .split(path.sep)
-    .join("/");
-  if (
-    projectsRelative.startsWith("..") ||
-    path.isAbsolute(projectsRelative)
-  ) {
-    fail(
-      "MAINTENANCE_ROOT_ESCAPE",
-      "Configured projects root must remain inside the workspace.",
-      { projects_root: projectsRoot },
-    );
-  }
-  for (const entry of await readdir(projectsRoot, {
-    withFileTypes: true,
-  })) {
-    if (entry.isSymbolicLink()) {
-      fail(
-        "MAINTENANCE_SYMLINK_FORBIDDEN",
-        "Project learning roots cannot be symlinks.",
-        { project: entry.name },
-      );
-    }
-    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
-    const locator = [
-      projectsRelative,
-      entry.name,
-      ".detail-page",
-      "planning",
-      "LEARNINGS.md",
-    ]
-      .filter(Boolean)
-      .join("/");
-    if (
-      await exists(
-        resolveLocator(roots, "workspace", locator),
-      )
-    ) {
-      result.push(locator);
-    }
-  }
-  return result.sort((left, right) =>
-    left.localeCompare(right, "en"),
-  );
+  // 산출물 폴더 규약: 학습 근거도 이 프로젝트 안에서만 읽는다.
+  const locator = ".detail-page/planning/LEARNINGS.md";
+  const target = path.resolve(roots.projectRoot, ...locator.split("/"));
+  if (!(await exists(target))) return [];
+  await assertNoSymlinkPath(roots.projectRoot, target);
+  return [locator];
 }
 
 function actionIdsForCaptured(captured) {
@@ -439,30 +390,10 @@ function fixedEnvironment(source = process.env) {
 }
 
 function commandArguments(actionId, roots, scriptPath) {
-  const projectsRoot = resolveLearningPaths({
-    workspaceRoot: roots.workspaceRoot,
+  const learning = resolveLearningPaths({
+    projectRoot: roots.projectRoot,
     skillRoot: roots.skillRoot,
-  }).projectsRoot;
-  const behanceReviewed = path.join(
-    roots.workspaceRoot,
-    ".workspace",
-    "learning",
-    "behance",
-    "reviewed.md",
-  );
-  const gifReviewed = path.join(
-    roots.workspaceRoot,
-    ".workspace",
-    "learning",
-    "gif",
-    "reviewed.md",
-  );
-  const candidateReport = path.join(
-    roots.workspaceRoot,
-    ".workspace",
-    "learning",
-    "candidates.md",
-  );
+  });
   if (
     actionId === LEARNING_MAINTENANCE_ACTIONS.REFRESH_BEHANCE
   ) {
@@ -470,8 +401,8 @@ function commandArguments(actionId, roots, scriptPath) {
       scriptPath,
       "--kind",
       "behance",
-      "--workspace",
-      roots.workspaceRoot,
+      "--project",
+      roots.projectRoot,
       "--max",
       "12",
     ];
@@ -484,8 +415,8 @@ function commandArguments(actionId, roots, scriptPath) {
       scriptPath,
       "--kind",
       "hyperframes",
-      "--workspace",
-      roots.workspaceRoot,
+      "--project",
+      roots.projectRoot,
       "--max",
       "24",
     ];
@@ -494,20 +425,20 @@ function commandArguments(actionId, roots, scriptPath) {
     return [
       scriptPath,
       "--root",
-      projectsRoot,
+      roots.projectRoot,
       "--source",
-      behanceReviewed,
+      learning.behanceReviewed,
       "--source",
-      gifReviewed,
+      learning.gifReviewed,
       "--output",
-      candidateReport,
+      learning.candidateReport,
     ];
   }
   if (actionId === LEARNING_MAINTENANCE_ACTIONS.STATUS) {
     return [
       scriptPath,
-      "--workspace",
-      roots.workspaceRoot,
+      "--project",
+      roots.projectRoot,
       "--json",
     ];
   }
@@ -583,14 +514,14 @@ function expectedOutputs(actionIds, planId) {
     outputs.push(
       {
         output_id: "behance-inbox",
-        root_id: "workspace",
-        locator: ".workspace/learning/behance/inbox.md",
+        root_id: "project",
+        locator: ".detail-page/learning/behance/inbox.md",
         kind: "markdown",
       },
       {
         output_id: "behance-reviewed",
-        root_id: "workspace",
-        locator: ".workspace/learning/behance/reviewed.md",
+        root_id: "project",
+        locator: ".detail-page/learning/behance/reviewed.md",
         kind: "markdown",
       },
     );
@@ -603,14 +534,14 @@ function expectedOutputs(actionIds, planId) {
     outputs.push(
       {
         output_id: "gif-inbox",
-        root_id: "workspace",
-        locator: ".workspace/learning/gif/inbox.md",
+        root_id: "project",
+        locator: ".detail-page/learning/gif/inbox.md",
         kind: "markdown",
       },
       {
         output_id: "gif-reviewed",
-        root_id: "workspace",
-        locator: ".workspace/learning/gif/reviewed.md",
+        root_id: "project",
+        locator: ".detail-page/learning/gif/reviewed.md",
         kind: "markdown",
       },
     );
@@ -618,16 +549,16 @@ function expectedOutputs(actionIds, planId) {
   if (actionIds.includes(LEARNING_MAINTENANCE_ACTIONS.DISTILL)) {
     outputs.push({
       output_id: "distilled-candidates",
-      root_id: "workspace",
-      locator: ".workspace/learning/candidates.md",
+      root_id: "project",
+      locator: ".detail-page/learning/candidates.md",
       kind: "markdown",
     });
   }
   if (actionIds.includes(LEARNING_MAINTENANCE_ACTIONS.STATUS)) {
     outputs.push({
       output_id: "learning-status",
-      root_id: "workspace",
-      locator: `.workspace/learning/runs/${planId}.status.json`,
+      root_id: "project",
+      locator: `.detail-page/learning/runs/${planId}.status.json`,
       kind: "status",
     });
   }
@@ -660,13 +591,13 @@ async function collectInputFiles(roots, actionIds) {
     );
   }
   for (const locator of [
-    ".workspace/learning/behance/reviewed.md",
-    ".workspace/learning/gif/reviewed.md",
+    ".detail-page/learning/behance/reviewed.md",
+    ".detail-page/learning/gif/reviewed.md",
   ]) {
     records.push(
       await optionalFileRecord(
         roots,
-        "workspace",
+        "project",
         locator,
         "reviewed-learning-input",
       ),
@@ -676,7 +607,7 @@ async function collectInputFiles(roots, actionIds) {
     records.push(
       await optionalFileRecord(
         roots,
-        "workspace",
+        "project",
         locator,
         "project-learning-input",
       ),
@@ -701,7 +632,7 @@ export function learningMaintenancePlanDigest(plan) {
 function rootBinding(roots) {
   return canonicalSha256({
     skill_root: roots.skillRoot,
-    workspace_root: roots.workspaceRoot,
+    project_root: roots.projectRoot,
   });
 }
 
@@ -818,7 +749,7 @@ async function buildPlan({
       }),
     ),
     expected_outputs: expectedOutputs(actionIds, planId),
-    result_locator: `.workspace/learning/runs/${planId}.receipt.json`,
+    result_locator: `.detail-page/learning/runs/${planId}.receipt.json`,
     executor_agent_session_id: executorSession,
     validator_agent_session_id: validatorSession,
   };
@@ -963,7 +894,7 @@ async function assertPlan(
     );
   }
   const expectedResultLocator =
-    `.workspace/learning/runs/${plan.plan_id}.receipt.json`;
+    `.detail-page/learning/runs/${plan.plan_id}.receipt.json`;
   if (plan.result_locator !== expectedResultLocator) {
     fail(
       "MAINTENANCE_OUTPUT_CONTRACT_TAMPER",
@@ -1368,13 +1299,13 @@ function storedEnvelope(result) {
 async function readStoredResult(plan, roots) {
   const target = resolveLocator(
     roots,
-    "workspace",
+    "project",
     plan.result_locator,
   );
   if (!(await exists(target))) return null;
   const bytes = await readSafeFile(
     roots,
-    "workspace",
+    "project",
     plan.result_locator,
   );
   let envelope;
@@ -1422,11 +1353,11 @@ async function readStoredResult(plan, roots) {
 async function writeStoredResult(plan, result, roots) {
   const target = resolveLocator(
     roots,
-    "workspace",
+    "project",
     plan.result_locator,
   );
   await assertNoSymlinkPath(
-    roots.workspaceRoot,
+    roots.projectRoot,
     target,
     true,
   );
@@ -1460,14 +1391,14 @@ async function executePlan({
   const reused = await readStoredResult(plan, roots);
   if (reused) return Object.freeze(reused);
 
-  const lockLocator = `.workspace/learning/runs/${plan.plan_id}.lock`;
+  const lockLocator = `.detail-page/learning/runs/${plan.plan_id}.lock`;
   const lockPath = resolveLocator(
     roots,
-    "workspace",
+    "project",
     lockLocator,
   );
   await assertNoSymlinkPath(
-    roots.workspaceRoot,
+    roots.projectRoot,
     lockPath,
     true,
   );
@@ -1570,7 +1501,7 @@ async function executePlan({
 export async function createLearningMaintenancePlan({
   captured,
   skillRoot,
-  workspaceRoot,
+  projectRoot,
   executorAgentSessionId,
   validatorAgentSessionId,
   timeoutMs = DEFAULT_TIMEOUT_MS,
@@ -1578,9 +1509,9 @@ export async function createLearningMaintenancePlan({
 } = {}) {
   const roots = {
     skillRoot: assertAbsoluteRoot(skillRoot, "skillRoot"),
-    workspaceRoot: assertAbsoluteRoot(
-      workspaceRoot,
-      "workspaceRoot",
+    projectRoot: assertAbsoluteRoot(
+      projectRoot,
+      "projectRoot",
     ),
   };
   return buildPlan({
@@ -1596,15 +1527,15 @@ export async function createLearningMaintenancePlan({
 export async function executeLearningMaintenancePlan({
   plan,
   skillRoot,
-  workspaceRoot,
+  projectRoot,
   timeoutMs = DEFAULT_TIMEOUT_MS,
   environment = process.env,
 } = {}) {
   const roots = {
     skillRoot: assertAbsoluteRoot(skillRoot, "skillRoot"),
-    workspaceRoot: assertAbsoluteRoot(
-      workspaceRoot,
-      "workspaceRoot",
+    projectRoot: assertAbsoluteRoot(
+      projectRoot,
+      "projectRoot",
     ),
   };
   return executePlan({
@@ -1618,14 +1549,14 @@ export async function executeLearningMaintenancePlan({
 export class LearningPipelineExecutionAdapter {
   constructor({
     skillRoot,
-    workspaceRoot,
+    projectRoot,
     timeoutMs = DEFAULT_TIMEOUT_MS,
     environment = process.env,
   } = {}) {
     this.skillRoot = assertAbsoluteRoot(skillRoot, "skillRoot");
-    this.workspaceRoot = assertAbsoluteRoot(
-      workspaceRoot,
-      "workspaceRoot",
+    this.projectRoot = assertAbsoluteRoot(
+      projectRoot,
+      "projectRoot",
     );
     this.timeoutMs = normalizeTimeout(timeoutMs);
     this.environment = fixedEnvironment(environment);
@@ -1643,7 +1574,7 @@ export class LearningPipelineExecutionAdapter {
       captured,
       roots: {
         skillRoot: this.skillRoot,
-        workspaceRoot: this.workspaceRoot,
+        projectRoot: this.projectRoot,
       },
       environment: this.environment,
       timeoutMs: this.timeoutMs,
@@ -1657,7 +1588,7 @@ export class LearningPipelineExecutionAdapter {
       plan,
       roots: {
         skillRoot: this.skillRoot,
-        workspaceRoot: this.workspaceRoot,
+        projectRoot: this.projectRoot,
       },
       environment: this.environment,
       timeoutMs: this.timeoutMs,

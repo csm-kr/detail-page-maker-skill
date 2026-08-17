@@ -201,7 +201,7 @@ ID를 탐지할 수 없으면 이를 발명하지 않고 dispatch를 중단한�
 
 폴더 수는 기능별 최상위 경계를 늘리는 방식으로 확장하지 않는다. 프로젝트 루트는
 `.detail-page`, `.migration-archive`, `input`, `output`만 허용하며 단계별 내부
-directory는 최초 실제 write에 lazy-create한다. 공용 경험도 단일 `exps/`에
+directory는 최초 실제 write에 lazy-create한다. 공용 경험도 단일 `<project>/.detail-page/exps/`에
 Markdown만 두고 promotion/quarantine 기록은 각각 한 평면 directory에 저장한다.
 
 ## Revision과 repair

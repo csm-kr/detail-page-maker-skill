@@ -4,25 +4,25 @@
 
 | 학습 입력 | 임시 저장 | 검증 뒤 실제 업데이트 |
 | --- | --- | --- |
-| Behance 상세페이지 조사 | `.workspace/learning/behance/{inbox,reviewed}.md` | `commercial.md` |
+| Behance 상세페이지 조사 | `<project>/.detail-page/learning/behance/{inbox,reviewed}.md` | `commercial.md` |
 | 실제 공개 상품 상세페이지 조사 | `<project>/.detail-page/research/` | 현재 `COMMERCIAL.md`, 검증 뒤 `commercial.md` |
-| HyperFrames 공식 예제·모션 패턴 조사 | `.workspace/learning/gif/{inbox,reviewed}.md` | `motion.md` |
+| HyperFrames 공식 예제·모션 패턴 조사 | `<project>/.detail-page/learning/gif/{inbox,reviewed}.md` | `motion.md` |
 | 실제 제작 중 디자인·카피·레이아웃 피드백 | `<project>/.detail-page/planning/LEARNINGS.md` | `taste.md` |
 | 실제 제작 중 GIF·모션·크롭 피드백 | `<project>/.detail-page/planning/LEARNINGS.md` | `motion.md` |
-| G5 완성 결과·검증된 조사·frame 제작 경험 | `<workspace>/exps/*.md` | route에 따라 `commercial.md`·`taste.md`·`motion.md` |
+| G5 완성 결과·검증된 조사·frame 제작 경험 | `<project>/.detail-page/exps/*.md` | route에 따라 `commercial.md`·`taste.md`·`motion.md` |
 
 `learning.md`는 운영 절차만 설명한다. 규칙을 중복 저장하지 않는다.
 
 현재 상품을 위해 수집한 공급처·쿠팡·실제 공개 상세페이지의 근거와 구매 질문은
 해당 프로젝트 기획에 즉시 적용할 수 있다. 다른 상품에도 자동 상속하는 공용 규칙은
 독립 검증과 사용자 승인을 통과해 active reference로 승격된 것만 쓴다.
-사용자가 workspace의 `exps/`를 trusted drop으로 선택한 경우에는 파일 배치와
+사용자가 workspace의 `<project>/.detail-page/exps/`를 trusted drop으로 선택한 경우에는 파일 배치와
 `promotion: auto`가 standing approval 역할을 한다. 이 예외도 evidence bytes/hash,
 독립 reviewer, 품질 기준과 sanitize를 통과해야 한다.
 
 ## 0. 완성 결과 Trusted Experience
 
-`exps/` 아래에 하위 track 폴더를 만들지 않는다. 한 연구 묶음 또는 한 완성 run마다
+`<project>/.detail-page/exps/` 아래에 하위 track 폴더를 만들지 않는다. 한 연구 묶음 또는 한 완성 run마다
 Markdown 하나를 만들고 같은 원천에서 나온 여러 원자 경험은 그 파일의 여러
 `EXP-*` 블록으로 둔다.
 
@@ -61,18 +61,18 @@ exps/*.md 감지
 → producer/reviewer session 분리
 → CR/TR/MR insert 또는 명시 supersedes update
 → atomic active reference 교체
-→ .workspace/learning/exps/promotions/ flat receipt
+→ <project>/.detail-page/learning/exps/promotions/ flat receipt
 ```
 
 동일 bytes는 receipt와 현재 rule row hash가 같을 때만 idempotent reuse한다. 실패한
-항목만 `.workspace/learning/exps/quarantine/`에 flat JSON receipt로 남기고 같은
+항목만 `<project>/.detail-page/learning/exps/quarantine/`에 flat JSON receipt로 남기고 같은
 문서의 통과한 sibling 경험은 유지한다. 원본 Markdown은 삭제하거나 이동하지 않는다.
 
 ## 1. Behance·실제 상세페이지 → commercial.md
 
 ```text
 Browser Harness 조사
-→ Browser Harness 녹화 원문 + .workspace/learning/behance/inbox.md
+→ Browser Harness 녹화 원문 + <project>/.detail-page/learning/behance/inbox.md
 → reviewed.md에 반복 관찰만 LEARN 후보로 작성
 → candidates.md로 증류
 → 세 사례 이상 + 다른 상품 또는 회귀 테스트로 검증
@@ -152,7 +152,7 @@ ReferenceArtifactSet에 넣는다.
 
 ```text
 Browser Harness로 HyperFrames 공식 저장소 조사
-→ 녹화 원문 + .workspace/learning/gif/inbox.md
+→ 녹화 원문 + <project>/.detail-page/learning/gif/inbox.md
 → 공식 예제에서 반복되는 구현 원리만 reviewed.md에 LEARN 후보로 작성
 → candidates.md로 증류
 → 현재 GIF 1개 이상에서 strict·frame-check·첫/중간/끝 프레임 검증
@@ -181,7 +181,7 @@ node scripts/maintenance/refresh-browser-study.mjs --kind hyperframes --workspac
 두 경로의 후보를 한 보고서로 모은다.
 
 ```sh
-node scripts/maintenance/distill-learnings.mjs --root "<projects-root>" --source "<workspace-root>/.workspace/learning/behance/reviewed.md" --source "<workspace-root>/.workspace/learning/gif/reviewed.md" --output "<workspace-root>/.workspace/learning/candidates.md"
+node scripts/maintenance/distill-learnings.mjs --root "<projects-root>" --source "<workspace-root>/<project>/.detail-page/learning/behance/reviewed.md" --source "<workspace-root>/<project>/.detail-page/learning/gif/reviewed.md" --output "<workspace-root>/<project>/.detail-page/learning/candidates.md"
 ```
 
 현재 저장 위치·최근 수정 시각·누적 규칙 수를 확인한다.

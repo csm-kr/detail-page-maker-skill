@@ -19,7 +19,7 @@ test("학습 상태는 Behance·GIF 조사·제작 피드백의 최종 규칙 �
   try {
     const behanceRoot = path.join(
       workspace,
-      ".workspace",
+      ".detail-page",
       "learning",
       "behance",
     );
@@ -30,7 +30,7 @@ test("학습 상태는 Behance·GIF 조사·제작 피드백의 최종 규칙 �
       "### LEARN-BH-001\n",
       "utf8",
     );
-    const gifRoot = path.join(workspace, ".workspace", "learning", "gif");
+    const gifRoot = path.join(workspace, ".detail-page", "learning", "gif");
     await mkdir(gifRoot, { recursive: true });
     await writeFile(path.join(gifRoot, "inbox.md"), "# inbox\n", "utf8");
     await writeFile(
@@ -40,8 +40,6 @@ test("학습 상태는 Behance·GIF 조사·제작 피드백의 최종 규칙 �
     );
     const projectLearning = path.join(
       workspace,
-      "projects",
-      "product-a",
       ".detail-page",
       "planning",
     );
@@ -53,7 +51,7 @@ test("학습 상태는 Behance·GIF 조사·제작 피드백의 최종 규칙 �
     );
 
     const report = await buildLearningStatus({
-      workspaceRoot: workspace,
+      projectRoot: workspace,
       skillRoot: SKILL_ROOT,
     });
     assert.equal(report.files.behanceInbox.exists, true);
