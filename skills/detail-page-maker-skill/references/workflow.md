@@ -11,7 +11,7 @@
 | G3 MOTION_ASSETS | 문제 2+, 장점별 1+, 사용·비교, total 5+/기본 7~9와 모션 다양성 | 승인 motion, poster, HyperFrames 원본, 다양성 표 | 인접 2축 차이·첫 프레임·픽셀/지각 loop·제품 불변·coverage hard-0 뒤 plan-once 자동 승인 또는 preview·최종 자산 수동 승인 |
 | G4 ASSEMBLY | 승인 자산과 섹션 연결 | editable Studio source, 현재 output, 내부 revision, rubric result/delta | 390/780 repair PASS 뒤 plan-once 자동 승인 또는 사용자 조립 승인 |
 | G5 PUBLISH | 공개 카피, 접근성, 채널 규격, 새 CDN namespace | `output/detail-page.html`, versioned Wing export | publish 97·Behance 90·critical 85·content hard 0·원격 검증 뒤 plan-once receipt 또는 게시 승인 |
-| 학습 | 재사용 가능성과 위험 | 프로젝트 후보 또는 `exps/*.md` | 일반 후보는 승인 승격, trusted exps는 검증 뒤 CR/TR/MR 자동 승격 |
+| 학습 | 재사용 가능성과 위험 | 프로젝트 후보 또는 `<project>/.detail-page/exps/*.md` | 일반 후보는 승인 승격, trusted exps는 검증 뒤 CR/TR/MR 자동 승격 |
 
 ## G0·G1 병렬 준비
 
@@ -416,19 +416,19 @@ WorkOrder, 단계별 time budget, 60초 heartbeat 정책을 가지며 장기 실
 ## 학습 maintenance 실행
 
 `new`, `adopt`, `start`, `workflow-advance`, `workflow-resume`는 Knowledge freeze
-전에 workspace의 단일 평면 `exps/*.md`를 먼저 동기화한다. 파일을 `exps/`에
+전에 프로젝트의 단일 평면 `<project>/.detail-page/exps/*.md`를 먼저 동기화한다. 파일을 `<project>/.detail-page/exps/`에
 두고 각 블록에 `scope: shared`, `promotion: auto`를 기록한 행위는 해당 블록에
 대한 standing authorization이다. 따라서 아래 일반 learning intake와 달리 별도
 승격 명령이나 매 규칙 사용자 승인을 다시 요구하지 않는다.
 
-자동 승격도 무조건 반영하지는 않는다. workspace 상대 evidence의 실제 SHA-256,
+자동 승격도 무조건 반영하지는 않는다. 프로젝트 상대 evidence의 실제 SHA-256,
 서로 다른 producer/reviewer session과 run, export 후 public-output QA, 기준 비교
 또는 사용자 승인, source별 품질 조건, 상품명·고유 카피·URL·경로 제거를 모두
 통과해야 한다. 같은 제작 run의 자체 점수는 승격 근거가 아니다. 실패 블록은 active
 reference를 바꾸지 않고
-`.workspace/learning/exps/quarantine/*.json`에 기록한다. 성공 receipt와 reference
+`<project>/.detail-page/learning/exps/quarantine/*.json`에 기록한다. 성공 receipt와 reference
 snapshot은 폴더를 항목별로 늘리지 않고
-`.workspace/learning/exps/promotions/<item-sha256>.{json,md}`에 평면 저장한다.
+`<project>/.detail-page/learning/exps/promotions/<item-sha256>.{json,md}`에 평면 저장한다.
 
 - Behance 조사는 검색 페이지 자체가 아니라 서로 다른 실제 프로젝트 3개 이상의
   반복 정보 구조를 `commercial-research`로 기록하고 CR에 보낸다.
@@ -436,7 +436,7 @@ snapshot은 폴더를 항목별로 늘리지 않고
   보낸다.
 - HeyGenFrame Studio의 편집 흐름·레이아웃 UX는 `completed-result`,
   `category: studio`로 TR에 보낸다.
-- 조사/run별 Markdown 파일은 분리하되 `exps/` 아래 source별 하위 폴더는 만들지
+- 조사/run별 Markdown 파일은 분리하되 `<project>/.detail-page/exps/` 아래 source별 하위 폴더는 만들지
   않는다. 한 파일에 여러 `EXP-*` 블록을 둘 수 있다.
 
 Learning intake의 `source_type`에 따라 `LearningPipelineExecutionAdapter`가 다음
@@ -453,35 +453,35 @@ Learning intake의 `source_type`에 따라 `LearningPipelineExecutionAdapter`가
 
 ```text
 <node> <skill-root>/scripts/maintenance/refresh-browser-study.mjs
-  --kind behance --workspace <workspace-root> --max 12
+  --kind behance --project <project-root> --max 12
 
 <node> <skill-root>/scripts/maintenance/refresh-browser-study.mjs
-  --kind hyperframes --workspace <workspace-root> --max 24
+  --kind hyperframes --project <project-root> --max 24
 
 <node> <skill-root>/scripts/maintenance/distill-learnings.mjs
-  --root <workspace-root>/<config.projectsRoot>
-  --source <workspace-root>/.workspace/learning/behance/reviewed.md
-  --source <workspace-root>/.workspace/learning/gif/reviewed.md
-  --output <workspace-root>/.workspace/learning/candidates.md
+  --root <project-root>
+  --source <project-root>/.detail-page/learning/behance/reviewed.md
+  --source <project-root>/.detail-page/learning/gif/reviewed.md
+  --output <project-root>/.detail-page/learning/candidates.md
 
 <node> <skill-root>/scripts/maintenance/learning-status.mjs
-  --workspace <workspace-root> --json
+  --project <project-root> --json
 ```
 
 adapter는 shell 없이 skill root cwd에서 spawn하며 action/script path, script와 input
 SHA-256, fixed env key set, argv, timeout, root binding을 실행 직전에 재검증한다.
 command별 exit/timeout/spawn 상태와 stdout/stderr hash, output hash set은
 ExecutionReceipt와 structural ValidationReceipt에 남는다. 최종 위치는
-`.workspace/learning/runs/<plan-id>.receipt.json`, status materialization은
-`.workspace/learning/runs/<plan-id>.status.json`, 후보는
-`.workspace/learning/candidates.md`다. 같은 plan은 현재 output hash가 같을 때만
+`<project>/.detail-page/learning/runs/<plan-id>.receipt.json`, status materialization은
+`<project>/.detail-page/learning/runs/<plan-id>.status.json`, 후보는
+`<project>/.detail-page/learning/candidates.md`다. 같은 plan은 현재 output hash가 같을 때만
 idempotent reuse한다. 실행 전 active `references/commercial.md`, `taste.md`,
 `motion.md`를 snapshot하고 실패·timeout·활성 파일 변조 시 정확한 bytes로
 rollback한다. PASS receipt를 intake에 연결한 뒤에도 sanitize→독립 review→
 promotion은 별도이며 사용자 승인 전 활성 규칙을 수정하지 않는다.
 
 마지막 문장의 사용자 승인 조건은 일반 project learning candidate에만 적용한다.
-검증된 `exps/` 블록은 위 standing authorization 예외를 적용한다.
+검증된 `<project>/.detail-page/exps/` 블록은 위 standing authorization 예외를 적용한다.
 
 ## 프로젝트 경계
 

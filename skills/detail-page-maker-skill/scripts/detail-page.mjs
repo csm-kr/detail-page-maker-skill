@@ -17,7 +17,6 @@ import {
 } from "./lib/project-manager.mjs";
 import {
   buildLearningStatus,
-  findWorkspaceRoot,
   renderLearningStatus,
 } from "./maintenance/learning-status.mjs";
 import {
@@ -217,9 +216,9 @@ Commands:
   worker-heartbeat --project <project-folder> --project-id <ID> --input-digest <SHA-256>
                    --agent-session <ID> --work-order <ID> --fencing-token <TOKEN> --attempt <N>
   worker-submit --project <project-folder> --work-order <ID> --result <JSON-file>
-  learning-status [--workspace <workspace 폴더>] [--json]
-  experience-init [--workspace <workspace 폴더>]
-  experience-sync [--workspace <workspace 폴더>] [--json]
+  learning-status --project <프로젝트 폴더> [--json]
+  experience-init --project <프로젝트 폴더>
+  experience-sync --project <프로젝트 폴더> [--json]
   reference-library [--primary <archetype-id>] [--secondary <archetype-id>]
   reference-profile --project <프로젝트 폴더>
                     [--reference <기준 HTML> --role <positive_reference|negative_reference|approved_exemplar>]
@@ -434,14 +433,23 @@ async function doctor() {
 }
 
 function commandWorkspaceRoot(args) {
-  return path.resolve(
-    args.workspace || findWorkspaceRoot(process.cwd()),
-  );
+  return args.workspace
+    ? path.resolve(args.workspace)
+    : resolveWorkspaceRoot({ skillRoot: CURRENT_SKILL_ROOT });
 }
 
-async function reconcileTrustedExperiences(args) {
+function commandProjectRoot(args, fallback = "") {
+  const target = args.project || fallback;
+  if (!String(target).trim()) {
+    throw new Error("이 명령에는 --project <프로젝트 폴더>가 필요합니다.");
+  }
+  return path.resolve(target);
+}
+
+// 산출물 폴더 규약: 경험 drop과 학습 receipt는 프로젝트 안에서만 다룬다.
+async function reconcileTrustedExperiences(projectRoot) {
   return syncTrustedExperiences({
-    workspaceRoot: commandWorkspaceRoot(args),
+    projectRoot: path.resolve(projectRoot),
     skillRoot: CURRENT_SKILL_ROOT,
   });
 }
@@ -496,20 +504,20 @@ async function main() {
   }
   if (command === "experience-init") {
     const output = await ensureExperienceDrop({
-      workspaceRoot: commandWorkspaceRoot(args),
+      projectRoot: commandProjectRoot(args),
     });
     console.log(JSON.stringify(output, null, 2));
     return;
   }
   if (command === "experience-sync") {
-    const output = await reconcileTrustedExperiences(args);
+    const output = await reconcileTrustedExperiences(commandProjectRoot(args));
     console.log(JSON.stringify(output, null, 2));
     if (output.quarantined > 0) process.exitCode = 2;
     return;
   }
   if (command === "learning-status") {
     const report = await buildLearningStatus({
-      workspaceRoot: commandWorkspaceRoot(args),
+      projectRoot: commandProjectRoot(args),
     });
     if (args.json === true) {
       console.log(JSON.stringify(report, null, 2));
@@ -703,7 +711,7 @@ async function main() {
     if (command === "workflow-status") {
       output = await engine.inspect(projectRef, inputOptions);
     } else if (command === "workflow-advance") {
-      const experienceSync = await reconcileTrustedExperiences(args);
+      const experienceSync = await reconcileTrustedExperiences(projectRoot);
       output = await engine.advance(projectRef, {
         until: args.until || "next_user_gate",
         ...inputOptions,
@@ -758,7 +766,7 @@ async function main() {
         output.experience_sync = experienceSync;
       }
     } else if (command === "workflow-resume") {
-      const experienceSync = await reconcileTrustedExperiences(args);
+      const experienceSync = await reconcileTrustedExperiences(projectRoot);
       output = await engine.resume(projectRef, {
         until: args.until || "next_user_gate",
         ...inputOptions,
@@ -888,13 +896,13 @@ async function main() {
         "new 명령에는 --name과 --supplier-url이 필요합니다.",
       );
     }
-    const experienceSync = await reconcileTrustedExperiences(args);
     const created = await createProject({
       name: args.name,
       supplierUrl: args["supplier-url"],
       root: args.root || defaultProjectsRoot(),
     });
     console.log(`Project created: ${created.projectRoot}`);
+    const experienceSync = await reconcileTrustedExperiences(created.projectRoot);
     console.log(
       `Experience sync: promoted=${experienceSync.promoted} reused=${experienceSync.reused} quarantined=${experienceSync.quarantined}`,
     );
@@ -914,7 +922,6 @@ async function main() {
         "adopt 명령에는 --project, --name, --supplier-url이 필요합니다.",
       );
     }
-    const experienceSync = await reconcileTrustedExperiences(args);
     const adopted = await adoptProject({
       projectRoot: args.project,
       name: args.name,
@@ -925,6 +932,7 @@ async function main() {
       htmlEntry: args["html-entry"] || "detail-page/index.html",
     });
     console.log(`Project adopted: ${adopted.projectRoot}`);
+    const experienceSync = await reconcileTrustedExperiences(adopted.projectRoot);
     console.log(
       `Experience sync: promoted=${experienceSync.promoted} reused=${experienceSync.reused} quarantined=${experienceSync.quarantined}`,
     );
@@ -934,7 +942,9 @@ async function main() {
     if (!args.project) {
       throw new Error("start 명령에는 --project 경로가 필요합니다.");
     }
-    const experienceSync = await reconcileTrustedExperiences(args);
+    const experienceSync = await reconcileTrustedExperiences(
+      commandProjectRoot(args),
+    );
     const started = await startStudioV1Server({
       projectRoot: path.resolve(args.project),
       port: Number(args.port || 8896),

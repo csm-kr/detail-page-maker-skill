@@ -126,7 +126,7 @@ session은 달라야 하며 실패한 motion과 실제 descendant만 다시 실�
 | MR-021 | 치수선·기능 콜아웃·방향 화살표는 승인 clean source의 God Tibo invariant 내부 가이드에 고대비 점만 표시하고 점 개수·좌표를 기계 추출한 뒤, 같은 크기의 clean source 위 SVG에 합성한다. 가이드는 공개 자산으로 쓰지 않는다. | source/guide 크기 일치, marker exact count, 좌표 receipt, clean-source first/mid/last 편차 2px 이하, public guide reference 0건 | 2026-08-11 |
 | MR-022 | 동작 화살표는 빈 배경이나 대략적 방향이 아니라 실제 물리 동작 시작점과 손·도구·결합부의 상호작용 끝점을 잇는다. 치수선은 실제 외곽의 축별 시작·끝점을 잇는다. | 각 점의 semantic role, origin/target 또는 axis endpoint 완결, arrowhead/measurement endpoint 편차 2px 이하 | 2026-08-11 |
 
-HeyGenFrame/HyperFrames 제작 run을 `exps/*.md`에 `frame-production`,
+HeyGenFrame/HyperFrames 제작 run을 `<project>/.detail-page/exps/*.md`에 `frame-production`,
 `promotion: auto`로 넣으면 strict frame-check PASS, 시작·중간·끝 근거,
 독립 reviewer를 통과한 일반화 규칙만 MR로 자동 반영한다. Studio 조작·레이아웃
 경험은 이 표가 아니라 `taste.md`의 TR로 분리한다.

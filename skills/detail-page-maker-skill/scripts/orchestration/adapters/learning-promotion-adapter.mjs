@@ -727,7 +727,7 @@ function learningStatusDigest(status) {
 async function currentState({
   promotionPlan,
   skillRoot,
-  workspaceRoot,
+  projectRoot,
 }) {
   const resolved = resolveReferencePath(
     skillRoot,
@@ -736,14 +736,14 @@ async function currentState({
   const reference = await readReference(resolved.absolute);
   const status = await buildLearningStatus({
     skillRoot: resolved.skill,
-    workspaceRoot: absolutePath(
-      workspaceRoot,
-      "workspace_root",
+    projectRoot: absolutePath(
+      projectRoot,
+      "project_root",
     ),
   });
   return {
     skill_root: resolved.skill,
-    workspace_root: path.resolve(workspaceRoot),
+    project_root: path.resolve(projectRoot),
     reference_path: resolved.absolute,
     target: resolved.target,
     active_reference_sha256: reference.sha256,
@@ -758,7 +758,7 @@ export async function inspectLearningPromotionState({
   promotionPlan,
   reviewReceipt,
   skillRoot,
-  workspaceRoot,
+  projectRoot,
 } = {}) {
   const validated = assertPromotionPlan(
     promotionPlan,
@@ -767,7 +767,7 @@ export async function inspectLearningPromotionState({
   const state = await currentState({
     promotionPlan,
     skillRoot,
-    workspaceRoot,
+    projectRoot,
   });
   const table = parseRuleTable(
     state.active_reference_text,
@@ -815,7 +815,7 @@ export async function createLearningPromotionChallenge({
   regressionEvidence,
   sanitizationContext,
   skillRoot,
-  workspaceRoot,
+  projectRoot,
   frozenActiveReferenceSha256,
   learningStatusBeforeSha256,
   nonce,
@@ -839,7 +839,7 @@ export async function createLearningPromotionChallenge({
   const state = await currentState({
     promotionPlan,
     skillRoot,
-    workspaceRoot,
+    projectRoot,
   });
   const expectedReferenceSha256 = hashValue(
     frozenActiveReferenceSha256,
@@ -1249,7 +1249,7 @@ export async function commitLearningPromotion({
   regressionEvidence,
   sanitizationContext,
   skillRoot,
-  workspaceRoot,
+  projectRoot,
 } = {}) {
   const validated = assertPromotionPlan(
     promotionPlan,
@@ -1279,20 +1279,20 @@ export async function commitLearningPromotion({
     challenge,
     reviewReceipt,
   );
-  const workspace = absolutePath(
-    workspaceRoot,
-    "workspace_root",
+  const project = absolutePath(
+    projectRoot,
+    "project_root",
   );
   const revisionRoot = path.join(
-    workspace,
-    ".workspace",
+    project,
+    ".detail-page",
     "learning-promotions",
   );
   await assertNonceUnused(revisionRoot, challenge);
   const state = await currentState({
     promotionPlan,
     skillRoot,
-    workspaceRoot: workspace,
+    projectRoot: project,
   });
   if (
     state.active_reference_sha256 !==
@@ -1449,7 +1449,7 @@ export async function commitLearningPromotion({
     activeReferenceChanged = true;
     const statusAfter = await buildLearningStatus({
       skillRoot: state.skill_root,
-      workspaceRoot: state.workspace_root,
+      projectRoot: state.project_root,
     });
     const statusAfterSha256 =
       learningStatusDigest(statusAfter);
@@ -1720,11 +1720,11 @@ export function createSourceArchivePlan({
 }
 
 export async function listLearningPromotionRevisions({
-  workspaceRoot,
+  projectRoot,
 } = {}) {
   const root = path.join(
-    absolutePath(workspaceRoot, "workspace_root"),
-    ".workspace",
+    absolutePath(projectRoot, "project_root"),
+    ".detail-page",
     "learning-promotions",
   );
   try {

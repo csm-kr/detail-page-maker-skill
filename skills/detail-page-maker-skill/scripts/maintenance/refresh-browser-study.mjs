@@ -144,7 +144,7 @@ print("__HYPERFRAMES_LEARNING_JSON__" + json.dumps(payload, ensure_ascii=False))
 
 function parseArgs(argv) {
   const parsed = {
-    workspace: process.cwd(),
+    project: "",
     kind: null,
     max: null,
   };
@@ -379,9 +379,18 @@ function renderHyperframes(payload, limit, time) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  const workspaceRoot = path.resolve(options.workspace);
+  if (!String(options.project || "").trim()) {
+    throw new Error("--project <프로젝트 폴더>가 필요합니다.");
+  }
+  const projectRoot = path.resolve(options.project);
   const track = options.kind === "behance" ? "behance" : "gif";
-  const learningRoot = path.join(workspaceRoot, ".workspace", "learning", track);
+  // 산출물 폴더 규약: 조사 산출물도 프로젝트 안에만 쌓는다.
+  const learningRoot = path.join(
+    projectRoot,
+    ".detail-page",
+    "learning",
+    track,
+  );
   const inboxPath = path.join(learningRoot, "inbox.md");
   const reviewedPath = path.join(learningRoot, "reviewed.md");
   const errorPath = path.join(learningRoot, "last-error.md");

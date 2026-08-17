@@ -113,10 +113,10 @@ function distillScript(mode) {
 function statusScript() {
   return [
     "const args = process.argv.slice(2);",
-    'const workspaceIndex = args.indexOf("--workspace");',
-    'if (workspaceIndex < 0 || !args.includes("--json")) throw new Error("fixed args missing");',
+    'const projectIndex = args.indexOf("--project");',
+    'if (projectIndex < 0 || !args.includes("--json")) throw new Error("fixed args missing");',
     "process.stdout.write(JSON.stringify({",
-    "  workspaceRoot: args[workspaceIndex + 1],",
+    "  projectRoot: args[projectIndex + 1],",
     "  counts: { distilledCandidates: 1 },",
     "  flows: { feedback: [\"intake\", \"sanitize\", \"review\", \"promotion\"] }",
     "}) + \"\\n\");",
@@ -129,12 +129,12 @@ function refreshBehanceScript() {
     'import { mkdirSync, writeFileSync } from "node:fs";',
     'import path from "node:path";',
     "const args = process.argv.slice(2);",
-    'const workspaceIndex = args.indexOf("--workspace");',
+    'const projectIndex = args.indexOf("--project");',
     'const kindIndex = args.indexOf("--kind");',
     'const maxIndex = args.indexOf("--max");',
-    'if (workspaceIndex < 0 || kindIndex < 0 || maxIndex < 0) throw new Error("fixed args missing");',
+    'if (projectIndex < 0 || kindIndex < 0 || maxIndex < 0) throw new Error("fixed args missing");',
     'const track = args[kindIndex + 1] === "behance" ? "behance" : "gif";',
-    'const learningRoot = path.join(args[workspaceIndex + 1], ".workspace", "learning", track);',
+    'const learningRoot = path.join(args[projectIndex + 1], ".detail-page", "learning", track);',
     "mkdirSync(learningRoot, { recursive: true });",
     'writeFileSync(path.join(learningRoot, "inbox.md"), "# fixture inbox");',
     'writeFileSync(path.join(learningRoot, "reviewed.md"), "### LEARN-BEHANCE-001");',
@@ -148,7 +148,7 @@ async function createFixture(mode = "success") {
     path.join(os.tmpdir(), "learning-execution-"),
   );
   const skillRoot = path.join(root, "skill");
-  const workspaceRoot = path.join(root, "workspace");
+  const projectRoot = path.join(root, "projects", "fixture-project");
   const maintenanceRoot = path.join(
     skillRoot,
     "scripts",
@@ -160,13 +160,7 @@ async function createFixture(mode = "success") {
       recursive: true,
     }),
     mkdir(
-      path.join(
-        workspaceRoot,
-        "projects",
-        "fixture-project",
-        ".detail-page",
-        "planning",
-      ),
+      path.join(projectRoot, ".detail-page", "planning"),
       { recursive: true },
     ),
   ]);
@@ -195,9 +189,7 @@ async function createFixture(mode = "success") {
     ),
     writeFile(
       path.join(
-        workspaceRoot,
-        "projects",
-        "fixture-project",
+        projectRoot,
         ".detail-page",
         "planning",
         "LEARNINGS.md",
@@ -214,10 +206,10 @@ async function createFixture(mode = "success") {
   return {
     root,
     skillRoot,
-    workspaceRoot,
+    projectRoot,
     runner: new LearningPipelineExecutionAdapter({
       skillRoot,
-      workspaceRoot,
+      projectRoot,
       timeoutMs: mode === "timeout" ? 100 : 5_000,
     }),
   };
@@ -492,8 +484,8 @@ test("성공 후 Markdown/status output drift는 idempotent reuse를 거부한�
   await fixture.runner.execute(plan);
   await writeFile(
     path.join(
-      fixture.workspaceRoot,
-      ".workspace",
+      fixture.projectRoot,
+      ".detail-page",
       "learning",
       "candidates.md",
     ),
@@ -512,9 +504,7 @@ test("plan 뒤 project learning input drift는 첫 spawn 전에 거부한다", a
   const { plan } = await planFixture(fixture);
   await writeFile(
     path.join(
-      fixture.workspaceRoot,
-      "projects",
-      "fixture-project",
+      fixture.projectRoot,
       ".detail-page",
       "planning",
       "LEARNINGS.md",
@@ -529,8 +519,8 @@ test("plan 뒤 project learning input drift는 첫 spawn 전에 거부한다", a
   assert.equal(
     await readFile(
       path.join(
-        fixture.workspaceRoot,
-        ".workspace",
+        fixture.projectRoot,
+        ".detail-page",
         "learning",
         "candidates.md",
       ),
@@ -541,17 +531,17 @@ test("plan 뒤 project learning input drift는 첫 spawn 전에 거부한다", a
 });
 
 test("production plan은 기존 refresh/distill/status maintenance scripts를 그대로 allowlist한다", async (t) => {
-  const workspaceRoot = await mkdtemp(
+  const projectRoot = await mkdtemp(
     path.join(os.tmpdir(), "learning-production-plan-"),
   );
   t.after(() =>
-    rm(workspaceRoot, { recursive: true, force: true }),
+    rm(projectRoot, { recursive: true, force: true }),
   );
   const learning = pipeline();
   const captured = learning.intake(candidate("behance"));
   const runner = new LearningPipelineExecutionAdapter({
     skillRoot: PROJECT_SKILL_ROOT,
-    workspaceRoot,
+    projectRoot,
   });
   const plan = await runner.plan(captured, {
     executorAgentSessionId: "production-maintenance-executor",

@@ -75,9 +75,9 @@ test("exps의 완성·리서치·frame 경험을 TR/CR/MR로 자동 승격하고
     const evidenceHashes = evidence
       .map((item) => item.sha256)
       .join("; ");
-    await mkdir(path.join(root, "exps"), { recursive: true });
+    await mkdir(path.join(root, ".detail-page", "exps"), { recursive: true });
     await writeFile(
-      path.join(root, "exps", "verified-experience.md"),
+      path.join(root, ".detail-page", "exps", "verified-experience.md"),
       `# Verified experiences
 
 ## EXP-COMPLETED-001
@@ -154,7 +154,7 @@ test("exps의 완성·리서치·frame 경험을 TR/CR/MR로 자동 승격하고
     );
 
     const first = await syncTrustedExperiences({
-      workspaceRoot: root,
+      projectRoot: root,
       skillRoot: skill,
     });
     assert.equal(first.promoted, 3);
@@ -176,7 +176,7 @@ test("exps의 완성·리서치·frame 경험을 TR/CR/MR로 자동 승격하고
     );
 
     const second = await syncTrustedExperiences({
-      workspaceRoot: root,
+      projectRoot: root,
       skillRoot: skill,
     });
     assert.equal(second.promoted, 0);
@@ -208,9 +208,9 @@ test("고유 URL이 남은 경험은 active reference를 바꾸지 않고 격리
       path.join(root, evidenceRelative),
       evidenceBytes,
     );
-    await mkdir(path.join(root, "exps"), { recursive: true });
+    await mkdir(path.join(root, ".detail-page", "exps"), { recursive: true });
     await writeFile(
-      path.join(root, "exps", "unsafe.md"),
+      path.join(root, ".detail-page", "exps", "unsafe.md"),
       `## EXP-UNSAFE-001
 
 - \`source_kind\`: user-feedback
@@ -233,7 +233,7 @@ test("고유 URL이 남은 경험은 active reference를 바꾸지 않고 격리
       path.join(skill, "references", "taste.md"),
     );
     const report = await syncTrustedExperiences({
-      workspaceRoot: root,
+      projectRoot: root,
       skillRoot: skill,
     });
     const after = await readFile(
