@@ -9,6 +9,19 @@ description: 공급처 URL에서 근거를 수집해 쿠팡 1초 전달형 판�
 `policies/detail-page-flow-v1.json`, 실행 순서·산출물 연결·검증·승인은
 persistent Orchestrator가 강제한다.
 
+## 시작 전 인터뷰
+
+새 제작 요청은 [`references/interview.md`](references/interview.md)의 인터뷰부터
+끝낸다. 공급처 URL, 쿠팡 URL, 실제 사진, 브랜드명, 제품명, 추가 의견 6항목을
+받아 `brief`로 검증하고, 통과한 값만으로 제작 프롬프트 하나를 만든다. 사용자가
+그 프롬프트를 한 번 확인하면 그것을 이 run의 지시로 삼아 아래 실행 순서로
+들어간다. 인터뷰를 건너뛰거나 프롬프트를 손으로 적어 G0을 시작하지 않는다.
+
+```sh
+node scripts/detail-page.mjs brief --input "<brief.json>" --json
+node scripts/detail-page.mjs brief --input "<brief.json>" --output "<prompt.md>"
+```
+
 ## 실행
 
 1. 항상 [`references/content-contract.md`](references/content-contract.md)와
@@ -61,6 +74,7 @@ node scripts/detail-page.mjs performance-profile --trace "<trace.json>"
 
 | 작업 | 읽을 문서 |
 | --- | --- |
+| 시작 전 인터뷰·브리프 프롬프트 | [`interview.md`](references/interview.md) |
 | 고정 판매 흐름·입출력·공개 형식 | [`content-contract.md`](references/content-contract.md) |
 | 완주 run 실행 순서·실패 대응·검수 방식·작업 로그 | [`build-flow.md`](references/build-flow.md) |
 | 공급처 근거·실제품·권리·SSOT | [`evidence.md`](references/evidence.md) |

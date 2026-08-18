@@ -1,11 +1,19 @@
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   existsSync,
+  mkdirSync,
   readFileSync,
   readdirSync,
+  writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import {
+  BRIEF_FIELDS,
+  renderBriefPrompt,
+  validateBrief,
+} from "./lib/brief-prompt.mjs";
 import {
   adoptProject,
   createProject,
@@ -197,6 +205,8 @@ function printHelp() {
 
 Commands:
   doctor
+  brief --input <brief.json|JSON> [--output <prompt.md>] [--workspace <workspace 폴더>]
+        [--install-section <auto|include|omit>] [--json]
   agent-capacity [--worker-capacity <N|auto>] [--worker-sessions <ID[,ID]>]
                  [--workspace <workspace-folder>]
   intake --project <project-folder> [--file <name[,name]>] [--dry-run] [--json]
@@ -491,6 +501,118 @@ async function reconcileTrustedExperiences(projectRoot) {
   });
 }
 
+// 인터뷰 6항목을 검증하고 제작 프롬프트 하나로 굳힌다. 통과 못 하면 프롬프트를
+// 만들지 않고 다시 물어볼 항목만 돌려준다.
+async function commandBrief(args) {
+  if (!args.input || args.input === true) {
+    throw new Error(
+      "brief 명령에는 --input <brief.json|JSON>이 필요합니다. 인터뷰 6항목을 먼저 받아 적으세요.",
+    );
+  }
+  const report = validateBrief(readJsonArgument(args.input, "Brief"));
+  const issues = [...report.issues];
+
+  const workspaceRoot = commandWorkspaceRoot(args);
+  const photos = report.brief.photos;
+  if (photos) {
+    const resolved = path.isAbsolute(photos)
+      ? photos
+      : path.join(workspaceRoot, photos);
+    if (!existsSync(resolved)) {
+      issues.push({
+        key: "photos",
+        code: "photos_not_found",
+        question: `실제 사진 "${photos}"를 ${workspaceRoot}에서 못 찾았습니다. 경로를 다시 확인하거나 "없음"으로 답하세요.`,
+      });
+    }
+  }
+
+  const mode = String(args["install-section"] || "auto");
+  let installSection = mode === "include";
+  if (mode === "auto") {
+    const closure = await inspectDependencyClosure(CURRENT_SKILL_ROOT).catch(
+      () => ({ ok: false }),
+    );
+    installSection = !closure.ok;
+  } else if (mode !== "include" && mode !== "omit") {
+    throw new Error("--install-section 값은 auto, include, omit 중 하나입니다.");
+  }
+
+  const ok = report.missing.length === 0 && issues.length === 0;
+  const followups = [
+    ...report.followups,
+    ...issues.map((issue) => ({ key: issue.key, question: issue.question })),
+  ];
+  if (!ok) {
+    process.exitCode = 1;
+    if (args.json) {
+      console.log(
+        JSON.stringify(
+          {
+            ok: false,
+            install_section: installSection,
+            output: null,
+            prompt_sha256: null,
+            missing: report.missing,
+            issues,
+            notices: report.notices,
+            followups,
+          },
+          null,
+          2,
+        ),
+      );
+      return;
+    }
+    console.log("인터뷰가 끝나지 않았습니다. 아래 항목을 다시 받아야 합니다.");
+    for (const followup of followups) {
+      const label =
+        BRIEF_FIELDS.find((field) => field.key === followup.key)?.label ||
+        followup.key;
+      console.log(`  - ${label}: ${followup.question}`);
+    }
+    return;
+  }
+
+  const prompt = renderBriefPrompt(report.brief, { installed: !installSection });
+  const promptSha256 = createHash("sha256").update(prompt, "utf8").digest("hex");
+  let outputPath = null;
+  if (args.output && args.output !== true) {
+    outputPath = path.resolve(args.output);
+    mkdirSync(path.dirname(outputPath), { recursive: true });
+    writeFileSync(outputPath, prompt, "utf8");
+  }
+
+  if (args.json) {
+    console.log(
+      JSON.stringify(
+        {
+          ok: true,
+          install_section: installSection,
+          output: outputPath,
+          prompt_sha256: promptSha256,
+          missing: [],
+          issues: [],
+          notices: report.notices,
+          followups: [],
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+  for (const notice of report.notices) {
+    console.log(`알림: ${notice.message}`);
+  }
+  if (outputPath) {
+    console.log(`프롬프트: ${outputPath}`);
+    console.log(`sha256: ${promptSha256}`);
+    return;
+  }
+  console.log(prompt);
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const command = args._[0] || "help";
@@ -500,6 +622,10 @@ async function main() {
   }
   if (command === "doctor") {
     await doctor();
+    return;
+  }
+  if (command === "brief") {
+    await commandBrief(args);
     return;
   }
   if (command === "agent-capacity") {
